@@ -89,14 +89,8 @@ checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 name = "gen-lsp-types"
 version = "0.1.0"
 dependencies = [
- "prettyplease",
- "proc-macro2",
- "quote",
  "serde",
  "serde_json",
- "syn",
- "typify",
- "ureq",
 ]
 
 [[package]]
@@ -606,6 +600,20 @@ name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
+
+[[package]]
+name = "xtask"
+version = "0.1.0"
+dependencies = [
+ "prettyplease",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "syn",
+ "typify",
+ "ureq",
+]
 
 [[package]]
 name = "zeroize"

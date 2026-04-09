@@ -34,7 +34,7 @@ fn main() {
     let model: schema::MetaModel = serde_json::from_str(&body).unwrap();
 
     println!(
-        "Generating types for LSP version {} 🌟",
+        "Generating types for LSP version {}...",
         model.meta_data.version
     );
 
@@ -159,4 +159,6 @@ fn main() {
         .collect();
 
     fs::write("src/generated.rs", formatted_items.join("\n")).unwrap();
+
+    println!("Generation complete! 🌟");
 }

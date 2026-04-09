@@ -1,0 +1,14 @@
+[package]
+name = "xtask"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+prettyplease = "0.2.37"
+proc-macro2 = "1.0.106"
+quote = "1.0.45"
+serde = { workspace = true }
+serde_json = { workspace = true }
+syn = "2.0.117"
+typify = "0.6.1"
+ureq = "3.3.0"
