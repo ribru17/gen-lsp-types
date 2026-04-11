@@ -4,7 +4,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ImplementationParams {}
+pub struct ImplementationParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// Represents a location inside a resource, such as a line
 /// inside a text file.
@@ -17,15 +24,36 @@ pub struct Location {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ImplementationRegistrationOptions {}
+pub struct ImplementationRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub implementation_options: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeDefinitionParams {}
+pub struct TypeDefinitionParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeDefinitionRegistrationOptions {}
+pub struct TypeDefinitionRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub type_definition_options: i32,
+}
 
 /// A workspace folder inside a client.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -59,6 +87,10 @@ pub struct ConfigurationParams {
 pub struct DocumentColorParams {
     /// The text document.
     pub text_document: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Represents a color range from a document.
@@ -73,7 +105,14 @@ pub struct ColorInformation {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentColorRegistrationOptions {}
+pub struct DocumentColorRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_color_options: i32,
+}
 
 /// Parameters for a {@link ColorPresentationRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -85,6 +124,10 @@ pub struct ColorPresentationParams {
     pub color: i32,
     /// The range where the color would be inserted. Serves as a context.
     pub range: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -127,6 +170,10 @@ pub struct TextDocumentRegistrationOptions {
 pub struct FoldingRangeParams {
     /// The text document.
     pub text_document: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Represents a folding range. To be valid, start and end line must be bigger than zero and smaller
@@ -162,15 +209,36 @@ pub struct FoldingRange {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct FoldingRangeRegistrationOptions {}
+pub struct FoldingRangeRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub folding_range_options: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DeclarationParams {}
+pub struct DeclarationParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DeclarationRegistrationOptions {}
+pub struct DeclarationRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub declaration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+}
 
 /// A parameter literal used in selection range requests.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -180,6 +248,10 @@ pub struct SelectionRangeParams {
     pub text_document: i32,
     /// The positions inside the text document.
     pub positions: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A selection range represents a part of a selection hierarchy. A selection range
@@ -196,7 +268,14 @@ pub struct SelectionRange {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SelectionRangeRegistrationOptions {}
+pub struct SelectionRangeRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub selection_range_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -217,7 +296,12 @@ pub struct WorkDoneProgressCancelParams {
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CallHierarchyPrepareParams {}
+pub struct CallHierarchyPrepareParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// Represents programming constructs like functions or constructors in the context
 /// of call hierarchy.
@@ -254,7 +338,14 @@ pub struct CallHierarchyItem {
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CallHierarchyRegistrationOptions {}
+pub struct CallHierarchyRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub call_hierarchy_options: i32,
+}
 
 /// The parameter of a `callHierarchy/incomingCalls` request.
 ///
@@ -263,6 +354,10 @@ pub struct CallHierarchyRegistrationOptions {}
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyIncomingCallsParams {
     pub item: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Represents an incoming call, e.g. a caller of a method or constructor.
@@ -285,6 +380,10 @@ pub struct CallHierarchyIncomingCall {
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyOutgoingCallsParams {
     pub item: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Represents an outgoing call, e.g. calling a getter from a method or a method from a constructor etc.
@@ -307,6 +406,10 @@ pub struct CallHierarchyOutgoingCall {
 pub struct SemanticTokensParams {
     /// The text document.
     pub text_document: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// @since 3.16.0
@@ -333,7 +436,14 @@ pub struct SemanticTokensPartialResult {
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SemanticTokensRegistrationOptions {}
+pub struct SemanticTokensRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub semantic_tokens_options: i32,
+}
 
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -344,6 +454,10 @@ pub struct SemanticTokensDeltaParams {
     /// The result id of a previous response. The result Id can either point to a full response
     /// or a delta response depending on what was received last.
     pub previous_result_id: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// @since 3.16.0
@@ -371,6 +485,10 @@ pub struct SemanticTokensRangeParams {
     pub text_document: i32,
     /// The range the semantic tokens are requested for.
     pub range: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Params to show a resource in the UI.
@@ -412,7 +530,12 @@ pub struct ShowDocumentResult {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct LinkedEditingRangeParams {}
+pub struct LinkedEditingRangeParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// The result of a linked editing range request.
 ///
@@ -432,7 +555,14 @@ pub struct LinkedEditingRanges {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct LinkedEditingRangeRegistrationOptions {}
+pub struct LinkedEditingRangeRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub linked_editing_range_options: i32,
+}
 
 /// The parameters sent in notifications/requests for user-initiated creation of
 /// files.
@@ -520,7 +650,14 @@ pub struct DeleteFilesParams {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct MonikerParams {}
+pub struct MonikerParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// Moniker definition to match LSIF 0.5 moniker definition.
 ///
@@ -542,14 +679,24 @@ pub struct Moniker {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct MonikerRegistrationOptions {}
+pub struct MonikerRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub moniker_options: i32,
+}
 
 /// The parameter of a `textDocument/prepareTypeHierarchy` request.
 ///
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeHierarchyPrepareParams {}
+pub struct TypeHierarchyPrepareParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -587,7 +734,14 @@ pub struct TypeHierarchyItem {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeHierarchyRegistrationOptions {}
+pub struct TypeHierarchyRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub type_hierarchy_options: i32,
+}
 
 /// The parameter of a `typeHierarchy/supertypes` request.
 ///
@@ -596,6 +750,10 @@ pub struct TypeHierarchyRegistrationOptions {}
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchySupertypesParams {
     pub item: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// The parameter of a `typeHierarchy/subtypes` request.
@@ -605,6 +763,10 @@ pub struct TypeHierarchySupertypesParams {
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchySubtypesParams {
     pub item: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A parameter literal used in inline value requests.
@@ -620,6 +782,8 @@ pub struct InlineValueParams {
     /// Additional information about the context in which inline values were
     /// requested.
     pub context: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 /// Inline value options used during static or dynamic registration.
@@ -627,7 +791,14 @@ pub struct InlineValueParams {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct InlineValueRegistrationOptions {}
+pub struct InlineValueRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub inline_value_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+}
 
 /// A parameter literal used in inlay hint requests.
 ///
@@ -639,6 +810,8 @@ pub struct InlayHintParams {
     pub text_document: i32,
     /// The document range for which inlay hints should be computed.
     pub range: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 /// Inlay hint information.
@@ -696,7 +869,14 @@ pub struct InlayHint {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct InlayHintRegistrationOptions {}
+pub struct InlayHintRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub inlay_hint_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+}
 
 /// Parameters of the document diagnostic request.
 ///
@@ -712,6 +892,10 @@ pub struct DocumentDiagnosticParams {
     /// The result id of a previous response if provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub previous_result_id: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A partial result for a document diagnostic report.
@@ -737,7 +921,14 @@ pub struct DiagnosticServerCancellationData {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DiagnosticRegistrationOptions {}
+pub struct DiagnosticRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub diagnostic_options: i32,
+}
 
 /// Parameters of the workspace diagnostic request.
 ///
@@ -751,6 +942,10 @@ pub struct WorkspaceDiagnosticParams {
     /// The currently known diagnostic reports with their
     /// previous result ids.
     pub previous_result_ids: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A workspace diagnostic report.
@@ -789,7 +984,12 @@ pub struct DidOpenNotebookDocumentParams {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct NotebookDocumentSyncRegistrationOptions {}
+pub struct NotebookDocumentSyncRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub notebook_document_sync_options: i32,
+}
 
 /// The params sent in a change notebook document notification.
 ///
@@ -851,6 +1051,10 @@ pub struct InlineCompletionParams {
     /// Additional information about the context in which inline completions were
     /// requested.
     pub context: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
 }
 
 /// Represents a collection of {@link InlineCompletionItem inline completion items} to be presented in the editor.
@@ -890,7 +1094,14 @@ pub struct InlineCompletionItem {
 /// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct InlineCompletionRegistrationOptions {}
+pub struct InlineCompletionRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub inline_completion_options: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+}
 
 /// Parameters for the `workspace/textDocumentContent` request.
 ///
@@ -923,7 +1134,12 @@ pub struct TextDocumentContentResult {
 /// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TextDocumentContentRegistrationOptions {}
+pub struct TextDocumentContentRegistrationOptions {
+    #[serde(flatten)]
+    pub static_registration_options: i32,
+    #[serde(flatten)]
+    pub text_document_content_options: i32,
+}
 
 /// Parameters for the `workspace/textDocumentContent/refresh` request.
 ///
@@ -950,7 +1166,12 @@ pub struct UnregistrationParams {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct InitializeParams {}
+pub struct InitializeParams {
+    #[serde(flatten)]
+    pub __initialize_params: i32,
+    #[serde(flatten)]
+    pub workspace_folders_initialize_params: i32,
+}
 
 /// The result returned from an initialize request.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1074,6 +1295,8 @@ pub struct DidChangeTextDocumentParams {
 pub struct TextDocumentChangeRegistrationOptions {
     /// How documents are synced to the server.
     pub sync_kind: i32,
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
 }
 
 /// The parameters sent in a close text document notification
@@ -1099,7 +1322,12 @@ pub struct DidSaveTextDocumentParams {
 /// Save registration options.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TextDocumentSaveRegistrationOptions {}
+pub struct TextDocumentSaveRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub save_options: i32,
+}
 
 /// The parameters sent in a will save text document notification.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1162,6 +1390,12 @@ pub struct CompletionParams {
     /// to send this using the client capability `textDocument.completion.contextSupport === true`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
 }
 
 /// A completion item represents a text snippet that is
@@ -1360,12 +1594,22 @@ pub struct CompletionList {
 /// Registration options for a {@link CompletionRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CompletionRegistrationOptions {}
+pub struct CompletionRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub completion_options: i32,
+}
 
 /// Parameters for a {@link HoverRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct HoverParams {}
+pub struct HoverParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// The result of a hover request.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1382,7 +1626,12 @@ pub struct Hover {
 /// Registration options for a {@link HoverRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct HoverRegistrationOptions {}
+pub struct HoverRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub hover_options: i32,
+}
 
 /// Parameters for a {@link SignatureHelpRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1394,6 +1643,10 @@ pub struct SignatureHelpParams {
     /// @since 3.15.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub context: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
 }
 
 /// Signature help represents the signature of something
@@ -1438,34 +1691,69 @@ pub struct SignatureHelp {
 /// Registration options for a {@link SignatureHelpRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SignatureHelpRegistrationOptions {}
+pub struct SignatureHelpRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub signature_help_options: i32,
+}
 
 /// Parameters for a {@link DefinitionRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DefinitionParams {}
+pub struct DefinitionParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// Registration options for a {@link DefinitionRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DefinitionRegistrationOptions {}
+pub struct DefinitionRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub definition_options: i32,
+}
 
 /// Parameters for a {@link ReferencesRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceParams {
     pub context: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
 }
 
 /// Registration options for a {@link ReferencesRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ReferenceRegistrationOptions {}
+pub struct ReferenceRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub reference_options: i32,
+}
 
 /// Parameters for a {@link DocumentHighlightRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentHighlightParams {}
+pub struct DocumentHighlightParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// A document highlight is a range inside a text document which deserves
 /// special attention. Usually a document highlight is visualized by changing
@@ -1483,7 +1771,12 @@ pub struct DocumentHighlight {
 /// Registration options for a {@link DocumentHighlightRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentHighlightRegistrationOptions {}
+pub struct DocumentHighlightRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_highlight_options: i32,
+}
 
 /// Parameters for a {@link DocumentSymbolRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1491,6 +1784,10 @@ pub struct DocumentHighlightRegistrationOptions {}
 pub struct DocumentSymbolParams {
     /// The text document.
     pub text_document: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Represents information about programming constructs like variables, classes,
@@ -1514,6 +1811,8 @@ pub struct SymbolInformation {
     /// syntax tree. It can therefore not be used to re-construct a hierarchy of
     /// the symbols.
     pub location: i32,
+    #[serde(flatten)]
+    pub base_symbol_information: i32,
 }
 
 /// Represents programming constructs like variables, classes, interfaces etc.
@@ -1557,7 +1856,12 @@ pub struct DocumentSymbol {
 /// Registration options for a {@link DocumentSymbolRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentSymbolRegistrationOptions {}
+pub struct DocumentSymbolRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_symbol_options: i32,
+}
 
 /// The parameters of a {@link CodeActionRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1569,6 +1873,10 @@ pub struct CodeActionParams {
     pub range: i32,
     /// Context carrying additional information.
     pub context: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// Represents a reference to a command. Provides a title which
@@ -1661,7 +1969,12 @@ pub struct CodeAction {
 /// Registration options for a {@link CodeActionRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CodeActionRegistrationOptions {}
+pub struct CodeActionRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub code_action_options: i32,
+}
 
 /// The parameters of a {@link WorkspaceSymbolRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1676,6 +1989,10 @@ pub struct WorkspaceSymbolParams {
     /// characters of *query* appear in their order in a candidate symbol.
     /// Servers shouldn't use prefix, substring, or similar strict matching.
     pub query: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A special workspace symbol that supports locations without a range.
@@ -1696,12 +2013,17 @@ pub struct WorkspaceSymbol {
     /// workspace symbol request and a workspace symbol resolve request.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<i32>,
+    #[serde(flatten)]
+    pub base_symbol_information: i32,
 }
 
 /// Registration options for a {@link WorkspaceSymbolRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct WorkspaceSymbolRegistrationOptions {}
+pub struct WorkspaceSymbolRegistrationOptions {
+    #[serde(flatten)]
+    pub workspace_symbol_options: i32,
+}
 
 /// The parameters of a {@link CodeLensRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1709,6 +2031,10 @@ pub struct WorkspaceSymbolRegistrationOptions {}
 pub struct CodeLensParams {
     /// The document to request code lens for.
     pub text_document: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A code lens represents a {@link Command command} that should be shown along with
@@ -1733,7 +2059,12 @@ pub struct CodeLens {
 /// Registration options for a {@link CodeLensRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CodeLensRegistrationOptions {}
+pub struct CodeLensRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub code_lens_options: i32,
+}
 
 /// The parameters of a {@link DocumentLinkRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1741,6 +2072,10 @@ pub struct CodeLensRegistrationOptions {}
 pub struct DocumentLinkParams {
     /// The document to provide document links for.
     pub text_document: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub partial_result_params: i32,
 }
 
 /// A document link is a range in a text document that links to an internal or external resource, like another
@@ -1771,7 +2106,12 @@ pub struct DocumentLink {
 /// Registration options for a {@link DocumentLinkRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentLinkRegistrationOptions {}
+pub struct DocumentLinkRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_link_options: i32,
+}
 
 /// The parameters of a {@link DocumentFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1781,12 +2121,19 @@ pub struct DocumentFormattingParams {
     pub text_document: i32,
     /// The format options.
     pub options: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 /// Registration options for a {@link DocumentFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentFormattingRegistrationOptions {}
+pub struct DocumentFormattingRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_formatting_options: i32,
+}
 
 /// The parameters of a {@link DocumentRangeFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1798,12 +2145,19 @@ pub struct DocumentRangeFormattingParams {
     pub range: i32,
     /// The format options
     pub options: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 /// Registration options for a {@link DocumentRangeFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentRangeFormattingRegistrationOptions {}
+pub struct DocumentRangeFormattingRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_range_formatting_options: i32,
+}
 
 /// The parameters of a {@link DocumentRangesFormattingRequest}.
 ///
@@ -1818,6 +2172,8 @@ pub struct DocumentRangesFormattingParams {
     pub ranges: i32,
     /// The format options
     pub options: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 /// The parameters of a {@link DocumentOnTypeFormattingRequest}.
@@ -1842,7 +2198,12 @@ pub struct DocumentOnTypeFormattingParams {
 /// Registration options for a {@link DocumentOnTypeFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentOnTypeFormattingRegistrationOptions {}
+pub struct DocumentOnTypeFormattingRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub document_on_type_formatting_options: i32,
+}
 
 /// The parameters of a {@link RenameRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1852,16 +2213,30 @@ pub struct RenameParams {
     /// request must return a {@link ResponseError} with an
     /// appropriate message set.
     pub new_name: i32,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
 }
 
 /// Registration options for a {@link RenameRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct RenameRegistrationOptions {}
+pub struct RenameRegistrationOptions {
+    #[serde(flatten)]
+    pub text_document_registration_options: i32,
+    #[serde(flatten)]
+    pub rename_options: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct PrepareRenameParams {}
+pub struct PrepareRenameParams {
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
+    #[serde(flatten)]
+    pub text_document_position_params: i32,
+}
 
 /// The parameters of a {@link ExecuteCommandRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -1872,12 +2247,17 @@ pub struct ExecuteCommandParams {
     /// Arguments that the command should be invoked with.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arguments: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 /// Registration options for a {@link ExecuteCommandRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ExecuteCommandRegistrationOptions {}
+pub struct ExecuteCommandRegistrationOptions {
+    #[serde(flatten)]
+    pub execute_command_options: i32,
+}
 
 /// The parameters passed via an apply workspace edit request.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -2088,7 +2468,10 @@ pub struct Range {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ImplementationOptions {}
+pub struct ImplementationOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Static registration options to be returned in the initialize
 /// request.
@@ -2103,7 +2486,10 @@ pub struct StaticRegistrationOptions {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeDefinitionOptions {}
+pub struct TypeDefinitionOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// The workspace folder change event.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -2150,15 +2536,24 @@ pub struct Color {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentColorOptions {}
+pub struct DocumentColorOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct FoldingRangeOptions {}
+pub struct FoldingRangeOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DeclarationOptions {}
+pub struct DeclarationOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Position in a text document expressed as zero-based line and character
 /// offset. Prior to 3.17 the offsets were always based on a UTF-16 string
@@ -2201,14 +2596,20 @@ pub struct Position {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SelectionRangeOptions {}
+pub struct SelectionRangeOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Call hierarchy options used during static registration.
 ///
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CallHierarchyOptions {}
+pub struct CallHierarchyOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -2223,6 +2624,8 @@ pub struct SemanticTokensOptions {
     /// Server supports providing semantic tokens for a full document.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub full: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// @since 3.16.0
@@ -2240,7 +2643,10 @@ pub struct SemanticTokensEdit {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct LinkedEditingRangeOptions {}
+pub struct LinkedEditingRangeOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Represents information on a file/folder create.
 ///
@@ -2282,6 +2688,8 @@ pub struct CreateFile {
     /// Additional options
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<i32>,
+    #[serde(flatten)]
+    pub resource_operation: i32,
 }
 
 /// Rename file operation
@@ -2297,6 +2705,8 @@ pub struct RenameFile {
     /// Rename options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<i32>,
+    #[serde(flatten)]
+    pub resource_operation: i32,
 }
 
 /// Delete file operation
@@ -2310,6 +2720,8 @@ pub struct DeleteFile {
     /// Delete options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<i32>,
+    #[serde(flatten)]
+    pub resource_operation: i32,
 }
 
 /// Additional information that describes document changes.
@@ -2369,14 +2781,20 @@ pub struct FileDelete {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct MonikerOptions {}
+pub struct MonikerOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Type hierarchy options used during static registration.
 ///
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct TypeHierarchyOptions {}
+pub struct TypeHierarchyOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -2440,7 +2858,10 @@ pub struct InlineValueEvaluatableExpression {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct InlineValueOptions {}
+pub struct InlineValueOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// An inlay hint label part allows for interactive and composite labels
 /// of inlay hints.
@@ -2518,6 +2939,8 @@ pub struct InlayHintOptions {
     /// information for an inlay hint item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolve_provider: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// A full diagnostic report with a set of related documents.
@@ -2535,6 +2958,8 @@ pub struct RelatedFullDocumentDiagnosticReport {
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_documents: Option<i32>,
+    #[serde(flatten)]
+    pub full_document_diagnostic_report: i32,
 }
 
 /// An unchanged diagnostic report with a set of related documents.
@@ -2552,6 +2977,8 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_documents: Option<i32>,
+    #[serde(flatten)]
+    pub unchanged_document_diagnostic_report: i32,
 }
 
 /// A diagnostic report with a full set of problems.
@@ -2605,6 +3032,8 @@ pub struct DiagnosticOptions {
     pub inter_file_dependencies: i32,
     /// The server provides support for workspace diagnostics as well.
     pub workspace_diagnostics: i32,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// A previous result id in a workspace pull request.
@@ -2760,7 +3189,10 @@ pub struct StringValue {
 /// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct InlineCompletionOptions {}
+pub struct InlineCompletionOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Text document content provider options.
 ///
@@ -2845,6 +3277,8 @@ pub struct _InitializeParams {
     /// The initial trace setting. If omitted trace is disabled ('off').
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trace: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_params: i32,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -3031,6 +3465,8 @@ pub struct ServerInfo {
 pub struct VersionedTextDocumentIdentifier {
     /// The version number of this document.
     pub version: i32,
+    #[serde(flatten)]
+    pub text_document_identifier: i32,
 }
 
 /// Save options.
@@ -3296,12 +3732,17 @@ pub struct CompletionOptions {
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completion_item: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Hover options.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct HoverOptions {}
+pub struct HoverOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Additional information about the context in which a signature help request was triggered.
 ///
@@ -3375,12 +3816,17 @@ pub struct SignatureHelpOptions {
     /// @since 3.15.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub retrigger_characters: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Server Capabilities for a {@link DefinitionRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DefinitionOptions {}
+pub struct DefinitionOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Value-object that contains additional information when
 /// requesting references.
@@ -3394,12 +3840,18 @@ pub struct ReferenceContext {
 /// Reference options.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ReferenceOptions {}
+pub struct ReferenceOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Provider options for a {@link DocumentHighlightRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentHighlightOptions {}
+pub struct DocumentHighlightOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// A base for all symbol information.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -3432,6 +3884,8 @@ pub struct DocumentSymbolOptions {
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Contains additional diagnostic information about the context in which
@@ -3503,6 +3957,8 @@ pub struct CodeActionOptions {
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolve_provider: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Location with only uri and does not include range.
@@ -3524,6 +3980,8 @@ pub struct WorkspaceSymbolOptions {
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolve_provider: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Code Lens provider options of a {@link CodeLensRequest}.
@@ -3533,6 +3991,8 @@ pub struct CodeLensOptions {
     /// Code lens has a resolve provider as well.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolve_provider: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Provider options for a {@link DocumentLinkRequest}.
@@ -3542,6 +4002,8 @@ pub struct DocumentLinkOptions {
     /// Document links have a resolve provider as well.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resolve_provider: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Value-object describing what options formatting should use.
@@ -3572,7 +4034,10 @@ pub struct FormattingOptions {
 /// Provider options for a {@link DocumentFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentFormattingOptions {}
+pub struct DocumentFormattingOptions {
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
+}
 
 /// Provider options for a {@link DocumentRangeFormattingRequest}.
 #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
@@ -3584,6 +4049,8 @@ pub struct DocumentRangeFormattingOptions {
     /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ranges_support: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Provider options for a {@link DocumentOnTypeFormattingRequest}.
@@ -3606,6 +4073,8 @@ pub struct RenameOptions {
     /// @since version 3.12.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prepare_provider: Option<i32>,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// @since 3.18.0
@@ -3629,6 +4098,8 @@ pub struct PrepareRenameDefaultBehavior {
 pub struct ExecuteCommandOptions {
     /// The commands to be executed on the server
     pub commands: i32,
+    #[serde(flatten)]
+    pub work_done_progress_options: i32,
 }
 
 /// Additional data about a workspace edit.
@@ -3674,6 +4145,8 @@ pub struct OptionalVersionedTextDocumentIdentifier {
     /// `null` to indicate that the version is unknown and the content on disk is the
     /// truth (as specified with document content ownership).
     pub version: i32,
+    #[serde(flatten)]
+    pub text_document_identifier: i32,
 }
 
 /// A special text edit with an additional change annotation.
@@ -3684,6 +4157,8 @@ pub struct OptionalVersionedTextDocumentIdentifier {
 pub struct AnnotatedTextEdit {
     /// The actual identifier of the change annotation
     pub annotation_id: i32,
+    #[serde(flatten)]
+    pub text_edit: i32,
 }
 
 /// An interactive text edit.
@@ -3787,6 +4262,8 @@ pub struct WorkspaceFullDocumentDiagnosticReport {
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
     pub version: i32,
+    #[serde(flatten)]
+    pub full_document_diagnostic_report: i32,
 }
 
 /// An unchanged document diagnostic report for a workspace diagnostic result.
@@ -3800,6 +4277,8 @@ pub struct WorkspaceUnchangedDocumentDiagnosticReport {
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
     pub version: i32,
+    #[serde(flatten)]
+    pub unchanged_document_diagnostic_report: i32,
 }
 
 /// A notebook cell.
@@ -5328,6 +5807,8 @@ pub struct PublishDiagnosticsClientCapabilities {
     /// @since 3.15.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version_support: Option<i32>,
+    #[serde(flatten)]
+    pub diagnostics_capabilities: i32,
 }
 
 /// @since 3.16.0
@@ -5470,6 +5951,8 @@ pub struct DiagnosticClientCapabilities {
     /// Whether the clients supports related documents for document diagnostic pulls.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_document_support: Option<i32>,
+    #[serde(flatten)]
+    pub diagnostics_capabilities: i32,
 }
 
 /// Client capabilities specific to inline completions.

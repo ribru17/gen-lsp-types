@@ -3,6 +3,8 @@ use std::fs;
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
+use crate::schema::Type;
+
 const METAMODEL_URL: &str = "https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.json";
 
 mod schema {
@@ -10,12 +12,15 @@ mod schema {
     typify::import_types!("metaModel.schema.json");
 }
 
+/// Converts from camelCase (or PascalCase) to snake_case.
 fn camel_to_snake(camel: &str) -> String {
     let mut snake = String::with_capacity(camel.len() + 4);
 
-    for char in camel.chars() {
+    for (i, char) in camel.chars().enumerate() {
         if char.is_ascii_uppercase() {
-            snake.push('_');
+            if i > 0 {
+                snake.push('_');
+            }
             snake.push(char.to_ascii_lowercase());
         } else {
             snake.push(char);
@@ -78,64 +83,89 @@ fn main() {
                         .collect::<Vec<_>>()
                 })
                 .unwrap_or_default();
-            // TODO: Follow `extends`, `mixins`.
             let has_kind = structure
                 .properties
                 .iter()
                 .find(|property| property.name == "kind")
                 .is_some();
-            let properties = structure.properties.into_iter().map(|property| {
-                let deprecated = property.deprecated.map(|note| {
-                    quote! {
-                        #[deprecated(note = #note)]
-                    }
-                });
-                let documentation = property
-                    .documentation
-                    .map(|doc| {
-                        let lines = doc.split('\n');
-                        lines
-                            .map(|line| {
-                                let line = if line.is_empty() {
-                                    line.to_string()
-                                } else {
-                                    [" ", line].concat()
-                                };
-                                quote! { #[doc = #line] }
-                            })
-                            .collect::<Vec<_>>()
-                    })
-                    .unwrap_or_default();
+            let properties = structure
+                .properties
+                .into_iter()
+                .map(|property| {
+                    let deprecated = property.deprecated.map(|note| {
+                        quote! {
+                            #[deprecated(note = #note)]
+                        }
+                    });
+                    let documentation = property
+                        .documentation
+                        .map(|doc| {
+                            let lines = doc.split('\n');
+                            lines
+                                .map(|line| {
+                                    let line = if line.is_empty() {
+                                        line.to_string()
+                                    } else {
+                                        [" ", line].concat()
+                                    };
+                                    quote! { #[doc = #line] }
+                                })
+                                .collect::<Vec<_>>()
+                        })
+                        .unwrap_or_default();
 
-                let (name, mut serde_attributes) = if property.name == "type" {
-                    assert!(!has_kind, "Structure already has `kind` property");
-                    (format_ident!("kind"), quote! { #[serde(rename = "type")] })
-                } else {
-                    (
-                        format_ident!("{}", camel_to_snake(&property.name)),
-                        quote! {},
-                    )
-                };
-                // TODO
-                let mut type_ = quote! { i32 };
-
-                if property.optional == Some(true) {
-                    serde_attributes = quote! {
-                        #serde_attributes
-                        #[serde(skip_serializing_if = "Option::is_none")]
+                    let (name, mut serde_attributes) = if property.name == "type" {
+                        assert!(
+                            !has_kind,
+                            "Structure {} already has `kind` property",
+                            structure.name
+                        );
+                        (format_ident!("kind"), quote! { #[serde(rename = "type")] })
+                    } else {
+                        (
+                            format_ident!("{}", camel_to_snake(&property.name)),
+                            quote! {},
+                        )
                     };
-                    type_ = quote! {
-                        Option<#type_>
-                    }
-                }
+                    // TODO
+                    let mut type_ = quote! { i32 };
 
-                quote! {
-                    #(#documentation)*
-                    #deprecated
-                    #serde_attributes
-                    pub #name: #type_,
-                }
-            });
+                    if property.optional == Some(true) {
+                        serde_attributes = quote! {
+                            #serde_attributes
+                            #[serde(skip_serializing_if = "Option::is_none")]
+                        };
+                        type_ = quote! {
+                            Option<#type_>
+                        }
+                    }
+
+                    quote! {
+                        #(#documentation)*
+                        #deprecated
+                        #serde_attributes
+                        pub #name: #type_,
+                    }
+                })
+                .chain(
+                    structure
+                        .mixins
+                        .into_iter()
+                        .chain(structure.extends)
+                        .map(|type_| {
+                            let Type::ReferenceType(reference_type) = type_ else {
+                                panic!("Expected mixin/extend type to be a reference: {:?}", type_);
+                            };
+                            let prop_name =
+                                format_ident!("{}", camel_to_snake(&reference_type.name));
+                            // TODO
+                            let type_ = quote! { i32 };
+                            quote! {
+                                #[serde(flatten)]
+                                pub #prop_name: #type_,
+                            }
+                        }),
+                );
 
             quote! {
                 #(#documentation)*
