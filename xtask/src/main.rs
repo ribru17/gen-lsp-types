@@ -3,7 +3,7 @@ use std::{collections::HashMap, fs};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::schema::{Property, Structure, Type};
+use crate::schema::{BaseTypes, Property, Structure, Type};
 
 // TODO: Add CI to ensure the locally copied metaModel matches the one at this URL.
 // const METAMODEL_URL: &str = "https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.json";
@@ -40,7 +40,7 @@ fn resolve_struct_properties(
     let mut structure_props = properties;
     let mut mixin_props = Vec::with_capacity(extends.len() + mixins.len());
     mixins.into_iter().chain(extends).for_each(|type_| {
-        let Type::ReferenceType(reference_type) = type_ else {
+        let Type::ReferenceType(reference_type) = &type_ else {
             panic!("Expected mixin/extend type to be a reference: {:?}", type_);
         };
         // Inline mixin/extend structs which start with an underscore. This is for convenience.
@@ -62,14 +62,40 @@ fn resolve_struct_properties(
             return;
         }
         let prop_name = format_ident!("{}", camel_to_snake(&reference_type.name));
-        // TODO
-        let type_ = quote! { i32 };
+        let type_ = render_type(type_);
         mixin_props.push(quote! {
             #[serde(flatten)]
             pub #prop_name: #type_,
         });
     });
     (structure_props, mixin_props)
+}
+
+fn render_type(type_: Type) -> TokenStream {
+    match type_ {
+        Type::ReferenceType(ref_type) => {
+            let ident = format_ident!("{}", ref_type.name);
+            quote! { #ident }
+        }
+        Type::ArrayType(array_type) => {
+            let element_type = render_type(array_type.element);
+            quote! { Vec<#element_type> }
+        }
+        Type::BaseType(base_type) => match base_type.name {
+            BaseTypes::Uinteger => quote! { u32 },
+            BaseTypes::Integer => quote! { i32 },
+            // NOTE: Potentially pick a URI type and decode the latter two base types as that,
+            // rather than as strings? This question has been the subject of controversy...
+            BaseTypes::String | BaseTypes::RegExp | BaseTypes::Uri | BaseTypes::DocumentUri => {
+                quote! { String }
+            }
+            BaseTypes::Boolean => quote! { bool },
+            BaseTypes::Decimal => quote! { f32 },
+            BaseTypes::Null => quote! { () },
+        },
+        // TODO
+        _ => quote! { i32 },
+    }
 }
 
 fn main() {
@@ -110,7 +136,7 @@ fn main() {
 
             // TODO: Add `Default` and/or `Copy` if all properties implement them.
             let mut attributes = quote! {
-                #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+                #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
                 #[serde(rename_all = "camelCase")]
             };
             let name = format_ident!("{}", structure.name);
@@ -185,8 +211,7 @@ fn main() {
                             quote! {},
                         )
                     };
-                    // TODO
-                    let mut type_ = quote! { i32 };
+                    let mut type_ = render_type(property.type_);
 
                     if property.optional == Some(true) {
                         serde_attributes = quote! {
