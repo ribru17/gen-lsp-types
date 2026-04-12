@@ -1,11 +1,11 @@
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, iter};
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
 use crate::schema::{
-    BaseType, BaseTypes, MapKeyType, MapKeyTypeObjectName, OrType, Property, Structure, TupleType,
-    Type,
+    BaseType, BaseTypes, Enumeration, MapKeyType, MapKeyTypeObjectName, OrType, Property,
+    Structure, TupleType, Type, TypeAlias,
 };
 
 // TODO: Add CI to ensure the locally copied metaModel matches the one at this URL.
@@ -32,6 +32,28 @@ fn camel_to_snake(camel: &str) -> String {
     }
 
     snake
+}
+
+fn render_documentation(documentation: Option<String>) -> TokenStream {
+    let toks = documentation.into_iter().flat_map(|doc| {
+        // Remove NBSP chars from documentation.
+        let doc = doc.replace('\u{200B}', "");
+        let lines = doc.split('\n');
+        lines
+            .map(|line| {
+                let line = if line.is_empty() {
+                    line.to_string()
+                } else {
+                    [" ", line].concat()
+                };
+                quote! { #[doc = #line] }
+            })
+            .collect::<Vec<_>>()
+    });
+
+    quote! {
+        #(#toks)*
+    }
 }
 
 fn resolve_struct_properties(
@@ -147,6 +169,127 @@ fn render_type(type_: Type) -> TokenStream {
     }
 }
 
+fn render_structure(
+    structure: Structure,
+    structs_map: &HashMap<String, Structure>,
+) -> Option<TokenStream> {
+    // We inline these structs; consider them private and do not generate.
+    if structure.name.starts_with('_') {
+        return None;
+    }
+
+    // TODO: Add `Default` and/or `Copy` if all properties implement them.
+    let mut attributes = quote! {
+        #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+        #[serde(rename_all = "camelCase")]
+    };
+    let name = format_ident!("{}", structure.name);
+    if let Some(note) = structure.deprecated {
+        attributes = quote! {
+            #attributes
+            #[deprecated(note = #note)]
+        };
+    }
+    let documentation = render_documentation(structure.documentation);
+    let has_kind = structure
+        .properties
+        .iter()
+        .find(|property| property.name == "kind")
+        .is_some();
+    let (structure_props, mixin_props) = resolve_struct_properties(
+        structure.properties,
+        structure.extends,
+        structure.mixins,
+        structs_map,
+    );
+    let properties = structure_props
+        .into_iter()
+        .map(|property| {
+            let deprecated = property.deprecated.map(|note| {
+                quote! {
+                    #[deprecated(note = #note)]
+                }
+            });
+            let documentation = render_documentation(property.documentation);
+
+            let (name, mut serde_attributes) = if property.name == "type" {
+                assert!(
+                    !has_kind,
+                    "Structure {} already has `kind` property",
+                    structure.name
+                );
+                (format_ident!("kind"), quote! { #[serde(rename = "type")] })
+            } else {
+                (
+                    format_ident!("{}", camel_to_snake(&property.name)),
+                    quote! {},
+                )
+            };
+            let mut type_ = render_type(property.type_);
+
+            if property.optional == Some(true) {
+                serde_attributes = quote! {
+                    #serde_attributes
+                    #[serde(skip_serializing_if = "Option::is_none")]
+                };
+                type_ = quote! {
+                    Option<#type_>
+                }
+            }
+
+            quote! {
+                #documentation
+                #deprecated
+                #serde_attributes
+                pub #name: #type_,
+            }
+        })
+        .chain(mixin_props);
+
+    Some(quote! {
+        #documentation
+        #attributes
+        pub struct #name {
+            #(#properties)*
+        }
+    })
+}
+
+fn render_enumeration(enumeration: Enumeration) -> TokenStream {
+    let documentation = render_documentation(enumeration.documentation);
+
+    // TODO: Add `Default` and/or `Copy` if all properties implement them.
+    let mut attributes = quote! {
+        #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+    };
+
+    if let Some(note) = enumeration.deprecated {
+        attributes = quote! {
+            #attributes
+            #[deprecated(note = #note)]
+        };
+    }
+
+    let name = format_ident!("{}", enumeration.name);
+
+    quote! {
+        #documentation
+        #attributes
+        pub enum #name {}
+    }
+}
+
+fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
+    let documentation = render_documentation(type_alias.documentation);
+    let name = format_ident!("{}", type_alias.name);
+    let type_ = render_type(type_alias.type_);
+
+    quote! {
+        #documentation
+        pub type #name = #type_;
+    }
+}
+
 fn main() {
     // Run the generator.
     let model_string =
@@ -175,127 +318,22 @@ fn main() {
         use std::collections::HashMap;
     };
 
-    let structures: Vec<TokenStream> = model
+    let structures = model
         .structures
         .into_iter()
-        .flat_map(|structure| {
-            // We inline these structs; consider them private and do not generate.
-            if structure.name.starts_with('_') {
-                return None;
-            }
+        .flat_map(|structure| render_structure(structure, &structs_map));
 
-            // TODO: Add `Default` and/or `Copy` if all properties implement them.
-            let mut attributes = quote! {
-                #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-                #[serde(rename_all = "camelCase")]
-            };
-            let name = format_ident!("{}", structure.name);
-            if let Some(note) = structure.deprecated {
-                attributes = quote! {
-                    #attributes
-                    #[deprecated(note = #note)]
-                };
-            }
-            let documentation = structure
-                .documentation
-                .map(|doc| {
-                    let lines = doc.split('\n');
-                    lines
-                        .map(|line| {
-                            let line = if line.is_empty() {
-                                line.to_string()
-                            } else {
-                                [" ", line].concat()
-                            };
-                            quote! { #[doc = #line] }
-                        })
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default();
-            let has_kind = structure
-                .properties
-                .iter()
-                .find(|property| property.name == "kind")
-                .is_some();
-            let (structure_props, mixin_props) = resolve_struct_properties(
-                structure.properties,
-                structure.extends,
-                structure.mixins,
-                &structs_map,
-            );
-            let properties = structure_props
-                .into_iter()
-                .map(|property| {
-                    let deprecated = property.deprecated.map(|note| {
-                        quote! {
-                            #[deprecated(note = #note)]
-                        }
-                    });
-                    let documentation = property
-                        .documentation
-                        .map(|doc| {
-                            let lines = doc.split('\n');
-                            lines
-                                .map(|line| {
-                                    let line = if line.is_empty() {
-                                        line.to_string()
-                                    } else {
-                                        [" ", line].concat()
-                                    };
-                                    quote! { #[doc = #line] }
-                                })
-                                .collect::<Vec<_>>()
-                        })
-                        .unwrap_or_default();
+    let enumerations = model.enumerations.into_iter().map(render_enumeration);
 
-                    let (name, mut serde_attributes) = if property.name == "type" {
-                        assert!(
-                            !has_kind,
-                            "Structure {} already has `kind` property",
-                            structure.name
-                        );
-                        (format_ident!("kind"), quote! { #[serde(rename = "type")] })
-                    } else {
-                        (
-                            format_ident!("{}", camel_to_snake(&property.name)),
-                            quote! {},
-                        )
-                    };
-                    let mut type_ = render_type(property.type_);
+    let type_aliases = model.type_aliases.into_iter().map(render_type_alias);
 
-                    if property.optional == Some(true) {
-                        serde_attributes = quote! {
-                            #serde_attributes
-                            #[serde(skip_serializing_if = "Option::is_none")]
-                        };
-                        type_ = quote! {
-                            Option<#type_>
-                        }
-                    }
+    let all_items = iter::once(preamble)
+        .chain(iter::once(imports))
+        .chain(structures)
+        .chain(enumerations)
+        .chain(type_aliases);
 
-                    quote! {
-                        #(#documentation)*
-                        #deprecated
-                        #serde_attributes
-                        pub #name: #type_,
-                    }
-                })
-                .chain(mixin_props);
-
-            Some(quote! {
-                #(#documentation)*
-                #attributes
-                pub struct #name {
-                    #(#properties)*
-                }
-            })
-        })
-        .collect();
-
-    let all_items = [&[preamble], &[imports], &structures[..]].concat();
-
-    let formatted_items: Vec<_> = all_items
-        .into_iter()
+    let formatted_items: Vec<String> = all_items
         .map(|request| {
             let syntax_tree = syn::parse2(request).unwrap();
 

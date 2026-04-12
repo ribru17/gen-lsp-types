@@ -1,3 +1,3 @@
-// mod generated;
-//
-// pub use generated::*;
+mod generated;
+
+pub use generated::*;
