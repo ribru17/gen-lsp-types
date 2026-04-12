@@ -3,7 +3,10 @@ use std::{collections::HashMap, fs};
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 
-use crate::schema::{BaseTypes, Property, Structure, Type};
+use crate::schema::{
+    BaseType, BaseTypes, MapKeyType, MapKeyTypeObjectName, OrType, Property, Structure, TupleType,
+    Type,
+};
 
 // TODO: Add CI to ensure the locally copied metaModel matches the one at this URL.
 // const METAMODEL_URL: &str = "https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.json";
@@ -72,6 +75,24 @@ fn resolve_struct_properties(
 }
 
 fn render_type(type_: Type) -> TokenStream {
+    // Serde is stupid and always will be.
+    // https://github.com/serde-rs/serde/issues/1475
+    let type_ = if let Type::AndType(t) = type_ {
+        match t.kind.as_str() {
+            "tuple" => Type::TupleType(TupleType {
+                items: t.items,
+                kind: t.kind,
+            }),
+            "or" => Type::OrType(OrType {
+                items: t.items,
+                kind: t.kind,
+            }),
+            _ => Type::AndType(t),
+        }
+    } else {
+        type_
+    };
+
     match type_ {
         Type::ReferenceType(ref_type) => {
             let ident = format_ident!("{}", ref_type.name);
@@ -93,8 +114,36 @@ fn render_type(type_: Type) -> TokenStream {
             BaseTypes::Decimal => quote! { f32 },
             BaseTypes::Null => quote! { () },
         },
+        Type::TupleType(tuple_type) => {
+            let types = tuple_type.items.into_iter().map(render_type);
+            quote! { (#( #types ),*) }
+        }
+        Type::MapType(map_type) => {
+            let map_key_type = map_type.key;
+            let key_type = match map_key_type {
+                MapKeyType::ReferenceType(ref_type) => Type::ReferenceType(ref_type),
+                MapKeyType::Object { kind, name } => {
+                    let name = match name {
+                        MapKeyTypeObjectName::Integer => BaseTypes::Integer,
+                        MapKeyTypeObjectName::String => BaseTypes::String,
+                        MapKeyTypeObjectName::Uri => BaseTypes::Uri,
+                        MapKeyTypeObjectName::DocumentUri => BaseTypes::DocumentUri,
+                    };
+                    Type::BaseType(BaseType { kind, name })
+                }
+            };
+            let key = render_type(key_type);
+            let value = render_type(*map_type.value);
+            quote! { HashMap<#key, #value> }
+        }
         // TODO
-        _ => quote! { i32 },
+        Type::OrType(or_type) => {
+            quote! { i32 }
+        }
+        Type::StringLiteralType(string_literal) => {
+            quote! { i32 }
+        }
+        t => panic!("Unsupported type: {t:?}"),
     }
 }
 
@@ -123,15 +172,16 @@ fn main() {
 
     let imports = quote! {
         use serde::{Deserialize, Serialize};
+        use std::collections::HashMap;
     };
 
     let structures: Vec<TokenStream> = model
         .structures
         .into_iter()
-        .map(|structure| {
+        .flat_map(|structure| {
             // We inline these structs; consider them private and do not generate.
             if structure.name.starts_with('_') {
-                return quote! {};
+                return None;
             }
 
             // TODO: Add `Default` and/or `Copy` if all properties implement them.
@@ -232,13 +282,13 @@ fn main() {
                 })
                 .chain(mixin_props);
 
-            quote! {
+            Some(quote! {
                 #(#documentation)*
                 #attributes
                 pub struct #name {
                     #(#properties)*
                 }
-            }
+            })
         })
         .collect();
 
