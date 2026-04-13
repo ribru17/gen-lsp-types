@@ -4569,7 +4569,7 @@ pub struct CodeActionKindDocumentation {
     pub kind: CodeActionKind,
     /// Command that is ued to display the documentation to the user.
     ///
-    /// The title of this documentation code action is taken from {@linkcode Command.title}
+    /// The title of this documentation code action is taken from [`Command::title`]
     pub command: Command,
 }
 

@@ -23,7 +23,7 @@ static LINK_RE_2: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{@link +(\w+)\.(\w+) ([\w \.`]+)\}").unwrap());
 static LINK_RE_3: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{@link +(\w+)\}").unwrap());
 static LINK_RE_4: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\{@link +(\w+)\.(\w+)\}").unwrap());
+    LazyLock::new(|| Regex::new(r"\{@link(code)? +(\w+)\.(\w+)\}").unwrap());
 
 /// Converts from camelCase (or PascalCase) to snake_case.
 fn camel_to_snake(camel: &str) -> String {
@@ -55,7 +55,7 @@ fn render_documentation(documentation: Option<String>) -> TokenStream {
         });
         let doc = LINK_RE_3.replace_all(&doc, |caps: &Captures| format!("[{}]", &caps[1]));
         let doc = LINK_RE_4.replace_all(&doc, |caps: &Captures| {
-            format!("[`{}::{}`]", &caps[1], &caps[2])
+            format!("[`{}::{}`]", &caps[2], &caps[3])
         });
 
         let lines = doc.split('\n');
