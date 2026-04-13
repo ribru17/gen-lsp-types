@@ -2346,8 +2346,8 @@ pub struct ApplyWorkspaceEditResult {
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(try_from = "ShadowWorkDoneProgressBegin", into = "ShadowWorkDoneProgressBegin")]
 pub struct WorkDoneProgressBegin {
-    pub kind: i32,
     /// Mandatory title of the progress operation. Used to briefly inform about
     /// the kind of operation being performed.
     ///
@@ -2374,11 +2374,69 @@ pub struct WorkDoneProgressBegin {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percentage: Option<u32>,
 }
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowWorkDoneProgressBegin {
+    /// Mandatory title of the progress operation. Used to briefly inform about
+    /// the kind of operation being performed.
+    ///
+    /// Examples: "Indexing" or "Linking dependencies".
+    pub title: String,
+    /// Controls if a cancel button should show to allow the user to cancel the
+    /// long running operation. Clients that don't support cancellation are allowed
+    /// to ignore the setting.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cancellable: Option<bool>,
+    /// Optional, more detailed associated progress message. Contains
+    /// complementary information to the `title`.
+    ///
+    /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
+    /// If unset, the previous progress message (if any) is still valid.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    /// Optional progress percentage to display (value 100 is considered 100%).
+    /// If not provided infinite progress is assumed and clients are allowed
+    /// to ignore the `percentage` value in subsequent in report notifications.
+    ///
+    /// The value should be steadily rising. Clients are free to ignore values
+    /// that are not following this rule. The value range is [0, 100].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub percentage: Option<u32>,
+    pub kind: String,
+}
+impl TryFrom<ShadowWorkDoneProgressBegin> for WorkDoneProgressBegin {
+    type Error = String;
+    fn try_from(shadow: ShadowWorkDoneProgressBegin) -> Result<Self, Self::Error> {
+        if shadow.kind != "begin" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(WorkDoneProgressBegin {
+            title: shadow.title,
+            cancellable: shadow.cancellable,
+            message: shadow.message,
+            percentage: shadow.percentage,
+        })
+    }
+}
+impl From<WorkDoneProgressBegin> for ShadowWorkDoneProgressBegin {
+    fn from(original: WorkDoneProgressBegin) -> Self {
+        ShadowWorkDoneProgressBegin {
+            title: original.title,
+            cancellable: original.cancellable,
+            message: original.message,
+            percentage: original.percentage,
+            kind: "begin".to_string(),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(
+    try_from = "ShadowWorkDoneProgressReport",
+    into = "ShadowWorkDoneProgressReport"
+)]
 pub struct WorkDoneProgressReport {
-    pub kind: i32,
     /// Controls enablement state of a cancel button.
     ///
     /// Clients that don't support cancellation or don't support controlling the button's
@@ -2401,15 +2459,92 @@ pub struct WorkDoneProgressReport {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percentage: Option<u32>,
 }
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowWorkDoneProgressReport {
+    /// Controls enablement state of a cancel button.
+    ///
+    /// Clients that don't support cancellation or don't support controlling the button's
+    /// enablement state are allowed to ignore the property.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cancellable: Option<bool>,
+    /// Optional, more detailed associated progress message. Contains
+    /// complementary information to the `title`.
+    ///
+    /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
+    /// If unset, the previous progress message (if any) is still valid.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    /// Optional progress percentage to display (value 100 is considered 100%).
+    /// If not provided infinite progress is assumed and clients are allowed
+    /// to ignore the `percentage` value in subsequent in report notifications.
+    ///
+    /// The value should be steadily rising. Clients are free to ignore values
+    /// that are not following this rule. The value range is [0, 100]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub percentage: Option<u32>,
+    pub kind: String,
+}
+impl TryFrom<ShadowWorkDoneProgressReport> for WorkDoneProgressReport {
+    type Error = String;
+    fn try_from(shadow: ShadowWorkDoneProgressReport) -> Result<Self, Self::Error> {
+        if shadow.kind != "report" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(WorkDoneProgressReport {
+            cancellable: shadow.cancellable,
+            message: shadow.message,
+            percentage: shadow.percentage,
+        })
+    }
+}
+impl From<WorkDoneProgressReport> for ShadowWorkDoneProgressReport {
+    fn from(original: WorkDoneProgressReport) -> Self {
+        ShadowWorkDoneProgressReport {
+            cancellable: original.cancellable,
+            message: original.message,
+            percentage: original.percentage,
+            kind: "report".to_string(),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(try_from = "ShadowWorkDoneProgressEnd", into = "ShadowWorkDoneProgressEnd")]
 pub struct WorkDoneProgressEnd {
-    pub kind: i32,
     /// Optional, a final message indicating to for example indicate the outcome
     /// of the operation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
+}
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowWorkDoneProgressEnd {
+    /// Optional, a final message indicating to for example indicate the outcome
+    /// of the operation.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    pub kind: String,
+}
+impl TryFrom<ShadowWorkDoneProgressEnd> for WorkDoneProgressEnd {
+    type Error = String;
+    fn try_from(shadow: ShadowWorkDoneProgressEnd) -> Result<Self, Self::Error> {
+        if shadow.kind != "end" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(WorkDoneProgressEnd {
+            message: shadow.message,
+        })
+    }
+}
+impl From<WorkDoneProgressEnd> for ShadowWorkDoneProgressEnd {
+    fn from(original: WorkDoneProgressEnd) -> Self {
+        ShadowWorkDoneProgressEnd {
+            message: original.message,
+            kind: "end".to_string(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
@@ -2726,9 +2861,8 @@ pub struct TextDocumentEdit {
 /// Create file operation.
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(try_from = "ShadowCreateFile", into = "ShadowCreateFile")]
 pub struct CreateFile {
-    /// A create
-    pub kind: i32,
     /// The resource to create.
     pub uri: String,
     /// Additional options
@@ -2737,13 +2871,47 @@ pub struct CreateFile {
     #[serde(flatten)]
     pub resource_operation: ResourceOperation,
 }
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowCreateFile {
+    /// The resource to create.
+    pub uri: String,
+    /// Additional options
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<CreateFileOptions>,
+    #[serde(flatten)]
+    pub resource_operation: ResourceOperation,
+    pub kind: String,
+}
+impl TryFrom<ShadowCreateFile> for CreateFile {
+    type Error = String;
+    fn try_from(shadow: ShadowCreateFile) -> Result<Self, Self::Error> {
+        if shadow.kind != "create" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(CreateFile {
+            uri: shadow.uri,
+            options: shadow.options,
+            resource_operation: shadow.resource_operation,
+        })
+    }
+}
+impl From<CreateFile> for ShadowCreateFile {
+    fn from(original: CreateFile) -> Self {
+        ShadowCreateFile {
+            uri: original.uri,
+            options: original.options,
+            resource_operation: original.resource_operation,
+            kind: "create".to_string(),
+        }
+    }
+}
 
 /// Rename file operation
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(try_from = "ShadowRenameFile", into = "ShadowRenameFile")]
 pub struct RenameFile {
-    /// A rename
-    pub kind: i32,
     /// The old (existing) location.
     pub old_uri: String,
     /// The new location.
@@ -2754,13 +2922,51 @@ pub struct RenameFile {
     #[serde(flatten)]
     pub resource_operation: ResourceOperation,
 }
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowRenameFile {
+    /// The old (existing) location.
+    pub old_uri: String,
+    /// The new location.
+    pub new_uri: String,
+    /// Rename options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<RenameFileOptions>,
+    #[serde(flatten)]
+    pub resource_operation: ResourceOperation,
+    pub kind: String,
+}
+impl TryFrom<ShadowRenameFile> for RenameFile {
+    type Error = String;
+    fn try_from(shadow: ShadowRenameFile) -> Result<Self, Self::Error> {
+        if shadow.kind != "rename" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(RenameFile {
+            old_uri: shadow.old_uri,
+            new_uri: shadow.new_uri,
+            options: shadow.options,
+            resource_operation: shadow.resource_operation,
+        })
+    }
+}
+impl From<RenameFile> for ShadowRenameFile {
+    fn from(original: RenameFile) -> Self {
+        ShadowRenameFile {
+            old_uri: original.old_uri,
+            new_uri: original.new_uri,
+            options: original.options,
+            resource_operation: original.resource_operation,
+            kind: "rename".to_string(),
+        }
+    }
+}
 
 /// Delete file operation
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(try_from = "ShadowDeleteFile", into = "ShadowDeleteFile")]
 pub struct DeleteFile {
-    /// A delete
-    pub kind: i32,
     /// The file to delete.
     pub uri: String,
     /// Delete options.
@@ -2768,6 +2974,41 @@ pub struct DeleteFile {
     pub options: Option<DeleteFileOptions>,
     #[serde(flatten)]
     pub resource_operation: ResourceOperation,
+}
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowDeleteFile {
+    /// The file to delete.
+    pub uri: String,
+    /// Delete options.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<DeleteFileOptions>,
+    #[serde(flatten)]
+    pub resource_operation: ResourceOperation,
+    pub kind: String,
+}
+impl TryFrom<ShadowDeleteFile> for DeleteFile {
+    type Error = String;
+    fn try_from(shadow: ShadowDeleteFile) -> Result<Self, Self::Error> {
+        if shadow.kind != "delete" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(DeleteFile {
+            uri: shadow.uri,
+            options: shadow.options,
+            resource_operation: shadow.resource_operation,
+        })
+    }
+}
+impl From<DeleteFile> for ShadowDeleteFile {
+    fn from(original: DeleteFile) -> Self {
+        ShadowDeleteFile {
+            uri: original.uri,
+            options: original.options,
+            resource_operation: original.resource_operation,
+            kind: "delete".to_string(),
+        }
+    }
 }
 
 /// Additional information that describes document changes.
@@ -3032,9 +3273,11 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(
+    try_from = "ShadowFullDocumentDiagnosticReport",
+    into = "ShadowFullDocumentDiagnosticReport"
+)]
 pub struct FullDocumentDiagnosticReport {
-    /// A full document diagnostic report.
-    pub kind: i32,
     /// An optional result id. If provided it will
     /// be sent on the next diagnostic request for the
     /// same document.
@@ -3043,6 +3286,41 @@ pub struct FullDocumentDiagnosticReport {
     /// The actual items.
     pub items: Vec<Diagnostic>,
 }
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowFullDocumentDiagnosticReport {
+    /// An optional result id. If provided it will
+    /// be sent on the next diagnostic request for the
+    /// same document.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_id: Option<String>,
+    /// The actual items.
+    pub items: Vec<Diagnostic>,
+    pub kind: String,
+}
+impl TryFrom<ShadowFullDocumentDiagnosticReport> for FullDocumentDiagnosticReport {
+    type Error = String;
+    fn try_from(
+        shadow: ShadowFullDocumentDiagnosticReport,
+    ) -> Result<Self, Self::Error> {
+        if shadow.kind != "full" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(FullDocumentDiagnosticReport {
+            result_id: shadow.result_id,
+            items: shadow.items,
+        })
+    }
+}
+impl From<FullDocumentDiagnosticReport> for ShadowFullDocumentDiagnosticReport {
+    fn from(original: FullDocumentDiagnosticReport) -> Self {
+        ShadowFullDocumentDiagnosticReport {
+            result_id: original.result_id,
+            items: original.items,
+            kind: "full".to_string(),
+        }
+    }
+}
 
 /// A diagnostic report indicating that the last returned
 /// report is still accurate.
@@ -3050,15 +3328,45 @@ pub struct FullDocumentDiagnosticReport {
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(
+    try_from = "ShadowUnchangedDocumentDiagnosticReport",
+    into = "ShadowUnchangedDocumentDiagnosticReport"
+)]
 pub struct UnchangedDocumentDiagnosticReport {
-    /// A document diagnostic report indicating
-    /// no changes to the last result. A server can
-    /// only return `unchanged` if result ids are
-    /// provided.
-    pub kind: i32,
     /// A result id which will be sent on the next
     /// diagnostic request for the same document.
     pub result_id: String,
+}
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowUnchangedDocumentDiagnosticReport {
+    /// A result id which will be sent on the next
+    /// diagnostic request for the same document.
+    pub result_id: String,
+    pub kind: String,
+}
+impl TryFrom<ShadowUnchangedDocumentDiagnosticReport>
+for UnchangedDocumentDiagnosticReport {
+    type Error = String;
+    fn try_from(
+        shadow: ShadowUnchangedDocumentDiagnosticReport,
+    ) -> Result<Self, Self::Error> {
+        if shadow.kind != "unchanged" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(UnchangedDocumentDiagnosticReport {
+            result_id: shadow.result_id,
+        })
+    }
+}
+impl From<UnchangedDocumentDiagnosticReport>
+for ShadowUnchangedDocumentDiagnosticReport {
+    fn from(original: UnchangedDocumentDiagnosticReport) -> Self {
+        ShadowUnchangedDocumentDiagnosticReport {
+            result_id: original.result_id,
+            kind: "unchanged".to_string(),
+        }
+    }
 }
 
 /// Diagnostic options.
@@ -3222,11 +3530,34 @@ pub struct InlineCompletionContext {
 /// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(try_from = "ShadowStringValue", into = "ShadowStringValue")]
 pub struct StringValue {
-    /// The kind of string value.
-    pub kind: i32,
     /// The snippet string.
     pub value: String,
+}
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+struct ShadowStringValue {
+    /// The snippet string.
+    pub value: String,
+    pub kind: String,
+}
+impl TryFrom<ShadowStringValue> for StringValue {
+    type Error = String;
+    fn try_from(shadow: ShadowStringValue) -> Result<Self, Self::Error> {
+        if shadow.kind != "snippet" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(StringValue { value: shadow.value })
+    }
+}
+impl From<StringValue> for ShadowStringValue {
+    fn from(original: StringValue) -> Self {
+        ShadowStringValue {
+            value: original.value,
+            kind: "snippet".to_string(),
+        }
+    }
 }
 
 /// Inline completion options used during static registration.
