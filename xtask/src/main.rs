@@ -5,8 +5,8 @@ use quote::{format_ident, quote};
 use regex::{Captures, Regex};
 
 use crate::schema::{
-    BaseType, BaseTypes, Enumeration, MapKeyType, MapKeyTypeObjectName, OrType, Property,
-    Structure, TupleType, Type, TypeAlias,
+    BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName, MapKeyType,
+    MapKeyTypeObjectName, OrType, Property, Structure, TupleType, Type, TypeAlias,
 };
 
 // TODO: Add CI to ensure the locally copied metaModel matches the one at this URL.
@@ -41,6 +41,12 @@ fn camel_to_snake(camel: &str) -> String {
     }
 
     snake
+}
+
+/// Converts from camelCase to PascalCase.
+fn camel_to_pascal(mut camel: String) -> String {
+    camel[0..1].make_ascii_uppercase();
+    camel
 }
 
 fn render_documentation(documentation: Option<String>) -> TokenStream {
@@ -285,10 +291,20 @@ fn render_structure(
 
 fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let documentation = render_documentation(enumeration.documentation);
+    let is_int_enum = matches!(
+        enumeration.type_.name,
+        EnumerationTypeName::Integer | EnumerationTypeName::Uinteger
+    );
 
     // TODO: Add `Default` and/or `Copy` if all properties implement them.
-    let mut attributes = quote! {
-        #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+    let mut attributes = if is_int_enum {
+        quote! {
+            #[derive(PartialEq, Eq, Debug, Clone)]
+        }
+    } else {
+        quote! {
+            #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+        }
     };
 
     if let Some(note) = enumeration.deprecated {
@@ -300,10 +316,128 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
 
     let name = format_ident!("{}", enumeration.name);
 
-    quote! {
+    let (mut sers, mut desers) = if is_int_enum {
+        (
+            Vec::with_capacity(enumeration.values.len()),
+            Vec::with_capacity(enumeration.values.len()),
+        )
+    } else {
+        (Vec::new(), Vec::new())
+    };
+
+    let (serializer, value_type) = match enumeration.type_.name {
+        EnumerationTypeName::Uinteger => (Some(quote! { serialize_u32 }), Some(quote! { u32 })),
+        EnumerationTypeName::Integer => (Some(quote! { serialize_i32 }), Some(quote! { i32 })),
+        EnumerationTypeName::String => (None, None),
+    };
+
+    let mut values: Vec<TokenStream> = enumeration
+        .values
+        .into_iter()
+        .map(|item| {
+            let documentation = render_documentation(item.documentation);
+            let deprecated = item.deprecated.map(|note| {
+                quote! { #[deprecated(note = #note)] }
+            });
+            if is_int_enum {
+                let ident = format_ident!("{}", camel_to_pascal(item.name));
+                let full_name = quote! { #name::#ident };
+                let EnumerationEntryValue::Number(value) = item.value else {
+                    panic!("Non-number item in integer enum: {:?}", item.value);
+                };
+                let value = match enumeration.type_.name {
+                    EnumerationTypeName::Uinteger => {
+                        let value = value as u32;
+                        quote! { #value }
+                    }
+                    EnumerationTypeName::Integer => {
+                        let value = value as i32;
+                        quote! { #value }
+                    }
+                    EnumerationTypeName::String => unreachable!(),
+                };
+                desers.push(quote! { #value => Ok(#full_name), });
+                sers.push(quote! { #full_name => serializer.#serializer(#value), });
+                quote! {
+                    #documentation
+                    #deprecated
+                    #ident,
+                }
+            } else {
+                let EnumerationEntryValue::String(value) = item.value else {
+                    panic!("Non-string item in string enum: {:?}", item.value);
+                };
+                let ident = format_ident!("{}", camel_to_pascal(item.name));
+                quote! {
+                    #documentation
+                    #deprecated
+                    #[serde(rename = #value)]
+                    #ident,
+                }
+            }
+        })
+        .collect();
+    if enumeration.supports_custom_values == Some(true) {
+        let (type_, attr) = match enumeration.type_.name {
+            EnumerationTypeName::Uinteger => (quote! { u32 }, quote! {}),
+            EnumerationTypeName::Integer => (quote! { i32 }, quote! {}),
+            EnumerationTypeName::String => (quote! { String }, quote! { #[serde(untagged)] }),
+        };
+        if is_int_enum {
+            let full_name = quote! { #name::Custom(custom) };
+            sers.push(quote! { #full_name => serializer.#serializer(*custom), });
+            desers.push(quote! { custom => Ok(#full_name), });
+        }
+        values.push(quote! {
+            /// A custom value.
+            #attr
+            Custom(#type_)
+        });
+    } else if is_int_enum {
+        let message = format!(
+            "Unexpected value when deserializing {}: {{e}}",
+            enumeration.name
+        );
+        desers.push(quote! { e => Err(serde::de::Error::custom(format!(#message))) })
+    }
+
+    let enum_tokens = quote! {
         #documentation
         #attributes
-        pub enum #name {}
+        pub enum #name {
+            #(#values)*
+        }
+    };
+
+    let custom_serde = if is_int_enum {
+        Some(quote! {
+            impl Serialize for #name {
+                fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+                    where S: serde::Serializer
+                {
+                    match self {
+                        #(#sers)*
+                    }
+                }
+            }
+            impl<'de> Deserialize<'de> for #name {
+                fn deserialize<D>(deserializer: D) -> Result<#name, D::Error>
+                    where D: serde::Deserializer<'de>
+                {
+                    let value = #value_type::deserialize(deserializer)?;
+                    match value {
+                        #(#desers)*
+                    }
+                }
+            }
+        })
+    } else {
+        None
+    };
+
+    quote! {
+        #enum_tokens
+        #custom_serde
     }
 }
 
