@@ -264,7 +264,7 @@ pub struct SelectionRange {
     pub range: Range,
     /// The parent selection range containing this range. Therefore `parent.range` must contain `this.range`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent: Option<SelectionRange>,
+    pub parent: Option<Box<SelectionRange>>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]

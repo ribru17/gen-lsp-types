@@ -107,7 +107,7 @@ fn resolve_struct_properties(
             return;
         }
         let prop_name = format_ident!("{}", camel_to_snake(&reference_type.name));
-        let type_ = render_type(type_);
+        let type_ = render_type(type_, None);
         mixin_props.push(quote! {
             #[serde(flatten)]
             pub #prop_name: #type_,
@@ -116,7 +116,7 @@ fn resolve_struct_properties(
     (structure_props, mixin_props)
 }
 
-fn render_type(type_: Type) -> TokenStream {
+fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
     // Serde is stupid and always will be.
     // https://github.com/serde-rs/serde/issues/1475
     let type_ = if let Type::AndType(t) = type_ {
@@ -138,10 +138,15 @@ fn render_type(type_: Type) -> TokenStream {
     match type_ {
         Type::ReferenceType(ref_type) => {
             let ident = format_ident!("{}", ref_type.name);
-            quote! { #ident }
+            // Add type indirection to prevent infinite struct size.
+            if parent_name.is_some_and(|pt| pt == ref_type.name) {
+                quote! { Box<#ident> }
+            } else {
+                quote! { #ident }
+            }
         }
         Type::ArrayType(array_type) => {
-            let element_type = render_type(array_type.element);
+            let element_type = render_type(array_type.element, None);
             quote! { Vec<#element_type> }
         }
         Type::BaseType(base_type) => match base_type.name {
@@ -157,7 +162,10 @@ fn render_type(type_: Type) -> TokenStream {
             BaseTypes::Null => quote! { () },
         },
         Type::TupleType(tuple_type) => {
-            let types = tuple_type.items.into_iter().map(render_type);
+            let types = tuple_type
+                .items
+                .into_iter()
+                .map(|item| render_type(item, None));
             quote! { (#( #types ),*) }
         }
         Type::MapType(map_type) => {
@@ -174,8 +182,8 @@ fn render_type(type_: Type) -> TokenStream {
                     Type::BaseType(BaseType { kind, name })
                 }
             };
-            let key = render_type(key_type);
-            let value = render_type(*map_type.value);
+            let key = render_type(key_type, None);
+            let value = render_type(*map_type.value, None);
             quote! { HashMap<#key, #value> }
         }
         // TODO
@@ -245,7 +253,7 @@ fn render_structure(
                     quote! {},
                 )
             };
-            let mut type_ = render_type(property.type_);
+            let mut type_ = render_type(property.type_, Some(&structure.name));
 
             if property.optional == Some(true) {
                 serde_attributes = quote! {
@@ -302,7 +310,7 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
 fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
     let documentation = render_documentation(type_alias.documentation);
     let name = format_ident!("{}", type_alias.name);
-    let type_ = render_type(type_alias.type_);
+    let type_ = render_type(type_alias.type_, None);
 
     quote! {
         #documentation
