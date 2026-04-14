@@ -143,6 +143,12 @@ fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
 
     match type_ {
         Type::ReferenceType(ref_type) => {
+            match ref_type.name.as_str() {
+                "LSPAny" => return quote! { LspAny },
+                "LSPObject" => return quote! { LspObject },
+                "LSPArray" => return quote! { LspArray },
+                _ => {}
+            }
             let ident = format_ident!("{}", ref_type.name);
             // Add type indirection to prevent infinite struct size.
             if parent_name.is_some_and(|pt| pt == ref_type.name) {
@@ -189,13 +195,21 @@ fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
             let value = render_type(&map_type.value, None);
             quote! { HashMap<#key, #value> }
         }
-        Type::StringLiteralType(_) => {
-            // This code should be unreachable. Mark it as such?
-            quote! { String }
+        Type::StringLiteralType(e) => {
+            panic!("String literal types should be handled specially: {e:?}");
         }
-        // TODO
         Type::OrType(or_type) => {
-            quote! { i32 }
+            let len = or_type.items.len();
+            let ident = format_ident!("Or{}", len);
+            let vals = or_type.items.iter().map(|item| render_type(item, None));
+            quote! { #ident<#(#vals),*> }
+        }
+        Type::StructureLiteralType(struct_lit) => {
+            assert!(
+                struct_lit.value.properties.is_empty(),
+                "Currently only empty struct literals are supported."
+            );
+            quote! { LspObject }
         }
         t => panic!("Unsupported type: {t:?}"),
     }
@@ -533,6 +547,29 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
 fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
     let documentation = render_documentation(type_alias.documentation);
     let name = format_ident!("{}", type_alias.name);
+
+    match type_alias.name.as_str() {
+        "LSPObject" => {
+            return quote! {
+                #documentation
+                pub type LspObject = HashMap<String, LspAny>;
+            };
+        }
+        "LSPAny" => {
+            return quote! {
+                #documentation
+                pub type LspAny = serde_json::Value;
+            };
+        }
+        "LSPArray" => {
+            return quote! {
+                #documentation
+                pub type LspArray = Vec<LspAny>;
+            };
+        }
+        _ => {}
+    };
+
     let type_ = render_type(&type_alias.type_, None);
 
     quote! {
@@ -569,6 +606,58 @@ fn main() {
         use std::collections::HashMap;
     };
 
+    let predefs = quote! {
+        /// This allows a field to have two types.
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[serde(untagged)]
+        pub enum Or2<T, U> {
+            T(T),
+            U(U),
+        }
+
+        /// This allows a field to have three types.
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[serde(untagged)]
+        pub enum Or3<T, U, V> {
+            T(T),
+            U(U),
+            V(V),
+        }
+
+        /// This allows a field to have four types.
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[serde(untagged)]
+        pub enum Or4<T, U, V, W> {
+            T(T),
+            U(U),
+            V(V),
+            W(W),
+        }
+
+        /// This allows a field to have five types.
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[serde(untagged)]
+        pub enum Or5<T, U, V, W, X> {
+            T(T),
+            U(U),
+            V(V),
+            W(W),
+            X(X),
+        }
+
+        /// This allows a field to have six types.
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[serde(untagged)]
+        pub enum Or6<T, U, V, W, X, Y> {
+            T(T),
+            U(U),
+            V(V),
+            W(W),
+            X(X),
+            Y(Y),
+        }
+    };
+
     let structures = model
         .structures
         .into_iter()
@@ -580,6 +669,7 @@ fn main() {
 
     let all_items = iter::once(preamble)
         .chain(iter::once(imports))
+        .chain(iter::once(predefs))
         .chain(structures)
         .chain(enumerations)
         .chain(type_aliases);
