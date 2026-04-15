@@ -6,7 +6,7 @@ use regex::{Captures, Regex};
 
 use crate::schema::{
     BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName, MapKeyType,
-    MapKeyTypeObjectName, OrType, Property, Structure, TupleType, Type, TypeAlias,
+    MapKeyTypeObjectName, OrType, Property, ReferenceType, Structure, TupleType, Type, TypeAlias,
 };
 
 // TODO: Add CI to ensure the locally copied metaModel matches the one at this URL.
@@ -221,18 +221,271 @@ fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
     }
 }
 
+fn get_struct_derives(
+    structure: &Structure,
+    structs_map: &HashMap<String, Structure>,
+    enums_map: &HashMap<String, Enumeration>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
+) -> Vec<&'static str> {
+    // Start with the commonly shared derives.
+    let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
+
+    let mut eqable = true;
+    let mut defaultable = true;
+    let mut copyable = true;
+
+    for (prop_type, optional) in structure
+        .properties
+        .iter()
+        .map(|prop| (&prop.type_, prop.optional.unwrap_or_default()))
+        .chain(structure.mixins.iter().map(|mix| (mix, false)))
+        .chain(structure.extends.iter().map(|extend| (extend, false)))
+    {
+        if let Type::ReferenceType(ReferenceType { kind: _, name }) = prop_type
+            && name == &structure.name
+        {
+            copyable = false;
+            continue;
+        }
+
+        if eqable && has_float(prop_type, structs_map, type_aliases_map) {
+            eqable = false;
+        }
+        if defaultable && !optional && !is_defaultable(prop_type, structs_map, type_aliases_map) {
+            defaultable = false;
+        }
+        if copyable && !is_copyable(prop_type, structs_map, enums_map, type_aliases_map) {
+            copyable = false;
+        }
+    }
+    if eqable {
+        derives.push("Eq");
+    }
+    if defaultable {
+        derives.push("Default");
+    }
+    if copyable {
+        derives.push("Copy");
+    }
+    derives
+}
+
+fn get_enum_derives(enumeration: &Enumeration) -> Vec<&'static str> {
+    let mut derives = vec!["PartialEq", "Eq", "Debug", "Clone"];
+    if matches!(
+        enumeration.type_.name,
+        EnumerationTypeName::Integer | EnumerationTypeName::Uinteger
+    ) {
+        derives.push("Copy");
+    } else {
+        derives.push("Serialize");
+        derives.push("Deserialize");
+        if enumeration.supports_custom_values != Some(true) {
+            derives.push("Copy");
+        }
+    }
+    derives
+}
+
+fn is_defaultable(
+    type_: &Type,
+    structs_map: &HashMap<String, Structure>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
+) -> bool {
+    // Serde is stupid and always will be.
+    // https://github.com/serde-rs/serde/issues/1475
+    let type_ = if let Type::AndType(t) = type_ {
+        match t.kind.as_str() {
+            "tuple" => &Type::TupleType(TupleType {
+                items: t.items.clone(),
+                kind: t.kind.clone(),
+            }),
+            "or" => &Type::OrType(OrType {
+                items: t.items.clone(),
+                kind: t.kind.clone(),
+            }),
+            _ => type_,
+        }
+    } else {
+        type_
+    };
+
+    match type_ {
+        Type::ArrayType(_)
+        | Type::MapType(_)
+        | Type::StringLiteralType(_)
+        | Type::IntegerLiteralType(_)
+        | Type::StructureLiteralType(_)
+        | Type::BooleanLiteralType(_) => true,
+        Type::BaseType(BaseType { kind: _, name }) => {
+            !matches!(name, BaseTypes::DocumentUri | BaseTypes::Uri)
+        }
+        Type::OrType(or_type) => or_type
+            .items
+            .iter()
+            .find(|item| {
+                matches!(
+                    item,
+                    Type::BaseType(BaseType {
+                        kind: _,
+                        name: BaseTypes::Null
+                    })
+                )
+            })
+            .is_some(),
+        Type::TupleType(tuple_type) => tuple_type
+            .items
+            .iter()
+            .all(|item| is_defaultable(item, structs_map, type_aliases_map)),
+        Type::AndType(and_type) => and_type
+            .items
+            .iter()
+            .all(|item| is_defaultable(item, structs_map, type_aliases_map)),
+        Type::ReferenceType(ref_type) => {
+            if let Some(structure) = structs_map.get(&ref_type.name) {
+                structure
+                    .properties
+                    .iter()
+                    .filter_map(|prop| {
+                        if prop.optional == Some(true) {
+                            None
+                        } else {
+                            Some(&prop.type_)
+                        }
+                    })
+                    .chain(&structure.mixins)
+                    .chain(&structure.extends)
+                    .all(|prop_type| is_defaultable(prop_type, structs_map, type_aliases_map))
+            } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
+                is_defaultable(&type_alias.type_, structs_map, type_aliases_map)
+            } else {
+                false
+            }
+        }
+    }
+}
+
+fn is_copyable(
+    type_: &Type,
+    structs_map: &HashMap<String, Structure>,
+    enums_map: &HashMap<String, Enumeration>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
+) -> bool {
+    // Serde is stupid and always will be.
+    // https://github.com/serde-rs/serde/issues/1475
+    let type_ = if let Type::AndType(t) = type_ {
+        match t.kind.as_str() {
+            "tuple" => &Type::TupleType(TupleType {
+                items: t.items.clone(),
+                kind: t.kind.clone(),
+            }),
+            "or" => &Type::OrType(OrType {
+                items: t.items.clone(),
+                kind: t.kind.clone(),
+            }),
+            _ => type_,
+        }
+    } else {
+        type_
+    };
+
+    match type_ {
+        Type::ArrayType(_)
+        | Type::MapType(_)
+        | Type::StringLiteralType(_)
+        | Type::StructureLiteralType(_)
+        | Type::AndType(_) => false,
+        Type::IntegerLiteralType(_) | Type::BooleanLiteralType(_) => true,
+        Type::BaseType(BaseType { kind: _, name }) => {
+            matches!(
+                name,
+                BaseTypes::Boolean
+                    | BaseTypes::Integer
+                    | BaseTypes::Decimal
+                    | BaseTypes::Uinteger
+                    | BaseTypes::Null
+            )
+        }
+        Type::OrType(or_type) => or_type
+            .items
+            .iter()
+            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map)),
+        Type::TupleType(tuple_type) => tuple_type
+            .items
+            .iter()
+            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map)),
+        Type::ReferenceType(ref_type) => {
+            if let Some(structure) = structs_map.get(&ref_type.name) {
+                structure
+                    .properties
+                    .iter()
+                    .map(|prop| &prop.type_)
+                    .chain(&structure.mixins)
+                    .chain(&structure.extends)
+                    .all(|prop_type| {
+                        is_copyable(prop_type, structs_map, enums_map, type_aliases_map)
+                    })
+            } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
+                is_copyable(&type_alias.type_, structs_map, enums_map, type_aliases_map)
+            } else if let Some(enumeration) = enums_map.get(&ref_type.name) {
+                get_enum_derives(enumeration).contains(&"Copy")
+            } else {
+                false
+            }
+        }
+    }
+}
+
+fn has_float(
+    type_: &Type,
+    structs_map: &HashMap<String, Structure>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
+) -> bool {
+    match type_ {
+        Type::BaseType(BaseType {
+            kind: _,
+            name: BaseTypes::Decimal,
+        }) => true,
+        Type::ReferenceType(ref_type) => {
+            if let Some(structure) = structs_map.get(&ref_type.name) {
+                for prop in structure
+                    .properties
+                    .iter()
+                    .map(|prop| &prop.type_)
+                    .chain(&structure.extends)
+                    .chain(&structure.mixins)
+                {
+                    if has_float(prop, structs_map, type_aliases_map) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
+                return has_float(&type_alias.type_, structs_map, type_aliases_map);
+            }
+            false
+        }
+        _ => false,
+    }
+}
+
 fn render_structure(
     structure: Structure,
     structs_map: &HashMap<String, Structure>,
+    enums_map: &HashMap<String, Enumeration>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> Option<TokenStream> {
     // We inline these structs; consider them private and do not generate.
     if structure.name.starts_with('_') {
         return None;
     }
 
-    // TODO: Add `Default` and/or `Copy` if all properties implement them.
+    let derives = get_struct_derives(&structure, structs_map, enums_map, type_aliases_map)
+        .into_iter()
+        .map(|derive| format_ident!("{derive}"));
     let mut attributes = quote! {
-        #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
+        #[derive(#(#derives),*)]
         #[serde(rename_all = "camelCase")]
     };
     let name = format_ident!("{}", structure.name);
@@ -404,22 +657,18 @@ fn render_structure(
 }
 
 fn render_enumeration(enumeration: Enumeration) -> TokenStream {
+    let derives = get_enum_derives(&enumeration)
+        .into_iter()
+        .map(|derive| format_ident!("{derive}"));
+    let mut attributes = quote! {
+        #[derive(#(#derives),*)]
+    };
+
     let documentation = render_documentation(enumeration.documentation);
     let is_int_enum = matches!(
         enumeration.type_.name,
         EnumerationTypeName::Integer | EnumerationTypeName::Uinteger
     );
-
-    // TODO: Add `Default` and/or `Copy` if all properties implement them.
-    let mut attributes = if is_int_enum {
-        quote! {
-            #[derive(PartialEq, Eq, Debug, Clone)]
-        }
-    } else {
-        quote! {
-            #[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
-        }
-    };
 
     if let Some(note) = enumeration.deprecated {
         attributes = quote! {
@@ -608,6 +857,20 @@ fn main() {
         .map(|s| (s.name.clone(), s))
         .collect();
 
+    let enums_map: HashMap<String, Enumeration> = model
+        .enumerations
+        .clone()
+        .into_iter()
+        .map(|e| (e.name.clone(), e))
+        .collect();
+
+    let type_aliases_map: HashMap<String, TypeAlias> = model
+        .type_aliases
+        .clone()
+        .into_iter()
+        .map(|ta| (ta.name.clone(), ta))
+        .collect();
+
     let preamble = quote! {
         //! This file is generated by an xtask. Do not edit.
     };
@@ -619,7 +882,7 @@ fn main() {
 
     let predefs = quote! {
         /// This allows a field to have two types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
         #[serde(untagged)]
         pub enum Or2<T, U> {
             T(T),
@@ -627,7 +890,7 @@ fn main() {
         }
 
         /// This allows a field to have three types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
         #[serde(untagged)]
         pub enum Or3<T, U, V> {
             T(T),
@@ -636,7 +899,7 @@ fn main() {
         }
 
         /// This allows a field to have four types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
         #[serde(untagged)]
         pub enum Or4<T, U, V, W> {
             T(T),
@@ -646,7 +909,7 @@ fn main() {
         }
 
         /// This allows a field to have five types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
         #[serde(untagged)]
         pub enum Or5<T, U, V, W, X> {
             T(T),
@@ -657,7 +920,7 @@ fn main() {
         }
 
         /// This allows a field to have six types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
         #[serde(untagged)]
         pub enum Or6<T, U, V, W, X, Y> {
             T(T),
@@ -669,10 +932,9 @@ fn main() {
         }
     };
 
-    let structures = model
-        .structures
-        .into_iter()
-        .flat_map(|structure| render_structure(structure, &structs_map));
+    let structures = model.structures.into_iter().flat_map(|structure| {
+        render_structure(structure, &structs_map, &enums_map, &type_aliases_map)
+    });
 
     let enumerations = model.enumerations.into_iter().map(render_enumeration);
 
