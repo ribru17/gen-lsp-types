@@ -84,13 +84,13 @@ fn render_documentation(documentation: Option<String>) -> TokenStream {
 
 fn resolve_struct_properties(
     properties: Vec<Property>,
-    extends: &[Type],
-    mixins: &[Type],
+    extends: Vec<Type>,
+    mixins: Vec<Type>,
     structs_map: &HashMap<String, Structure>,
 ) -> (Vec<Property>, Vec<TokenStream>) {
     let mut structure_props = properties;
     let mut mixin_props = Vec::with_capacity(extends.len() + mixins.len());
-    mixins.iter().chain(extends).for_each(|type_| {
+    mixins.into_iter().chain(extends).for_each(|type_| {
         let Type::ReferenceType(reference_type) = &type_ else {
             panic!("Expected mixin/extend type to be a reference: {:?}", type_);
         };
@@ -101,8 +101,8 @@ fn resolve_struct_properties(
                 Some(structure) => {
                     let (inner_sp, inner_mp) = resolve_struct_properties(
                         structure.properties.clone(),
-                        &structure.extends,
-                        &structure.mixins,
+                        structure.extends.clone(),
+                        structure.mixins.clone(),
                         structs_map,
                     );
                     structure_props.extend(inner_sp);
@@ -122,20 +122,20 @@ fn resolve_struct_properties(
     (structure_props, mixin_props)
 }
 
-fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
+fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
     // Serde is stupid and always will be.
     // https://github.com/serde-rs/serde/issues/1475
     let type_ = if let Type::AndType(t) = type_ {
         match t.kind.as_str() {
-            "tuple" => &Type::TupleType(TupleType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
+            "tuple" => Type::TupleType(TupleType {
+                items: t.items,
+                kind: t.kind,
             }),
-            "or" => &Type::OrType(OrType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
+            "or" => Type::OrType(OrType {
+                items: t.items,
+                kind: t.kind,
             }),
-            _ => &Type::AndType(t.clone()),
+            _ => Type::AndType(t),
         }
     } else {
         type_
@@ -158,7 +158,7 @@ fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
             }
         }
         Type::ArrayType(array_type) => {
-            let element_type = render_type(&array_type.element, None);
+            let element_type = render_type(array_type.element, None);
             quote! { Vec<#element_type> }
         }
         Type::BaseType(base_type) => match base_type.name {
@@ -174,11 +174,14 @@ fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
             BaseTypes::Null => quote! { () },
         },
         Type::TupleType(tuple_type) => {
-            let types = tuple_type.items.iter().map(|item| render_type(item, None));
+            let types = tuple_type
+                .items
+                .into_iter()
+                .map(|item| render_type(item, None));
             quote! { (#( #types ),*) }
         }
         Type::MapType(map_type) => {
-            let map_key_type = map_type.key.clone();
+            let map_key_type = map_type.key;
             let key_type = match map_key_type {
                 MapKeyType::ReferenceType(ref_type) => Type::ReferenceType(ref_type),
                 MapKeyType::Object { kind, name } => {
@@ -191,8 +194,8 @@ fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
                     Type::BaseType(BaseType { kind, name })
                 }
             };
-            let key = render_type(&key_type, None);
-            let value = render_type(&map_type.value, None);
+            let key = render_type(key_type, None);
+            let value = render_type(*map_type.value, None);
             quote! { HashMap<#key, #value> }
         }
         Type::StringLiteralType(e) => {
@@ -201,7 +204,10 @@ fn render_type(type_: &Type, parent_name: Option<&str>) -> TokenStream {
         Type::OrType(or_type) => {
             let len = or_type.items.len();
             let ident = format_ident!("Or{}", len);
-            let vals = or_type.items.iter().map(|item| render_type(item, None));
+            let vals = or_type
+                .items
+                .into_iter()
+                .map(|item| render_type(item, None));
             quote! { #ident<#(#vals),*> }
         }
         Type::StructureLiteralType(struct_lit) => {
@@ -244,25 +250,25 @@ fn render_structure(
         .is_some();
     let (structure_props, mixin_props) = resolve_struct_properties(
         structure.properties,
-        &structure.extends,
-        &structure.mixins,
+        structure.extends,
+        structure.mixins,
         structs_map,
     );
     let mut string_lit_prop = None;
 
     let properties: Vec<_> = structure_props
-        .iter()
+        .into_iter()
         .flat_map(|property| {
             if matches!(property.type_, Type::StringLiteralType(_)) {
-                string_lit_prop = Some(property.clone());
+                string_lit_prop = Some(property);
                 return None;
             }
-            let deprecated = property.deprecated.clone().map(|note| {
+            let deprecated = property.deprecated.map(|note| {
                 quote! {
                     #[deprecated(note = #note)]
                 }
             });
-            let documentation = render_documentation(property.documentation.clone());
+            let documentation = render_documentation(property.documentation);
 
             let (name, mut serde_attributes) = if property.name == "type" {
                 assert!(
@@ -277,7 +283,7 @@ fn render_structure(
                     quote! {},
                 )
             };
-            let mut type_ = render_type(&property.type_, Some(&structure.name));
+            let mut type_ = render_type(property.type_, Some(&structure.name));
 
             if property.optional == Some(true) {
                 serde_attributes = quote! {
@@ -308,8 +314,12 @@ fn render_structure(
         };
         let prop_value = lit_type.value;
         let err = format!("Invalid value for prop {}: {{}}", strlit_prop.name);
-        let (try_from_props, from_props): (Vec<TokenStream>, Vec<TokenStream>) = structure_props
-            .into_iter()
+        let structure = &structs_map
+            .get(&structure.name)
+            .expect("Structure not found");
+        let (try_from_props, from_props): (Vec<TokenStream>, Vec<TokenStream>) = structure
+            .properties
+            .iter()
             .flat_map(|prop| {
                 if matches!(prop.type_, Type::StringLiteralType(_)) {
                     return None;
@@ -327,8 +337,9 @@ fn render_structure(
             .chain(
                 structure
                     .mixins
+                    .clone()
                     .into_iter()
-                    .chain(structure.extends)
+                    .chain(structure.extends.clone())
                     .map(|prop| {
                         let Type::ReferenceType(ref_type) = prop else {
                             unreachable!()
@@ -570,7 +581,7 @@ fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
         _ => {}
     };
 
-    let type_ = render_type(&type_alias.type_, None);
+    let type_ = render_type(type_alias.type_, None);
 
     quote! {
         #documentation
