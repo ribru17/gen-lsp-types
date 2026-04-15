@@ -113,7 +113,7 @@ fn resolve_struct_properties(
             return;
         }
         let prop_name = format_ident!("{}", camel_to_snake(&reference_type.name));
-        let type_ = render_type(type_, None);
+        let type_ = render_type(type_, None, None);
         mixin_props.push(quote! {
             #[serde(flatten)]
             pub #prop_name: #type_,
@@ -122,7 +122,16 @@ fn resolve_struct_properties(
     (structure_props, mixin_props)
 }
 
-fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
+/// Render an LSP type.
+///
+/// Parameters:
+///
+/// * `type` - The type to be rendered.
+/// * `parent_name` - The name of the parent struct for this property. Should be `None` if this type
+///   does not represent a struct property.
+/// * `optional` - Whether or not this property is optional. Should be `None` if this type does not
+///   represent a struct property.
+fn render_type(type_: Type, parent_name: Option<&str>, optional: Option<bool>) -> TokenStream {
     // Serde is stupid and always will be.
     // https://github.com/serde-rs/serde/issues/1475
     let type_ = if let Type::AndType(t) = type_ {
@@ -158,7 +167,7 @@ fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
             }
         }
         Type::ArrayType(array_type) => {
-            let element_type = render_type(array_type.element, None);
+            let element_type = render_type(array_type.element, None, None);
             quote! { Vec<#element_type> }
         }
         Type::BaseType(base_type) => match base_type.name {
@@ -177,7 +186,7 @@ fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
             let types = tuple_type
                 .items
                 .into_iter()
-                .map(|item| render_type(item, None));
+                .map(|item| render_type(item, None, None));
             quote! { (#( #types ),*) }
         }
         Type::MapType(map_type) => {
@@ -194,8 +203,8 @@ fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
                     Type::BaseType(BaseType { kind, name })
                 }
             };
-            let key = render_type(key_type, None);
-            let value = render_type(*map_type.value, None);
+            let key = render_type(key_type, None, None);
+            let value = render_type(*map_type.value, None, None);
             quote! { HashMap<#key, #value> }
         }
         Type::StringLiteralType(e) => {
@@ -204,11 +213,39 @@ fn render_type(type_: Type, parent_name: Option<&str>) -> TokenStream {
         Type::OrType(or_type) => {
             let len = or_type.items.len();
             let ident = format_ident!("Or{}", len);
+            let mut filtered = false;
             let vals = or_type
                 .items
                 .into_iter()
-                .map(|item| render_type(item, None));
-            quote! { #ident<#(#vals),*> }
+                .filter(|item| {
+                    if optional != Some(false) {
+                        return true;
+                    }
+                    if matches!(
+                        item,
+                        Type::BaseType(BaseType {
+                            kind: _,
+                            name: BaseTypes::Null
+                        })
+                    ) {
+                        filtered = true;
+                        false
+                    } else {
+                        true
+                    }
+                })
+                .map(|item| render_type(item, None, None))
+                .collect::<Vec<_>>();
+            if filtered {
+                if len == 2 {
+                    quote! { Option<#(#vals),*> }
+                } else {
+                    let ident = format_ident!("Or{}", len - 1);
+                    quote! { Option<#ident<#(#vals),*>> }
+                }
+            } else {
+                quote! { #ident<#(#vals),*> }
+            }
         }
         Type::StructureLiteralType(struct_lit) => {
             assert!(
@@ -536,7 +573,11 @@ fn render_structure(
                     quote! {},
                 )
             };
-            let mut type_ = render_type(property.type_, Some(&structure.name));
+            let mut type_ = render_type(
+                property.type_,
+                Some(&structure.name),
+                property.optional.or(Some(false)),
+            );
 
             if property.optional == Some(true) {
                 serde_attributes = quote! {
@@ -830,7 +871,7 @@ fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
         _ => {}
     };
 
-    let type_ = render_type(type_alias.type_, None);
+    let type_ = render_type(type_alias.type_, None, None);
 
     quote! {
         #documentation

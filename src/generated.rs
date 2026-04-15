@@ -208,7 +208,7 @@ pub struct WorkDoneProgressOptions {
 pub struct TextDocumentRegistrationOptions {
     /// A document selector to identify the scope of the registration. If set to null
     /// the document selector provided on the client side will be used.
-    pub document_selector: Or2<DocumentSelector, ()>,
+    pub document_selector: Option<DocumentSelector>,
 }
 
 /// Parameters for a [FoldingRangeRequest].
@@ -1226,7 +1226,7 @@ pub struct InitializeParams {
     ///
     /// Is `null` if the process has not been started by another process.
     /// If the parent process is not alive then the server should exit.
-    pub process_id: Or2<i32, ()>,
+    pub process_id: Option<i32>,
     /// Information about the client
     ///
     /// @since 3.15.0
@@ -1255,7 +1255,7 @@ pub struct InitializeParams {
     ///
     /// @deprecated in favour of workspaceFolders.
     #[deprecated(note = "in favour of workspaceFolders.")]
-    pub root_uri: Or2<String, ()>,
+    pub root_uri: Option<String>,
     /// The capabilities provided by the client (editor or tool)
     pub capabilities: ClientCapabilities,
     /// User provided initialization options.
@@ -4563,7 +4563,7 @@ pub struct OptionalVersionedTextDocumentIdentifier {
     /// (the server has not received an open notification before) the server can send
     /// `null` to indicate that the version is unknown and the content on disk is the
     /// truth (as specified with document content ownership).
-    pub version: Or2<i32, ()>,
+    pub version: Option<i32>,
     #[serde(flatten)]
     pub text_document_identifier: TextDocumentIdentifier,
 }
@@ -4680,7 +4680,7 @@ pub struct WorkspaceFullDocumentDiagnosticReport {
     pub uri: String,
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
-    pub version: Or2<i32, ()>,
+    pub version: Option<i32>,
     #[serde(flatten)]
     pub full_document_diagnostic_report: FullDocumentDiagnosticReport,
 }
@@ -4695,7 +4695,7 @@ pub struct WorkspaceUnchangedDocumentDiagnosticReport {
     pub uri: String,
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
-    pub version: Or2<i32, ()>,
+    pub version: Option<i32>,
     #[serde(flatten)]
     pub unchanged_document_diagnostic_report: UnchangedDocumentDiagnosticReport,
 }
