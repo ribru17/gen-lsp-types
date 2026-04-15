@@ -132,24 +132,6 @@ fn resolve_struct_properties(
 /// * `optional` - Whether or not this property is optional. Should be `None` if this type does not
 ///   represent a struct property.
 fn render_type(type_: Type, parent_name: Option<&str>, optional: Option<bool>) -> TokenStream {
-    // Serde is stupid and always will be.
-    // https://github.com/serde-rs/serde/issues/1475
-    let type_ = if let Type::AndType(t) = type_ {
-        match t.kind.as_str() {
-            "tuple" => Type::TupleType(TupleType {
-                items: t.items,
-                kind: t.kind,
-            }),
-            "or" => Type::OrType(OrType {
-                items: t.items,
-                kind: t.kind,
-            }),
-            _ => Type::AndType(t),
-        }
-    } else {
-        type_
-    };
-
     match type_ {
         Type::ReferenceType(ref_type) => {
             match ref_type.name.as_str() {
@@ -325,24 +307,6 @@ fn get_enum_derives(enumeration: &Enumeration) -> Vec<&'static str> {
 }
 
 fn is_nullable(type_: &Type) -> bool {
-    // Serde is stupid and always will be.
-    // https://github.com/serde-rs/serde/issues/1475
-    let type_ = if let Type::AndType(t) = type_ {
-        match t.kind.as_str() {
-            "tuple" => &Type::TupleType(TupleType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
-            }),
-            "or" => &Type::OrType(OrType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
-            }),
-            _ => type_,
-        }
-    } else {
-        type_
-    };
-
     match type_ {
         Type::OrType(or_type) => or_type
             .items
@@ -370,24 +334,6 @@ fn is_defaultable(
     structs_map: &HashMap<String, Structure>,
     type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> bool {
-    // Serde is stupid and always will be.
-    // https://github.com/serde-rs/serde/issues/1475
-    let type_ = if let Type::AndType(t) = type_ {
-        match t.kind.as_str() {
-            "tuple" => &Type::TupleType(TupleType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
-            }),
-            "or" => &Type::OrType(OrType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
-            }),
-            _ => type_,
-        }
-    } else {
-        type_
-    };
-
     match type_ {
         Type::ArrayType(_)
         | Type::MapType(_)
@@ -449,24 +395,6 @@ fn is_copyable(
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> bool {
-    // Serde is stupid and always will be.
-    // https://github.com/serde-rs/serde/issues/1475
-    let type_ = if let Type::AndType(t) = type_ {
-        match t.kind.as_str() {
-            "tuple" => &Type::TupleType(TupleType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
-            }),
-            "or" => &Type::OrType(OrType {
-                items: t.items.clone(),
-                kind: t.kind.clone(),
-            }),
-            _ => type_,
-        }
-    } else {
-        type_
-    };
-
     match type_ {
         Type::ArrayType(_)
         | Type::MapType(_)
@@ -935,17 +863,107 @@ fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
     }
 }
 
+fn fix_serde_stupidity(type_: &mut Type) {
+    // Serde is stupid and always will be.
+    // https://github.com/serde-rs/serde/issues/1475
+    if let Type::AndType(t) = type_ {
+        match t.kind.as_str() {
+            "tuple" => {
+                *type_ = Type::TupleType(TupleType {
+                    items: t.items.clone(),
+                    kind: t.kind.clone(),
+                })
+            }
+            "or" => {
+                *type_ = Type::OrType(OrType {
+                    items: t.items.clone(),
+                    kind: t.kind.clone(),
+                })
+            }
+            _ => {}
+        }
+    }
+
+    match type_ {
+        Type::AndType(and_type) => {
+            for type_ in &mut and_type.items {
+                fix_serde_stupidity(type_);
+            }
+        }
+        Type::TupleType(tuple_type) => {
+            for type_ in &mut tuple_type.items {
+                fix_serde_stupidity(type_);
+            }
+        }
+        Type::OrType(or_type) => {
+            for type_ in &mut or_type.items {
+                fix_serde_stupidity(type_);
+            }
+        }
+        Type::ArrayType(array_type) => {
+            fix_serde_stupidity(&mut array_type.element);
+        }
+        Type::MapType(map_type) => {
+            fix_serde_stupidity(&mut map_type.value);
+        }
+        _ => {}
+    }
+}
+
 fn main() {
     // Run the generator.
     let model_string =
         fs::read_to_string("xtask/metaModel.json").expect("No local metaModel copy found");
 
-    let model: schema::MetaModel = serde_json::from_str(&model_string).unwrap();
+    let mut model: schema::MetaModel = serde_json::from_str(&model_string).unwrap();
 
     println!(
         "Generating types for LSP version {}...",
         model.meta_data.version
     );
+
+    // Iterate over every possible thing that can be a `Type` and correct its deserialization.
+    // Thanks serde!
+    for type_ in model.type_aliases.iter_mut().map(|ta| &mut ta.type_) {
+        fix_serde_stupidity(type_);
+    }
+    for type_ in model.structures.iter_mut().flat_map(|structure| {
+        structure
+            .properties
+            .iter_mut()
+            .map(|prop| &mut prop.type_)
+            .chain(&mut structure.extends)
+            .chain(&mut structure.mixins)
+    }) {
+        fix_serde_stupidity(type_);
+    }
+    for type_ in model.notifications.iter_mut().flat_map(|noti| {
+        noti.registration_options
+            .iter_mut()
+            .chain(noti.params.iter_mut().flat_map(|p| {
+                p.subtype_0
+                    .iter_mut()
+                    .chain(p.subtype_1.iter_mut().flatten())
+            }))
+    }) {
+        fix_serde_stupidity(type_);
+    }
+    for type_ in model.requests.iter_mut().flat_map(|req| {
+        req.registration_options
+            .iter_mut()
+            .chain(req.error_data.iter_mut())
+            .chain(req.partial_result.iter_mut())
+            .chain(std::iter::once(&mut req.result))
+            .chain(req.params.iter_mut().flat_map(|p| {
+                p.subtype_0
+                    .iter_mut()
+                    .chain(p.subtype_1.iter_mut().flatten())
+            }))
+    }) {
+        fix_serde_stupidity(type_);
+    }
+
+    let model = model;
 
     let structs_map: HashMap<String, Structure> = model
         .structures
