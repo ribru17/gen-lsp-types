@@ -250,6 +250,7 @@ fn get_struct_derives(
     let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
 
     let mut eqable = true;
+    let mut hashable = true;
     let mut defaultable = true;
     let mut copyable = true;
 
@@ -270,6 +271,9 @@ fn get_struct_derives(
         if eqable && has_float(prop_type, structs_map, type_aliases_map) {
             eqable = false;
         }
+        if eqable && hashable && !is_hashable(prop_type, structs_map, type_aliases_map) {
+            hashable = false;
+        }
         if defaultable && !optional && !is_defaultable(prop_type, structs_map, type_aliases_map) {
             defaultable = false;
         }
@@ -279,6 +283,9 @@ fn get_struct_derives(
     }
     if eqable {
         derives.push("Eq");
+        if hashable {
+            derives.push("Hash");
+        }
     }
     if defaultable {
         derives.push("Default");
@@ -286,11 +293,18 @@ fn get_struct_derives(
     if copyable {
         derives.push("Copy");
     }
+
+    // Special derives.
+    if matches!(structure.name.as_str(), "Position" | "Range") {
+        derives.push("PartialOrd");
+        derives.push("Ord");
+    }
+
     derives
 }
 
 fn get_enum_derives(enumeration: &Enumeration) -> Vec<&'static str> {
-    let mut derives = vec!["PartialEq", "Eq", "Debug", "Clone"];
+    let mut derives = vec!["PartialEq", "Eq", "Hash", "Debug", "Clone"];
     if matches!(
         enumeration.type_.name,
         EnumerationTypeName::Integer | EnumerationTypeName::Uinteger
@@ -439,6 +453,58 @@ fn is_copyable(
                 false
             }
         }
+    }
+}
+
+fn is_hashable(
+    type_: &Type,
+    structs_map: &HashMap<String, Structure>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
+) -> bool {
+    match type_ {
+        Type::MapType(_) | Type::StructureLiteralType(_) => false,
+        Type::StringLiteralType(_) | Type::IntegerLiteralType(_) | Type::BooleanLiteralType(_) => {
+            true
+        }
+        Type::BaseType(BaseType { kind: _, name }) => !matches!(name, BaseTypes::Decimal),
+        Type::ReferenceType(ref_type) => {
+            // if ref_type.name == "LSPObject" {
+            //     return false;
+            // }
+            // Prevent recursion in ArrayType lookups.
+            // TODO: Handle this generally?
+            if ref_type.name == "DocumentSymbol" {
+                return true;
+            }
+            if let Some(structure) = structs_map.get(&ref_type.name) {
+                structure
+                    .properties
+                    .iter()
+                    .map(|prop| &prop.type_)
+                    .chain(&structure.mixins)
+                    .chain(&structure.extends)
+                    .all(|prop_type| is_hashable(prop_type, structs_map, type_aliases_map))
+            } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
+                is_hashable(&type_alias.type_, structs_map, type_aliases_map)
+            } else {
+                true
+            }
+        }
+        Type::ArrayType(array_type) => {
+            is_hashable(&array_type.element, structs_map, type_aliases_map)
+        }
+        Type::AndType(and_type) => and_type
+            .items
+            .iter()
+            .all(|item| is_hashable(item, structs_map, type_aliases_map)),
+        Type::OrType(or_type) => or_type
+            .items
+            .iter()
+            .all(|item| is_hashable(item, structs_map, type_aliases_map)),
+        Type::TupleType(tuple_type) => tuple_type
+            .items
+            .iter()
+            .all(|item| is_hashable(item, structs_map, type_aliases_map)),
     }
 }
 
@@ -998,7 +1064,7 @@ fn main() {
 
     let predefs = quote! {
         /// This allows a field to have two types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
         #[serde(untagged)]
         pub enum Or2<T, U> {
             T(T),
@@ -1006,7 +1072,7 @@ fn main() {
         }
 
         /// This allows a field to have three types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
         #[serde(untagged)]
         pub enum Or3<T, U, V> {
             T(T),
@@ -1015,36 +1081,13 @@ fn main() {
         }
 
         /// This allows a field to have four types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
+        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
         #[serde(untagged)]
         pub enum Or4<T, U, V, W> {
             T(T),
             U(U),
             V(V),
             W(W),
-        }
-
-        /// This allows a field to have five types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
-        #[serde(untagged)]
-        pub enum Or5<T, U, V, W, X> {
-            T(T),
-            U(U),
-            V(V),
-            W(W),
-            X(X),
-        }
-
-        /// This allows a field to have six types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy)]
-        #[serde(untagged)]
-        pub enum Or6<T, U, V, W, X, Y> {
-            T(T),
-            U(U),
-            V(V),
-            W(W),
-            X(X),
-            Y(Y),
         }
 
         fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>

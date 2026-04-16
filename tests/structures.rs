@@ -1,6 +1,9 @@
+#![allow(deprecated)]
+use std::collections::{HashMap, HashSet};
+
 use gen_lsp_types::{
-    ColorPresentation, InitializeParams, Or2, TextDocumentRegistrationOptions,
-    WorkspaceFoldersInitializeParams,
+    ColorPresentation, DocumentSymbol, InitializeParams, Or2, Position, Range,
+    TextDocumentRegistrationOptions, WorkspaceFoldersInitializeParams,
 };
 
 #[test]
@@ -97,4 +100,65 @@ fn optional_nullable_field() {
         serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
         wfip
     );
+}
+
+#[test]
+fn derives() {
+    let pos = Position::default();
+    let table = HashMap::from([(pos, 123)]);
+    assert_eq!(table.get(&pos), Some(&123));
+
+    let range = Range::default();
+    let table = HashSet::from([range]);
+    assert!(table.contains(&range));
+
+    let doc_sym = DocumentSymbol {
+        kind: gen_lsp_types::SymbolKind::Function,
+        name: Default::default(),
+        detail: Default::default(),
+        tags: Default::default(),
+        deprecated: Default::default(),
+        range: Default::default(),
+        selection_range: Default::default(),
+        children: Default::default(),
+    };
+    let table = HashSet::from([doc_sym.clone()]);
+    assert!(table.contains(&doc_sym));
+}
+
+#[test]
+fn special_derives() {
+    let pos = Position {
+        line: 2,
+        character: 0,
+    };
+    let pos2 = Position {
+        line: 1,
+        character: 9,
+    };
+    assert!(pos2 < pos);
+
+    // Copy
+    let pos3 = pos2;
+    assert_eq!(pos3, pos2);
+
+    let range = Range {
+        start: pos2,
+        end: pos,
+    };
+    // Copy
+    let range2 = range;
+    assert_eq!(range2, range);
+
+    let range3 = Range {
+        start: Position::default(),
+        end: Position {
+            line: 999,
+            character: 999,
+        },
+    };
+    assert!(range3 < range2);
+
+    let range4 = Range::default();
+    assert!(range4 < range3);
 }
