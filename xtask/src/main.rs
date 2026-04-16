@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fs, iter, sync::LazyLock};
+use std::{
+    collections::{BTreeMap, HashMap},
+    fs, iter,
+    sync::LazyLock,
+};
 
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
@@ -542,11 +546,47 @@ fn has_float(
     }
 }
 
+impl PartialEq for MapKeyType {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (MapKeyType::ReferenceType(a), MapKeyType::ReferenceType(b)) => a.name == b.name,
+            (MapKeyType::Object { name: a, .. }, MapKeyType::Object { name: b, .. }) => a == b,
+            _ => false,
+        }
+    }
+}
+
+impl PartialEq for OrType {
+    fn eq(&self, other: &Self) -> bool {
+        self.items == other.items
+    }
+}
+
+impl PartialEq for Type {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Type::BaseType(a), Type::BaseType(b)) => a.name == b.name,
+            (Type::ReferenceType(a), Type::ReferenceType(b)) => a.name == b.name,
+            (Type::MapType(a), Type::MapType(b)) => a.key == b.key,
+            (Type::OrType(a), Type::OrType(b)) => a == b,
+            (Type::AndType(a), Type::AndType(b)) => a.items == b.items,
+            (Type::TupleType(a), Type::TupleType(b)) => a.items == b.items,
+            (Type::ArrayType(a), Type::ArrayType(b)) => a.element == b.element,
+            (Type::IntegerLiteralType(a), Type::IntegerLiteralType(b)) => a.value == b.value,
+            (Type::BooleanLiteralType(a), Type::BooleanLiteralType(b)) => a.value == b.value,
+            (Type::StringLiteralType(a), Type::StringLiteralType(b)) => a.value == b.value,
+            (Type::StructureLiteralType(_), Type::StructureLiteralType(_)) => unimplemented!(),
+            _ => false,
+        }
+    }
+}
+
 fn render_structure(
     structure: Structure,
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
+    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
 ) -> Option<TokenStream> {
     // We inline these structs; consider them private and do not generate.
     if structure.name.starts_with('_') {
@@ -623,11 +663,32 @@ fn render_structure(
                 }
             }
 
-            let mut type_ = render_type(
-                property.type_,
-                Some(&structure.name),
-                property.optional.or(Some(false)),
-            );
+            // Generate these "or" types separately for better DX.
+            let mut type_ = if !is_nullable(&property.type_)
+                && let Type::OrType(or_type) = property.type_
+            {
+                let mut name = camel_to_pascal(property.name);
+                // Name conflict: prefix structure name.
+                if structs_map.contains_key(&name)
+                    || enums_map.contains_key(&name)
+                    || type_aliases_map.contains_key(&name)
+                {
+                    name = format!("{}{}", structure.name, name);
+                } else if let Some((enum_or, _)) = enum_or_types.get(&name)
+                    && *enum_or != or_type
+                {
+                    name = format!("{}{}", structure.name, name);
+                }
+                let ident = format_ident!("{name}");
+                enum_or_types.insert(name, (or_type, None));
+                quote! { #ident }
+            } else {
+                render_type(
+                    property.type_,
+                    Some(&structure.name),
+                    property.optional.or(Some(false)),
+                )
+            };
 
             if property.optional == Some(true) {
                 serde_attributes = quote! {
@@ -895,38 +956,46 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     }
 }
 
-fn render_type_alias(type_alias: TypeAlias) -> TokenStream {
+fn render_type_alias(
+    type_alias: TypeAlias,
+    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
+) -> Option<TokenStream> {
     let documentation = render_documentation(type_alias.documentation);
     let name = format_ident!("{}", type_alias.name);
 
     match type_alias.name.as_str() {
         "LSPObject" => {
-            return quote! {
+            return Some(quote! {
                 #documentation
                 pub type LspObject = HashMap<String, LspAny>;
-            };
+            });
         }
         "LSPAny" => {
-            return quote! {
+            return Some(quote! {
                 #documentation
                 pub type LspAny = serde_json::Value;
-            };
+            });
         }
         "LSPArray" => {
-            return quote! {
+            return Some(quote! {
                 #documentation
                 pub type LspArray = Vec<LspAny>;
-            };
+            });
         }
         _ => {}
     };
 
-    let type_ = render_type(type_alias.type_, None, None);
+    let type_ = if let Type::OrType(or_type) = type_alias.type_ {
+        enum_or_types.insert(type_alias.name, (or_type, Some(documentation)));
+        return None;
+    } else {
+        render_type(type_alias.type_, None, None)
+    };
 
-    quote! {
+    Some(quote! {
         #documentation
         pub type #name = #type_;
-    }
+    })
 }
 
 fn fix_serde_stupidity(type_: &mut Type) {
@@ -973,6 +1042,98 @@ fn fix_serde_stupidity(type_: &mut Type) {
             fix_serde_stupidity(&mut map_type.value);
         }
         _ => {}
+    }
+}
+
+fn render_enum_ors(
+    name: String,
+    or_type: OrType,
+    documentation: Option<TokenStream>,
+    structs_map: &HashMap<String, Structure>,
+    enums_map: &HashMap<String, Enumeration>,
+    type_aliases_map: &HashMap<String, TypeAlias>,
+) -> TokenStream {
+    let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
+
+    if or_type
+        .items
+        .iter()
+        .all(|item| !has_float(item, structs_map, type_aliases_map))
+    {
+        derives.push("Eq");
+        if or_type
+            .items
+            .iter()
+            .all(|item| is_hashable(item, structs_map, type_aliases_map))
+        {
+            derives.push("Hash");
+        }
+    }
+
+    if or_type
+        .items
+        .iter()
+        .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map))
+    {
+        derives.push("Copy")
+    }
+
+    let all_prefixed = or_type.items.iter().all(|item| {
+        if let Type::ReferenceType(ref_type) = item {
+            ref_type.name.starts_with(&name)
+        } else {
+            false
+        }
+    });
+    let members = or_type.items.into_iter().map(|item| {
+        let type_ = render_type(item.clone(), None, None);
+        if all_prefixed && let Type::ReferenceType(ref_type) = item {
+            let member = ref_type.name.strip_prefix(&name).unwrap();
+            let member_ident = format_ident!("{member}");
+            quote! { #member_ident(#type_) }
+        } else {
+            let name = match item {
+                Type::ReferenceType(ref_type) => ref_type.name,
+                Type::BaseType(base_type) => match base_type.name {
+                    BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
+                    BaseTypes::Boolean => String::from("Bool"),
+                    BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
+                    BaseTypes::String => String::from("String"),
+                    a => a.to_string(),
+                },
+                Type::TupleType(_) => String::from("Tuple"),
+                Type::StructureLiteralType(_) => String::from("Object"),
+                Type::ArrayType(array_type) => {
+                    let inner_name = match array_type.element {
+                        Type::ReferenceType(ref_type) => ref_type.name,
+                        Type::BaseType(base_type) => match base_type.name {
+                            BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
+                            BaseTypes::Boolean => String::from("Bool"),
+                            BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
+                            BaseTypes::String => String::from("String"),
+                            a => a.to_string(),
+                        },
+                        Type::TupleType(_) => String::from("Tuple"),
+                        Type::StructureLiteralType(_) => String::from("Object"),
+                        a => unimplemented!("{a:?}"),
+                    };
+                    format!("{inner_name}List")
+                }
+                a => unimplemented!("{a:?}"),
+            };
+            let member_ident = format_ident!("{}", name);
+            quote! { #member_ident(#type_) }
+        }
+    });
+    let name_ident = format_ident!("{name}");
+    let derives = derives.iter().map(|d| format_ident!("{d}"));
+    quote! {
+        #documentation
+        #[derive(#(#derives),*)]
+        #[serde(untagged)]
+        pub enum #name_ident {
+            #(#members),*
+        }
     }
 }
 
@@ -1099,20 +1260,50 @@ fn main() {
         }
     };
 
-    let structures = model.structures.into_iter().flat_map(|structure| {
-        render_structure(structure, &structs_map, &enums_map, &type_aliases_map)
-    });
+    let mut enum_or_types = BTreeMap::new();
+
+    let structures = model
+        .structures
+        .into_iter()
+        .flat_map(|structure| {
+            render_structure(
+                structure,
+                &structs_map,
+                &enums_map,
+                &type_aliases_map,
+                &mut enum_or_types,
+            )
+        })
+        .collect::<Vec<_>>();
 
     let enumerations = model.enumerations.into_iter().map(render_enumeration);
 
-    let type_aliases = model.type_aliases.into_iter().map(render_type_alias);
+    let type_aliases = model
+        .type_aliases
+        .into_iter()
+        .flat_map(|ta| render_type_alias(ta, &mut enum_or_types))
+        .collect::<Vec<_>>();
+
+    let enum_ors = enum_or_types
+        .into_iter()
+        .map(|(name, (or_type, documentation))| {
+            render_enum_ors(
+                name,
+                or_type,
+                documentation,
+                &structs_map,
+                &enums_map,
+                &type_aliases_map,
+            )
+        });
 
     let all_items = iter::once(preamble)
         .chain(iter::once(imports))
         .chain(iter::once(predefs))
         .chain(structures)
         .chain(enumerations)
-        .chain(type_aliases);
+        .chain(type_aliases)
+        .chain(enum_ors);
 
     let formatted_items: Vec<String> = all_items
         .map(|request| {

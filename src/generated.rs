@@ -868,7 +868,7 @@ pub struct InlayHint {
     /// InlayHintLabelPart label parts.
     ///
     /// *Note* that neither the string nor the label part can be empty.
-    pub label: Or2<String, Vec<InlayHintLabelPart>>,
+    pub label: Label,
     /// The kind of this hint. Can be omitted in which case the client
     /// should fall back to a reasonable default.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -882,7 +882,7 @@ pub struct InlayHint {
     pub text_edits: Option<Vec<TextEdit>>,
     /// The tooltip text when you hover over this item.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tooltip: Option<Or2<String, MarkupContent>>,
+    pub tooltip: Option<Tooltip>,
     /// Render padding before the hint.
     ///
     /// Note: Padding should use the editor's background color, not the
@@ -1118,7 +1118,7 @@ pub struct InlineCompletionList {
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionItem {
     /// The text to replace the range with. Must be set.
-    pub insert_text: Or2<String, StringValue>,
+    pub insert_text: InsertText,
     /// A text that is used to decide if this inline completion should be shown. When `falsy` the [`InlineCompletionItem::insertText`] is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filter_text: Option<String>,
@@ -1302,7 +1302,7 @@ pub struct DidChangeConfigurationParams {
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeConfigurationRegistrationOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub section: Option<Or2<String, Vec<String>>>,
+    pub section: Option<Section>,
 }
 
 /// The parameters of a notification message.
@@ -1519,7 +1519,7 @@ pub struct CompletionItem {
     pub detail: Option<String>,
     /// A human-readable string that represents a doc-comment.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub documentation: Option<Or2<String, MarkupContent>>,
+    pub documentation: Option<Documentation>,
     /// Indicates if this item is deprecated.
     /// @deprecated Use `tags` instead.
     #[deprecated(note = "Use `tags` instead.")]
@@ -1591,7 +1591,7 @@ pub struct CompletionItem {
     ///
     /// @since 3.16.0 additional type `InsertReplaceEdit`
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text_edit: Option<Or2<TextEdit, InsertReplaceEdit>>,
+    pub text_edit: Option<CompletionItemTextEdit>,
     /// The edit text used if the completion item is part of a CompletionList and
     /// CompletionList defines an item default for the text edit range.
     ///
@@ -1704,7 +1704,7 @@ pub struct HoverParams {
 #[serde(rename_all = "camelCase")]
 pub struct Hover {
     /// The hover's content
-    pub contents: Or3<MarkupContent, MarkedString, Vec<MarkedString>>,
+    pub contents: Contents,
     /// An optional range inside the text document that is used to
     /// visualize the hover, e.g. by changing the background color.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2097,7 +2097,7 @@ pub struct WorkspaceSymbol {
     /// capability `workspace.symbol.resolveSupport`.
     ///
     /// See SymbolInformation#location for more details.
-    pub location: Or2<Location, LocationUriOnly>,
+    pub location: WorkspaceSymbolLocation,
     /// A data entry field that is preserved on a workspace symbol between a
     /// workspace symbol request and a workspace symbol resolve request.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2608,7 +2608,7 @@ pub struct LogTraceParams {
 #[serde(rename_all = "camelCase")]
 pub struct CancelParams {
     /// The request id to cancel.
-    pub id: Or2<i32, String>,
+    pub id: Id,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
@@ -2868,10 +2868,10 @@ pub struct SemanticTokensOptions {
     /// Server supports providing semantic tokens for a specific range
     /// of a document.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub range: Option<Or2<bool, LspObject>>,
+    pub range: Option<SemanticTokensOptionsRange>,
     /// Server supports providing semantic tokens for a full document.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub full: Option<Or2<bool, SemanticTokensFullDelta>>,
+    pub full: Option<Full>,
     #[serde(flatten)]
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
@@ -3230,7 +3230,7 @@ pub struct InlayHintLabelPart {
     /// the client capability `inlayHint.resolveSupport` clients might resolve
     /// this property late using the resolve request.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tooltip: Option<Or2<String, MarkupContent>>,
+    pub tooltip: Option<Tooltip>,
     /// An optional source code location that represents this
     /// label part.
     ///
@@ -3721,55 +3721,47 @@ pub struct ServerCapabilities {
     /// defining each notification or for backwards compatibility the
     /// TextDocumentSyncKind number.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text_document_sync: Option<Or2<TextDocumentSyncOptions, TextDocumentSyncKind>>,
+    pub text_document_sync: Option<TextDocumentSync>,
     /// Defines how notebook documents are synced.
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub notebook_document_sync: Option<
-        Or2<NotebookDocumentSyncOptions, NotebookDocumentSyncRegistrationOptions>,
-    >,
+    pub notebook_document_sync: Option<NotebookDocumentSync>,
     /// The server provides completion support.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completion_provider: Option<CompletionOptions>,
     /// The server provides hover support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub hover_provider: Option<Or2<bool, HoverOptions>>,
+    pub hover_provider: Option<HoverProvider>,
     /// The server provides signature help support.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub signature_help_provider: Option<SignatureHelpOptions>,
     /// The server provides Goto Declaration support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub declaration_provider: Option<
-        Or3<bool, DeclarationOptions, DeclarationRegistrationOptions>,
-    >,
+    pub declaration_provider: Option<DeclarationProvider>,
     /// The server provides goto definition support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub definition_provider: Option<Or2<bool, DefinitionOptions>>,
+    pub definition_provider: Option<DefinitionProvider>,
     /// The server provides Goto Type Definition support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_definition_provider: Option<
-        Or3<bool, TypeDefinitionOptions, TypeDefinitionRegistrationOptions>,
-    >,
+    pub type_definition_provider: Option<TypeDefinitionProvider>,
     /// The server provides Goto Implementation support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub implementation_provider: Option<
-        Or3<bool, ImplementationOptions, ImplementationRegistrationOptions>,
-    >,
+    pub implementation_provider: Option<ImplementationProvider>,
     /// The server provides find references support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub references_provider: Option<Or2<bool, ReferenceOptions>>,
+    pub references_provider: Option<ReferencesProvider>,
     /// The server provides document highlight support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub document_highlight_provider: Option<Or2<bool, DocumentHighlightOptions>>,
+    pub document_highlight_provider: Option<DocumentHighlightProvider>,
     /// The server provides document symbol support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub document_symbol_provider: Option<Or2<bool, DocumentSymbolOptions>>,
+    pub document_symbol_provider: Option<DocumentSymbolProvider>,
     /// The server provides code actions. CodeActionOptions may only be
     /// specified if the client states that it supports
     /// `codeActionLiteralSupport` in its initial `initialize` request.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub code_action_provider: Option<Or2<bool, CodeActionOptions>>,
+    pub code_action_provider: Option<CodeActionProvider>,
     /// The server provides code lens.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code_lens_provider: Option<CodeLensOptions>,
@@ -3778,20 +3770,16 @@ pub struct ServerCapabilities {
     pub document_link_provider: Option<DocumentLinkOptions>,
     /// The server provides color provider support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub color_provider: Option<
-        Or3<bool, DocumentColorOptions, DocumentColorRegistrationOptions>,
-    >,
+    pub color_provider: Option<ColorProvider>,
     /// The server provides workspace symbol support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub workspace_symbol_provider: Option<Or2<bool, WorkspaceSymbolOptions>>,
+    pub workspace_symbol_provider: Option<WorkspaceSymbolProvider>,
     /// The server provides document formatting.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub document_formatting_provider: Option<Or2<bool, DocumentFormattingOptions>>,
+    pub document_formatting_provider: Option<DocumentFormattingProvider>,
     /// The server provides document range formatting.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub document_range_formatting_provider: Option<
-        Or2<bool, DocumentRangeFormattingOptions>,
-    >,
+    pub document_range_formatting_provider: Option<DocumentRangeFormattingProvider>,
     /// The server provides document formatting on typing.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub document_on_type_formatting_provider: Option<DocumentOnTypeFormattingOptions>,
@@ -3799,17 +3787,13 @@ pub struct ServerCapabilities {
     /// specified if the client states that it supports
     /// `prepareSupport` in its initial `initialize` request.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub rename_provider: Option<Or2<bool, RenameOptions>>,
+    pub rename_provider: Option<RenameProvider>,
     /// The server provides folding provider support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub folding_range_provider: Option<
-        Or3<bool, FoldingRangeOptions, FoldingRangeRegistrationOptions>,
-    >,
+    pub folding_range_provider: Option<FoldingRangeProvider>,
     /// The server provides selection range support.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub selection_range_provider: Option<
-        Or3<bool, SelectionRangeOptions, SelectionRangeRegistrationOptions>,
-    >,
+    pub selection_range_provider: Option<SelectionRangeProvider>,
     /// The server provides execute command support.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execute_command_provider: Option<ExecuteCommandOptions>,
@@ -3817,62 +3801,48 @@ pub struct ServerCapabilities {
     ///
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub call_hierarchy_provider: Option<
-        Or3<bool, CallHierarchyOptions, CallHierarchyRegistrationOptions>,
-    >,
+    pub call_hierarchy_provider: Option<CallHierarchyProvider>,
     /// The server provides linked editing range support.
     ///
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub linked_editing_range_provider: Option<
-        Or3<bool, LinkedEditingRangeOptions, LinkedEditingRangeRegistrationOptions>,
-    >,
+    pub linked_editing_range_provider: Option<LinkedEditingRangeProvider>,
     /// The server provides semantic tokens support.
     ///
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub semantic_tokens_provider: Option<
-        Or2<SemanticTokensOptions, SemanticTokensRegistrationOptions>,
-    >,
+    pub semantic_tokens_provider: Option<SemanticTokensProvider>,
     /// The server provides moniker support.
     ///
     /// @since 3.16.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub moniker_provider: Option<Or3<bool, MonikerOptions, MonikerRegistrationOptions>>,
+    pub moniker_provider: Option<MonikerProvider>,
     /// The server provides type hierarchy support.
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_hierarchy_provider: Option<
-        Or3<bool, TypeHierarchyOptions, TypeHierarchyRegistrationOptions>,
-    >,
+    pub type_hierarchy_provider: Option<TypeHierarchyProvider>,
     /// The server provides inline values.
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub inline_value_provider: Option<
-        Or3<bool, InlineValueOptions, InlineValueRegistrationOptions>,
-    >,
+    pub inline_value_provider: Option<InlineValueProvider>,
     /// The server provides inlay hints.
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub inlay_hint_provider: Option<
-        Or3<bool, InlayHintOptions, InlayHintRegistrationOptions>,
-    >,
+    pub inlay_hint_provider: Option<InlayHintProvider>,
     /// The server has support for pull model diagnostics.
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub diagnostic_provider: Option<
-        Or2<DiagnosticOptions, DiagnosticRegistrationOptions>,
-    >,
+    pub diagnostic_provider: Option<DiagnosticProvider>,
     /// Inline completion options used during static registration.
     ///
     /// @since 3.18.0
     /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub inline_completion_provider: Option<Or2<bool, InlineCompletionOptions>>,
+    pub inline_completion_provider: Option<InlineCompletionProvider>,
     /// Workspace specific server capabilities.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workspace: Option<WorkspaceOptions>,
@@ -3953,7 +3923,7 @@ pub struct Diagnostic {
     pub severity: Option<DiagnosticSeverity>,
     /// The diagnostic's code, which usually appear in the user interface.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub code: Option<Or2<i32, String>>,
+    pub code: Option<Code>,
     /// An optional property to describe the error code.
     /// Requires the code field (above) to be present/not null.
     ///
@@ -4053,7 +4023,7 @@ pub struct CompletionItemDefaults {
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub edit_range: Option<Or2<Range, EditRangeWithInsertReplace>>,
+    pub edit_range: Option<EditRange>,
     /// A default insert text format.
     ///
     /// @since 3.17.0
@@ -4218,7 +4188,7 @@ pub struct SignatureInformation {
     /// The human-readable doc-comment of this signature. Will be shown
     /// in the UI but can be omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub documentation: Option<Or2<String, MarkupContent>>,
+    pub documentation: Option<Documentation>,
     /// The parameters of this signature.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Vec<ParameterInformation>>,
@@ -4754,7 +4724,7 @@ pub struct NotebookDocumentFilterWithNotebook {
     /// The notebook to be synced If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: Or2<String, NotebookDocumentFilter>,
+    pub notebook: Notebook,
     /// The cells of the matching notebook to be synced.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cells: Option<Vec<NotebookCellLanguage>>,
@@ -4768,7 +4738,7 @@ pub struct NotebookDocumentFilterWithCells {
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub notebook: Option<Or2<String, NotebookDocumentFilter>>,
+    pub notebook: Option<Notebook>,
     /// The cells of the matching notebook to be synced.
     pub cells: Vec<NotebookCellLanguage>,
 }
@@ -4869,7 +4839,7 @@ pub struct TextDocumentSyncOptions {
     /// If present save notifications are sent to the server. If omitted the notification should not be
     /// sent.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub save: Option<Or2<bool, SaveOptions>>,
+    pub save: Option<Save>,
 }
 
 /// Defines workspace specific capabilities of the server.
@@ -4893,9 +4863,7 @@ pub struct WorkspaceOptions {
     /// @since 3.18.0
     /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub text_document_content: Option<
-        Or2<TextDocumentContentOptions, TextDocumentContentRegistrationOptions>,
-    >,
+    pub text_document_content: Option<TextDocumentContent>,
 }
 
 /// @since 3.18.0
@@ -4994,11 +4962,11 @@ pub struct ParameterInformation {
     ///
     /// *Note*: a label of type string should be a substring of its containing signature label.
     /// Its intended use case is to highlight the parameter label part in the `SignatureInformation.label`.
-    pub label: Or2<String, (u32, u32)>,
+    pub label: ParameterInformationLabel,
     /// The human-readable doc-comment of this parameter. Will be shown
     /// in the UI but can be omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub documentation: Option<Or2<String, MarkupContent>>,
+    pub documentation: Option<Documentation>,
 }
 
 /// Documentation for a class of code actions.
@@ -5031,7 +4999,7 @@ pub struct NotebookCellTextDocumentFilter {
     /// containing the notebook cell. If a string
     /// value is provided it matches against the
     /// notebook type. '*' matches every notebook.
-    pub notebook: Or2<String, NotebookDocumentFilter>,
+    pub notebook: Notebook,
     /// A language id like `python`.
     ///
     /// Will be matched against the language id of the
@@ -5414,7 +5382,7 @@ pub struct WorkspaceFoldersServerCapabilities {
     /// side. The ID can be used to unregister for these events
     /// using the `client/unregisterCapability` request.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub change_notifications: Option<Or2<String, bool>>,
+    pub change_notifications: Option<ChangeNotifications>,
 }
 
 /// Options for notifications/requests for user operations on files.
@@ -5453,7 +5421,7 @@ pub struct FileOperationOptions {
 pub struct RelativePattern {
     /// A workspace folder or a base URI to which this pattern will be matched
     /// against relatively.
-    pub base_uri: Or2<WorkspaceFolder, String>,
+    pub base_uri: BaseUri,
     /// The actual glob pattern;
     pub pattern: Pattern,
 }
@@ -6761,11 +6729,11 @@ pub struct ClientSemanticTokensRequestOptions {
     /// The client will send the `textDocument/semanticTokens/range` request if
     /// the server provides a corresponding handler.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub range: Option<Or2<bool, LspObject>>,
+    pub range: Option<ClientSemanticTokensRequestOptionsRange>,
     /// The client will send the `textDocument/semanticTokens/full` request if
     /// the server provides a corresponding handler.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub full: Option<Or2<bool, ClientSemanticTokensRequestFullDelta>>,
+    pub full: Option<ClientSemanticTokensRequestOptionsFull>,
 }
 
 /// @since 3.18.0
@@ -8619,14 +8587,6 @@ pub enum TokenFormat {
     Relative,
 }
 
-/// The definition of a symbol represented as one or many [locations][Location].
-/// For most programming languages there is only one location at which a symbol is
-/// defined.
-///
-/// Servers should prefer returning `DefinitionLink` over `Definition` if supported
-/// by the client.
-pub type Definition = Or2<Location, Vec<Location>>;
-
 /// Information about where a symbol is defined.
 ///
 /// Provides additional metadata over normal [location][Location] definitions, including the range of
@@ -8645,9 +8605,6 @@ pub type LspArray = Vec<LspAny>;
 /// @since 3.17.0
 pub type LspAny = serde_json::Value;
 
-/// The declaration of a symbol representation as one or many [locations][Location].
-pub type Declaration = Or2<Location, Vec<Location>>;
-
 /// Information about where a symbol is declared.
 ///
 /// Provides additional metadata over normal [location][Location] declarations, including the range of
@@ -8657,18 +8614,148 @@ pub type Declaration = Or2<Location, Vec<Location>>;
 /// by the client.
 pub type DeclarationLink = LocationLink;
 
-/// Inline value information can be provided by different means:
-/// - directly as a text value (class InlineValueText).
-/// - as a name to use for a variable lookup (class InlineValueVariableLookup)
-/// - as an evaluatable expression (class InlineValueEvaluatableExpression)
-/// The InlineValue types combines all inline value types into one type.
+/// A document selector is the combination of one or many document filters.
+///
+/// @sample `let sel:DocumentSelector = [{ language: 'typescript' }, { language: 'json', pattern: '**∕tsconfig.json' }]`;
+///
+/// The use of a string as a document filter is deprecated @since 3.16.0.
+pub type DocumentSelector = Vec<DocumentFilter>;
+
+/// An identifier to refer to a change annotation stored with a workspace edit.
+pub type ChangeAnnotationIdentifier = String;
+
+/// LSP object definition.
+/// @since 3.17.0
+pub type LspObject = HashMap<String, LspAny>;
+
+/// The glob pattern to watch relative to the base path. Glob patterns can have the following syntax:
+/// - `*` to match one or more characters in a path segment
+/// - `?` to match on one character in a path segment
+/// - `**` to match any number of path segments, including none
+/// - `{}` to group conditions (e.g. `**/*.{ts,js}` matches all TypeScript and JavaScript files)
+/// - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
+/// - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
 ///
 /// @since 3.17.0
-pub type InlineValue = Or3<
-    InlineValueText,
-    InlineValueVariableLookup,
-    InlineValueEvaluatableExpression,
->;
+pub type Pattern = String;
+
+pub type RegularExpressionEngineKind = String;
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum BaseUri {
+    WorkspaceFolder(WorkspaceFolder),
+    Uri(String),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum CallHierarchyProvider {
+    Bool(bool),
+    CallHierarchyOptions(CallHierarchyOptions),
+    CallHierarchyRegistrationOptions(CallHierarchyRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum ChangeNotifications {
+    String(String),
+    Bool(bool),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum ClientSemanticTokensRequestOptionsFull {
+    Bool(bool),
+    ClientSemanticTokensRequestFullDelta(ClientSemanticTokensRequestFullDelta),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum ClientSemanticTokensRequestOptionsRange {
+    Bool(bool),
+    Object(LspObject),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Code {
+    Int(i32),
+    String(String),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum CodeActionProvider {
+    Bool(bool),
+    CodeActionOptions(CodeActionOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum ColorProvider {
+    Bool(bool),
+    DocumentColorOptions(DocumentColorOptions),
+    DocumentColorRegistrationOptions(DocumentColorRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum CompletionItemTextEdit {
+    TextEdit(TextEdit),
+    InsertReplaceEdit(InsertReplaceEdit),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Contents {
+    MarkupContent(MarkupContent),
+    MarkedString(MarkedString),
+    MarkedStringList(Vec<MarkedString>),
+}
+
+/// The declaration of a symbol representation as one or many [locations][Location].
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Declaration {
+    Location(Location),
+    LocationList(Vec<Location>),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DeclarationProvider {
+    Bool(bool),
+    DeclarationOptions(DeclarationOptions),
+    DeclarationRegistrationOptions(DeclarationRegistrationOptions),
+}
+
+/// The definition of a symbol represented as one or many [locations][Location].
+/// For most programming languages there is only one location at which a symbol is
+/// defined.
+///
+/// Servers should prefer returning `DefinitionLink` over `Definition` if supported
+/// by the client.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Definition {
+    Location(Location),
+    LocationList(Vec<Location>),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum DefinitionProvider {
+    Bool(bool),
+    DefinitionOptions(DefinitionOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DiagnosticProvider {
+    DiagnosticOptions(DiagnosticOptions),
+    DiagnosticRegistrationOptions(DiagnosticRegistrationOptions),
+}
 
 /// The result of a document diagnostic pull request. A report can
 /// either be a full report containing all diagnostics for the
@@ -8677,43 +8764,172 @@ pub type InlineValue = Or3<
 /// pull request.
 ///
 /// @since 3.17.0
-pub type DocumentDiagnosticReport = Or2<
-    RelatedFullDocumentDiagnosticReport,
-    RelatedUnchangedDocumentDiagnosticReport,
->;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum DocumentDiagnosticReport {
+    RelatedFullDocumentDiagnosticReport(RelatedFullDocumentDiagnosticReport),
+    RelatedUnchangedDocumentDiagnosticReport(RelatedUnchangedDocumentDiagnosticReport),
+}
 
-pub type PrepareRenameResult = Or3<
-    Range,
-    PrepareRenamePlaceholder,
-    PrepareRenameDefaultBehavior,
->;
-
-/// A document selector is the combination of one or many document filters.
+/// A document filter describes a top level text document or
+/// a notebook cell document.
 ///
-/// @sample `let sel:DocumentSelector = [{ language: 'typescript' }, { language: 'json', pattern: '**∕tsconfig.json' }]`;
-///
-/// The use of a string as a document filter is deprecated @since 3.16.0.
-pub type DocumentSelector = Vec<DocumentFilter>;
+/// @since 3.17.0 - support for NotebookCellTextDocumentFilter.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentFilter {
+    TextDocumentFilter(TextDocumentFilter),
+    NotebookCellTextDocumentFilter(NotebookCellTextDocumentFilter),
+}
 
-pub type ProgressToken = Or2<i32, String>;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum DocumentFormattingProvider {
+    Bool(bool),
+    DocumentFormattingOptions(DocumentFormattingOptions),
+}
 
-/// An identifier to refer to a change annotation stored with a workspace edit.
-pub type ChangeAnnotationIdentifier = String;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum DocumentHighlightProvider {
+    Bool(bool),
+    DocumentHighlightOptions(DocumentHighlightOptions),
+}
 
-/// A workspace diagnostic document report.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum DocumentRangeFormattingProvider {
+    Bool(bool),
+    DocumentRangeFormattingOptions(DocumentRangeFormattingOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentSymbolProvider {
+    Bool(bool),
+    DocumentSymbolOptions(DocumentSymbolOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Documentation {
+    String(String),
+    MarkupContent(MarkupContent),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum EditRange {
+    Range(Range),
+    EditRangeWithInsertReplace(EditRangeWithInsertReplace),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum FoldingRangeProvider {
+    Bool(bool),
+    FoldingRangeOptions(FoldingRangeOptions),
+    FoldingRangeRegistrationOptions(FoldingRangeRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum Full {
+    Bool(bool),
+    SemanticTokensFullDelta(SemanticTokensFullDelta),
+}
+
+/// The glob pattern. Either a string pattern or a relative pattern.
 ///
 /// @since 3.17.0
-pub type WorkspaceDocumentDiagnosticReport = Or2<
-    WorkspaceFullDocumentDiagnosticReport,
-    WorkspaceUnchangedDocumentDiagnosticReport,
->;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum GlobPattern {
+    Pattern(Pattern),
+    RelativePattern(RelativePattern),
+}
 
-/// An event describing a change to a text document. If only a text is provided
-/// it is considered to be the full content of the document.
-pub type TextDocumentContentChangeEvent = Or2<
-    TextDocumentContentChangePartial,
-    TextDocumentContentChangeWholeDocument,
->;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum HoverProvider {
+    Bool(bool),
+    HoverOptions(HoverOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Id {
+    Int(i32),
+    String(String),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum ImplementationProvider {
+    Bool(bool),
+    ImplementationOptions(ImplementationOptions),
+    ImplementationRegistrationOptions(ImplementationRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum InlayHintProvider {
+    Bool(bool),
+    InlayHintOptions(InlayHintOptions),
+    InlayHintRegistrationOptions(InlayHintRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum InlineCompletionProvider {
+    Bool(bool),
+    InlineCompletionOptions(InlineCompletionOptions),
+}
+
+/// Inline value information can be provided by different means:
+/// - directly as a text value (class InlineValueText).
+/// - as a name to use for a variable lookup (class InlineValueVariableLookup)
+/// - as an evaluatable expression (class InlineValueEvaluatableExpression)
+/// The InlineValue types combines all inline value types into one type.
+///
+/// @since 3.17.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum InlineValue {
+    Text(InlineValueText),
+    VariableLookup(InlineValueVariableLookup),
+    EvaluatableExpression(InlineValueEvaluatableExpression),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum InlineValueProvider {
+    Bool(bool),
+    InlineValueOptions(InlineValueOptions),
+    InlineValueRegistrationOptions(InlineValueRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum InsertText {
+    String(String),
+    StringValue(StringValue),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum Label {
+    String(String),
+    InlayHintLabelPartList(Vec<InlayHintLabelPart>),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum LinkedEditingRangeProvider {
+    Bool(bool),
+    LinkedEditingRangeOptions(LinkedEditingRangeOptions),
+    LinkedEditingRangeRegistrationOptions(LinkedEditingRangeRegistrationOptions),
+}
 
 /// MarkedString can be used to render human readable text. It is either a markdown string
 /// or a code-block that provides a language and a code snippet. The language identifier
@@ -8727,22 +8943,135 @@ pub type TextDocumentContentChangeEvent = Or2<
 ///
 /// Note that markdown strings will be sanitized - that means html will be escaped.
 /// @deprecated use MarkupContent instead.
-pub type MarkedString = Or2<String, MarkedStringWithLanguage>;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum MarkedString {
+    String(String),
+    MarkedStringWithLanguage(MarkedStringWithLanguage),
+}
 
-/// A document filter describes a top level text document or
-/// a notebook cell document.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum MonikerProvider {
+    Bool(bool),
+    MonikerOptions(MonikerOptions),
+    MonikerRegistrationOptions(MonikerRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Notebook {
+    String(String),
+    NotebookDocumentFilter(NotebookDocumentFilter),
+}
+
+/// A notebook document filter denotes a notebook document by
+/// different properties. The properties will be match
+/// against the notebook's URI (same as with documents)
 ///
-/// @since 3.17.0 - support for NotebookCellTextDocumentFilter.
-pub type DocumentFilter = Or2<TextDocumentFilter, NotebookCellTextDocumentFilter>;
-
-/// LSP object definition.
 /// @since 3.17.0
-pub type LspObject = HashMap<String, LspAny>;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum NotebookDocumentFilter {
+    NotebookType(NotebookDocumentFilterNotebookType),
+    Scheme(NotebookDocumentFilterScheme),
+    Pattern(NotebookDocumentFilterPattern),
+}
 
-/// The glob pattern. Either a string pattern or a relative pattern.
-///
-/// @since 3.17.0
-pub type GlobPattern = Or2<Pattern, RelativePattern>;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum NotebookDocumentSync {
+    Options(NotebookDocumentSyncOptions),
+    RegistrationOptions(NotebookDocumentSyncRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum ParameterInformationLabel {
+    String(String),
+    Tuple((u32, u32)),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum PrepareRenameResult {
+    Range(Range),
+    PrepareRenamePlaceholder(PrepareRenamePlaceholder),
+    PrepareRenameDefaultBehavior(PrepareRenameDefaultBehavior),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum ProgressToken {
+    Int(i32),
+    String(String),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum ReferencesProvider {
+    Bool(bool),
+    ReferenceOptions(ReferenceOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum RenameProvider {
+    Bool(bool),
+    RenameOptions(RenameOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum Save {
+    Bool(bool),
+    SaveOptions(SaveOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Section {
+    String(String),
+    StringList(Vec<String>),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum SelectionRangeProvider {
+    Bool(bool),
+    SelectionRangeOptions(SelectionRangeOptions),
+    SelectionRangeRegistrationOptions(SelectionRangeRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum SemanticTokensOptionsRange {
+    Bool(bool),
+    Object(LspObject),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum SemanticTokensProvider {
+    SemanticTokensOptions(SemanticTokensOptions),
+    SemanticTokensRegistrationOptions(SemanticTokensRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum TextDocumentContent {
+    Options(TextDocumentContentOptions),
+    RegistrationOptions(TextDocumentContentRegistrationOptions),
+}
+
+/// An event describing a change to a text document. If only a text is provided
+/// it is considered to be the full content of the document.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum TextDocumentContentChangeEvent {
+    TextDocumentContentChangePartial(TextDocumentContentChangePartial),
+    TextDocumentContentChangeWholeDocument(TextDocumentContentChangeWholeDocument),
+}
 
 /// A document filter denotes a document by different properties like
 /// the [language][`TextDocument::languageId`], the [scheme][`Uri::scheme`] of
@@ -8760,32 +9089,66 @@ pub type GlobPattern = Or2<Pattern, RelativePattern>;
 /// @sample A language filter that applies to all package.json paths: `{ language: 'json', pattern: '**package.json' }`
 ///
 /// @since 3.17.0
-pub type TextDocumentFilter = Or3<
-    TextDocumentFilterLanguage,
-    TextDocumentFilterScheme,
-    TextDocumentFilterPattern,
->;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum TextDocumentFilter {
+    Language(TextDocumentFilterLanguage),
+    Scheme(TextDocumentFilterScheme),
+    Pattern(TextDocumentFilterPattern),
+}
 
-/// A notebook document filter denotes a notebook document by
-/// different properties. The properties will be match
-/// against the notebook's URI (same as with documents)
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum TextDocumentSync {
+    Options(TextDocumentSyncOptions),
+    Kind(TextDocumentSyncKind),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Tooltip {
+    String(String),
+    MarkupContent(MarkupContent),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum TypeDefinitionProvider {
+    Bool(bool),
+    TypeDefinitionOptions(TypeDefinitionOptions),
+    TypeDefinitionRegistrationOptions(TypeDefinitionRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum TypeHierarchyProvider {
+    Bool(bool),
+    TypeHierarchyOptions(TypeHierarchyOptions),
+    TypeHierarchyRegistrationOptions(TypeHierarchyRegistrationOptions),
+}
+
+/// A workspace diagnostic document report.
 ///
 /// @since 3.17.0
-pub type NotebookDocumentFilter = Or3<
-    NotebookDocumentFilterNotebookType,
-    NotebookDocumentFilterScheme,
-    NotebookDocumentFilterPattern,
->;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum WorkspaceDocumentDiagnosticReport {
+    WorkspaceFullDocumentDiagnosticReport(WorkspaceFullDocumentDiagnosticReport),
+    WorkspaceUnchangedDocumentDiagnosticReport(
+        WorkspaceUnchangedDocumentDiagnosticReport,
+    ),
+}
 
-/// The glob pattern to watch relative to the base path. Glob patterns can have the following syntax:
-/// - `*` to match one or more characters in a path segment
-/// - `?` to match on one character in a path segment
-/// - `**` to match any number of path segments, including none
-/// - `{}` to group conditions (e.g. `**/*.{ts,js}` matches all TypeScript and JavaScript files)
-/// - `[]` to declare a range of characters to match in a path segment (e.g., `example.[0-9]` to match on `example.0`, `example.1`, …)
-/// - `[!...]` to negate a range of characters to match in a path segment (e.g., `example.[!0-9]` to match on `example.a`, `example.b`, but not `example.0`)
-///
-/// @since 3.17.0
-pub type Pattern = String;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum WorkspaceSymbolLocation {
+    Location(Location),
+    LocationUriOnly(LocationUriOnly),
+}
 
-pub type RegularExpressionEngineKind = String;
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum WorkspaceSymbolProvider {
+    Bool(bool),
+    WorkspaceSymbolOptions(WorkspaceSymbolOptions),
+}
