@@ -4,6 +4,7 @@ use std::collections::{HashMap, HashSet};
 use gen_lsp_types::{
     ColorPresentation, DocumentSymbol, InitializeParams, Position, Range,
     TextDocumentRegistrationOptions, WorkspaceFoldersInitializeParams,
+    WorkspaceFoldersServerCapabilities,
 };
 
 #[test]
@@ -133,6 +134,57 @@ fn derives() {
     };
     let table = HashSet::from([doc_sym.clone()]);
     assert!(table.contains(&doc_sym));
+
+    // From
+    let wfip = WorkspaceFoldersInitializeParams {
+        workspace_folders: Some(Vec::new().into()),
+    };
+    let wfip_str = serde_json::to_string(&wfip).unwrap();
+    assert_eq!(wfip_str, r#"{"workspaceFolders":[]}"#);
+    assert_eq!(
+        serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
+        wfip
+    );
+    let wfip = WorkspaceFoldersInitializeParams {
+        workspace_folders: Some(().into()),
+    };
+    let wfip_str = serde_json::to_string(&wfip).unwrap();
+    assert_eq!(wfip_str, r#"{"workspaceFolders":null}"#);
+    assert_eq!(
+        serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
+        wfip
+    );
+    let wfsc = WorkspaceFoldersServerCapabilities {
+        change_notifications: Some("some-noti-id".into()),
+        ..Default::default()
+    };
+    let wfsc_str = serde_json::to_string(&wfsc).unwrap();
+    assert_eq!(wfsc_str, r#"{"changeNotifications":"some-noti-id"}"#);
+    let wfsc = WorkspaceFoldersServerCapabilities {
+        change_notifications: Some(String::from("some-noti-id").into()),
+        ..Default::default()
+    };
+    let wfsc_str = serde_json::to_string(&wfsc).unwrap();
+    assert_eq!(wfsc_str, r#"{"changeNotifications":"some-noti-id"}"#);
+    let wfsc = WorkspaceFoldersServerCapabilities {
+        change_notifications: Some(false.into()),
+        ..Default::default()
+    };
+    let wfsc_str = serde_json::to_string(&wfsc).unwrap();
+    assert_eq!(wfsc_str, r#"{"changeNotifications":false}"#);
+    let wfsc = WorkspaceFoldersServerCapabilities {
+        change_notifications: Some('f'.into()),
+        ..Default::default()
+    };
+    let wfsc_str = serde_json::to_string(&wfsc).unwrap();
+    assert_eq!(wfsc_str, r#"{"changeNotifications":"f"}"#);
+    let boxed_str: Box<str> = Box::from("foo");
+    let wfsc = WorkspaceFoldersServerCapabilities {
+        change_notifications: Some(boxed_str.into()),
+        ..Default::default()
+    };
+    let wfsc_str = serde_json::to_string(&wfsc).unwrap();
+    assert_eq!(wfsc_str, r#"{"changeNotifications":"foo"}"#);
 }
 
 #[test]

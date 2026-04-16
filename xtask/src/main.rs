@@ -1121,7 +1121,7 @@ fn render_enum_ors(
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> TokenStream {
-    let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
+    let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone", "From"];
 
     if or_type
         .items
@@ -1158,18 +1158,26 @@ fn render_enum_ors(
         if all_prefixed && let Type::ReferenceType(ref_type) = item {
             let member = ref_type.name.strip_prefix(&name).unwrap();
             let member_ident = format_ident!("{member}");
-            quote! { #member_ident(#type_) }
+            quote! {
+                #[from]
+                #member_ident(#type_)
+            }
         } else {
+            let mut attr = quote! { #[from] };
             let name = match item {
                 Type::ReferenceType(ref_type) => ref_type.name,
                 Type::BaseType(base_type) => match base_type.name {
                     BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
                     BaseTypes::Boolean => String::from("Bool"),
                     BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
-                    BaseTypes::String => String::from("String"),
+                    BaseTypes::String => {
+                        attr = quote! { #[from(String, &str, Box<str>, Cow<'_, str>, char)] };
+                        String::from("String")
+                    },
                     BaseTypes::Null => {
                         return quote! {
                             #[serde(rename = "null")]
+                            #[from(())]
                             Null
                         };
                     }
@@ -1197,7 +1205,10 @@ fn render_enum_ors(
                 a => unimplemented!("{a:?}"),
             };
             let member_ident = format_ident!("{}", name);
-            quote! { #member_ident(#type_) }
+            quote! {
+                #attr
+                #member_ident(#type_)
+            }
         }
     });
     let name_ident = format_ident!("{name}");
@@ -1294,8 +1305,9 @@ fn main() {
     };
 
     let imports = quote! {
+        use derive_more::From;
         use serde::{Deserialize, Deserializer, Serialize};
-        use std::collections::HashMap;
+        use std::{borrow::Cow, collections::HashMap};
     };
 
     let predefs = quote! {
