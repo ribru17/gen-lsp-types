@@ -101,6 +101,7 @@ fn resolve_struct_properties(
         // Inline structs which have field name conflicts.
         if let Some(structure) = structs_map.get(&reference_type.name) {
             let mut has_conflict = false;
+            // TODO: Check for conflicts recursively
             let props = structure
                 .properties
                 .iter()
@@ -916,7 +917,12 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         };
     }
 
-    let name = format_ident!("{}", enumeration.name);
+    let name = if enumeration.name == "LSPErrorCodes" {
+        String::from("LspErrorCodes")
+    } else {
+        enumeration.name
+    };
+    let name_ident = format_ident!("{}", name);
 
     let (mut sers, mut desers) = if is_int_enum {
         (
@@ -943,7 +949,7 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             });
             if is_int_enum {
                 let ident = format_ident!("{}", camel_to_pascal(item.name));
-                let full_name = quote! { #name::#ident };
+                let full_name = quote! { #name_ident::#ident };
                 let EnumerationEntryValue::Number(value) = item.value else {
                     panic!("Non-number item in integer enum: {:?}", item.value);
                 };
@@ -986,7 +992,7 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             EnumerationTypeName::String => (quote! { String }, quote! { #[serde(untagged)] }),
         };
         if is_int_enum {
-            let full_name = quote! { #name::Custom(custom) };
+            let full_name = quote! { #name_ident::Custom(custom) };
             sers.push(quote! { #full_name => serializer.#serializer(*custom), });
             desers.push(quote! { custom => Ok(#full_name), });
         }
@@ -996,24 +1002,21 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             Custom(#type_)
         });
     } else if is_int_enum {
-        let message = format!(
-            "Unexpected value when deserializing {}: {{e}}",
-            enumeration.name
-        );
+        let message = format!("Unexpected value when deserializing {}: {{e}}", name);
         desers.push(quote! { e => Err(serde::de::Error::custom(format!(#message))) })
     }
 
     let enum_tokens = quote! {
         #documentation
         #attributes
-        pub enum #name {
+        pub enum #name_ident {
             #(#values)*
         }
     };
 
     let custom_serde = if is_int_enum {
         Some(quote! {
-            impl Serialize for #name {
+            impl Serialize for #name_ident {
                 fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
                     where S: serde::Serializer
                 {
@@ -1022,8 +1025,8 @@ fn render_enumeration(enumeration: Enumeration) -> TokenStream {
                     }
                 }
             }
-            impl<'de> Deserialize<'de> for #name {
-                fn deserialize<D>(deserializer: D) -> Result<#name, D::Error>
+            impl<'de> Deserialize<'de> for #name_ident {
+                fn deserialize<D>(deserializer: D) -> Result<#name_ident, D::Error>
                     where D: serde::Deserializer<'de>
                 {
                     let value = #value_type::deserialize(deserializer)?;

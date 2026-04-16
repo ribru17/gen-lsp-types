@@ -6960,7 +6960,7 @@ impl<'de> Deserialize<'de> for ErrorCodes {
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
-pub enum LSPErrorCodes {
+pub enum LspErrorCodes {
     /// A request failed but it was syntactically correct, e.g the
     /// method name was known and the parameters were valid. The error
     /// message should contain human readable information about why
@@ -6989,32 +6989,32 @@ pub enum LSPErrorCodes {
     /// A custom value.
     Custom(i32),
 }
-impl Serialize for LSPErrorCodes {
+impl Serialize for LspErrorCodes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
         match self {
-            LSPErrorCodes::RequestFailed => serializer.serialize_i32(-32803i32),
-            LSPErrorCodes::ServerCancelled => serializer.serialize_i32(-32802i32),
-            LSPErrorCodes::ContentModified => serializer.serialize_i32(-32801i32),
-            LSPErrorCodes::RequestCancelled => serializer.serialize_i32(-32800i32),
-            LSPErrorCodes::Custom(custom) => serializer.serialize_i32(*custom),
+            LspErrorCodes::RequestFailed => serializer.serialize_i32(-32803i32),
+            LspErrorCodes::ServerCancelled => serializer.serialize_i32(-32802i32),
+            LspErrorCodes::ContentModified => serializer.serialize_i32(-32801i32),
+            LspErrorCodes::RequestCancelled => serializer.serialize_i32(-32800i32),
+            LspErrorCodes::Custom(custom) => serializer.serialize_i32(*custom),
         }
     }
 }
-impl<'de> Deserialize<'de> for LSPErrorCodes {
-    fn deserialize<D>(deserializer: D) -> Result<LSPErrorCodes, D::Error>
+impl<'de> Deserialize<'de> for LspErrorCodes {
+    fn deserialize<D>(deserializer: D) -> Result<LspErrorCodes, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
         let value = i32::deserialize(deserializer)?;
         match value {
-            -32803i32 => Ok(LSPErrorCodes::RequestFailed),
-            -32802i32 => Ok(LSPErrorCodes::ServerCancelled),
-            -32801i32 => Ok(LSPErrorCodes::ContentModified),
-            -32800i32 => Ok(LSPErrorCodes::RequestCancelled),
-            custom => Ok(LSPErrorCodes::Custom(custom)),
+            -32803i32 => Ok(LspErrorCodes::RequestFailed),
+            -32802i32 => Ok(LspErrorCodes::ServerCancelled),
+            -32801i32 => Ok(LspErrorCodes::ContentModified),
+            -32800i32 => Ok(LspErrorCodes::RequestCancelled),
+            custom => Ok(LspErrorCodes::Custom(custom)),
         }
     }
 }
