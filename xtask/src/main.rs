@@ -663,8 +663,9 @@ fn render_structure(
                 }
             }
 
-            // Generate these "or" types separately for better DX.
-            let mut type_ = if !is_nullable(&property.type_)
+            // Generate these "or" types separately for better DX. Ironically, this code has
+            // terrible readability and could really use a refactor.
+            let mut type_ = if (!is_nullable(&property.type_) || property.optional == Some(true))
                 && let Type::OrType(or_type) = property.type_
             {
                 let mut name = camel_to_pascal(property.name);
@@ -682,6 +683,73 @@ fn render_structure(
                 let ident = format_ident!("{name}");
                 enum_or_types.insert(name, (or_type, None));
                 quote! { #ident }
+            } else if let Type::ArrayType(array_type) = property.type_ {
+                if let Type::OrType(or_type) = array_type.element {
+                    let mut name = camel_to_pascal(property.name);
+                    name = name
+                        .strip_suffix('s')
+                        .map(|n| n.to_string())
+                        .unwrap_or(name);
+                    // Name conflict: prefix structure name.
+                    if structs_map.contains_key(&name)
+                        || enums_map.contains_key(&name)
+                        || type_aliases_map.contains_key(&name)
+                    {
+                        name = format!("{}{}", structure.name, name);
+                    } else if let Some((enum_or, _)) = enum_or_types.get(&name)
+                        && *enum_or != or_type
+                    {
+                        name = format!("{}{}", structure.name, name);
+                    }
+                    let ident = format_ident!("{name}");
+                    enum_or_types.insert(name, (or_type, None));
+                    quote! { Vec<#ident> }
+                } else {
+                    render_type(
+                        Type::ArrayType(array_type),
+                        Some(&structure.name),
+                        property.optional.or(Some(false)),
+                    )
+                }
+            } else if let Type::MapType(map_type) = property.type_ {
+                if let Type::OrType(or_type) = *map_type.value {
+                    let mut name = camel_to_pascal(property.name);
+                    name = name
+                        .strip_suffix('s')
+                        .map(|n| n.to_string())
+                        .unwrap_or(name);
+                    // Name conflict: prefix structure name.
+                    if structs_map.contains_key(&name)
+                        || enums_map.contains_key(&name)
+                        || type_aliases_map.contains_key(&name)
+                    {
+                        name = format!("{}{}", structure.name, name);
+                    } else if let Some((enum_or, _)) = enum_or_types.get(&name)
+                        && *enum_or != or_type
+                    {
+                        name = format!("{}{}", structure.name, name);
+                    }
+                    enum_or_types.insert(name.clone(), (or_type, None));
+                    render_type(
+                        Type::MapType(schema::MapType {
+                            key: map_type.key,
+                            kind: "map".into(),
+                            value: Type::ReferenceType(ReferenceType {
+                                kind: "reference".into(),
+                                name,
+                            })
+                            .into(),
+                        }),
+                        Some(&structure.name),
+                        property.optional.or(Some(false)),
+                    )
+                } else {
+                    render_type(
+                        Type::MapType(map_type),
+                        Some(&structure.name),
+                        property.optional.or(Some(false)),
+                    )
+                }
             } else {
                 render_type(
                     property.type_,
@@ -1099,7 +1167,13 @@ fn render_enum_ors(
                     BaseTypes::Boolean => String::from("Bool"),
                     BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
                     BaseTypes::String => String::from("String"),
-                    a => a.to_string(),
+                    BaseTypes::Null => {
+                        return quote! {
+                            #[serde(rename = "null")]
+                            Null
+                        };
+                    }
+                    a => unimplemented!("{a:?}"),
                 },
                 Type::TupleType(_) => String::from("Tuple"),
                 Type::StructureLiteralType(_) => String::from("Object"),
@@ -1111,7 +1185,8 @@ fn render_enum_ors(
                             BaseTypes::Boolean => String::from("Bool"),
                             BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
                             BaseTypes::String => String::from("String"),
-                            a => a.to_string(),
+                            BaseTypes::Null => String::from("Null"),
+                            a => unimplemented!("{a:?}"),
                         },
                         Type::TupleType(_) => String::from("Tuple"),
                         Type::StructureLiteralType(_) => String::from("Object"),
@@ -1224,33 +1299,6 @@ fn main() {
     };
 
     let predefs = quote! {
-        /// This allows a field to have two types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
-        #[serde(untagged)]
-        pub enum Or2<T, U> {
-            T(T),
-            U(U),
-        }
-
-        /// This allows a field to have three types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
-        #[serde(untagged)]
-        pub enum Or3<T, U, V> {
-            T(T),
-            U(U),
-            V(V),
-        }
-
-        /// This allows a field to have four types.
-        #[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
-        #[serde(untagged)]
-        pub enum Or4<T, U, V, W> {
-            T(T),
-            U(U),
-            V(V),
-            W(W),
-        }
-
         fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
         where
             T: Deserialize<'de>,

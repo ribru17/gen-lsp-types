@@ -2,7 +2,7 @@
 use std::collections::{HashMap, HashSet};
 
 use gen_lsp_types::{
-    ColorPresentation, DocumentSymbol, InitializeParams, Or2, Position, Range,
+    ColorPresentation, DocumentSymbol, InitializeParams, Position, Range,
     TextDocumentRegistrationOptions, WorkspaceFoldersInitializeParams,
 };
 
@@ -89,13 +89,22 @@ fn optional_nullable_field() {
     );
 
     let wfip = WorkspaceFoldersInitializeParams {
-        workspace_folders: Some(Or2::U(())),
+        workspace_folders: Some(gen_lsp_types::WorkspaceFolders::Null),
     };
-
     let wfip_str = serde_json::to_string(&wfip).unwrap();
-
     assert_eq!(wfip_str, r#"{"workspaceFolders":null}"#);
+    assert_eq!(
+        serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
+        wfip
+    );
 
+    let wfip = WorkspaceFoldersInitializeParams {
+        workspace_folders: Some(gen_lsp_types::WorkspaceFolders::WorkspaceFolderList(
+            Vec::new(),
+        )),
+    };
+    let wfip_str = serde_json::to_string(&wfip).unwrap();
+    assert_eq!(wfip_str, r#"{"workspaceFolders":[]}"#);
     assert_eq!(
         serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
         wfip

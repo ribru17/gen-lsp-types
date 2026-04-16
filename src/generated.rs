@@ -4,30 +4,6 @@
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 
-/// This allows a field to have two types.
-#[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
-#[serde(untagged)]
-pub enum Or2<T, U> {
-    T(T),
-    U(U),
-}
-/// This allows a field to have three types.
-#[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
-#[serde(untagged)]
-pub enum Or3<T, U, V> {
-    T(T),
-    U(U),
-    V(V),
-}
-/// This allows a field to have four types.
-#[derive(Serialize, Deserialize, PartialEq, Debug, Eq, Clone, Copy, Hash)]
-#[serde(untagged)]
-pub enum Or4<T, U, V, W> {
-    T(T),
-    U(U),
-    V(V),
-    W(W),
-}
 fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     T: Deserialize<'de>,
@@ -639,9 +615,7 @@ pub struct WorkspaceEdit {
     /// If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations` then
     /// only plain `TextEdit`s using the `changes` property are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub document_changes: Option<
-        Vec<Or4<TextDocumentEdit, CreateFile, RenameFile, DeleteFile>>,
-    >,
+    pub document_changes: Option<Vec<DocumentChange>>,
     /// A map of change annotations that can be referenced in `AnnotatedTextEdit`s or create, rename and
     /// delete file / folder operations.
     ///
@@ -943,10 +917,7 @@ pub struct DocumentDiagnosticParams {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentDiagnosticReportPartialResult {
-    pub related_documents: HashMap<
-        String,
-        Or2<FullDocumentDiagnosticReport, UnchangedDocumentDiagnosticReport>,
-    >,
+    pub related_documents: HashMap<String, RelatedDocument>,
 }
 
 /// Cancellation data returned from a diagnostic request.
@@ -1238,7 +1209,7 @@ pub struct InitializeParams {
     #[deprecated(note = "in favour of rootUri.")]
     #[serde(default, deserialize_with = "deserialize_some")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub root_path: Option<Or2<String, ()>>,
+    pub root_path: Option<RootPath>,
     /// The rootUri of the workspace. Is null if no
     /// folder is open. If both `rootPath` and `rootUri` are set
     /// `rootUri` wins.
@@ -1774,7 +1745,7 @@ pub struct SignatureHelp {
     /// the active signature does have any.
     #[serde(default, deserialize_with = "deserialize_some")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub active_parameter: Option<Or2<u32, ()>>,
+    pub active_parameter: Option<ActiveParameter>,
 }
 
 /// Registration options for a [SignatureHelpRequest].
@@ -2922,7 +2893,7 @@ pub struct TextDocumentEdit {
     ///
     /// @since 3.18.0 - support for SnippetTextEdit. This is guarded using a
     /// client capability.
-    pub edits: Vec<Or3<TextEdit, AnnotatedTextEdit, SnippetTextEdit>>,
+    pub edits: Vec<Edit>,
 }
 
 /// Create file operation.
@@ -3311,12 +3282,7 @@ pub struct RelatedFullDocumentDiagnosticReport {
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub related_documents: Option<
-        HashMap<
-            String,
-            Or2<FullDocumentDiagnosticReport, UnchangedDocumentDiagnosticReport>,
-        >,
-    >,
+    pub related_documents: Option<HashMap<String, RelatedDocument>>,
     #[serde(flatten)]
     pub full_document_diagnostic_report: FullDocumentDiagnosticReport,
 }
@@ -3335,12 +3301,7 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub related_documents: Option<
-        HashMap<
-            String,
-            Or2<FullDocumentDiagnosticReport, UnchangedDocumentDiagnosticReport>,
-        >,
-    >,
+    pub related_documents: Option<HashMap<String, RelatedDocument>>,
     #[serde(flatten)]
     pub unchanged_document_diagnostic_report: UnchangedDocumentDiagnosticReport,
 }
@@ -3536,9 +3497,7 @@ pub struct TextDocumentItem {
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentSyncOptions {
     /// The notebooks to be synced
-    pub notebook_selector: Vec<
-        Or2<NotebookDocumentFilterWithNotebook, NotebookDocumentFilterWithCells>,
-    >,
+    pub notebook_selector: Vec<NotebookSelector>,
     /// Whether save notification should be forwarded to
     /// the server. Will only be honored if mode === `notebook`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3698,7 +3657,7 @@ pub struct WorkspaceFoldersInitializeParams {
     /// @since 3.6.0
     #[serde(default, deserialize_with = "deserialize_some")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub workspace_folders: Option<Or2<Vec<WorkspaceFolder>, ()>>,
+    pub workspace_folders: Option<WorkspaceFolders>,
 }
 
 /// Defines the capabilities provided by a language
@@ -4205,7 +4164,7 @@ pub struct SignatureInformation {
     /// @since 3.16.0
     #[serde(default, deserialize_with = "deserialize_some")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub active_parameter: Option<Or2<u32, ()>>,
+    pub active_parameter: Option<ActiveParameter>,
 }
 
 /// Server Capabilities for a [SignatureHelpRequest].
@@ -8641,6 +8600,14 @@ pub type Pattern = String;
 
 pub type RegularExpressionEngineKind = String;
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[serde(untagged)]
+pub enum ActiveParameter {
+    Int(u32),
+    #[serde(rename = "null")]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum BaseUri {
@@ -8757,6 +8724,15 @@ pub enum DiagnosticProvider {
     DiagnosticRegistrationOptions(DiagnosticRegistrationOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentChange {
+    TextDocumentEdit(TextDocumentEdit),
+    CreateFile(CreateFile),
+    RenameFile(RenameFile),
+    DeleteFile(DeleteFile),
+}
+
 /// The result of a document diagnostic pull request. A report can
 /// either be a full report containing all diagnostics for the
 /// requested document or an unchanged report indicating that nothing
@@ -8815,6 +8791,14 @@ pub enum DocumentSymbolProvider {
 pub enum Documentation {
     String(String),
     MarkupContent(MarkupContent),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum Edit {
+    TextEdit(TextEdit),
+    AnnotatedTextEdit(AnnotatedTextEdit),
+    SnippetTextEdit(SnippetTextEdit),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
@@ -8987,6 +8971,13 @@ pub enum NotebookDocumentSync {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
+pub enum NotebookSelector {
+    NotebookDocumentFilterWithNotebook(NotebookDocumentFilterWithNotebook),
+    NotebookDocumentFilterWithCells(NotebookDocumentFilterWithCells),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
 pub enum ParameterInformationLabel {
     String(String),
     Tuple((u32, u32)),
@@ -9014,11 +9005,26 @@ pub enum ReferencesProvider {
     ReferenceOptions(ReferenceOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum RelatedDocument {
+    FullDocumentDiagnosticReport(FullDocumentDiagnosticReport),
+    UnchangedDocumentDiagnosticReport(UnchangedDocumentDiagnosticReport),
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
 #[serde(untagged)]
 pub enum RenameProvider {
     Bool(bool),
     RenameOptions(RenameOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum RootPath {
+    String(String),
+    #[serde(rename = "null")]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
@@ -9137,6 +9143,14 @@ pub enum WorkspaceDocumentDiagnosticReport {
     WorkspaceUnchangedDocumentDiagnosticReport(
         WorkspaceUnchangedDocumentDiagnosticReport,
     ),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum WorkspaceFolders {
+    WorkspaceFolderList(Vec<WorkspaceFolder>),
+    #[serde(rename = "null")]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
