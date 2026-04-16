@@ -2,7 +2,7 @@
 #![allow(deprecated, clippy::doc_lazy_continuation, unreachable_patterns)]
 
 use derive_more::From;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
 use std::{borrow::Cow, collections::HashMap};
 
 fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
@@ -11,6 +11,23 @@ where
     D: Deserializer<'de>,
 {
     T::deserialize(deserializer).map(Some)
+}
+/// Indicates in which direction a message is sent in the protocol.
+pub enum MessageDirection {
+    ClientToServer,
+    ServerToClient,
+    Both,
+}
+pub trait Notification {
+    type Params: DeserializeOwned + Serialize + Send + Sync;
+    const METHOD: LspNotificationMethods;
+    const MESSAGE_DIRECTION: MessageDirection;
+}
+pub trait Request {
+    type Params: DeserializeOwned + Serialize + Send + Sync;
+    type Result: DeserializeOwned + Serialize + Send + Sync;
+    const METHOD: LspRequestMethods;
+    const MESSAGE_DIRECTION: MessageDirection;
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
@@ -8565,6 +8582,210 @@ pub enum TokenFormat {
     Relative,
 }
 
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+pub enum LspRequestMethods {
+    #[serde(rename = "textDocument/implementation")]
+    TextDocumentImplementation,
+    #[serde(rename = "textDocument/typeDefinition")]
+    TextDocumentTypeDefinition,
+    #[serde(rename = "workspace/workspaceFolders")]
+    WorkspaceWorkspaceFolders,
+    #[serde(rename = "workspace/configuration")]
+    WorkspaceConfiguration,
+    #[serde(rename = "textDocument/documentColor")]
+    TextDocumentDocumentColor,
+    #[serde(rename = "textDocument/colorPresentation")]
+    TextDocumentColorPresentation,
+    #[serde(rename = "textDocument/foldingRange")]
+    TextDocumentFoldingRange,
+    #[serde(rename = "workspace/foldingRange/refresh")]
+    WorkspaceFoldingRangeRefresh,
+    #[serde(rename = "textDocument/declaration")]
+    TextDocumentDeclaration,
+    #[serde(rename = "textDocument/selectionRange")]
+    TextDocumentSelectionRange,
+    #[serde(rename = "window/workDoneProgress/create")]
+    WindowWorkDoneProgressCreate,
+    #[serde(rename = "textDocument/prepareCallHierarchy")]
+    TextDocumentPrepareCallHierarchy,
+    #[serde(rename = "callHierarchy/incomingCalls")]
+    CallHierarchyIncomingCalls,
+    #[serde(rename = "callHierarchy/outgoingCalls")]
+    CallHierarchyOutgoingCalls,
+    #[serde(rename = "textDocument/semanticTokens/full")]
+    TextDocumentSemanticTokensFull,
+    #[serde(rename = "textDocument/semanticTokens/full/delta")]
+    TextDocumentSemanticTokensFullDelta,
+    #[serde(rename = "textDocument/semanticTokens/range")]
+    TextDocumentSemanticTokensRange,
+    #[serde(rename = "workspace/semanticTokens/refresh")]
+    WorkspaceSemanticTokensRefresh,
+    #[serde(rename = "window/showDocument")]
+    WindowShowDocument,
+    #[serde(rename = "textDocument/linkedEditingRange")]
+    TextDocumentLinkedEditingRange,
+    #[serde(rename = "workspace/willCreateFiles")]
+    WorkspaceWillCreateFiles,
+    #[serde(rename = "workspace/willRenameFiles")]
+    WorkspaceWillRenameFiles,
+    #[serde(rename = "workspace/willDeleteFiles")]
+    WorkspaceWillDeleteFiles,
+    #[serde(rename = "textDocument/moniker")]
+    TextDocumentMoniker,
+    #[serde(rename = "textDocument/prepareTypeHierarchy")]
+    TextDocumentPrepareTypeHierarchy,
+    #[serde(rename = "typeHierarchy/supertypes")]
+    TypeHierarchySupertypes,
+    #[serde(rename = "typeHierarchy/subtypes")]
+    TypeHierarchySubtypes,
+    #[serde(rename = "textDocument/inlineValue")]
+    TextDocumentInlineValue,
+    #[serde(rename = "workspace/inlineValue/refresh")]
+    WorkspaceInlineValueRefresh,
+    #[serde(rename = "textDocument/inlayHint")]
+    TextDocumentInlayHint,
+    #[serde(rename = "inlayHint/resolve")]
+    InlayHintResolve,
+    #[serde(rename = "workspace/inlayHint/refresh")]
+    WorkspaceInlayHintRefresh,
+    #[serde(rename = "textDocument/diagnostic")]
+    TextDocumentDiagnostic,
+    #[serde(rename = "workspace/diagnostic")]
+    WorkspaceDiagnostic,
+    #[serde(rename = "workspace/diagnostic/refresh")]
+    WorkspaceDiagnosticRefresh,
+    #[serde(rename = "textDocument/inlineCompletion")]
+    TextDocumentInlineCompletion,
+    #[serde(rename = "workspace/textDocumentContent")]
+    WorkspaceTextDocumentContent,
+    #[serde(rename = "workspace/textDocumentContent/refresh")]
+    WorkspaceTextDocumentContentRefresh,
+    #[serde(rename = "client/registerCapability")]
+    ClientRegisterCapability,
+    #[serde(rename = "client/unregisterCapability")]
+    ClientUnregisterCapability,
+    #[serde(rename = "initialize")]
+    Initialize,
+    #[serde(rename = "shutdown")]
+    Shutdown,
+    #[serde(rename = "window/showMessageRequest")]
+    WindowShowMessageRequest,
+    #[serde(rename = "textDocument/willSaveWaitUntil")]
+    TextDocumentWillSaveWaitUntil,
+    #[serde(rename = "textDocument/completion")]
+    TextDocumentCompletion,
+    #[serde(rename = "completionItem/resolve")]
+    CompletionItemResolve,
+    #[serde(rename = "textDocument/hover")]
+    TextDocumentHover,
+    #[serde(rename = "textDocument/signatureHelp")]
+    TextDocumentSignatureHelp,
+    #[serde(rename = "textDocument/definition")]
+    TextDocumentDefinition,
+    #[serde(rename = "textDocument/references")]
+    TextDocumentReferences,
+    #[serde(rename = "textDocument/documentHighlight")]
+    TextDocumentDocumentHighlight,
+    #[serde(rename = "textDocument/documentSymbol")]
+    TextDocumentDocumentSymbol,
+    #[serde(rename = "textDocument/codeAction")]
+    TextDocumentCodeAction,
+    #[serde(rename = "codeAction/resolve")]
+    CodeActionResolve,
+    #[serde(rename = "workspace/symbol")]
+    WorkspaceSymbol,
+    #[serde(rename = "workspaceSymbol/resolve")]
+    WorkspaceSymbolResolve,
+    #[serde(rename = "textDocument/codeLens")]
+    TextDocumentCodeLens,
+    #[serde(rename = "codeLens/resolve")]
+    CodeLensResolve,
+    #[serde(rename = "workspace/codeLens/refresh")]
+    WorkspaceCodeLensRefresh,
+    #[serde(rename = "textDocument/documentLink")]
+    TextDocumentDocumentLink,
+    #[serde(rename = "documentLink/resolve")]
+    DocumentLinkResolve,
+    #[serde(rename = "textDocument/formatting")]
+    TextDocumentFormatting,
+    #[serde(rename = "textDocument/rangeFormatting")]
+    TextDocumentRangeFormatting,
+    #[serde(rename = "textDocument/rangesFormatting")]
+    TextDocumentRangesFormatting,
+    #[serde(rename = "textDocument/onTypeFormatting")]
+    TextDocumentOnTypeFormatting,
+    #[serde(rename = "textDocument/rename")]
+    TextDocumentRename,
+    #[serde(rename = "textDocument/prepareRename")]
+    TextDocumentPrepareRename,
+    #[serde(rename = "workspace/executeCommand")]
+    WorkspaceExecuteCommand,
+    #[serde(rename = "workspace/applyEdit")]
+    WorkspaceApplyEdit,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(String),
+}
+
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+pub enum LspNotificationMethods {
+    #[serde(rename = "workspace/didChangeWorkspaceFolders")]
+    WorkspaceDidChangeWorkspaceFolders,
+    #[serde(rename = "window/workDoneProgress/cancel")]
+    WindowWorkDoneProgressCancel,
+    #[serde(rename = "workspace/didCreateFiles")]
+    WorkspaceDidCreateFiles,
+    #[serde(rename = "workspace/didRenameFiles")]
+    WorkspaceDidRenameFiles,
+    #[serde(rename = "workspace/didDeleteFiles")]
+    WorkspaceDidDeleteFiles,
+    #[serde(rename = "notebookDocument/didOpen")]
+    NotebookDocumentDidOpen,
+    #[serde(rename = "notebookDocument/didChange")]
+    NotebookDocumentDidChange,
+    #[serde(rename = "notebookDocument/didSave")]
+    NotebookDocumentDidSave,
+    #[serde(rename = "notebookDocument/didClose")]
+    NotebookDocumentDidClose,
+    #[serde(rename = "initialized")]
+    Initialized,
+    #[serde(rename = "exit")]
+    Exit,
+    #[serde(rename = "workspace/didChangeConfiguration")]
+    WorkspaceDidChangeConfiguration,
+    #[serde(rename = "window/showMessage")]
+    WindowShowMessage,
+    #[serde(rename = "window/logMessage")]
+    WindowLogMessage,
+    #[serde(rename = "telemetry/event")]
+    TelemetryEvent,
+    #[serde(rename = "textDocument/didOpen")]
+    TextDocumentDidOpen,
+    #[serde(rename = "textDocument/didChange")]
+    TextDocumentDidChange,
+    #[serde(rename = "textDocument/didClose")]
+    TextDocumentDidClose,
+    #[serde(rename = "textDocument/didSave")]
+    TextDocumentDidSave,
+    #[serde(rename = "textDocument/willSave")]
+    TextDocumentWillSave,
+    #[serde(rename = "workspace/didChangeWatchedFiles")]
+    WorkspaceDidChangeWatchedFiles,
+    #[serde(rename = "textDocument/publishDiagnostics")]
+    TextDocumentPublishDiagnostics,
+    #[serde(rename = "$/setTrace")]
+    SetTrace,
+    #[serde(rename = "$/logTrace")]
+    LogTrace,
+    #[serde(rename = "$/cancelRequest")]
+    CancelRequest,
+    #[serde(rename = "$/progress")]
+    Progress,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(String),
+}
+
 /// Information about where a symbol is defined.
 ///
 /// Provides additional metadata over normal [location][Location] definitions, including the range of
@@ -8638,6 +8859,36 @@ pub enum BaseUri {
     Uri(String),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum CallHierarchyIncomingCallsRequestResponse {
+    #[from]
+    CallHierarchyIncomingCallList(Vec<CallHierarchyIncomingCall>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum CallHierarchyOutgoingCallsRequestResponse {
+    #[from]
+    CallHierarchyOutgoingCallList(Vec<CallHierarchyOutgoingCall>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum CallHierarchyPrepareRequestResponse {
+    #[from]
+    CallHierarchyItemList(Vec<CallHierarchyItem>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
 pub enum CallHierarchyProvider {
@@ -8694,6 +8945,36 @@ pub enum CodeActionProvider {
     CodeActionOptions(CodeActionOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum CodeActionRequestResponse {
+    #[from]
+    CodeActionRequestResponseList(Vec<Or2<Command, CodeAction>>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum CodeLensRequestResponse {
+    #[from]
+    CodeLensList(Vec<CodeLens>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum ColorPresentationRequestResponse {
+    #[from]
+    ColorPresentationList(Vec<ColorPresentation>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
 pub enum ColorProvider {
@@ -8712,6 +8993,18 @@ pub enum CompletionItemTextEdit {
     TextEdit(TextEdit),
     #[from]
     InsertReplaceEdit(InsertReplaceEdit),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum CompletionRequestResponse {
+    #[from]
+    CompletionItemList(Vec<CompletionItem>),
+    #[from]
+    CompletionList(CompletionList),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -8746,6 +9039,18 @@ pub enum DeclarationProvider {
     DeclarationRegistrationOptions(DeclarationRegistrationOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum DeclarationRequestResponse {
+    #[from]
+    Declaration(Declaration),
+    #[from]
+    DeclarationLinkList(Vec<DeclarationLink>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 /// The definition of a symbol represented as one or many [locations][Location].
 /// For most programming languages there is only one location at which a symbol is
 /// defined.
@@ -8772,6 +9077,18 @@ pub enum DefinitionProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum DefinitionRequestResponse {
+    #[from]
+    Definition(Definition),
+    #[from]
+    DefinitionLinkList(Vec<DefinitionLink>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum DiagnosticProvider {
     #[from]
     DiagnosticOptions(DiagnosticOptions),
@@ -8790,6 +9107,16 @@ pub enum DocumentChange {
     RenameFile(RenameFile),
     #[from]
     DeleteFile(DeleteFile),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From)]
+#[serde(untagged)]
+pub enum DocumentColorRequestResponse {
+    #[from]
+    ColorInformationList(Vec<ColorInformation>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 /// The result of a document diagnostic pull request. A report can
@@ -8830,6 +9157,16 @@ pub enum DocumentFormattingProvider {
     DocumentFormattingOptions(DocumentFormattingOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentFormattingRequestResponse {
+    #[from]
+    TextEditList(Vec<TextEdit>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash, Copy)]
 #[serde(untagged)]
 pub enum DocumentHighlightProvider {
@@ -8837,6 +9174,36 @@ pub enum DocumentHighlightProvider {
     Bool(bool),
     #[from]
     DocumentHighlightOptions(DocumentHighlightOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentHighlightRequestResponse {
+    #[from]
+    DocumentHighlightList(Vec<DocumentHighlight>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum DocumentLinkRequestResponse {
+    #[from]
+    DocumentLinkList(Vec<DocumentLink>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentOnTypeFormattingRequestResponse {
+    #[from]
+    TextEditList(Vec<TextEdit>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash, Copy)]
@@ -8850,11 +9217,43 @@ pub enum DocumentRangeFormattingProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum DocumentRangeFormattingRequestResponse {
+    #[from]
+    TextEditList(Vec<TextEdit>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentRangesFormattingRequestResponse {
+    #[from]
+    TextEditList(Vec<TextEdit>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum DocumentSymbolProvider {
     #[from]
     Bool(bool),
     #[from]
     DocumentSymbolOptions(DocumentSymbolOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentSymbolRequestResponse {
+    #[from]
+    SymbolInformationList(Vec<SymbolInformation>),
+    #[from]
+    DocumentSymbolList(Vec<DocumentSymbol>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -8886,6 +9285,16 @@ pub enum EditRange {
     EditRangeWithInsertReplace(EditRangeWithInsertReplace),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum ExecuteCommandRequestResponse {
+    #[from]
+    LSPAny(LspAny),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
 pub enum FoldingRangeProvider {
@@ -8895,6 +9304,16 @@ pub enum FoldingRangeProvider {
     FoldingRangeOptions(FoldingRangeOptions),
     #[from]
     FoldingRangeRegistrationOptions(FoldingRangeRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum FoldingRangeRequestResponse {
+    #[from]
+    FoldingRangeList(Vec<FoldingRange>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash, Copy)]
@@ -8929,6 +9348,16 @@ pub enum HoverProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum HoverRequestResponse {
+    #[from]
+    Hover(Hover),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum Id {
     #[from]
     Int(i32),
@@ -8949,6 +9378,18 @@ pub enum ImplementationProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum ImplementationRequestResponse {
+    #[from]
+    Definition(Definition),
+    #[from]
+    DefinitionLinkList(Vec<DefinitionLink>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum InlayHintProvider {
     #[from]
     Bool(bool),
@@ -8958,6 +9399,16 @@ pub enum InlayHintProvider {
     InlayHintRegistrationOptions(InlayHintRegistrationOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum InlayHintRequestResponse {
+    #[from]
+    InlayHintList(Vec<InlayHint>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash, Copy)]
 #[serde(untagged)]
 pub enum InlineCompletionProvider {
@@ -8965,6 +9416,18 @@ pub enum InlineCompletionProvider {
     Bool(bool),
     #[from]
     InlineCompletionOptions(InlineCompletionOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum InlineCompletionRequestResponse {
+    #[from]
+    InlineCompletionList(InlineCompletionList),
+    #[from]
+    InlineCompletionItemList(Vec<InlineCompletionItem>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 /// Inline value information can be provided by different means:
@@ -8998,6 +9461,16 @@ pub enum InlineValueProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum InlineValueRequestResponse {
+    #[from]
+    InlineValueList(Vec<InlineValue>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum InsertText {
     #[from(String, &str, Box<str>, Cow<'_, str>, char)]
     String(String),
@@ -9023,6 +9496,16 @@ pub enum LinkedEditingRangeProvider {
     LinkedEditingRangeOptions(LinkedEditingRangeOptions),
     #[from]
     LinkedEditingRangeRegistrationOptions(LinkedEditingRangeRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum LinkedEditingRangeRequestResponse {
+    #[from]
+    LinkedEditingRanges(LinkedEditingRanges),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 /// MarkedString can be used to render human readable text. It is either a markdown string
@@ -9055,6 +9538,16 @@ pub enum MonikerProvider {
     MonikerOptions(MonikerOptions),
     #[from]
     MonikerRegistrationOptions(MonikerRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum MonikerRequestResponse {
+    #[from]
+    MonikerList(Vec<Moniker>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9111,6 +9604,16 @@ pub enum ParameterInformationLabel {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum PrepareRenameRequestResponse {
+    #[from]
+    PrepareRenameResult(PrepareRenameResult),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum PrepareRenameResult {
     #[from]
     Range(Range),
@@ -9138,6 +9641,16 @@ pub enum ReferencesProvider {
     ReferenceOptions(ReferenceOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum ReferencesRequestResponse {
+    #[from]
+    LocationList(Vec<Location>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
 #[serde(untagged)]
 pub enum RelatedDocument {
@@ -9154,6 +9667,16 @@ pub enum RenameProvider {
     Bool(bool),
     #[from]
     RenameOptions(RenameOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum RenameRequestResponse {
+    #[from]
+    WorkspaceEdit(WorkspaceEdit),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9195,6 +9718,28 @@ pub enum SelectionRangeProvider {
     SelectionRangeRegistrationOptions(SelectionRangeRegistrationOptions),
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum SelectionRangeRequestResponse {
+    #[from]
+    SelectionRangeList(Vec<SelectionRange>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum SemanticTokensDeltaRequestResponse {
+    #[from]
+    SemanticTokens(SemanticTokens),
+    #[from]
+    SemanticTokensDelta(SemanticTokensDelta),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
 #[serde(untagged)]
 pub enum SemanticTokensOptionsRange {
@@ -9211,6 +9756,46 @@ pub enum SemanticTokensProvider {
     SemanticTokensOptions(SemanticTokensOptions),
     #[from]
     SemanticTokensRegistrationOptions(SemanticTokensRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum SemanticTokensRangeRequestResponse {
+    #[from]
+    SemanticTokens(SemanticTokens),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum SemanticTokensRequestResponse {
+    #[from]
+    SemanticTokens(SemanticTokens),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum ShowMessageRequestResponse {
+    #[from]
+    MessageActionItem(MessageActionItem),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum SignatureHelpRequestResponse {
+    #[from]
+    SignatureHelp(SignatureHelp),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9291,6 +9876,28 @@ pub enum TypeDefinitionProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum TypeDefinitionRequestResponse {
+    #[from]
+    Definition(Definition),
+    #[from]
+    DefinitionLinkList(Vec<DefinitionLink>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum TypeHierarchyPrepareRequestResponse {
+    #[from]
+    TypeHierarchyItemList(Vec<TypeHierarchyItem>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum TypeHierarchyProvider {
     #[from]
     Bool(bool),
@@ -9298,6 +9905,66 @@ pub enum TypeHierarchyProvider {
     TypeHierarchyOptions(TypeHierarchyOptions),
     #[from]
     TypeHierarchyRegistrationOptions(TypeHierarchyRegistrationOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum TypeHierarchySubtypesRequestResponse {
+    #[from]
+    TypeHierarchyItemList(Vec<TypeHierarchyItem>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum TypeHierarchySupertypesRequestResponse {
+    #[from]
+    TypeHierarchyItemList(Vec<TypeHierarchyItem>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum WillCreateFilesRequestResponse {
+    #[from]
+    WorkspaceEdit(WorkspaceEdit),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum WillDeleteFilesRequestResponse {
+    #[from]
+    WorkspaceEdit(WorkspaceEdit),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum WillRenameFilesRequestResponse {
+    #[from]
+    WorkspaceEdit(WorkspaceEdit),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
+pub enum WillSaveTextDocumentWaitUntilRequestResponse {
+    #[from]
+    TextEditList(Vec<TextEdit>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
 }
 
 /// A workspace diagnostic document report.
@@ -9326,6 +9993,16 @@ pub enum WorkspaceFolders {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
+pub enum WorkspaceFoldersRequestResponse {
+    #[from]
+    WorkspaceFolderList(Vec<WorkspaceFolder>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
+#[serde(untagged)]
 pub enum WorkspaceSymbolLocation {
     #[from]
     Location(Location),
@@ -9340,4 +10017,1133 @@ pub enum WorkspaceSymbolProvider {
     Bool(bool),
     #[from]
     WorkspaceSymbolOptions(WorkspaceSymbolOptions),
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
+#[serde(untagged)]
+pub enum WorkspaceSymbolRequestResponse {
+    #[from]
+    SymbolInformationList(Vec<SymbolInformation>),
+    #[from]
+    WorkspaceSymbolList(Vec<WorkspaceSymbol>),
+    #[serde(rename = "null")]
+    #[from(())]
+    Null,
+}
+
+/// A request to resolve the implementation locations of a symbol at a given text
+/// document position. The request's parameter is of type [TextDocumentPositionParams]
+/// the response is of type [Definition] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct ImplementationRequest;
+impl Request for ImplementationRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentImplementation;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = ImplementationParams;
+    type Result = ImplementationRequestResponse;
+}
+
+/// A request to resolve the type definition locations of a symbol at a given text
+/// document position. The request's parameter is of type [TextDocumentPositionParams]
+/// the response is of type [Definition] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct TypeDefinitionRequest;
+impl Request for TypeDefinitionRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentTypeDefinition;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = TypeDefinitionParams;
+    type Result = TypeDefinitionRequestResponse;
+}
+
+/// The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
+#[derive(Debug)]
+pub struct WorkspaceFoldersRequest;
+impl Request for WorkspaceFoldersRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWorkspaceFolders;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = WorkspaceFoldersRequestResponse;
+}
+
+/// The 'workspace/configuration' request is sent from the server to the client to fetch a certain
+/// configuration setting.
+///
+/// This pull model replaces the old push model were the client signaled configuration change via an
+/// event. If the server still needs to react to configuration changes (since the server caches the
+/// result of `workspace/configuration` requests) the server should register for an empty configuration
+/// change event and empty the cache if such an event is received.
+#[derive(Debug)]
+pub struct ConfigurationRequest;
+impl Request for ConfigurationRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceConfiguration;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ConfigurationParams;
+    type Result = Vec<LspAny>;
+}
+
+/// A request to list all color symbols found in a given text document. The request's
+/// parameter is of type [DocumentColorParams] the
+/// response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+/// that resolves to such.
+#[derive(Debug)]
+pub struct DocumentColorRequest;
+impl Request for DocumentColorRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentColor;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentColorParams;
+    type Result = DocumentColorRequestResponse;
+}
+
+/// A request to list all presentation for a color. The request's
+/// parameter is of type [ColorPresentationParams] the
+/// response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+/// that resolves to such.
+#[derive(Debug)]
+pub struct ColorPresentationRequest;
+impl Request for ColorPresentationRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentColorPresentation;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = ColorPresentationParams;
+    type Result = ColorPresentationRequestResponse;
+}
+
+/// A request to provide folding ranges in a document. The request's
+/// parameter is of type [FoldingRangeParams], the
+/// response is of type [FoldingRangeList] or a Thenable
+/// that resolves to such.
+#[derive(Debug)]
+pub struct FoldingRangeRequest;
+impl Request for FoldingRangeRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentFoldingRange;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = FoldingRangeParams;
+    type Result = FoldingRangeRequestResponse;
+}
+
+/// @since 3.18.0
+/// @proposed
+#[derive(Debug)]
+pub struct FoldingRangeRefreshRequest;
+impl Request for FoldingRangeRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceFoldingRangeRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = ();
+}
+
+/// A request to resolve the type definition locations of a symbol at a given text
+/// document position. The request's parameter is of type [TextDocumentPositionParams]
+/// the response is of type [Declaration] or a typed array of [DeclarationLink]
+/// or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct DeclarationRequest;
+impl Request for DeclarationRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDeclaration;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DeclarationParams;
+    type Result = DeclarationRequestResponse;
+}
+
+/// A request to provide selection ranges in a document. The request's
+/// parameter is of type [SelectionRangeParams], the
+/// response is of type {@link SelectionRange SelectionRange[]} or a Thenable
+/// that resolves to such.
+#[derive(Debug)]
+pub struct SelectionRangeRequest;
+impl Request for SelectionRangeRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSelectionRange;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = SelectionRangeParams;
+    type Result = SelectionRangeRequestResponse;
+}
+
+/// The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
+/// reporting from the server.
+#[derive(Debug)]
+pub struct WorkDoneProgressCreateRequest;
+impl Request for WorkDoneProgressCreateRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WindowWorkDoneProgressCreate;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = WorkDoneProgressCreateParams;
+    type Result = ();
+}
+
+/// A request to result a `CallHierarchyItem` in a document at a given position.
+/// Can be used as an input to an incoming or outgoing call hierarchy.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct CallHierarchyPrepareRequest;
+impl Request for CallHierarchyPrepareRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareCallHierarchy;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CallHierarchyPrepareParams;
+    type Result = CallHierarchyPrepareRequestResponse;
+}
+
+/// A request to resolve the incoming calls for a given `CallHierarchyItem`.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct CallHierarchyIncomingCallsRequest;
+impl Request for CallHierarchyIncomingCallsRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::CallHierarchyIncomingCalls;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CallHierarchyIncomingCallsParams;
+    type Result = CallHierarchyIncomingCallsRequestResponse;
+}
+
+/// A request to resolve the outgoing calls for a given `CallHierarchyItem`.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct CallHierarchyOutgoingCallsRequest;
+impl Request for CallHierarchyOutgoingCallsRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::CallHierarchyOutgoingCalls;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CallHierarchyOutgoingCallsParams;
+    type Result = CallHierarchyOutgoingCallsRequestResponse;
+}
+
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct SemanticTokensRequest;
+impl Request for SemanticTokensRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFull;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = SemanticTokensParams;
+    type Result = SemanticTokensRequestResponse;
+}
+
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct SemanticTokensDeltaRequest;
+impl Request for SemanticTokensDeltaRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFullDelta;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = SemanticTokensDeltaParams;
+    type Result = SemanticTokensDeltaRequestResponse;
+}
+
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct SemanticTokensRangeRequest;
+impl Request for SemanticTokensRangeRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensRange;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = SemanticTokensRangeParams;
+    type Result = SemanticTokensRangeRequestResponse;
+}
+
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct SemanticTokensRefreshRequest;
+impl Request for SemanticTokensRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSemanticTokensRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = ();
+}
+
+/// A request to show a document. This request might open an
+/// external program depending on the value of the URI to open.
+/// For example a request to open `https://code.visualstudio.com/`
+/// will very likely open the URI in a WEB browser.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct ShowDocumentRequest;
+impl Request for ShowDocumentRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WindowShowDocument;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ShowDocumentParams;
+    type Result = ShowDocumentResult;
+}
+
+/// A request to provide ranges that can be edited together.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct LinkedEditingRangeRequest;
+impl Request for LinkedEditingRangeRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentLinkedEditingRange;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = LinkedEditingRangeParams;
+    type Result = LinkedEditingRangeRequestResponse;
+}
+
+/// The will create files request is sent from the client to the server before files are actually
+/// created as long as the creation is triggered from within the client.
+///
+/// The request can return a `WorkspaceEdit` which will be applied to workspace before the
+/// files are created. Hence the `WorkspaceEdit` can not manipulate the content of the file
+/// to be created.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct WillCreateFilesRequest;
+impl Request for WillCreateFilesRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillCreateFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CreateFilesParams;
+    type Result = WillCreateFilesRequestResponse;
+}
+
+/// The will rename files request is sent from the client to the server before files are actually
+/// renamed as long as the rename is triggered from within the client.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct WillRenameFilesRequest;
+impl Request for WillRenameFilesRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillRenameFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = RenameFilesParams;
+    type Result = WillRenameFilesRequestResponse;
+}
+
+/// The did delete files notification is sent from the client to the server when
+/// files were deleted from within the client.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct WillDeleteFilesRequest;
+impl Request for WillDeleteFilesRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillDeleteFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DeleteFilesParams;
+    type Result = WillDeleteFilesRequestResponse;
+}
+
+/// A request to get the moniker of a symbol at a given text document position.
+/// The request parameter is of type [TextDocumentPositionParams].
+/// The response is of type {@link Moniker Moniker[]} or `null`.
+#[derive(Debug)]
+pub struct MonikerRequest;
+impl Request for MonikerRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentMoniker;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = MonikerParams;
+    type Result = MonikerRequestResponse;
+}
+
+/// A request to result a `TypeHierarchyItem` in a document at a given position.
+/// Can be used as an input to a subtypes or supertypes type hierarchy.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct TypeHierarchyPrepareRequest;
+impl Request for TypeHierarchyPrepareRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareTypeHierarchy;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = TypeHierarchyPrepareParams;
+    type Result = TypeHierarchyPrepareRequestResponse;
+}
+
+/// A request to resolve the supertypes for a given `TypeHierarchyItem`.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct TypeHierarchySupertypesRequest;
+impl Request for TypeHierarchySupertypesRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TypeHierarchySupertypes;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = TypeHierarchySupertypesParams;
+    type Result = TypeHierarchySupertypesRequestResponse;
+}
+
+/// A request to resolve the subtypes for a given `TypeHierarchyItem`.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct TypeHierarchySubtypesRequest;
+impl Request for TypeHierarchySubtypesRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TypeHierarchySubtypes;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = TypeHierarchySubtypesParams;
+    type Result = TypeHierarchySubtypesRequestResponse;
+}
+
+/// A request to provide inline values in a document. The request's parameter is of
+/// type [InlineValueParams], the response is of type
+/// {@link InlineValue InlineValue[]} or a Thenable that resolves to such.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct InlineValueRequest;
+impl Request for InlineValueRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineValue;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = InlineValueParams;
+    type Result = InlineValueRequestResponse;
+}
+
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct InlineValueRefreshRequest;
+impl Request for InlineValueRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceInlineValueRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = ();
+}
+
+/// A request to provide inlay hints in a document. The request's parameter is of
+/// type [InlayHintsParams], the response is of type
+/// {@link InlayHint InlayHint[]} or a Thenable that resolves to such.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct InlayHintRequest;
+impl Request for InlayHintRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlayHint;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = InlayHintParams;
+    type Result = InlayHintRequestResponse;
+}
+
+/// A request to resolve additional properties for an inlay hint.
+/// The request's parameter is of type [InlayHint], the response is
+/// of type [InlayHint] or a Thenable that resolves to such.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct InlayHintResolveRequest;
+impl Request for InlayHintResolveRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::InlayHintResolve;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = InlayHint;
+    type Result = InlayHint;
+}
+
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct InlayHintRefreshRequest;
+impl Request for InlayHintRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceInlayHintRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = ();
+}
+
+/// The document diagnostic request definition.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct DocumentDiagnosticRequest;
+impl Request for DocumentDiagnosticRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDiagnostic;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentDiagnosticParams;
+    type Result = DocumentDiagnosticReport;
+}
+
+/// The workspace diagnostic request definition.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct WorkspaceDiagnosticRequest;
+impl Request for WorkspaceDiagnosticRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceDiagnostic;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = WorkspaceDiagnosticParams;
+    type Result = WorkspaceDiagnosticReport;
+}
+
+/// The diagnostic refresh request definition.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct DiagnosticRefreshRequest;
+impl Request for DiagnosticRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceDiagnosticRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = ();
+}
+
+/// A request to provide inline completions in a document. The request's parameter is of
+/// type [InlineCompletionParams], the response is of type
+/// {@link InlineCompletion InlineCompletion[]} or a Thenable that resolves to such.
+///
+/// @since 3.18.0
+/// @proposed
+#[derive(Debug)]
+pub struct InlineCompletionRequest;
+impl Request for InlineCompletionRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineCompletion;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = InlineCompletionParams;
+    type Result = InlineCompletionRequestResponse;
+}
+
+/// The `workspace/textDocumentContent` request is sent from the client to the
+/// server to request the content of a text document.
+///
+/// @since 3.18.0
+/// @proposed
+#[derive(Debug)]
+pub struct TextDocumentContentRequest;
+impl Request for TextDocumentContentRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceTextDocumentContent;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = TextDocumentContentParams;
+    type Result = TextDocumentContentResult;
+}
+
+/// The `workspace/textDocumentContent` request is sent from the server to the client to refresh
+/// the content of a specific text document.
+///
+/// @since 3.18.0
+/// @proposed
+#[derive(Debug)]
+pub struct TextDocumentContentRefreshRequest;
+impl Request for TextDocumentContentRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceTextDocumentContentRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = TextDocumentContentRefreshParams;
+    type Result = ();
+}
+
+/// The `client/registerCapability` request is sent from the server to the client to register a new capability
+/// handler on the client side.
+#[derive(Debug)]
+pub struct RegistrationRequest;
+impl Request for RegistrationRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::ClientRegisterCapability;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = RegistrationParams;
+    type Result = ();
+}
+
+/// The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
+/// handler on the client side.
+#[derive(Debug)]
+pub struct UnregistrationRequest;
+impl Request for UnregistrationRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::ClientUnregisterCapability;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = UnregistrationParams;
+    type Result = ();
+}
+
+/// The initialize request is sent from the client to the server.
+/// It is sent once as the request after starting up the server.
+/// The requests parameter is of type [InitializeParams]
+/// the response if of type [InitializeResult] of a Thenable that
+/// resolves to such.
+#[derive(Debug)]
+pub struct InitializeRequest;
+impl Request for InitializeRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::Initialize;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = InitializeParams;
+    type Result = InitializeResult;
+}
+
+/// A shutdown request is sent from the client to the server.
+/// It is sent once when the client decides to shutdown the
+/// server. The only notification that is sent after a shutdown request
+/// is the exit event.
+#[derive(Debug)]
+pub struct ShutdownRequest;
+impl Request for ShutdownRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::Shutdown;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = ();
+    type Result = ();
+}
+
+/// The show message request is sent from the server to the client to show a message
+/// and a set of options actions to the user.
+#[derive(Debug)]
+pub struct ShowMessageRequest;
+impl Request for ShowMessageRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WindowShowMessageRequest;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ShowMessageRequestParams;
+    type Result = ShowMessageRequestResponse;
+}
+
+/// A document will save request is sent from the client to the server before
+/// the document is actually saved. The request can return an array of TextEdits
+/// which will be applied to the text document before it is saved. Please note that
+/// clients might drop results if computing the text edits took too long or if a
+/// server constantly fails on this request. This is done to keep the save fast and
+/// reliable.
+#[derive(Debug)]
+pub struct WillSaveTextDocumentWaitUntilRequest;
+impl Request for WillSaveTextDocumentWaitUntilRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentWillSaveWaitUntil;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = WillSaveTextDocumentParams;
+    type Result = WillSaveTextDocumentWaitUntilRequestResponse;
+}
+
+/// Request to request completion at a given text document position. The request's
+/// parameter is of type [TextDocumentPosition] the response
+/// is of type {@link CompletionItem CompletionItem[]} or [CompletionList]
+/// or a Thenable that resolves to such.
+///
+/// The request can delay the computation of the [`detail`][`CompletionItem::detail`]
+/// and [`documentation`][`CompletionItem::documentation`] properties to the `completionItem/resolve`
+/// request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
+/// `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
+#[derive(Debug)]
+pub struct CompletionRequest;
+impl Request for CompletionRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCompletion;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CompletionParams;
+    type Result = CompletionRequestResponse;
+}
+
+/// Request to resolve additional information for a given completion item.The request's
+/// parameter is of type [CompletionItem] the response
+/// is of type [CompletionItem] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct CompletionResolveRequest;
+impl Request for CompletionResolveRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::CompletionItemResolve;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CompletionItem;
+    type Result = CompletionItem;
+}
+
+/// Request to request hover information at a given text document position. The request's
+/// parameter is of type [TextDocumentPosition] the response is of
+/// type [Hover] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct HoverRequest;
+impl Request for HoverRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentHover;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = HoverParams;
+    type Result = HoverRequestResponse;
+}
+
+#[derive(Debug)]
+pub struct SignatureHelpRequest;
+impl Request for SignatureHelpRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSignatureHelp;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = SignatureHelpParams;
+    type Result = SignatureHelpRequestResponse;
+}
+
+/// A request to resolve the definition location of a symbol at a given text
+/// document position. The request's parameter is of type [TextDocumentPosition]
+/// the response is of either type [Definition] or a typed array of
+/// [DefinitionLink] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct DefinitionRequest;
+impl Request for DefinitionRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDefinition;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DefinitionParams;
+    type Result = DefinitionRequestResponse;
+}
+
+/// A request to resolve project-wide references for the symbol denoted
+/// by the given text document position. The request's parameter is of
+/// type [ReferenceParams] the response is of type
+/// {@link Location Location[]} or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct ReferencesRequest;
+impl Request for ReferencesRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentReferences;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = ReferenceParams;
+    type Result = ReferencesRequestResponse;
+}
+
+/// Request to resolve a [DocumentHighlight] for a given
+/// text document position. The request's parameter is of type [TextDocumentPosition]
+/// the request response is an array of type [DocumentHighlight]
+/// or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct DocumentHighlightRequest;
+impl Request for DocumentHighlightRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentHighlight;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentHighlightParams;
+    type Result = DocumentHighlightRequestResponse;
+}
+
+/// A request to list all symbols found in a given text document. The request's
+/// parameter is of type [TextDocumentIdentifier] the
+/// response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
+/// that resolves to such.
+#[derive(Debug)]
+pub struct DocumentSymbolRequest;
+impl Request for DocumentSymbolRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentSymbol;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentSymbolParams;
+    type Result = DocumentSymbolRequestResponse;
+}
+
+/// A request to provide commands for the given text document and range.
+#[derive(Debug)]
+pub struct CodeActionRequest;
+impl Request for CodeActionRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeAction;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CodeActionParams;
+    type Result = CodeActionRequestResponse;
+}
+
+/// Request to resolve additional information for a given code action.The request's
+/// parameter is of type [CodeAction] the response
+/// is of type [CodeAction] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct CodeActionResolveRequest;
+impl Request for CodeActionResolveRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::CodeActionResolve;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CodeAction;
+    type Result = CodeAction;
+}
+
+/// A request to list project-wide symbols matching the query string given
+/// by the [WorkspaceSymbolParams]. The response is
+/// of type {@link SymbolInformation SymbolInformation[]} or a Thenable that
+/// resolves to such.
+///
+/// @since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients
+///  need to advertise support for WorkspaceSymbols via the client capability
+///  `workspace.symbol.resolveSupport`.
+///
+#[derive(Debug)]
+pub struct WorkspaceSymbolRequest;
+impl Request for WorkspaceSymbolRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbol;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = WorkspaceSymbolParams;
+    type Result = WorkspaceSymbolRequestResponse;
+}
+
+/// A request to resolve the range inside the workspace
+/// symbol's location.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct WorkspaceSymbolResolveRequest;
+impl Request for WorkspaceSymbolResolveRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbolResolve;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = WorkspaceSymbol;
+    type Result = WorkspaceSymbol;
+}
+
+/// A request to provide code lens for the given text document.
+#[derive(Debug)]
+pub struct CodeLensRequest;
+impl Request for CodeLensRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeLens;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CodeLensParams;
+    type Result = CodeLensRequestResponse;
+}
+
+/// A request to resolve a command for a given code lens.
+#[derive(Debug)]
+pub struct CodeLensResolveRequest;
+impl Request for CodeLensResolveRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::CodeLensResolve;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CodeLens;
+    type Result = CodeLens;
+}
+
+/// A request to refresh all code actions
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct CodeLensRefreshRequest;
+impl Request for CodeLensRefreshRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceCodeLensRefresh;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ();
+    type Result = ();
+}
+
+/// A request to provide document links
+#[derive(Debug)]
+pub struct DocumentLinkRequest;
+impl Request for DocumentLinkRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentLink;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentLinkParams;
+    type Result = DocumentLinkRequestResponse;
+}
+
+/// Request to resolve additional information for a given document link. The request's
+/// parameter is of type [DocumentLink] the response
+/// is of type [DocumentLink] or a Thenable that resolves to such.
+#[derive(Debug)]
+pub struct DocumentLinkResolveRequest;
+impl Request for DocumentLinkResolveRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::DocumentLinkResolve;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentLink;
+    type Result = DocumentLink;
+}
+
+/// A request to format a whole document.
+#[derive(Debug)]
+pub struct DocumentFormattingRequest;
+impl Request for DocumentFormattingRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentFormatting;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentFormattingParams;
+    type Result = DocumentFormattingRequestResponse;
+}
+
+/// A request to format a range in a document.
+#[derive(Debug)]
+pub struct DocumentRangeFormattingRequest;
+impl Request for DocumentRangeFormattingRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRangeFormatting;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentRangeFormattingParams;
+    type Result = DocumentRangeFormattingRequestResponse;
+}
+
+/// A request to format ranges in a document.
+///
+/// @since 3.18.0
+/// @proposed
+#[derive(Debug)]
+pub struct DocumentRangesFormattingRequest;
+impl Request for DocumentRangesFormattingRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRangesFormatting;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentRangesFormattingParams;
+    type Result = DocumentRangesFormattingRequestResponse;
+}
+
+/// A request to format a document on type.
+#[derive(Debug)]
+pub struct DocumentOnTypeFormattingRequest;
+impl Request for DocumentOnTypeFormattingRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentOnTypeFormatting;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DocumentOnTypeFormattingParams;
+    type Result = DocumentOnTypeFormattingRequestResponse;
+}
+
+/// A request to rename a symbol.
+#[derive(Debug)]
+pub struct RenameRequest;
+impl Request for RenameRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRename;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = RenameParams;
+    type Result = RenameRequestResponse;
+}
+
+/// A request to test and perform the setup necessary for a rename.
+///
+/// @since 3.16 - support for default behavior
+#[derive(Debug)]
+pub struct PrepareRenameRequest;
+impl Request for PrepareRenameRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareRename;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = PrepareRenameParams;
+    type Result = PrepareRenameRequestResponse;
+}
+
+/// A request send from the client to the server to execute a command. The request might return
+/// a workspace edit which the client will apply to the workspace.
+#[derive(Debug)]
+pub struct ExecuteCommandRequest;
+impl Request for ExecuteCommandRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceExecuteCommand;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = ExecuteCommandParams;
+    type Result = ExecuteCommandRequestResponse;
+}
+
+/// A request sent from the server to the client to modified certain resources.
+#[derive(Debug)]
+pub struct ApplyWorkspaceEditRequest;
+impl Request for ApplyWorkspaceEditRequest {
+    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceApplyEdit;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ApplyWorkspaceEditParams;
+    type Result = ApplyWorkspaceEditResult;
+}
+
+/// The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
+/// folder configuration changes.
+#[derive(Debug)]
+pub struct DidChangeWorkspaceFoldersNotification;
+impl Notification for DidChangeWorkspaceFoldersNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidChangeWorkspaceFoldersParams;
+}
+
+/// The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
+/// initiated on the server side.
+#[derive(Debug)]
+pub struct WorkDoneProgressCancelNotification;
+impl Notification for WorkDoneProgressCancelNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WindowWorkDoneProgressCancel;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = WorkDoneProgressCancelParams;
+}
+
+/// The did create files notification is sent from the client to the server when
+/// files were created from within the client.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct DidCreateFilesNotification;
+impl Notification for DidCreateFilesNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidCreateFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = CreateFilesParams;
+}
+
+/// The did rename files notification is sent from the client to the server when
+/// files were renamed from within the client.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct DidRenameFilesNotification;
+impl Notification for DidRenameFilesNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidRenameFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = RenameFilesParams;
+}
+
+/// The will delete files request is sent from the client to the server before files are actually
+/// deleted as long as the deletion is triggered from within the client.
+///
+/// @since 3.16.0
+#[derive(Debug)]
+pub struct DidDeleteFilesNotification;
+impl Notification for DidDeleteFilesNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidDeleteFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DeleteFilesParams;
+}
+
+/// A notification sent when a notebook opens.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct DidOpenNotebookDocumentNotification;
+impl Notification for DidOpenNotebookDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidOpen;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidOpenNotebookDocumentParams;
+}
+
+#[derive(Debug)]
+pub struct DidChangeNotebookDocumentNotification;
+impl Notification for DidChangeNotebookDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidChange;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidChangeNotebookDocumentParams;
+}
+
+/// A notification sent when a notebook document is saved.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct DidSaveNotebookDocumentNotification;
+impl Notification for DidSaveNotebookDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidSave;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidSaveNotebookDocumentParams;
+}
+
+/// A notification sent when a notebook closes.
+///
+/// @since 3.17.0
+#[derive(Debug)]
+pub struct DidCloseNotebookDocumentNotification;
+impl Notification for DidCloseNotebookDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidClose;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidCloseNotebookDocumentParams;
+}
+
+/// The initialized notification is sent from the client to the
+/// server after the client is fully initialized and the server
+/// is allowed to send requests from the server to the client.
+#[derive(Debug)]
+pub struct InitializedNotification;
+impl Notification for InitializedNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::Initialized;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = InitializedParams;
+}
+
+/// The exit event is sent from the client to the server to
+/// ask the server to exit its process.
+#[derive(Debug)]
+pub struct ExitNotification;
+impl Notification for ExitNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::Exit;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = ();
+}
+
+/// The configuration change notification is sent from the client to the server
+/// when the client's configuration has changed. The notification contains
+/// the changed configuration as defined by the language client.
+#[derive(Debug)]
+pub struct DidChangeConfigurationNotification;
+impl Notification for DidChangeConfigurationNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeConfiguration;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidChangeConfigurationParams;
+}
+
+/// The show message notification is sent from a server to a client to ask
+/// the client to display a particular message in the user interface.
+#[derive(Debug)]
+pub struct ShowMessageNotification;
+impl Notification for ShowMessageNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WindowShowMessage;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = ShowMessageParams;
+}
+
+/// The log message notification is sent from the server to the client to ask
+/// the client to log a particular message.
+#[derive(Debug)]
+pub struct LogMessageNotification;
+impl Notification for LogMessageNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WindowLogMessage;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = LogMessageParams;
+}
+
+/// The telemetry event notification is sent from the server to the client to ask
+/// the client to log telemetry data.
+#[derive(Debug)]
+pub struct TelemetryEventNotification;
+impl Notification for TelemetryEventNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TelemetryEvent;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = LspAny;
+}
+
+/// The document open notification is sent from the client to the server to signal
+/// newly opened text documents. The document's truth is now managed by the client
+/// and the server must not try to read the document's truth using the document's
+/// uri. Open in this sense means it is managed by the client. It doesn't necessarily
+/// mean that its content is presented in an editor. An open notification must not
+/// be sent more than once without a corresponding close notification send before.
+/// This means open and close notification must be balanced and the max open count
+/// is one.
+#[derive(Debug)]
+pub struct DidOpenTextDocumentNotification;
+impl Notification for DidOpenTextDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidOpen;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidOpenTextDocumentParams;
+}
+
+/// The document change notification is sent from the client to the server to signal
+/// changes to a text document.
+#[derive(Debug)]
+pub struct DidChangeTextDocumentNotification;
+impl Notification for DidChangeTextDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidChange;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidChangeTextDocumentParams;
+}
+
+/// The document close notification is sent from the client to the server when
+/// the document got closed in the client. The document's truth now exists where
+/// the document's uri points to (e.g. if the document's uri is a file uri the
+/// truth now exists on disk). As with the open notification the close notification
+/// is about managing the document's content. Receiving a close notification
+/// doesn't mean that the document was open in an editor before. A close
+/// notification requires a previous open notification to be sent.
+#[derive(Debug)]
+pub struct DidCloseTextDocumentNotification;
+impl Notification for DidCloseTextDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidClose;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidCloseTextDocumentParams;
+}
+
+/// The document save notification is sent from the client to the server when
+/// the document got saved in the client.
+#[derive(Debug)]
+pub struct DidSaveTextDocumentNotification;
+impl Notification for DidSaveTextDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidSave;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidSaveTextDocumentParams;
+}
+
+/// A document will save notification is sent from the client to the server before
+/// the document is actually saved.
+#[derive(Debug)]
+pub struct WillSaveTextDocumentNotification;
+impl Notification for WillSaveTextDocumentNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentWillSave;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = WillSaveTextDocumentParams;
+}
+
+/// The watched files notification is sent from the client to the server when
+/// the client detects changes to file watched by the language client.
+#[derive(Debug)]
+pub struct DidChangeWatchedFilesNotification;
+impl Notification for DidChangeWatchedFilesNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeWatchedFiles;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = DidChangeWatchedFilesParams;
+}
+
+/// Diagnostics notification are sent from the server to the client to signal
+/// results of validation runs.
+#[derive(Debug)]
+pub struct PublishDiagnosticsNotification;
+impl Notification for PublishDiagnosticsNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentPublishDiagnostics;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = PublishDiagnosticsParams;
+}
+
+#[derive(Debug)]
+pub struct SetTraceNotification;
+impl Notification for SetTraceNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::SetTrace;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    type Params = SetTraceParams;
+}
+
+#[derive(Debug)]
+pub struct LogTraceNotification;
+impl Notification for LogTraceNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::LogTrace;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
+    type Params = LogTraceParams;
+}
+
+#[derive(Debug)]
+pub struct CancelNotification;
+impl Notification for CancelNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::CancelRequest;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
+    type Params = CancelParams;
+}
+
+#[derive(Debug)]
+pub struct ProgressNotification;
+impl Notification for ProgressNotification {
+    const METHOD: LspNotificationMethods = LspNotificationMethods::Progress;
+    const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
+    type Params = ProgressParams;
 }

@@ -9,8 +9,9 @@ use quote::{format_ident, quote};
 use regex::{Captures, Regex};
 
 use crate::schema::{
-    BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName, MapKeyType,
-    MapKeyTypeObjectName, OrType, Property, ReferenceType, Structure, TupleType, Type, TypeAlias,
+    BaseType, BaseTypes, Enumeration, EnumerationEntry, EnumerationEntryValue, EnumerationType,
+    EnumerationTypeName, MapKeyType, MapKeyTypeObjectName, Notification, OrType, Property,
+    ReferenceType, Request, Structure, TupleType, Type, TypeAlias,
 };
 
 // TODO: Add CI to ensure the locally copied metaModel matches the one at this URL.
@@ -28,6 +29,29 @@ static LINK_RE_2: LazyLock<Regex> =
 static LINK_RE_3: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{@link +(\w+)\}").unwrap());
 static LINK_RE_4: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{@link(code)? +(\w+)\.(\w+)\}").unwrap());
+
+/// Convert a method name to PascalCase. E.g. `textDocument/diagnostic` => `TextDocumentDiagnostic`
+fn method_to_pascal(method: &str) -> String {
+    let mut result = String::with_capacity(method.len());
+    let mut capitalize = true;
+
+    for ch in method.chars() {
+        match ch {
+            '$' => {}
+            '/' => capitalize = true,
+            _ => {
+                if capitalize {
+                    result.push(ch.to_ascii_uppercase());
+                    capitalize = false;
+                } else {
+                    result.push(ch)
+                }
+            }
+        }
+    }
+
+    result
+}
 
 /// Converts from camelCase (or PascalCase) to snake_case.
 fn camel_to_snake(camel: &str) -> String {
@@ -513,7 +537,7 @@ fn is_hashable(
             // }
             // Prevent recursion in ArrayType lookups.
             // TODO: Handle this generally?
-            if ref_type.name == "DocumentSymbol" {
+            if ref_type.name == "DocumentSymbol" || ref_type.name == "SelectionRange" {
                 return true;
             }
             if let Some(structure) = structs_map.get(&ref_type.name) {
@@ -575,6 +599,31 @@ fn has_float(
             }
             if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
                 return has_float(&type_alias.type_, structs_map, type_aliases_map);
+            }
+            false
+        }
+        Type::ArrayType(array_type) => {
+            if let Type::ReferenceType(ref_type) = &array_type.element {
+                if ref_type.name == "DocumentSymbol" || ref_type.name == "SelectionRange" {
+                    return false;
+                }
+                if let Some(structure) = structs_map.get(&ref_type.name) {
+                    for prop in structure
+                        .properties
+                        .iter()
+                        .map(|prop| &prop.type_)
+                        .chain(&structure.extends)
+                        .chain(&structure.mixins)
+                    {
+                        if has_float(prop, structs_map, type_aliases_map) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
+                    return has_float(&type_alias.type_, structs_map, type_aliases_map);
+                }
             }
             false
         }
@@ -1227,6 +1276,7 @@ fn render_enum_ors(
                         },
                         Type::TupleType(_) => String::from("Tuple"),
                         Type::StructureLiteralType(_) => String::from("Object"),
+                        Type::OrType(_) => name.clone(),
                         a => unimplemented!("{a:?}"),
                     };
                     format!("{inner_name}List")
@@ -1248,6 +1298,89 @@ fn render_enum_ors(
         #[serde(untagged)]
         pub enum #name_ident {
             #(#members),*
+        }
+    }
+}
+
+fn render_request(
+    request: Request,
+    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
+) -> TokenStream {
+    let Some(name) = request.type_name else {
+        panic!("Unnamed request: {request:?}");
+    };
+    let documentation = render_documentation(request.documentation);
+    let name_ident = format_ident!("{name}");
+    let method = format_ident!("{}", method_to_pascal(&request.method));
+    let message_direction =
+        format_ident!("{}", camel_to_pascal(request.message_direction.to_string()));
+    let params = if let Some(params) = request.params {
+        assert_eq!(params.subtype_1, None);
+        render_type(
+            params.subtype_0.expect("No request params found"),
+            None,
+            Some(false),
+        )
+    } else {
+        quote! { () }
+    };
+    let result = match request.result {
+        Type::OrType(or_type) => {
+            // TODO: Filter out "null" here?
+            let name = name + "Response";
+            assert!(!enum_or_types.contains_key(&name));
+            let name_ident = format_ident!("{name}");
+            enum_or_types.insert(name, (or_type, None));
+            quote! { #name_ident }
+        }
+        _ => render_type(request.result, None, Some(false)),
+    };
+    quote! {
+        #documentation
+        #[derive(Debug)]
+        pub struct #name_ident;
+
+        impl Request for #name_ident {
+            const METHOD: LspRequestMethods = LspRequestMethods::#method;
+            const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
+
+            type Params = #params;
+            type Result = #result;
+        }
+    }
+}
+
+fn render_notification(notification: Notification) -> TokenStream {
+    let Some(name) = notification.type_name else {
+        panic!("Unnamed request: {notification:?}");
+    };
+    let documentation = render_documentation(notification.documentation);
+    let name = format_ident!("{name}");
+    let method = format_ident!("{}", method_to_pascal(&notification.method));
+    let message_direction = format_ident!(
+        "{}",
+        camel_to_pascal(notification.message_direction.to_string())
+    );
+    let params = if let Some(params) = notification.params {
+        assert_eq!(params.subtype_1, None);
+        render_type(
+            params.subtype_0.expect("No request params found"),
+            None,
+            Some(false),
+        )
+    } else {
+        quote! { () }
+    };
+    quote! {
+        #documentation
+        #[derive(Debug)]
+        pub struct #name;
+
+        impl Notification for #name {
+            const METHOD: LspNotificationMethods = LspNotificationMethods::#method;
+            const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
+
+            type Params = #params;
         }
     }
 }
@@ -1335,7 +1468,7 @@ fn main() {
 
     let imports = quote! {
         use derive_more::From;
-        use serde::{Deserialize, Deserializer, Serialize};
+        use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
         use std::{borrow::Cow, collections::HashMap};
     };
 
@@ -1346,6 +1479,26 @@ fn main() {
             D: Deserializer<'de>,
         {
             T::deserialize(deserializer).map(Some)
+        }
+
+        /// Indicates in which direction a message is sent in the protocol.
+        pub enum MessageDirection {
+            ClientToServer,
+            ServerToClient,
+            Both,
+        }
+
+        pub trait Notification {
+            type Params: DeserializeOwned + Serialize + Send + Sync;
+            const METHOD: LspNotificationMethods;
+            const MESSAGE_DIRECTION: MessageDirection;
+        }
+
+        pub trait Request {
+            type Params: DeserializeOwned + Serialize + Send + Sync;
+            type Result: DeserializeOwned + Serialize + Send + Sync;
+            const METHOD: LspRequestMethods;
+            const MESSAGE_DIRECTION: MessageDirection;
         }
     };
 
@@ -1365,12 +1518,85 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let enumerations = model.enumerations.into_iter().map(render_enumeration);
+    let enumerations = model
+        .enumerations
+        .into_iter()
+        .chain(std::iter::once({
+            let values = model
+                .requests
+                .iter()
+                .map(|req| EnumerationEntry {
+                    name: method_to_pascal(&req.method),
+                    deprecated: None,
+                    documentation: None,
+                    proposed: None,
+                    since: None,
+                    since_tags: Vec::new(),
+                    value: EnumerationEntryValue::String(req.method.to_string()),
+                })
+                .collect();
+            Enumeration {
+                deprecated: None,
+                documentation: None,
+                name: String::from("LspRequestMethods"),
+                proposed: None,
+                since: None,
+                since_tags: Vec::new(),
+                supports_custom_values: Some(true),
+                type_: EnumerationType {
+                    kind: "base".into(),
+                    name: EnumerationTypeName::String,
+                },
+                values,
+            }
+        }))
+        .chain(std::iter::once({
+            let values = model
+                .notifications
+                .iter()
+                .map(|noti| EnumerationEntry {
+                    name: method_to_pascal(&noti.method),
+                    deprecated: None,
+                    documentation: None,
+                    proposed: None,
+                    since: None,
+                    since_tags: Vec::new(),
+                    value: EnumerationEntryValue::String(noti.method.to_string()),
+                })
+                .collect();
+            Enumeration {
+                deprecated: None,
+                documentation: None,
+                name: String::from("LspNotificationMethods"),
+                proposed: None,
+                since: None,
+                since_tags: Vec::new(),
+                supports_custom_values: Some(true),
+                type_: EnumerationType {
+                    kind: "base".into(),
+                    name: EnumerationTypeName::String,
+                },
+                values,
+            }
+        }))
+        .map(render_enumeration);
 
     let type_aliases = model
         .type_aliases
         .into_iter()
         .flat_map(|ta| render_type_alias(ta, &mut enum_or_types))
+        .collect::<Vec<_>>();
+
+    let requests = model
+        .requests
+        .into_iter()
+        .map(|req| render_request(req, &mut enum_or_types))
+        .collect::<Vec<_>>();
+
+    let notifications = model
+        .notifications
+        .into_iter()
+        .map(render_notification)
         .collect::<Vec<_>>();
 
     let enum_ors = enum_or_types
@@ -1392,7 +1618,9 @@ fn main() {
         .chain(structures)
         .chain(enumerations)
         .chain(type_aliases)
-        .chain(enum_ors);
+        .chain(enum_ors)
+        .chain(requests)
+        .chain(notifications);
 
     let formatted_items: Vec<String> = all_items
         .map(|request| {
