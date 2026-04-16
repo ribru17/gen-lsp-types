@@ -2,9 +2,9 @@
 use std::collections::{HashMap, HashSet};
 
 use gen_lsp_types::{
-    ColorPresentation, DocumentSymbol, InitializeParams, Position, Range,
-    TextDocumentRegistrationOptions, WorkspaceFoldersInitializeParams,
-    WorkspaceFoldersServerCapabilities,
+    ColorPresentation, CreateFile, DeleteFile, DocumentChange, DocumentSymbol, InitializeParams,
+    Position, Range, TextDocumentRegistrationOptions, WorkDoneProgressEnd,
+    WorkspaceFoldersInitializeParams, WorkspaceFoldersServerCapabilities,
 };
 
 #[test]
@@ -222,4 +222,47 @@ fn special_derives() {
 
     let range4 = Range::default();
     assert!(range4 < range3);
+}
+
+#[test]
+fn string_literal_field() {
+    let wdpe = WorkDoneProgressEnd {
+        message: Some("change da world. my final message. goodbye".to_string()),
+    };
+
+    let ser = serde_json::to_string(&wdpe).unwrap();
+    assert_eq!(
+        ser,
+        r#"{"message":"change da world. my final message. goodbye","kind":"end"}"#
+    );
+
+    let deser = serde_json::from_str::<WorkDoneProgressEnd>(&ser).unwrap();
+    assert_eq!(deser, wdpe);
+
+    let fake_ser = r#"{"message":"change da world. my final message. goodbye","kind":"begin"}"#;
+    assert!(serde_json::from_str::<WorkDoneProgressEnd>(fake_ser).is_err());
+
+    let doc_change = CreateFile {
+        uri: "file:///foo.txt".to_string(),
+        options: None,
+        annotation_id: None,
+    };
+    let ser = serde_json::to_string(&doc_change).unwrap();
+    assert_eq!(ser, r#"{"uri":"file:///foo.txt","kind":"create"}"#);
+
+    let ser = r#"{"uri":"file:///foo.txt","kind":"create"}"#;
+    let deser = serde_json::from_str::<DocumentChange>(ser).unwrap();
+    assert_eq!(deser, doc_change.into());
+    let ser = r#"{"uri":"file:///foo.txt","kind":"delete","annotationId":"foo"}"#;
+    let deser = serde_json::from_str::<DocumentChange>(ser).unwrap();
+    assert_eq!(
+        deser,
+        DocumentChange::DeleteFile(DeleteFile {
+            uri: "file:///foo.txt".to_string(),
+            options: None,
+            annotation_id: Some(String::from("foo"))
+        })
+    );
+    let bad_ser = r#"{"uri":"file:///foo.txt","kind":"delet"}"#;
+    assert!(serde_json::from_str::<DocumentChange>(bad_ser).is_err());
 }

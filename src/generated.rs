@@ -2907,8 +2907,11 @@ pub struct CreateFile {
     /// Additional options
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<CreateFileOptions>,
-    #[serde(flatten)]
-    pub resource_operation: ResourceOperation,
+    /// An optional annotation identifier describing the operation.
+    ///
+    /// @since 3.16.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
@@ -2918,8 +2921,11 @@ struct ShadowCreateFile {
     /// Additional options
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<CreateFileOptions>,
-    #[serde(flatten)]
-    pub resource_operation: ResourceOperation,
+    /// An optional annotation identifier describing the operation.
+    ///
+    /// @since 3.16.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
     pub kind: String,
 }
 impl TryFrom<ShadowCreateFile> for CreateFile {
@@ -2931,7 +2937,7 @@ impl TryFrom<ShadowCreateFile> for CreateFile {
         Ok(CreateFile {
             uri: shadow.uri,
             options: shadow.options,
-            resource_operation: shadow.resource_operation,
+            annotation_id: shadow.annotation_id,
         })
     }
 }
@@ -2940,7 +2946,7 @@ impl From<CreateFile> for ShadowCreateFile {
         ShadowCreateFile {
             uri: original.uri,
             options: original.options,
-            resource_operation: original.resource_operation,
+            annotation_id: original.annotation_id,
             kind: "create".to_string(),
         }
     }
@@ -2958,8 +2964,11 @@ pub struct RenameFile {
     /// Rename options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<RenameFileOptions>,
-    #[serde(flatten)]
-    pub resource_operation: ResourceOperation,
+    /// An optional annotation identifier describing the operation.
+    ///
+    /// @since 3.16.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
@@ -2971,8 +2980,11 @@ struct ShadowRenameFile {
     /// Rename options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<RenameFileOptions>,
-    #[serde(flatten)]
-    pub resource_operation: ResourceOperation,
+    /// An optional annotation identifier describing the operation.
+    ///
+    /// @since 3.16.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
     pub kind: String,
 }
 impl TryFrom<ShadowRenameFile> for RenameFile {
@@ -2985,7 +2997,7 @@ impl TryFrom<ShadowRenameFile> for RenameFile {
             old_uri: shadow.old_uri,
             new_uri: shadow.new_uri,
             options: shadow.options,
-            resource_operation: shadow.resource_operation,
+            annotation_id: shadow.annotation_id,
         })
     }
 }
@@ -2995,7 +3007,7 @@ impl From<RenameFile> for ShadowRenameFile {
             old_uri: original.old_uri,
             new_uri: original.new_uri,
             options: original.options,
-            resource_operation: original.resource_operation,
+            annotation_id: original.annotation_id,
             kind: "rename".to_string(),
         }
     }
@@ -3011,8 +3023,11 @@ pub struct DeleteFile {
     /// Delete options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<DeleteFileOptions>,
-    #[serde(flatten)]
-    pub resource_operation: ResourceOperation,
+    /// An optional annotation identifier describing the operation.
+    ///
+    /// @since 3.16.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
@@ -3022,8 +3037,11 @@ struct ShadowDeleteFile {
     /// Delete options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<DeleteFileOptions>,
-    #[serde(flatten)]
-    pub resource_operation: ResourceOperation,
+    /// An optional annotation identifier describing the operation.
+    ///
+    /// @since 3.16.0
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation_id: Option<ChangeAnnotationIdentifier>,
     pub kind: String,
 }
 impl TryFrom<ShadowDeleteFile> for DeleteFile {
@@ -3035,7 +3053,7 @@ impl TryFrom<ShadowDeleteFile> for DeleteFile {
         Ok(DeleteFile {
             uri: shadow.uri,
             options: shadow.options,
-            resource_operation: shadow.resource_operation,
+            annotation_id: shadow.annotation_id,
         })
     }
 }
@@ -3044,7 +3062,7 @@ impl From<DeleteFile> for ShadowDeleteFile {
         ShadowDeleteFile {
             uri: original.uri,
             options: original.options,
-            resource_operation: original.resource_operation,
+            annotation_id: original.annotation_id,
             kind: "delete".to_string(),
         }
     }

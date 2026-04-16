@@ -91,13 +91,44 @@ fn resolve_struct_properties(
     extends: Vec<Type>,
     mixins: Vec<Type>,
     structs_map: &HashMap<String, Structure>,
-) -> (Vec<Property>, Vec<TokenStream>) {
+) -> (Vec<Property>, Vec<Property>) {
     let mut structure_props = properties;
     let mut mixin_props = Vec::with_capacity(extends.len() + mixins.len());
     mixins.into_iter().chain(extends).for_each(|type_| {
         let Type::ReferenceType(reference_type) = &type_ else {
             panic!("Expected mixin/extend type to be a reference: {:?}", type_);
         };
+        // Inline structs which have field name conflicts.
+        if let Some(structure) = structs_map.get(&reference_type.name) {
+            let mut has_conflict = false;
+            let props = structure
+                .properties
+                .iter()
+                .filter(|prop| {
+                    if structure_props
+                        .iter()
+                        .any(|mixin_prop| prop.name == mixin_prop.name)
+                    {
+                        has_conflict = true;
+                        false
+                    } else {
+                        true
+                    }
+                })
+                .cloned()
+                .collect::<Vec<_>>();
+            if has_conflict {
+                let (inner_sp, inner_mp) = resolve_struct_properties(
+                    props,
+                    structure.extends.clone(),
+                    structure.mixins.clone(),
+                    structs_map,
+                );
+                structure_props.extend(inner_sp);
+                mixin_props.extend(inner_mp);
+                return;
+            }
+        }
         // Inline mixin/extend structs which start with an underscore. This is for convenience.
         if reference_type.name.starts_with('_') {
             let type_ = structs_map.get(&reference_type.name);
@@ -116,11 +147,15 @@ fn resolve_struct_properties(
             }
             return;
         }
-        let prop_name = format_ident!("{}", camel_to_snake(&reference_type.name));
-        let type_ = render_type(type_, None, None);
-        mixin_props.push(quote! {
-            #[serde(flatten)]
-            pub #prop_name: #type_,
+        mixin_props.push(Property {
+            name: reference_type.name.clone(),
+            type_,
+            deprecated: None,
+            optional: None,
+            documentation: None,
+            proposed: None,
+            since: None,
+            since_tags: Vec::new(),
         });
     });
     (structure_props, mixin_props)
@@ -622,6 +657,7 @@ fn render_structure(
     let mut string_lit_prop = None;
 
     let properties: Vec<_> = structure_props
+        .clone()
         .into_iter()
         .flat_map(|property| {
             if matches!(property.type_, Type::StringLiteralType(_)) {
@@ -775,7 +811,14 @@ fn render_structure(
                 pub #name: #type_,
             })
         })
-        .chain(mixin_props)
+        .chain(mixin_props.clone().into_iter().map(|prop| {
+            let name = format_ident!("{}", camel_to_snake(&prop.name));
+            let type_ = render_type(prop.type_, None, None);
+            quote! {
+                #[serde(flatten)]
+                pub #name: #type_,
+            }
+        }))
         .collect();
 
     let shadow = if let Some(strlit_prop) = string_lit_prop {
@@ -787,12 +830,9 @@ fn render_structure(
         };
         let prop_value = lit_type.value;
         let err = format!("Invalid value for prop {}: {{}}", strlit_prop.name);
-        let structure = &structs_map
-            .get(&structure.name)
-            .expect("Structure not found");
-        let (try_from_props, from_props): (Vec<TokenStream>, Vec<TokenStream>) = structure
-            .properties
+        let (try_from_props, from_props): (Vec<TokenStream>, Vec<TokenStream>) = structure_props
             .iter()
+            .chain(&mixin_props)
             .flat_map(|prop| {
                 if matches!(prop.type_, Type::StringLiteralType(_)) {
                     return None;
@@ -807,27 +847,6 @@ fn render_structure(
                     },
                 ))
             })
-            .chain(
-                structure
-                    .mixins
-                    .clone()
-                    .into_iter()
-                    .chain(structure.extends.clone())
-                    .map(|prop| {
-                        let Type::ReferenceType(ref_type) = prop else {
-                            unreachable!()
-                        };
-                        let orig_name = format_ident!("{}", camel_to_snake(&ref_type.name));
-                        (
-                            quote! {
-                                #orig_name: shadow.#orig_name,
-                            },
-                            quote! {
-                                #orig_name: original.#orig_name,
-                            },
-                        )
-                    }),
-            )
             .unzip();
         let shadow = quote! {
             #attributes
@@ -1121,7 +1140,14 @@ fn render_enum_ors(
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> TokenStream {
-    let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone", "From"];
+    let mut derives = vec![
+        "Serialize",
+        "Deserialize",
+        "PartialEq",
+        "Debug",
+        "Clone",
+        "From",
+    ];
 
     if or_type
         .items
@@ -1173,7 +1199,7 @@ fn render_enum_ors(
                     BaseTypes::String => {
                         attr = quote! { #[from(String, &str, Box<str>, Cow<'_, str>, char)] };
                         String::from("String")
-                    },
+                    }
                     BaseTypes::Null => {
                         return quote! {
                             #[serde(rename = "null")]
