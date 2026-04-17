@@ -195,7 +195,7 @@ fn resolve_struct_properties(
     let mut structure_props = properties;
     let mut mixin_props = Vec::with_capacity(extends.len() + mixins.len());
     if has_conflict {
-        // TODO: Only inline the specific mixins/extends which cause conflicts.
+        // TODO: Only inline the specific mixins/extends which cause conflicts?
         return (
             get_all_inner_properties(structure_props, extends, mixins, structs_map, &mut None),
             Vec::new(),
@@ -248,7 +248,16 @@ fn resolve_struct_properties(
 ///   does not represent a struct property.
 /// * `optional` - Whether or not this property is optional. Should be `None` if this type does not
 ///   represent a struct property.
-fn render_type(type_: Type, parent_name: Option<&str>, optional: Option<bool>) -> TokenStream {
+/// * `or_name` - The type name to give to an "or" type found within this type.
+/// * `enum_or_types` - The "or" type to insert into if an "or" type is found. They will be aliased
+///   and rendered as separate types, for better DX.
+fn render_type(
+    type_: Type,
+    parent_name: Option<&str>,
+    or_name: &str,
+    or_documentation: &Option<TokenStream>,
+    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
+) -> TokenStream {
     match type_ {
         Type::ReferenceType(ref_type) => {
             match ref_type.name.as_str() {
@@ -266,7 +275,13 @@ fn render_type(type_: Type, parent_name: Option<&str>, optional: Option<bool>) -
             }
         }
         Type::ArrayType(array_type) => {
-            let element_type = render_type(array_type.element, None, None);
+            let element_type = render_type(
+                array_type.element,
+                None,
+                or_name,
+                or_documentation,
+                enum_or_types,
+            );
             quote! { Vec<#element_type> }
         }
         Type::BaseType(base_type) => match base_type.name {
@@ -285,7 +300,7 @@ fn render_type(type_: Type, parent_name: Option<&str>, optional: Option<bool>) -
             let types = tuple_type
                 .items
                 .into_iter()
-                .map(|item| render_type(item, None, None));
+                .map(|item| render_type(item, None, or_name, or_documentation, enum_or_types));
             quote! { (#( #types ),*) }
         }
         Type::MapType(map_type) => {
@@ -302,48 +317,39 @@ fn render_type(type_: Type, parent_name: Option<&str>, optional: Option<bool>) -
                     Type::BaseType(BaseType { kind, name })
                 }
             };
-            let key = render_type(key_type, None, None);
-            let value = render_type(*map_type.value, None, None);
+            let key = render_type(key_type, None, or_name, or_documentation, enum_or_types);
+            let value = render_type(
+                *map_type.value,
+                None,
+                or_name,
+                or_documentation,
+                enum_or_types,
+            );
             quote! { HashMap<#key, #value> }
         }
         Type::StringLiteralType(e) => {
             panic!("String literal types should be handled specially: {e:?}");
         }
         Type::OrType(or_type) => {
-            let len = or_type.items.len();
-            let ident = format_ident!("Or{}", len);
-            let mut filtered = false;
-            let vals = or_type
-                .items
-                .into_iter()
-                .filter(|item| {
-                    if optional != Some(false) {
-                        return true;
-                    }
-                    if matches!(
-                        item,
-                        Type::BaseType(BaseType {
-                            kind: _,
-                            name: BaseTypes::Null
-                        })
-                    ) {
-                        filtered = true;
-                        false
-                    } else {
-                        true
-                    }
-                })
-                .map(|item| render_type(item, None, None))
-                .collect::<Vec<_>>();
-            if filtered {
-                if len == 2 {
-                    quote! { Option<#(#vals),*> }
-                } else {
-                    let ident = format_ident!("Or{}", len - 1);
-                    quote! { Option<#ident<#(#vals),*>> }
-                }
+            if is_nullable(&Type::OrType(or_type.clone())) && or_type.items.len() == 2 {
+                let type_ = or_type
+                    .items
+                    .into_iter()
+                    .find(|item| {
+                        *item
+                            != Type::BaseType(BaseType {
+                                name: BaseTypes::Null,
+                                kind: "base".to_string(),
+                            })
+                    })
+                    .expect("Should have non-null variant");
+                let type_ =
+                    render_type(type_, parent_name, or_name, or_documentation, enum_or_types);
+                quote! { Option<#type_> }
             } else {
-                quote! { #ident<#(#vals),*> }
+                let ident = format_ident!("{or_name}");
+                enum_or_types.insert(or_name.to_string(), (or_type, or_documentation.clone()));
+                quote! { #ident }
             }
         }
         Type::StructureLiteralType(struct_lit) => {
@@ -826,7 +832,7 @@ fn render_structure(
     );
     let mut string_lit_prop = None;
 
-    let properties: Vec<_> = structure_props
+    let mut properties: Vec<_> = structure_props
         .clone()
         .into_iter()
         .flat_map(|property| {
@@ -914,7 +920,9 @@ fn render_structure(
                     render_type(
                         Type::ArrayType(array_type),
                         Some(&structure.name),
-                        property.optional.or(Some(false)),
+                        &camel_to_pascal(property.name),
+                        &None,
+                        enum_or_types,
                     )
                 }
             } else if let Type::MapType(map_type) = property.type_ {
@@ -942,25 +950,31 @@ fn render_structure(
                             kind: "map".into(),
                             value: Type::ReferenceType(ReferenceType {
                                 kind: "reference".into(),
-                                name,
+                                name: camel_to_pascal(name.clone()),
                             })
                             .into(),
                         }),
                         Some(&structure.name),
-                        property.optional.or(Some(false)),
+                        &name,
+                        &None,
+                        enum_or_types,
                     )
                 } else {
                     render_type(
                         Type::MapType(map_type),
                         Some(&structure.name),
-                        property.optional.or(Some(false)),
+                        camel_to_pascal(property.name).as_str(),
+                        &None,
+                        enum_or_types,
                     )
                 }
             } else {
                 render_type(
                     property.type_,
                     Some(&structure.name),
-                    property.optional.or(Some(false)),
+                    &camel_to_pascal(property.name),
+                    &None,
+                    enum_or_types,
                 )
             };
 
@@ -981,15 +995,22 @@ fn render_structure(
                 pub #name: #type_,
             })
         })
-        .chain(mixin_props.clone().into_iter().map(|prop| {
-            let name = format_ident!("{}", camel_to_snake(&prop.name));
-            let type_ = render_type(prop.type_, None, None);
-            quote! {
-                #[serde(flatten)]
-                pub #name: #type_,
-            }
-        }))
         .collect();
+
+    properties.extend(mixin_props.clone().into_iter().map(|prop| {
+        let name = format_ident!("{}", camel_to_snake(&prop.name));
+        let type_ = render_type(
+            prop.type_,
+            None,
+            &camel_to_pascal(prop.name),
+            &None,
+            enum_or_types,
+        );
+        quote! {
+            #[serde(flatten)]
+            pub #name: #type_,
+        }
+    }));
 
     let shadow = if let Some(strlit_prop) = string_lit_prop {
         let shadow_name = format!("Shadow{}", name);
@@ -1244,17 +1265,22 @@ fn render_type_alias(
         _ => {}
     };
 
-    let type_ = if let Type::OrType(or_type) = type_alias.type_ {
-        enum_or_types.insert(type_alias.name, (or_type, Some(documentation)));
-        return None;
-    } else {
-        render_type(type_alias.type_, None, None)
-    };
+    let type_ = render_type(
+        type_alias.type_,
+        None,
+        &type_alias.name,
+        &Some(documentation.clone()),
+        enum_or_types,
+    );
 
-    Some(quote! {
-        #documentation
-        pub type #name = #type_;
-    })
+    if enum_or_types.contains_key(&type_alias.name) {
+        None
+    } else {
+        Some(quote! {
+            #documentation
+            pub type #name = #type_;
+        })
+    }
 }
 
 fn fix_serde_stupidity(type_: &mut Type) {
@@ -1305,124 +1331,127 @@ fn fix_serde_stupidity(type_: &mut Type) {
 }
 
 fn render_enum_ors(
-    name: String,
-    or_type: OrType,
-    documentation: Option<TokenStream>,
+    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
-) -> TokenStream {
-    let mut derives = vec![
-        "Serialize",
-        "Deserialize",
-        "PartialEq",
-        "Debug",
-        "Clone",
-        "From",
-    ];
+) -> Vec<TokenStream> {
+    let mut toks = Vec::new();
 
-    let mut seen = HashSet::new();
-    if or_type
-        .items
-        .iter()
-        .all(|item| !has_float(item, structs_map, type_aliases_map, &mut seen))
-    {
-        derives.push("Eq");
+    while let Some((name, (or_type, documentation))) = enum_or_types.pop_first() {
+        let mut derives = vec![
+            "Serialize",
+            "Deserialize",
+            "PartialEq",
+            "Debug",
+            "Clone",
+            "From",
+        ];
+
         let mut seen = HashSet::new();
         if or_type
             .items
             .iter()
-            .all(|item| is_hashable(item, structs_map, type_aliases_map, &mut seen))
+            .all(|item| !has_float(item, structs_map, type_aliases_map, &mut seen))
         {
-            derives.push("Hash");
-        }
-    }
-
-    let mut seen = HashSet::new();
-    if or_type
-        .items
-        .iter()
-        .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map, &mut seen))
-    {
-        derives.push("Copy")
-    }
-
-    let all_prefixed = or_type.items.iter().all(|item| {
-        if let Type::ReferenceType(ref_type) = item {
-            ref_type.name.starts_with(&name)
-        } else {
-            false
-        }
-    });
-    let members = or_type.items.into_iter().map(|item| {
-        let type_ = render_type(item.clone(), None, None);
-        if all_prefixed && let Type::ReferenceType(ref_type) = item {
-            let member = ref_type.name.strip_prefix(&name).unwrap();
-            let member_ident = format_ident!("{member}");
-            quote! {
-                #[from]
-                #member_ident(#type_)
+            derives.push("Eq");
+            let mut seen = HashSet::new();
+            if or_type
+                .items
+                .iter()
+                .all(|item| is_hashable(item, structs_map, type_aliases_map, &mut seen))
+            {
+                derives.push("Hash");
             }
-        } else {
-            let mut attr = quote! { #[from] };
-            let name = match item {
-                Type::ReferenceType(ref_type) => ref_type.name,
-                Type::BaseType(base_type) => match base_type.name {
-                    BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
-                    BaseTypes::Boolean => String::from("Bool"),
-                    BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
-                    BaseTypes::String => {
-                        attr = quote! { #[from(String, &str, Box<str>, Cow<'_, str>, char)] };
-                        String::from("String")
-                    }
-                    BaseTypes::Null => {
-                        return quote! {
-                            #[serde(rename = "null")]
-                            #[from(())]
-                            Null
+        }
+
+        let mut seen = HashSet::new();
+        if or_type
+            .items
+            .iter()
+            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map, &mut seen))
+        {
+            derives.push("Copy")
+        }
+
+        let all_prefixed = or_type.items.iter().all(|item| {
+            if let Type::ReferenceType(ref_type) = item {
+                ref_type.name.starts_with(&name)
+            } else {
+                false
+            }
+        });
+        let members = or_type.items.into_iter().map(|item| {
+            if all_prefixed && let Type::ReferenceType(ref_type) = item.clone() {
+                let member = ref_type.name.strip_prefix(&name).unwrap();
+                let member_ident = format_ident!("{member}");
+                let type_ = render_type(item, None, &ref_type.name, &None, enum_or_types);
+                quote! {
+                    #[from]
+                    #member_ident(#type_)
+                }
+            } else {
+                let mut attr = quote! { #[from] };
+                let name = match item.clone() {
+                    Type::ReferenceType(ref_type) => ref_type.name,
+                    Type::BaseType(base_type) => match base_type.name {
+                        BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
+                        BaseTypes::Boolean => String::from("Bool"),
+                        BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
+                        BaseTypes::String => {
+                            attr = quote! { #[from(String, &str, Box<str>, Cow<'_, str>, char)] };
+                            String::from("String")
+                        }
+                        BaseTypes::Null => {
+                            return quote! {
+                                #[serde(rename = "null")]
+                                #[from(())]
+                                Null
+                            };
+                        }
+                        a => unimplemented!("{a:?}"),
+                    },
+                    Type::TupleType(_) => String::from("Tuple"),
+                    Type::StructureLiteralType(_) => String::from("Object"),
+                    Type::ArrayType(array_type) => {
+                        let inner_name = match array_type.element {
+                            Type::ReferenceType(ref_type) => ref_type.name,
+                            Type::BaseType(base_type) => match base_type.name {
+                                BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
+                                BaseTypes::Boolean => String::from("Bool"),
+                                BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
+                                BaseTypes::String => String::from("String"),
+                                BaseTypes::Null => String::from("Null"),
+                                a => unimplemented!("{a:?}"),
+                            },
+                            Type::TupleType(_) => String::from("Tuple"),
+                            Type::StructureLiteralType(_) => String::from("Object"),
+                            a => unimplemented!("{a:?}"),
                         };
+                        format!("{inner_name}List")
                     }
                     a => unimplemented!("{a:?}"),
-                },
-                Type::TupleType(_) => String::from("Tuple"),
-                Type::StructureLiteralType(_) => String::from("Object"),
-                Type::ArrayType(array_type) => {
-                    let inner_name = match array_type.element {
-                        Type::ReferenceType(ref_type) => ref_type.name,
-                        Type::BaseType(base_type) => match base_type.name {
-                            BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
-                            BaseTypes::Boolean => String::from("Bool"),
-                            BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
-                            BaseTypes::String => String::from("String"),
-                            BaseTypes::Null => String::from("Null"),
-                            a => unimplemented!("{a:?}"),
-                        },
-                        Type::TupleType(_) => String::from("Tuple"),
-                        Type::StructureLiteralType(_) => String::from("Object"),
-                        Type::OrType(_) => name.clone(),
-                        a => unimplemented!("{a:?}"),
-                    };
-                    format!("{inner_name}List")
+                };
+                let type_ = render_type(item, None, &name, &None, &mut Default::default());
+                let member_ident = format_ident!("{}", name);
+                quote! {
+                    #attr
+                    #member_ident(#type_)
                 }
-                a => unimplemented!("{a:?}"),
-            };
-            let member_ident = format_ident!("{}", name);
-            quote! {
-                #attr
-                #member_ident(#type_)
             }
-        }
-    });
-    let name_ident = format_ident!("{name}");
-    let derives = derives.iter().map(|d| format_ident!("{d}"));
-    quote! {
-        #documentation
-        #[derive(#(#derives),*)]
-        #[serde(untagged)]
-        pub enum #name_ident {
-            #(#members),*
-        }
+        });
+        let name_ident = format_ident!("{name}");
+        let derives = derives.iter().map(|d| format_ident!("{d}"));
+        toks.push(quote! {
+            #documentation
+            #[derive(#(#derives),*)]
+            #[serde(untagged)]
+            pub enum #name_ident {
+                #(#members),*
+            }
+        });
     }
+    toks
 }
 
 fn render_request(
@@ -1442,22 +1471,20 @@ fn render_request(
         render_type(
             params.subtype_0.expect("No request params found"),
             None,
-            Some(false),
+            &(name.clone() + "Params"),
+            &None,
+            enum_or_types,
         )
     } else {
         quote! { () }
     };
-    let result = match request.result {
-        Type::OrType(or_type) => {
-            // TODO: Filter out "null" here?
-            let name = name + "Response";
-            assert!(!enum_or_types.contains_key(&name));
-            let name_ident = format_ident!("{name}");
-            enum_or_types.insert(name, (or_type, None));
-            quote! { #name_ident }
-        }
-        _ => render_type(request.result, None, Some(false)),
-    };
+    let result = render_type(
+        request.result,
+        None,
+        &(name + "Response"),
+        &None,
+        enum_or_types,
+    );
     quote! {
         #documentation
         #[derive(Debug)]
@@ -1473,12 +1500,15 @@ fn render_request(
     }
 }
 
-fn render_notification(notification: Notification) -> TokenStream {
+fn render_notification(
+    notification: Notification,
+    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
+) -> TokenStream {
     let Some(name) = notification.type_name else {
         panic!("Unnamed request: {notification:?}");
     };
     let documentation = render_documentation(notification.documentation);
-    let name = format_ident!("{name}");
+    let name_ident = format_ident!("{name}");
     let method = format_ident!("{}", method_to_pascal(&notification.method));
     let message_direction = format_ident!(
         "{}",
@@ -1489,7 +1519,9 @@ fn render_notification(notification: Notification) -> TokenStream {
         render_type(
             params.subtype_0.expect("No request params found"),
             None,
-            Some(false),
+            &(name + "Params"),
+            &None,
+            enum_or_types,
         )
     } else {
         quote! { () }
@@ -1497,9 +1529,9 @@ fn render_notification(notification: Notification) -> TokenStream {
     quote! {
         #documentation
         #[derive(Debug)]
-        pub struct #name;
+        pub struct #name_ident;
 
-        impl Notification for #name {
+        impl Notification for #name_ident {
             const METHOD: LspNotificationMethods = LspNotificationMethods::#method;
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
 
@@ -1586,7 +1618,7 @@ fn main() {
 
     let preamble = quote! {
         //! This file is generated by an xtask. Do not edit.
-        #![allow(deprecated, clippy::doc_lazy_continuation, unreachable_patterns)]
+        #![allow(deprecated, clippy::doc_lazy_continuation, unreachable_patterns, clippy::large_enum_variant)]
     };
 
     let imports = quote! {
@@ -1719,21 +1751,15 @@ fn main() {
     let notifications = model
         .notifications
         .into_iter()
-        .map(render_notification)
+        .map(|noti| render_notification(noti, &mut enum_or_types))
         .collect::<Vec<_>>();
 
-    let enum_ors = enum_or_types
-        .into_iter()
-        .map(|(name, (or_type, documentation))| {
-            render_enum_ors(
-                name,
-                or_type,
-                documentation,
-                &structs_map,
-                &enums_map,
-                &type_aliases_map,
-            )
-        });
+    let enum_ors = render_enum_ors(
+        &mut enum_or_types,
+        &structs_map,
+        &enums_map,
+        &type_aliases_map,
+    );
 
     let all_items = iter::once(preamble)
         .chain(iter::once(imports))
