@@ -486,18 +486,11 @@ pub fn render_structure(
                 )
             };
 
-            if is_nullable(&property.type_) {
-                if property.optional == Some(true) {
-                    serde_attributes = quote! {
-                        #serde_attributes
-                        #[serde(default, deserialize_with = "deserialize_some")]
-                    };
-                } else {
-                    serde_attributes = quote! {
-                        #serde_attributes
-                        #[serde(deserialize_with = "Option::deserialize")]
-                    };
-                }
+            if property.optional == Some(true) && is_nullable(&property.type_) {
+                serde_attributes = quote! {
+                    #serde_attributes
+                    #[serde(default, deserialize_with = "deserialize_some")]
+                };
             }
 
             // Generate these "or" types separately for better DX.

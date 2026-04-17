@@ -30,7 +30,12 @@ mod test {
             }
         );
 
-        assert!(serde_json::from_str::<TextDocumentRegistrationOptions>("{}").is_err());
+        // Missing documentSelector. Be liberal on deserialization, even though this is technically a
+        // noncompliant representation.
+        assert_eq!(
+            serde_json::from_str::<TextDocumentRegistrationOptions>("{}").unwrap(),
+            tdro
+        );
     }
 
     #[test]
@@ -48,12 +53,11 @@ mod test {
 
         assert_eq!(ip, InitializeParams::default());
 
-        // Missing processId.
+        // Missing processId. Be liberal on deserialization, even though this is technically a
+        // noncompliant representation.
         let bad_ip_str = r#"{"rootUri":null,"capabilities":{}}"#;
-
         let bad_ip = serde_json::from_str::<InitializeParams>(bad_ip_str);
-
-        assert!(bad_ip.is_err());
+        assert_eq!(bad_ip.unwrap(), InitializeParams::default());
     }
 
     #[test]
@@ -63,13 +67,10 @@ mod test {
             text_edit: None,
             ..Default::default()
         };
-
         let cp_str = serde_json::to_string(&cp).unwrap();
-
         assert_eq!(cp_str, r#"{"label":"Label"}"#);
 
         let cp = serde_json::from_str::<ColorPresentation>(&cp_str).unwrap();
-
         assert_eq!(
             cp,
             ColorPresentation {
@@ -77,6 +78,13 @@ mod test {
                 text_edit: None,
                 ..Default::default()
             }
+        );
+        // While technically illegal in the spec, this library chooses to be more liberal with
+        // DEserialization, in order to be tolerant of slightly spec-noncompliant communicators.
+        assert_eq!(
+            serde_json::from_str::<ColorPresentation>(r#"{"label":"Label","textEdit":null}"#)
+                .unwrap(),
+            cp
         );
     }
 
