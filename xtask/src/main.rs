@@ -385,16 +385,31 @@ fn get_struct_derives(
             continue;
         }
 
-        if eqable && has_float(prop_type, structs_map, type_aliases_map) {
+        let mut seen = HashSet::new();
+        if eqable && has_float(prop_type, structs_map, type_aliases_map, &mut seen) {
             eqable = false;
         }
-        if eqable && hashable && !is_hashable(prop_type, structs_map, type_aliases_map) {
+        let mut seen = HashSet::new();
+        if eqable && hashable && !is_hashable(prop_type, structs_map, type_aliases_map, &mut seen) {
             hashable = false;
         }
-        if defaultable && !optional && !is_defaultable(prop_type, structs_map, type_aliases_map) {
+        let mut seen = HashSet::new();
+        if defaultable
+            && !optional
+            && !is_defaultable(prop_type, structs_map, type_aliases_map, &mut seen)
+        {
             defaultable = false;
         }
-        if copyable && !is_copyable(prop_type, structs_map, enums_map, type_aliases_map) {
+        let mut seen = HashSet::new();
+        if copyable
+            && !is_copyable(
+                prop_type,
+                structs_map,
+                enums_map,
+                type_aliases_map,
+                &mut seen,
+            )
+        {
             copyable = false;
         }
     }
@@ -460,11 +475,16 @@ fn is_nullable(type_: &Type) -> bool {
     }
 }
 
-fn is_defaultable(
-    type_: &Type,
-    structs_map: &HashMap<String, Structure>,
-    type_aliases_map: &HashMap<String, TypeAlias>,
+fn is_defaultable<'a: 'b, 'b>(
+    type_: &'a Type,
+    structs_map: &'b HashMap<String, Structure>,
+    type_aliases_map: &'b HashMap<String, TypeAlias>,
+    seen: &mut HashSet<&'b Type>,
 ) -> bool {
+    if seen.contains(type_) {
+        return true;
+    }
+    seen.insert(type_);
     match type_ {
         Type::ArrayType(_)
         | Type::MapType(_)
@@ -491,11 +511,11 @@ fn is_defaultable(
         Type::TupleType(tuple_type) => tuple_type
             .items
             .iter()
-            .all(|item| is_defaultable(item, structs_map, type_aliases_map)),
+            .all(|item| is_defaultable(item, structs_map, type_aliases_map, seen)),
         Type::AndType(and_type) => and_type
             .items
             .iter()
-            .all(|item| is_defaultable(item, structs_map, type_aliases_map)),
+            .all(|item| is_defaultable(item, structs_map, type_aliases_map, seen)),
         Type::ReferenceType(ref_type) => {
             if let Some(structure) = structs_map.get(&ref_type.name) {
                 structure
@@ -510,9 +530,9 @@ fn is_defaultable(
                     })
                     .chain(&structure.mixins)
                     .chain(&structure.extends)
-                    .all(|prop_type| is_defaultable(prop_type, structs_map, type_aliases_map))
+                    .all(|prop_type| is_defaultable(prop_type, structs_map, type_aliases_map, seen))
             } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
-                is_defaultable(&type_alias.type_, structs_map, type_aliases_map)
+                is_defaultable(&type_alias.type_, structs_map, type_aliases_map, seen)
             } else {
                 false
             }
@@ -520,12 +540,17 @@ fn is_defaultable(
     }
 }
 
-fn is_copyable(
-    type_: &Type,
-    structs_map: &HashMap<String, Structure>,
-    enums_map: &HashMap<String, Enumeration>,
-    type_aliases_map: &HashMap<String, TypeAlias>,
+fn is_copyable<'a: 'b, 'b>(
+    type_: &'a Type,
+    structs_map: &'b HashMap<String, Structure>,
+    enums_map: &'b HashMap<String, Enumeration>,
+    type_aliases_map: &'b HashMap<String, TypeAlias>,
+    seen: &mut HashSet<&'b Type>,
 ) -> bool {
+    if seen.contains(type_) {
+        return true;
+    }
+    seen.insert(type_);
     match type_ {
         Type::ArrayType(_)
         | Type::MapType(_)
@@ -546,11 +571,11 @@ fn is_copyable(
         Type::OrType(or_type) => or_type
             .items
             .iter()
-            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map)),
+            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map, seen)),
         Type::TupleType(tuple_type) => tuple_type
             .items
             .iter()
-            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map)),
+            .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map, seen)),
         Type::ReferenceType(ref_type) => {
             if let Some(structure) = structs_map.get(&ref_type.name) {
                 structure
@@ -560,10 +585,16 @@ fn is_copyable(
                     .chain(&structure.mixins)
                     .chain(&structure.extends)
                     .all(|prop_type| {
-                        is_copyable(prop_type, structs_map, enums_map, type_aliases_map)
+                        is_copyable(prop_type, structs_map, enums_map, type_aliases_map, seen)
                     })
             } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
-                is_copyable(&type_alias.type_, structs_map, enums_map, type_aliases_map)
+                is_copyable(
+                    &type_alias.type_,
+                    structs_map,
+                    enums_map,
+                    type_aliases_map,
+                    seen,
+                )
             } else if let Some(enumeration) = enums_map.get(&ref_type.name) {
                 get_enum_derives(enumeration).contains(&"Copy")
             } else {
@@ -573,11 +604,16 @@ fn is_copyable(
     }
 }
 
-fn is_hashable(
-    type_: &Type,
-    structs_map: &HashMap<String, Structure>,
-    type_aliases_map: &HashMap<String, TypeAlias>,
+fn is_hashable<'a: 'b, 'b>(
+    type_: &'a Type,
+    structs_map: &'b HashMap<String, Structure>,
+    type_aliases_map: &'b HashMap<String, TypeAlias>,
+    seen: &mut HashSet<&'b Type>,
 ) -> bool {
+    if seen.contains(type_) {
+        return true;
+    }
+    seen.insert(type_);
     match type_ {
         Type::MapType(_) | Type::StructureLiteralType(_) => false,
         Type::StringLiteralType(_) | Type::IntegerLiteralType(_) | Type::BooleanLiteralType(_) => {
@@ -585,14 +621,6 @@ fn is_hashable(
         }
         Type::BaseType(BaseType { kind: _, name }) => !matches!(name, BaseTypes::Decimal),
         Type::ReferenceType(ref_type) => {
-            // if ref_type.name == "LSPObject" {
-            //     return false;
-            // }
-            // Prevent recursion in ArrayType lookups.
-            // TODO: Handle this generally?
-            if ref_type.name == "DocumentSymbol" || ref_type.name == "SelectionRange" {
-                return true;
-            }
             if let Some(structure) = structs_map.get(&ref_type.name) {
                 structure
                     .properties
@@ -600,36 +628,41 @@ fn is_hashable(
                     .map(|prop| &prop.type_)
                     .chain(&structure.mixins)
                     .chain(&structure.extends)
-                    .all(|prop_type| is_hashable(prop_type, structs_map, type_aliases_map))
+                    .all(|prop_type| is_hashable(prop_type, structs_map, type_aliases_map, seen))
             } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
-                is_hashable(&type_alias.type_, structs_map, type_aliases_map)
+                is_hashable(&type_alias.type_, structs_map, type_aliases_map, seen)
             } else {
                 true
             }
         }
         Type::ArrayType(array_type) => {
-            is_hashable(&array_type.element, structs_map, type_aliases_map)
+            is_hashable(&array_type.element, structs_map, type_aliases_map, seen)
         }
         Type::AndType(and_type) => and_type
             .items
             .iter()
-            .all(|item| is_hashable(item, structs_map, type_aliases_map)),
+            .all(|item| is_hashable(item, structs_map, type_aliases_map, seen)),
         Type::OrType(or_type) => or_type
             .items
             .iter()
-            .all(|item| is_hashable(item, structs_map, type_aliases_map)),
+            .all(|item| is_hashable(item, structs_map, type_aliases_map, seen)),
         Type::TupleType(tuple_type) => tuple_type
             .items
             .iter()
-            .all(|item| is_hashable(item, structs_map, type_aliases_map)),
+            .all(|item| is_hashable(item, structs_map, type_aliases_map, seen)),
     }
 }
 
-fn has_float(
-    type_: &Type,
-    structs_map: &HashMap<String, Structure>,
-    type_aliases_map: &HashMap<String, TypeAlias>,
+fn has_float<'a: 'b, 'b>(
+    type_: &'a Type,
+    structs_map: &'b HashMap<String, Structure>,
+    type_aliases_map: &'b HashMap<String, TypeAlias>,
+    seen: &mut HashSet<&'b Type>,
 ) -> bool {
+    if seen.contains(type_) {
+        return false;
+    }
+    seen.insert(type_);
     match type_ {
         Type::BaseType(BaseType {
             kind: _,
@@ -644,22 +677,19 @@ fn has_float(
                     .chain(&structure.extends)
                     .chain(&structure.mixins)
                 {
-                    if has_float(prop, structs_map, type_aliases_map) {
+                    if has_float(prop, structs_map, type_aliases_map, seen) {
                         return true;
                     }
                 }
                 return false;
             }
             if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
-                return has_float(&type_alias.type_, structs_map, type_aliases_map);
+                return has_float(&type_alias.type_, structs_map, type_aliases_map, seen);
             }
             false
         }
         Type::ArrayType(array_type) => {
             if let Type::ReferenceType(ref_type) = &array_type.element {
-                if ref_type.name == "DocumentSymbol" || ref_type.name == "SelectionRange" {
-                    return false;
-                }
                 if let Some(structure) = structs_map.get(&ref_type.name) {
                     for prop in structure
                         .properties
@@ -668,14 +698,14 @@ fn has_float(
                         .chain(&structure.extends)
                         .chain(&structure.mixins)
                     {
-                        if has_float(prop, structs_map, type_aliases_map) {
+                        if has_float(prop, structs_map, type_aliases_map, seen) {
                             return true;
                         }
                     }
                     return false;
                 }
                 if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
-                    return has_float(&type_alias.type_, structs_map, type_aliases_map);
+                    return has_float(&type_alias.type_, structs_map, type_aliases_map, seen);
                 }
             }
             false
@@ -748,7 +778,10 @@ impl std::hash::Hash for Type {
             Type::IntegerLiteralType(b) => (b.value as i128).hash(state),
             Type::BooleanLiteralType(b) => b.value.hash(state),
             Type::StringLiteralType(b) => b.value.hash(state),
-            Type::StructureLiteralType(_) => unimplemented!(),
+            Type::StructureLiteralType(b) => {
+                assert!(b.value.properties.is_empty());
+                // Do nothing; consider all structures equal.
+            }
         }
     }
 }
@@ -1288,25 +1321,28 @@ fn render_enum_ors(
         "From",
     ];
 
+    let mut seen = HashSet::new();
     if or_type
         .items
         .iter()
-        .all(|item| !has_float(item, structs_map, type_aliases_map))
+        .all(|item| !has_float(item, structs_map, type_aliases_map, &mut seen))
     {
         derives.push("Eq");
+        let mut seen = HashSet::new();
         if or_type
             .items
             .iter()
-            .all(|item| is_hashable(item, structs_map, type_aliases_map))
+            .all(|item| is_hashable(item, structs_map, type_aliases_map, &mut seen))
         {
             derives.push("Hash");
         }
     }
 
+    let mut seen = HashSet::new();
     if or_type
         .items
         .iter()
-        .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map))
+        .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map, &mut seen))
     {
         derives.push("Copy")
     }
