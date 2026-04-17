@@ -1,6 +1,117 @@
 mod generated;
 
 pub use generated::*;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+enum Version {
+    #[serde(rename = "2.0")]
+    TwoPointZero,
+}
+
+/// A unique ID used to correlate requests and responses together.
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum Id {
+    /// Numeric ID.
+    Number(i64),
+    /// String ID.
+    String(String),
+    /// Null ID.
+    ///
+    /// The use of Null as a value for the id member in a Request object is discouraged, because
+    /// this specification uses a value of Null for Responses with an unknown id. Also, because
+    /// JSON-RPC 1.0 uses an id value of Null for Notifications this could cause confusion in
+    /// handling.
+    Null,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize, Eq)]
+/// A JSON-RPC request or notification.
+pub struct RequestObject {
+    /// A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
+    jsonrpc: Version,
+    /// An identifier established by the Client that MUST contain a String, Number, or NULL value if
+    /// included. If it is not included it is assumed to be a notification. The value SHOULD
+    /// normally not be Null and Numbers SHOULD NOT contain fractional parts.
+    #[serde(default, deserialize_with = "deserialize_some")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    id: Option<Id>,
+    /// A String containing the name of the method to be invoked. Method names that begin with the
+    /// word rpc followed by a period character (U+002E or ASCII 46) are reserved for rpc-internal
+    /// methods and extensions and MUST NOT be used for anything else.
+    #[serde(default)]
+    method: String,
+    /// A Structured value that holds the parameter values to be used during the invocation of the
+    /// method. This member MAY be omitted.
+    ///
+    /// If present, parameters for the rpc call MUST be provided as a Structured value. Either
+    /// by-position through an Array or by-name through an Object.
+    #[serde(default, deserialize_with = "deserialize_some")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    params: Option<Value>,
+}
+
+impl RequestObject {
+    /// Creates a JSON-RPC Request object from a server request.
+    pub fn from_request<R>(id: Id, params: R::Params) -> Self
+    where
+        R: Request,
+    {
+        let params = serde_json::to_value(params).expect("Invalid request params");
+        let params = match params {
+            Value::Null => None,
+            Value::Array(_) | Value::Object(_) => Some(params),
+            _ => panic!("Parameters must be an object or array, if not omitted."),
+        };
+        RequestObject {
+            jsonrpc: Version::TwoPointZero,
+            id: Some(id),
+            params,
+            method: R::METHOD.to_string(),
+        }
+    }
+
+    /// Creates a JSON-RPC Request object from a server notification.
+    pub fn from_notification<N>(params: N::Params) -> Self
+    where
+        N: Notification,
+    {
+        let params = serde_json::to_value(params).expect("Invalid request params");
+        let params = match params {
+            Value::Null => None,
+            Value::Array(_) | Value::Object(_) => Some(params),
+            _ => panic!("Parameters must be an object or array, if not omitted."),
+        };
+        RequestObject {
+            jsonrpc: Version::TwoPointZero,
+            method: N::METHOD.to_string(),
+            params,
+            id: None,
+        }
+    }
+
+    /// Returns the method to be invoked.
+    pub fn method(&self) -> &str {
+        self.method.as_ref()
+    }
+
+    /// Returns the id.
+    pub fn id(&self) -> Option<&Id> {
+        self.id.as_ref()
+    }
+
+    /// Returns the params.
+    pub fn params(&self) -> Option<&Value> {
+        self.params.as_ref()
+    }
+
+    /// Splits the request into the method name, request ID, and the parameters.
+    pub fn into_parts(self) -> (String, Option<Id>, Option<Value>) {
+        (self.method, self.id, self.params)
+    }
+}
 
 #[cfg(test)]
 mod test {
@@ -9,9 +120,11 @@ mod test {
 
     use crate::{
         ColorPresentation, CreateFile, DeleteFile, DocumentChange, DocumentSymbol,
-        FoldingRangeKind, InitializeParams, MarkupKind, Position, Range, SymbolKind,
-        TextDocumentRegistrationOptions, WatchKind, WorkDoneProgressEnd,
-        WorkspaceFoldersInitializeParams, WorkspaceFoldersServerCapabilities,
+        ExitNotification, FoldingRangeKind, Id, InitializeParams, InitializedNotification,
+        InitializedParams, LspNotificationMethods, LspRequestMethods, MarkupKind, Position, Range,
+        RequestObject, SymbolKind, TextDocumentRegistrationOptions, TypeDefinitionParams,
+        TypeDefinitionRequest, WatchKind, WorkDoneProgressEnd, WorkspaceFoldersInitializeParams,
+        WorkspaceFoldersRequest, WorkspaceFoldersServerCapabilities,
     };
 
     #[test]
@@ -234,6 +347,19 @@ mod test {
 
         let range4 = Range::default();
         assert!(range4 < range3);
+
+        let method = LspRequestMethods::TextDocumentOnTypeFormatting.to_string();
+        assert_eq!(method, "textDocument/onTypeFormatting");
+        let method = LspRequestMethods::Shutdown.to_string();
+        assert_eq!(method, "shutdown");
+        let method = LspRequestMethods::Custom("foo".into()).to_string();
+        assert_eq!(method, "foo");
+        let method = LspNotificationMethods::Custom("foo".into()).to_string();
+        assert_eq!(method, "foo");
+        let method = LspNotificationMethods::CancelRequest.to_string();
+        assert_eq!(method, "$/cancelRequest");
+        let method = LspNotificationMethods::WorkspaceDidChangeWatchedFiles.to_string();
+        assert_eq!(method, "workspace/didChangeWatchedFiles");
     }
 
     #[test]
@@ -325,5 +451,74 @@ mod test {
             WatchKind::Change,
             serde_json::from_str::<WatchKind>("2").unwrap()
         );
+    }
+
+    #[test]
+    fn request_object_from_request() {
+        let params = TypeDefinitionParams {
+            work_done_progress_params: crate::WorkDoneProgressParams {
+                work_done_token: None,
+            },
+            partial_result_params: crate::PartialResultParams {
+                partial_result_token: None,
+            },
+            text_document_position_params: crate::TextDocumentPositionParams {
+                text_document: crate::TextDocumentIdentifier { uri: "foo".into() },
+                position: Position::default(),
+            },
+        };
+        let req =
+            RequestObject::from_request::<TypeDefinitionRequest>(Id::Number(123), params.clone());
+
+        let ser = serde_json::to_string(&req).unwrap();
+
+        assert_eq!(
+            ser,
+            r#"{"jsonrpc":"2.0","id":123,"method":"textDocument/typeDefinition","params":{"position":{"character":0,"line":0},"textDocument":{"uri":"foo"}}}"#
+        );
+        assert_eq!(req.id(), Some(&Id::Number(123)));
+        assert_eq!(req.method(), "textDocument/typeDefinition");
+        assert_eq!(req.params(), Some(&serde_json::to_value(params).unwrap()));
+    }
+
+    #[test]
+    fn request_object_from_request_no_params() {
+        let req =
+            RequestObject::from_request::<WorkspaceFoldersRequest>(Id::String("foo".into()), ());
+
+        let ser = serde_json::to_string(&req).unwrap();
+
+        assert_eq!(
+            ser,
+            r#"{"jsonrpc":"2.0","id":"foo","method":"workspace/workspaceFolders"}"#
+        );
+    }
+
+    #[test]
+    fn request_object_from_notification() {
+        let noti =
+            RequestObject::from_notification::<InitializedNotification>(InitializedParams {});
+
+        let ser = serde_json::to_string(&noti).unwrap();
+
+        assert_eq!(
+            ser,
+            r#"{"jsonrpc":"2.0","method":"initialized","params":{}}"#
+        );
+        assert_eq!(noti.id(), None);
+        assert_eq!(noti.method(), "initialized");
+        assert_eq!(
+            noti.params(),
+            Some(&serde_json::to_value(InitializedParams {}).unwrap())
+        );
+    }
+
+    #[test]
+    fn request_object_from_notification_no_params() {
+        let noti = RequestObject::from_notification::<ExitNotification>(());
+
+        let ser = serde_json::to_string(&noti).unwrap();
+
+        assert_eq!(ser, r#"{"jsonrpc":"2.0","method":"exit"}"#);
     }
 }

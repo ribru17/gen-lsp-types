@@ -3,14 +3,15 @@
     deprecated,
     clippy::doc_lazy_continuation,
     unreachable_patterns,
-    clippy::large_enum_variant
+    clippy::large_enum_variant,
+    rustdoc::invalid_codeblock_attributes
 )]
 
 use derive_more::From;
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
-use std::{borrow::Cow, collections::HashMap};
+use std::{borrow::Cow, collections::HashMap, fmt};
 
-fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+pub(crate) fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     T: Deserialize<'de>,
     D: Deserializer<'de>,
@@ -10794,4 +10795,184 @@ impl Notification for ProgressNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::Progress;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = ProgressParams;
+}
+
+impl fmt::Display for LspRequestMethods {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let printable = match self {
+            LspRequestMethods::TextDocumentImplementation => {
+                "textDocument/implementation"
+            }
+            LspRequestMethods::TextDocumentTypeDefinition => {
+                "textDocument/typeDefinition"
+            }
+            LspRequestMethods::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
+            LspRequestMethods::WorkspaceConfiguration => "workspace/configuration",
+            LspRequestMethods::TextDocumentDocumentColor => "textDocument/documentColor",
+            LspRequestMethods::TextDocumentColorPresentation => {
+                "textDocument/colorPresentation"
+            }
+            LspRequestMethods::TextDocumentFoldingRange => "textDocument/foldingRange",
+            LspRequestMethods::WorkspaceFoldingRangeRefresh => {
+                "workspace/foldingRange/refresh"
+            }
+            LspRequestMethods::TextDocumentDeclaration => "textDocument/declaration",
+            LspRequestMethods::TextDocumentSelectionRange => {
+                "textDocument/selectionRange"
+            }
+            LspRequestMethods::WindowWorkDoneProgressCreate => {
+                "window/workDoneProgress/create"
+            }
+            LspRequestMethods::TextDocumentPrepareCallHierarchy => {
+                "textDocument/prepareCallHierarchy"
+            }
+            LspRequestMethods::CallHierarchyIncomingCalls => {
+                "callHierarchy/incomingCalls"
+            }
+            LspRequestMethods::CallHierarchyOutgoingCalls => {
+                "callHierarchy/outgoingCalls"
+            }
+            LspRequestMethods::TextDocumentSemanticTokensFull => {
+                "textDocument/semanticTokens/full"
+            }
+            LspRequestMethods::TextDocumentSemanticTokensFullDelta => {
+                "textDocument/semanticTokens/full/delta"
+            }
+            LspRequestMethods::TextDocumentSemanticTokensRange => {
+                "textDocument/semanticTokens/range"
+            }
+            LspRequestMethods::WorkspaceSemanticTokensRefresh => {
+                "workspace/semanticTokens/refresh"
+            }
+            LspRequestMethods::WindowShowDocument => "window/showDocument",
+            LspRequestMethods::TextDocumentLinkedEditingRange => {
+                "textDocument/linkedEditingRange"
+            }
+            LspRequestMethods::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
+            LspRequestMethods::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
+            LspRequestMethods::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
+            LspRequestMethods::TextDocumentMoniker => "textDocument/moniker",
+            LspRequestMethods::TextDocumentPrepareTypeHierarchy => {
+                "textDocument/prepareTypeHierarchy"
+            }
+            LspRequestMethods::TypeHierarchySupertypes => "typeHierarchy/supertypes",
+            LspRequestMethods::TypeHierarchySubtypes => "typeHierarchy/subtypes",
+            LspRequestMethods::TextDocumentInlineValue => "textDocument/inlineValue",
+            LspRequestMethods::WorkspaceInlineValueRefresh => {
+                "workspace/inlineValue/refresh"
+            }
+            LspRequestMethods::TextDocumentInlayHint => "textDocument/inlayHint",
+            LspRequestMethods::InlayHintResolve => "inlayHint/resolve",
+            LspRequestMethods::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
+            LspRequestMethods::TextDocumentDiagnostic => "textDocument/diagnostic",
+            LspRequestMethods::WorkspaceDiagnostic => "workspace/diagnostic",
+            LspRequestMethods::WorkspaceDiagnosticRefresh => {
+                "workspace/diagnostic/refresh"
+            }
+            LspRequestMethods::TextDocumentInlineCompletion => {
+                "textDocument/inlineCompletion"
+            }
+            LspRequestMethods::WorkspaceTextDocumentContent => {
+                "workspace/textDocumentContent"
+            }
+            LspRequestMethods::WorkspaceTextDocumentContentRefresh => {
+                "workspace/textDocumentContent/refresh"
+            }
+            LspRequestMethods::ClientRegisterCapability => "client/registerCapability",
+            LspRequestMethods::ClientUnregisterCapability => {
+                "client/unregisterCapability"
+            }
+            LspRequestMethods::Initialize => "initialize",
+            LspRequestMethods::Shutdown => "shutdown",
+            LspRequestMethods::WindowShowMessageRequest => "window/showMessageRequest",
+            LspRequestMethods::TextDocumentWillSaveWaitUntil => {
+                "textDocument/willSaveWaitUntil"
+            }
+            LspRequestMethods::TextDocumentCompletion => "textDocument/completion",
+            LspRequestMethods::CompletionItemResolve => "completionItem/resolve",
+            LspRequestMethods::TextDocumentHover => "textDocument/hover",
+            LspRequestMethods::TextDocumentSignatureHelp => "textDocument/signatureHelp",
+            LspRequestMethods::TextDocumentDefinition => "textDocument/definition",
+            LspRequestMethods::TextDocumentReferences => "textDocument/references",
+            LspRequestMethods::TextDocumentDocumentHighlight => {
+                "textDocument/documentHighlight"
+            }
+            LspRequestMethods::TextDocumentDocumentSymbol => {
+                "textDocument/documentSymbol"
+            }
+            LspRequestMethods::TextDocumentCodeAction => "textDocument/codeAction",
+            LspRequestMethods::CodeActionResolve => "codeAction/resolve",
+            LspRequestMethods::WorkspaceSymbol => "workspace/symbol",
+            LspRequestMethods::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
+            LspRequestMethods::TextDocumentCodeLens => "textDocument/codeLens",
+            LspRequestMethods::CodeLensResolve => "codeLens/resolve",
+            LspRequestMethods::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
+            LspRequestMethods::TextDocumentDocumentLink => "textDocument/documentLink",
+            LspRequestMethods::DocumentLinkResolve => "documentLink/resolve",
+            LspRequestMethods::TextDocumentFormatting => "textDocument/formatting",
+            LspRequestMethods::TextDocumentRangeFormatting => {
+                "textDocument/rangeFormatting"
+            }
+            LspRequestMethods::TextDocumentRangesFormatting => {
+                "textDocument/rangesFormatting"
+            }
+            LspRequestMethods::TextDocumentOnTypeFormatting => {
+                "textDocument/onTypeFormatting"
+            }
+            LspRequestMethods::TextDocumentRename => "textDocument/rename",
+            LspRequestMethods::TextDocumentPrepareRename => "textDocument/prepareRename",
+            LspRequestMethods::WorkspaceExecuteCommand => "workspace/executeCommand",
+            LspRequestMethods::WorkspaceApplyEdit => "workspace/applyEdit",
+            LspRequestMethods::Custom(custom) => custom,
+        };
+        write!(f, "{}", printable)
+    }
+}
+impl fmt::Display for LspNotificationMethods {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let printable = match self {
+            LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders => {
+                "workspace/didChangeWorkspaceFolders"
+            }
+            LspNotificationMethods::WindowWorkDoneProgressCancel => {
+                "window/workDoneProgress/cancel"
+            }
+            LspNotificationMethods::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
+            LspNotificationMethods::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
+            LspNotificationMethods::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
+            LspNotificationMethods::NotebookDocumentDidOpen => "notebookDocument/didOpen",
+            LspNotificationMethods::NotebookDocumentDidChange => {
+                "notebookDocument/didChange"
+            }
+            LspNotificationMethods::NotebookDocumentDidSave => "notebookDocument/didSave",
+            LspNotificationMethods::NotebookDocumentDidClose => {
+                "notebookDocument/didClose"
+            }
+            LspNotificationMethods::Initialized => "initialized",
+            LspNotificationMethods::Exit => "exit",
+            LspNotificationMethods::WorkspaceDidChangeConfiguration => {
+                "workspace/didChangeConfiguration"
+            }
+            LspNotificationMethods::WindowShowMessage => "window/showMessage",
+            LspNotificationMethods::WindowLogMessage => "window/logMessage",
+            LspNotificationMethods::TelemetryEvent => "telemetry/event",
+            LspNotificationMethods::TextDocumentDidOpen => "textDocument/didOpen",
+            LspNotificationMethods::TextDocumentDidChange => "textDocument/didChange",
+            LspNotificationMethods::TextDocumentDidClose => "textDocument/didClose",
+            LspNotificationMethods::TextDocumentDidSave => "textDocument/didSave",
+            LspNotificationMethods::TextDocumentWillSave => "textDocument/willSave",
+            LspNotificationMethods::WorkspaceDidChangeWatchedFiles => {
+                "workspace/didChangeWatchedFiles"
+            }
+            LspNotificationMethods::TextDocumentPublishDiagnostics => {
+                "textDocument/publishDiagnostics"
+            }
+            LspNotificationMethods::SetTrace => "$/setTrace",
+            LspNotificationMethods::LogTrace => "$/logTrace",
+            LspNotificationMethods::CancelRequest => "$/cancelRequest",
+            LspNotificationMethods::Progress => "$/progress",
+            LspNotificationMethods::Custom(custom) => custom,
+        };
+        write!(f, "{}", printable)
+    }
 }
