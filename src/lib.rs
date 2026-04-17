@@ -19,19 +19,18 @@ mod test {
         let tdro = TextDocumentRegistrationOptions {
             document_selector: None,
         };
-
         let tdro_str = serde_json::to_string(&tdro).unwrap();
-
         assert_eq!(tdro_str, r#"{"documentSelector":null}"#);
 
         let tdro = serde_json::from_str::<TextDocumentRegistrationOptions>(&tdro_str).unwrap();
-
         assert_eq!(
             tdro,
             TextDocumentRegistrationOptions {
                 document_selector: None
             }
         );
+
+        assert!(serde_json::from_str::<TextDocumentRegistrationOptions>("{}").is_err());
     }
 
     #[test]
