@@ -27,8 +27,8 @@ pub enum Id {
     Null,
 }
 
+/// A JSON-RPC Request (or Notification) object.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize, Eq)]
-/// A JSON-RPC request or notification.
 pub struct RequestObject {
     /// A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
     jsonrpc: Version,
@@ -98,12 +98,12 @@ impl RequestObject {
     }
 
     /// Returns the id.
-    pub fn id(&self) -> Option<&Id> {
+    pub const fn id(&self) -> Option<&Id> {
         self.id.as_ref()
     }
 
     /// Returns the params.
-    pub fn params(&self) -> Option<&Value> {
+    pub const fn params(&self) -> Option<&Value> {
         self.params.as_ref()
     }
 
@@ -113,18 +113,115 @@ impl RequestObject {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(untagged)]
+enum Kind {
+    /// This member is REQUIRED on success. This member MUST NOT exist if there was an error
+    /// invoking the method. The value of this member is determined by the method invoked on the
+    /// Server.
+    Ok { result: Value },
+    /// This member is REQUIRED on error. This member MUST NOT exist if there was no error triggered
+    /// during invocation. The value for this member MUST be an Object as defined in section 5.1.
+    Err { error: Error },
+}
+
+/// A JSON-RPC Error object.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
+pub struct Error {
+    /// A Number that indicates the error type that occurred.
+    pub code: ErrorCodes,
+    /// A String providing a short description of the error. The message SHOULD be limited to a
+    /// concise single sentence.
+    pub message: String,
+    /// A Primitive or Structured value that contains additional information about the error. This
+    /// may be omitted. The value of this member is defined by the Server (e.g. detailed error
+    /// information, nested errors etc.).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Value>,
+}
+
+/// A JSON-RPC Response object.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+pub struct ResponseObject {
+    /// A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
+    jsonrpc: Version,
+    #[serde(flatten)]
+    kind: Kind,
+    /// This member is REQUIRED. It MUST be the same as the value of the id member in the
+    /// Request Object. If there was an error in detecting the id in the Request object
+    /// (e.g. Parse error/Invalid Request), it MUST be Null.
+    id: Id,
+}
+
+impl ResponseObject {
+    /// Creates a successful Response object from a result value.
+    pub fn from_success<R>(id: Id, result: R::Result) -> Self
+    where
+        R: Request,
+    {
+        let result = serde_json::to_value(result).unwrap();
+        Self {
+            jsonrpc: Version::TwoPointZero,
+            kind: Kind::Ok { result },
+            id,
+        }
+    }
+
+    /// Creates an error Response object from an error value.
+    pub const fn from_error(id: Id, error: Error) -> Self {
+        Self {
+            jsonrpc: Version::TwoPointZero,
+            kind: Kind::Err { error },
+            id,
+        }
+    }
+
+    /// Returns `true` if the Response object indicates success.
+    pub const fn is_ok(&self) -> bool {
+        matches!(self.kind, Kind::Ok { .. })
+    }
+
+    /// Returns `true` if the Response object indicates failure.
+    pub const fn is_error(&self) -> bool {
+        !self.is_ok()
+    }
+
+    /// Returns the corresponding Response object ID.
+    pub const fn id(&self) -> &Id {
+        &self.id
+    }
+
+    /// Returns the `result` value, if present.
+    pub const fn result(&self) -> Option<&Value> {
+        match &self.kind {
+            Kind::Ok { result } => Some(result),
+            _ => None,
+        }
+    }
+
+    /// Returns the `error` object, if present.
+    pub const fn error(&self) -> Option<&Error> {
+        match &self.kind {
+            Kind::Err { error } => Some(error),
+            _ => None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     #![allow(deprecated)]
     use std::collections::{HashMap, HashSet};
 
     use crate::{
-        ColorPresentation, CreateFile, DeleteFile, DocumentChange, DocumentSymbol,
-        ExitNotification, FoldingRangeKind, Id, InitializeParams, InitializedNotification,
+        CodeLensRefreshRequest, ColorPresentation, CreateFile, DeleteFile, DocumentChange,
+        DocumentSymbol, Error, ExitNotification, FoldingRangeKind, Id, ImplementationRequest,
+        ImplementationRequestResponse, InitializeParams, InitializedNotification,
         InitializedParams, LspNotificationMethods, LspRequestMethods, MarkupKind, Position, Range,
-        RequestObject, SymbolKind, TextDocumentRegistrationOptions, TypeDefinitionParams,
-        TypeDefinitionRequest, WatchKind, WorkDoneProgressEnd, WorkspaceFoldersInitializeParams,
-        WorkspaceFoldersRequest, WorkspaceFoldersServerCapabilities,
+        RequestObject, ResponseObject, ShowMessageRequest, SymbolKind,
+        TextDocumentRegistrationOptions, TypeDefinitionParams, TypeDefinitionRequest, WatchKind,
+        WorkDoneProgressEnd, WorkspaceFoldersInitializeParams, WorkspaceFoldersRequest,
+        WorkspaceFoldersServerCapabilities,
     };
 
     #[test]
@@ -520,5 +617,100 @@ mod test {
         let ser = serde_json::to_string(&noti).unwrap();
 
         assert_eq!(ser, r#"{"jsonrpc":"2.0","method":"exit"}"#);
+    }
+
+    #[test]
+    fn response_object_from_success() {
+        let id = Id::Number(123);
+
+        let res = ResponseObject::from_success::<ImplementationRequest>(
+            id.clone(),
+            ImplementationRequestResponse::DefinitionLinkList(Vec::new()),
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(r#"{"jsonrpc":"2.0","result":[],"id":123}"#, &ser);
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+
+        let res = ResponseObject::from_success::<ImplementationRequest>(
+            id.clone(),
+            ImplementationRequestResponse::Null,
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+
+        let res = ResponseObject::from_success::<ImplementationRequest>(
+            id.clone(),
+            ImplementationRequestResponse::Null,
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+
+        let res = ResponseObject::from_success::<ShowMessageRequest>(id.clone(), None);
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+
+        let res = ResponseObject::from_success::<ShowMessageRequest>(
+            id.clone(),
+            Some(crate::MessageActionItem {
+                title: "foo".into(),
+            }),
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","result":{"title":"foo"},"id":123}"#,
+            &ser
+        );
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+
+        let res = ResponseObject::from_success::<CodeLensRefreshRequest>(id.clone(), ());
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+    }
+
+    #[test]
+    fn response_object_from_error() {
+        let id = Id::Null;
+        let res = ResponseObject::from_error(
+            id,
+            Error {
+                code: crate::ErrorCodes::ParseError,
+                message: "invalid format".into(),
+                data: None,
+            },
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","error":{"code":-32700,"message":"invalid format"},"id":null}"#,
+            &ser
+        );
+
+        let id = Id::String("foo-req".into());
+        let res = ResponseObject::from_error(
+            id,
+            Error {
+                code: crate::ErrorCodes::Custom(-32803),
+                message: "failed to foo the bar".into(),
+                data: Some(serde_json::to_value(String::from("hi")).unwrap()),
+            },
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","error":{"code":-32803,"message":"failed to foo the bar","data":"hi"},"id":"foo-req"}"#,
+            &ser
+        );
+
+        // TODO: Allow error code enums to be converted into ints, so we can pass LspErrorCodes here.
     }
 }
