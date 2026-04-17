@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, HashSet},
     fs, iter,
     sync::LazyLock,
 };
@@ -110,50 +110,101 @@ fn render_documentation(documentation: Option<String>) -> TokenStream {
     }
 }
 
+fn has_field_conflict(
+    properties: &[Property],
+    extends: &[Type],
+    mixins: &[Type],
+    structs_map: &HashMap<String, Structure>,
+) -> bool {
+    let mut seen = HashSet::from_iter(properties.iter().map(|p| p.name.as_str()));
+    _has_field_conflict_impl(extends, mixins, structs_map, &mut seen)
+}
+
+fn _has_field_conflict_impl<'a: 'b, 'b>(
+    extends: &'b [Type],
+    mixins: &'b [Type],
+    structs_map: &'a HashMap<String, Structure>,
+    seen: &mut HashSet<&'b str>,
+) -> bool {
+    for type_ in mixins.iter().chain(extends) {
+        let Type::ReferenceType(reference_type) = type_ else {
+            panic!("Expected mixin/extend type to be a reference: {:?}", type_);
+        };
+        if let Some(structure) = structs_map.get(&reference_type.name) {
+            for prop in &structure.properties {
+                let name = prop.name.as_str();
+                if seen.contains(name) {
+                    return true;
+                } else {
+                    seen.insert(name);
+                }
+            }
+            if _has_field_conflict_impl(&structure.extends, &structure.mixins, structs_map, seen) {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn get_all_inner_properties(
+    properties: Vec<Property>,
+    mut extends: Vec<Type>,
+    mut mixins: Vec<Type>,
+    structs_map: &HashMap<String, Structure>,
+    seen: &mut Option<HashSet<String>>,
+) -> Vec<Property> {
+    let mut result = Vec::new();
+    if seen.is_none() {
+        let set = HashSet::from_iter(properties.iter().map(|p| p.name.clone()));
+        *seen = Some(set);
+        result = properties;
+    }
+
+    mixins.append(&mut extends);
+
+    while let Some(type_) = mixins.pop() {
+        let Type::ReferenceType(reference_type) = type_ else {
+            panic!("Expected mixin/extend type to be a reference: {:?}", type_);
+        };
+        if let Some(structure) = structs_map.get(&reference_type.name) {
+            for prop in &structure.properties {
+                let name = &prop.name;
+                if let Some(seen) = seen
+                    && !seen.contains(name)
+                {
+                    seen.insert(name.clone());
+                    result.push(prop.clone());
+                }
+            }
+            mixins.extend(structure.mixins.clone());
+            mixins.extend(structure.extends.clone());
+        }
+    }
+
+    result
+}
+
 fn resolve_struct_properties(
     properties: Vec<Property>,
     extends: Vec<Type>,
     mixins: Vec<Type>,
     structs_map: &HashMap<String, Structure>,
 ) -> (Vec<Property>, Vec<Property>) {
+    let has_conflict = has_field_conflict(&properties, &extends, &mixins, structs_map);
     let mut structure_props = properties;
     let mut mixin_props = Vec::with_capacity(extends.len() + mixins.len());
+    if has_conflict {
+        // TODO: Only inline the specific mixins/extends which cause conflicts.
+        return (
+            get_all_inner_properties(structure_props, extends, mixins, structs_map, &mut None),
+            Vec::new(),
+        );
+    }
     mixins.into_iter().chain(extends).for_each(|type_| {
         let Type::ReferenceType(reference_type) = &type_ else {
             panic!("Expected mixin/extend type to be a reference: {:?}", type_);
         };
-        // Inline structs which have field name conflicts.
-        if let Some(structure) = structs_map.get(&reference_type.name) {
-            let mut has_conflict = false;
-            // TODO: Check for conflicts recursively
-            let props = structure
-                .properties
-                .iter()
-                .filter(|prop| {
-                    if structure_props
-                        .iter()
-                        .any(|mixin_prop| prop.name == mixin_prop.name)
-                    {
-                        has_conflict = true;
-                        false
-                    } else {
-                        true
-                    }
-                })
-                .cloned()
-                .collect::<Vec<_>>();
-            if has_conflict {
-                let (inner_sp, inner_mp) = resolve_struct_properties(
-                    props,
-                    structure.extends.clone(),
-                    structure.mixins.clone(),
-                    structs_map,
-                );
-                structure_props.extend(inner_sp);
-                mixin_props.extend(inner_mp);
-                return;
-            }
-        }
         // Inline mixin/extend structs which start with an underscore. This is for convenience.
         if reference_type.name.starts_with('_') {
             let type_ = structs_map.get(&reference_type.name);
@@ -172,6 +223,8 @@ fn resolve_struct_properties(
             }
             return;
         }
+        // Create a fake property from the mixin type. These get flattened by the renderer, so we
+        // don't need to resolve them.
         mixin_props.push(Property {
             name: reference_type.name.clone(),
             type_,
@@ -641,6 +694,17 @@ impl PartialEq for MapKeyType {
     }
 }
 
+impl Eq for MapKeyType {}
+
+impl std::hash::Hash for MapKeyType {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            MapKeyType::ReferenceType(r) => r.name.hash(state),
+            MapKeyType::Object { kind: _, name } => name.hash(state),
+        }
+    }
+}
+
 impl PartialEq for OrType {
     fn eq(&self, other: &Self) -> bool {
         self.items == other.items
@@ -652,7 +716,7 @@ impl PartialEq for Type {
         match (self, other) {
             (Type::BaseType(a), Type::BaseType(b)) => a.name == b.name,
             (Type::ReferenceType(a), Type::ReferenceType(b)) => a.name == b.name,
-            (Type::MapType(a), Type::MapType(b)) => a.key == b.key,
+            (Type::MapType(a), Type::MapType(b)) => a.key == b.key && a.value == b.value,
             (Type::OrType(a), Type::OrType(b)) => a == b,
             (Type::AndType(a), Type::AndType(b)) => a.items == b.items,
             (Type::TupleType(a), Type::TupleType(b)) => a.items == b.items,
@@ -662,6 +726,29 @@ impl PartialEq for Type {
             (Type::StringLiteralType(a), Type::StringLiteralType(b)) => a.value == b.value,
             (Type::StructureLiteralType(_), Type::StructureLiteralType(_)) => unimplemented!(),
             _ => false,
+        }
+    }
+}
+
+impl Eq for Type {}
+
+impl std::hash::Hash for Type {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        match self {
+            Type::BaseType(b) => b.name.hash(state),
+            Type::ReferenceType(b) => b.name.hash(state),
+            Type::MapType(b) => {
+                b.key.hash(state);
+                b.value.hash(state);
+            }
+            Type::OrType(b) => b.items.hash(state),
+            Type::AndType(b) => b.items.hash(state),
+            Type::TupleType(b) => b.items.hash(state),
+            Type::ArrayType(b) => b.element.hash(state),
+            Type::IntegerLiteralType(b) => (b.value as i128).hash(state),
+            Type::BooleanLiteralType(b) => b.value.hash(state),
+            Type::StringLiteralType(b) => b.value.hash(state),
+            Type::StructureLiteralType(_) => unimplemented!(),
         }
     }
 }
