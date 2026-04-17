@@ -275,6 +275,7 @@ fn render_type(
             }
         }
         Type::ArrayType(array_type) => {
+            let or_name = or_name.strip_suffix('s').unwrap_or(or_name);
             let element_type = render_type(
                 array_type.element,
                 None,
@@ -318,6 +319,7 @@ fn render_type(
                 }
             };
             let key = render_type(key_type, None, or_name, or_documentation, enum_or_types);
+            let or_name = or_name.strip_suffix('s').unwrap_or(or_name);
             let value = render_type(
                 *map_type.value,
                 None,
@@ -875,8 +877,7 @@ fn render_structure(
                 }
             }
 
-            // Generate these "or" types separately for better DX. Ironically, this code has
-            // terrible readability and could really use a refactor.
+            // Generate these "or" types separately for better DX.
             let mut type_ = if (!is_nullable(&property.type_) || property.optional == Some(true))
                 && let Type::OrType(or_type) = property.type_
             {
@@ -895,79 +896,6 @@ fn render_structure(
                 let ident = format_ident!("{name}");
                 enum_or_types.insert(name, (or_type, None));
                 quote! { #ident }
-            } else if let Type::ArrayType(array_type) = property.type_ {
-                if let Type::OrType(or_type) = array_type.element {
-                    let mut name = camel_to_pascal(property.name);
-                    name = name
-                        .strip_suffix('s')
-                        .map(|n| n.to_string())
-                        .unwrap_or(name);
-                    // Name conflict: prefix structure name.
-                    if structs_map.contains_key(&name)
-                        || enums_map.contains_key(&name)
-                        || type_aliases_map.contains_key(&name)
-                    {
-                        name = format!("{}{}", structure.name, name);
-                    } else if let Some((enum_or, _)) = enum_or_types.get(&name)
-                        && *enum_or != or_type
-                    {
-                        name = format!("{}{}", structure.name, name);
-                    }
-                    let ident = format_ident!("{name}");
-                    enum_or_types.insert(name, (or_type, None));
-                    quote! { Vec<#ident> }
-                } else {
-                    render_type(
-                        Type::ArrayType(array_type),
-                        Some(&structure.name),
-                        &camel_to_pascal(property.name),
-                        &None,
-                        enum_or_types,
-                    )
-                }
-            } else if let Type::MapType(map_type) = property.type_ {
-                if let Type::OrType(or_type) = *map_type.value {
-                    let mut name = camel_to_pascal(property.name);
-                    name = name
-                        .strip_suffix('s')
-                        .map(|n| n.to_string())
-                        .unwrap_or(name);
-                    // Name conflict: prefix structure name.
-                    if structs_map.contains_key(&name)
-                        || enums_map.contains_key(&name)
-                        || type_aliases_map.contains_key(&name)
-                    {
-                        name = format!("{}{}", structure.name, name);
-                    } else if let Some((enum_or, _)) = enum_or_types.get(&name)
-                        && *enum_or != or_type
-                    {
-                        name = format!("{}{}", structure.name, name);
-                    }
-                    enum_or_types.insert(name.clone(), (or_type, None));
-                    render_type(
-                        Type::MapType(schema::MapType {
-                            key: map_type.key,
-                            kind: "map".into(),
-                            value: Type::ReferenceType(ReferenceType {
-                                kind: "reference".into(),
-                                name: camel_to_pascal(name.clone()),
-                            })
-                            .into(),
-                        }),
-                        Some(&structure.name),
-                        &name,
-                        &None,
-                        enum_or_types,
-                    )
-                } else {
-                    render_type(
-                        Type::MapType(map_type),
-                        Some(&structure.name),
-                        camel_to_pascal(property.name).as_str(),
-                        &None,
-                        enum_or_types,
-                    )
-                }
             } else {
                 render_type(
                     property.type_,
