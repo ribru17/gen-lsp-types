@@ -10248,7 +10248,7 @@ impl Request for ConfigurationRequest {
 
 /// A request to list all color symbols found in a given text document. The request's
 /// parameter is of type [DocumentColorParams] the
-/// response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+/// response is of type [ColorInformation[]][ColorInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
 pub struct DocumentColorRequest;
@@ -10261,7 +10261,7 @@ impl Request for DocumentColorRequest {
 
 /// A request to list all presentation for a color. The request's
 /// parameter is of type [ColorPresentationParams] the
-/// response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+/// response is of type [ColorInformation[]][ColorInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
 pub struct ColorPresentationRequest;
@@ -10311,7 +10311,7 @@ impl Request for DeclarationRequest {
 
 /// A request to provide selection ranges in a document. The request's
 /// parameter is of type [SelectionRangeParams], the
-/// response is of type {@link SelectionRange SelectionRange[]} or a Thenable
+/// response is of type [SelectionRange[]][SelectionRange] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
 pub struct SelectionRangeRequest;
@@ -10482,7 +10482,7 @@ impl Request for WillDeleteFilesRequest {
 
 /// A request to get the moniker of a symbol at a given text document position.
 /// The request parameter is of type [TextDocumentPositionParams].
-/// The response is of type {@link Moniker Moniker[]} or `null`.
+/// The response is of type [Moniker[]][Moniker] or `null`.
 #[derive(Debug)]
 pub struct MonikerRequest;
 impl Request for MonikerRequest {
@@ -10531,7 +10531,7 @@ impl Request for TypeHierarchySubtypesRequest {
 
 /// A request to provide inline values in a document. The request's parameter is of
 /// type [InlineValueParams], the response is of type
-/// {@link InlineValue InlineValue[]} or a Thenable that resolves to such.
+/// [InlineValue[]][InlineValue] or a Thenable that resolves to such.
 ///
 /// @since 3.17.0
 #[derive(Debug)]
@@ -10555,7 +10555,7 @@ impl Request for InlineValueRefreshRequest {
 
 /// A request to provide inlay hints in a document. The request's parameter is of
 /// type [InlayHintsParams], the response is of type
-/// {@link InlayHint InlayHint[]} or a Thenable that resolves to such.
+/// [InlayHint[]][InlayHint] or a Thenable that resolves to such.
 ///
 /// @since 3.17.0
 #[derive(Debug)]
@@ -10629,7 +10629,7 @@ impl Request for DiagnosticRefreshRequest {
 
 /// A request to provide inline completions in a document. The request's parameter is of
 /// type [InlineCompletionParams], the response is of type
-/// {@link InlineCompletion InlineCompletion[]} or a Thenable that resolves to such.
+/// [InlineCompletion[]][InlineCompletion] or a Thenable that resolves to such.
 ///
 /// @since 3.18.0
 /// @proposed
@@ -10747,7 +10747,7 @@ impl Request for WillSaveTextDocumentWaitUntilRequest {
 
 /// Request to request completion at a given text document position. The request's
 /// parameter is of type [TextDocumentPosition] the response
-/// is of type {@link CompletionItem CompletionItem[]} or [CompletionList]
+/// is of type [CompletionItem[]][CompletionItem] or [CompletionList]
 /// or a Thenable that resolves to such.
 ///
 /// The request can delay the computation of the [`detail`][`CompletionItem::detail`]
@@ -10812,7 +10812,7 @@ impl Request for DefinitionRequest {
 /// A request to resolve project-wide references for the symbol denoted
 /// by the given text document position. The request's parameter is of
 /// type [ReferenceParams] the response is of type
-/// {@link Location Location[]} or a Thenable that resolves to such.
+/// [Location[]][Location] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub struct ReferencesRequest;
 impl Request for ReferencesRequest {
@@ -10837,7 +10837,7 @@ impl Request for DocumentHighlightRequest {
 
 /// A request to list all symbols found in a given text document. The request's
 /// parameter is of type [TextDocumentIdentifier] the
-/// response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
+/// response is of type [SymbolInformation[]][SymbolInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
 pub struct DocumentSymbolRequest;
@@ -10872,7 +10872,7 @@ impl Request for CodeActionResolveRequest {
 
 /// A request to list project-wide symbols matching the query string given
 /// by the [WorkspaceSymbolParams]. The response is
-/// of type {@link SymbolInformation SymbolInformation[]} or a Thenable that
+/// of type [SymbolInformation[]][SymbolInformation] or a Thenable that
 /// resolves to such.
 ///
 /// @since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients

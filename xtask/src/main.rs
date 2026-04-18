@@ -31,7 +31,7 @@ mod schema {
 }
 
 static LINK_RE_1: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\{@link +(\w+) ([\w ]+)\}").unwrap());
+    LazyLock::new(|| Regex::new(r"\{@link +(\w+) ([\w \[\]]+)\}").unwrap());
 static LINK_RE_2: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{@link +(\w+)\.(\w+) ([\w \.`]+)\}").unwrap());
 static LINK_RE_3: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{@link +(\w+)\}").unwrap());
