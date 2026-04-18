@@ -262,10 +262,6 @@ fn is_nullable(type_: &Type) -> bool {
                 )
             })
             .is_some(),
-        Type::BaseType(BaseType {
-            kind: _,
-            name: BaseTypes::Null,
-        }) => true,
         _ => false,
     }
 }
@@ -310,7 +306,11 @@ impl PartialEq for Type {
             (Type::IntegerLiteralType(a), Type::IntegerLiteralType(b)) => a.value == b.value,
             (Type::BooleanLiteralType(a), Type::BooleanLiteralType(b)) => a.value == b.value,
             (Type::StringLiteralType(a), Type::StringLiteralType(b)) => a.value == b.value,
-            (Type::StructureLiteralType(_), Type::StructureLiteralType(_)) => unimplemented!(),
+            (Type::StructureLiteralType(a), Type::StructureLiteralType(b)) => {
+                assert!(a.value.properties.is_empty());
+                assert!(b.value.properties.is_empty());
+                true
+            }
             _ => false,
         }
     }

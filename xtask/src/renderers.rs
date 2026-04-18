@@ -13,6 +13,26 @@ use crate::{
     },
 };
 
+fn collapse_null(type_: &mut Type) {
+    if let Type::OrType(or_type) = type_ {
+        or_type.items.retain(|item| {
+            !matches!(
+                item,
+                Type::BaseType(BaseType {
+                    kind: _,
+                    name: BaseTypes::Null,
+                })
+            )
+        });
+
+        if or_type.items.len() == 1
+            && let Some(item) = or_type.items.pop()
+        {
+            *type_ = item;
+        }
+    }
+}
+
 pub fn render_enum_ors(
     enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
     structs_map: &HashMap<String, Structure>,
@@ -56,7 +76,7 @@ pub fn render_enum_ors(
 
         let all_prefixed = or_type.items.iter().all(|item| {
             if let Type::ReferenceType(ref_type) = item {
-                ref_type.name.starts_with(&name)
+                ref_type.name.starts_with(&name) && ref_type.name.len() > name.len()
             } else {
                 false
             }
@@ -65,7 +85,7 @@ pub fn render_enum_ors(
             if all_prefixed && let Type::ReferenceType(ref_type) = item.clone() {
                 let member = ref_type.name.strip_prefix(&name).unwrap();
                 let member_ident = format_ident!("{member}");
-                let type_ = render_type(item, None, &ref_type.name, &None, enum_or_types);
+                let type_ = render_type(item, &ref_type.name, &None, enum_or_types);
                 quote! {
                     #[from]
                     #member_ident(#type_)
@@ -112,7 +132,7 @@ pub fn render_enum_ors(
                     }
                     a => unimplemented!("{a:?}"),
                 };
-                let type_ = render_type(item, None, &name, &None, &mut Default::default());
+                let type_ = render_type(item, &name, &None, &mut Default::default());
                 let member_ident = format_ident!("{}", name);
                 quote! {
                     #attr
@@ -148,23 +168,28 @@ pub fn render_request(
         format_ident!("{}", camel_to_pascal(request.message_direction.to_string()));
     let params = if let Some(params) = request.params {
         assert_eq!(params.subtype_1, None);
-        render_type(
-            params.subtype_0.expect("No request params found"),
-            None,
-            &(name.clone() + "Params"),
-            &None,
-            enum_or_types,
-        )
+        let mut params = params.subtype_0.expect("No request params found");
+        let is_nullable = is_nullable(&params);
+        if is_nullable {
+            collapse_null(&mut params);
+        }
+        let mut type_ = render_type(params, &(name.clone() + "Params"), &None, enum_or_types);
+        if is_nullable {
+            type_ = quote! { Option<#type_> };
+        }
+        type_
     } else {
         quote! { () }
     };
-    let result = render_type(
-        request.result,
-        None,
-        &(name + "Response"),
-        &None,
-        enum_or_types,
-    );
+    let mut result = request.result;
+    let is_nullable = is_nullable(&result);
+    if is_nullable {
+        collapse_null(&mut result);
+    }
+    let mut result = render_type(result, &(name + "Response"), &None, enum_or_types);
+    if is_nullable {
+        result = quote! { Option<#result> };
+    }
     quote! {
         #documentation
         #[derive(Debug)]
@@ -196,13 +221,16 @@ pub fn render_notification(
     );
     let params = if let Some(params) = notification.params {
         assert_eq!(params.subtype_1, None);
-        render_type(
-            params.subtype_0.expect("No request params found"),
-            None,
-            &(name + "Params"),
-            &None,
-            enum_or_types,
-        )
+        let mut param = params.subtype_0.expect("No request params found");
+        let is_nullable = is_nullable(&param);
+        if is_nullable {
+            collapse_null(&mut param);
+        }
+        let mut type_ = render_type(param, &(name + "Params"), &None, enum_or_types);
+        if is_nullable {
+            type_ = quote! { Option<#type_> };
+        }
+        type_
     } else {
         quote! { () }
     };
@@ -251,7 +279,6 @@ pub fn render_type_alias(
 
     let type_ = render_type(
         type_alias.type_,
-        None,
         &type_alias.name,
         &Some(documentation.clone()),
         enum_or_types,
@@ -513,50 +540,67 @@ pub fn render_structure(
                 )
             };
 
-            if property.optional == Some(true) && is_nullable(&property.type_) {
-                serde_attributes = quote! {
-                    #serde_attributes
-                    #[serde(default, deserialize_with = "deserialize_some")]
-                };
-            }
+            let is_nullable = is_nullable(&property.type_);
 
-            // Generate these "or" types separately for better DX.
-            let mut type_ = if (!is_nullable(&property.type_) || property.optional == Some(true))
-                && let Type::OrType(or_type) = property.type_
+            let box_type = if let Type::ReferenceType(ref_type) = &property.type_
+                && ref_type.name == structure.name
             {
-                let mut name = camel_to_pascal(property.name);
-                // Name conflict: prefix structure name.
-                if structs_map.contains_key(&name)
-                    || enums_map.contains_key(&name)
-                    || type_aliases_map.contains_key(&name)
-                {
-                    name = format!("{}{}", structure.name, name);
-                } else if let Some((enum_or, _)) = enum_or_types.get(&name)
-                    && *enum_or != or_type
-                {
-                    name = format!("{}{}", structure.name, name);
-                }
-                let ident = format_ident!("{name}");
-                enum_or_types.insert(name, (or_type, None));
-                quote! { #ident }
+                true
+            } else if let Type::OrType(or_type) = &property.type_ {
+                or_type.items.iter().any(|item| {
+                    if let Type::ReferenceType(ref_type) = item
+                        && ref_type.name == structure.name
+                    {
+                        true
+                    } else {
+                        false
+                    }
+                })
             } else {
-                render_type(
-                    property.type_,
-                    Some(&structure.name),
-                    &camel_to_pascal(property.name),
-                    &None,
-                    enum_or_types,
-                )
+                false
             };
 
-            if property.optional == Some(true) {
+            let mut or_name = camel_to_pascal(property.name);
+            if structs_map.contains_key(&or_name)
+                || enums_map.contains_key(&or_name)
+                || type_aliases_map.contains_key(&or_name)
+            {
+                or_name = format!("{}{}", structure.name, or_name);
+            } else if let Type::OrType(or_type) = &property.type_
+                && let Some((enum_or, _)) = enum_or_types.get(&or_name)
+                && enum_or != or_type
+            {
+                or_name = format!("{}{}", structure.name, or_name);
+            }
+
+            let is_optional = property.optional == Some(true);
+
+            let mut type_ = property.type_;
+
+            if is_nullable && !is_optional {
+                collapse_null(&mut type_);
+            }
+
+            let mut type_ = render_type(type_, &or_name, &None, enum_or_types);
+
+            if box_type {
+                type_ = quote! { Box<#type_> };
+            }
+
+            if is_optional {
+                if is_nullable {
+                    serde_attributes = quote! {
+                        #serde_attributes
+                        #[serde(default, deserialize_with = "deserialize_some")]
+                    };
+                }
                 serde_attributes = quote! {
                     #serde_attributes
                     #[serde(skip_serializing_if = "Option::is_none")]
                 };
-                type_ = quote! {
-                    Option<#type_>
-                }
+                type_ = quote! { Option<#type_> }
+            } else if is_nullable {
+                type_ = quote! { Option<#type_> }
             }
 
             Some(quote! {
@@ -572,7 +616,6 @@ pub fn render_structure(
         let name = format_ident!("{}", camel_to_snake(&prop.name));
         let type_ = render_type(
             prop.type_,
-            None,
             &camel_to_pascal(prop.name),
             &None,
             enum_or_types,
@@ -662,16 +705,12 @@ pub fn render_structure(
 /// Parameters:
 ///
 /// * `type` - The type to be rendered.
-/// * `parent_name` - The name of the parent struct for this property. Should be `None` if this type
-///   does not represent a struct property.
-/// * `optional` - Whether or not this property is optional. Should be `None` if this type does not
-///   represent a struct property.
 /// * `or_name` - The type name to give to an "or" type found within this type.
+/// * `or_documentation` - The documentation for the cretaed "or" type, if any.
 /// * `enum_or_types` - The "or" type to insert into if an "or" type is found. They will be aliased
 ///   and rendered as separate types, for better DX.
 fn render_type(
     type_: Type,
-    parent_name: Option<&str>,
     or_name: &str,
     or_documentation: &Option<TokenStream>,
     enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
@@ -685,22 +724,12 @@ fn render_type(
                 _ => {}
             }
             let ident = format_ident!("{}", ref_type.name);
-            // Add type indirection to prevent infinite struct size.
-            if parent_name.is_some_and(|pt| pt == ref_type.name) {
-                quote! { Box<#ident> }
-            } else {
-                quote! { #ident }
-            }
+            quote! { #ident }
         }
         Type::ArrayType(array_type) => {
             let or_name = or_name.strip_suffix('s').unwrap_or(or_name);
-            let element_type = render_type(
-                array_type.element,
-                None,
-                or_name,
-                or_documentation,
-                enum_or_types,
-            );
+            let element_type =
+                render_type(array_type.element, or_name, or_documentation, enum_or_types);
             quote! { Vec<#element_type> }
         }
         Type::BaseType(base_type) => match base_type.name {
@@ -719,7 +748,7 @@ fn render_type(
             let types = tuple_type
                 .items
                 .into_iter()
-                .map(|item| render_type(item, None, or_name, or_documentation, enum_or_types));
+                .map(|item| render_type(item, or_name, or_documentation, enum_or_types));
             quote! { (#( #types ),*) }
         }
         Type::MapType(map_type) => {
@@ -736,41 +765,23 @@ fn render_type(
                     Type::BaseType(BaseType { kind, name })
                 }
             };
-            let key = render_type(key_type, None, or_name, or_documentation, enum_or_types);
+            let key = render_type(key_type, or_name, or_documentation, enum_or_types);
             let or_name = or_name.strip_suffix('s').unwrap_or(or_name);
-            let value = render_type(
-                *map_type.value,
-                None,
-                or_name,
-                or_documentation,
-                enum_or_types,
-            );
+            let value = render_type(*map_type.value, or_name, or_documentation, enum_or_types);
             quote! { HashMap<#key, #value> }
         }
         Type::StringLiteralType(e) => {
             panic!("String literal types should be handled specially: {e:?}");
         }
         Type::OrType(or_type) => {
-            if is_nullable(&Type::OrType(or_type.clone())) && or_type.items.len() == 2 {
-                let type_ = or_type
-                    .items
-                    .into_iter()
-                    .find(|item| {
-                        *item
-                            != Type::BaseType(BaseType {
-                                name: BaseTypes::Null,
-                                kind: "base".to_string(),
-                            })
-                    })
-                    .expect("Should have non-null variant");
-                let type_ =
-                    render_type(type_, parent_name, or_name, or_documentation, enum_or_types);
-                quote! { Option<#type_> }
-            } else {
-                let ident = format_ident!("{or_name}");
-                enum_or_types.insert(or_name.to_string(), (or_type, or_documentation.clone()));
-                quote! { #ident }
+            let ident = format_ident!("{or_name}");
+            if let Some(enum_or_type) = enum_or_types.get(or_name)
+                && or_type != enum_or_type.0
+            {
+                panic!("Definition conflict for {or_name}:\n\n{enum_or_type:?}\n\n{or_type:?}");
             }
+            enum_or_types.insert(or_name.to_string(), (or_type, or_documentation.clone()));
+            quote! { #ident }
         }
         Type::StructureLiteralType(struct_lit) => {
             assert!(

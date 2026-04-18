@@ -625,26 +625,20 @@ mod test {
 
         let res = ResponseObject::from_success::<ImplementationRequest>(
             id.clone(),
-            ImplementationRequestResponse::DefinitionLinkList(Vec::new()),
+            Some(ImplementationRequestResponse::DefinitionLinkList(Vec::new())),
         );
 
         let ser = serde_json::to_string(&res).unwrap();
         assert_eq!(r#"{"jsonrpc":"2.0","result":[],"id":123}"#, &ser);
         assert_eq!(res, serde_json::from_str(&ser).unwrap());
 
-        let res = ResponseObject::from_success::<ImplementationRequest>(
-            id.clone(),
-            ImplementationRequestResponse::Null,
-        );
+        let res = ResponseObject::from_success::<ImplementationRequest>(id.clone(), None);
 
         let ser = serde_json::to_string(&res).unwrap();
         assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);
         assert_eq!(res, serde_json::from_str(&ser).unwrap());
 
-        let res = ResponseObject::from_success::<ImplementationRequest>(
-            id.clone(),
-            ImplementationRequestResponse::Null,
-        );
+        let res = ResponseObject::from_success::<ImplementationRequest>(id.clone(), None);
 
         let ser = serde_json::to_string(&res).unwrap();
         assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);

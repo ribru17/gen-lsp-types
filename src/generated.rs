@@ -9467,9 +9467,6 @@ pub enum CompletionRequestResponse {
     CompletionItemList(Vec<CompletionItem>),
     #[from]
     CompletionList(CompletionList),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9511,9 +9508,6 @@ pub enum DeclarationRequestResponse {
     Declaration(Declaration),
     #[from]
     DeclarationLinkList(Vec<DeclarationLink>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 /// The definition of a symbol represented as one or many [locations][Location].
@@ -9547,9 +9541,6 @@ pub enum DefinitionRequestResponse {
     Definition(Definition),
     #[from]
     DefinitionLinkList(Vec<DefinitionLink>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9646,9 +9637,6 @@ pub enum DocumentSymbolRequestResponse {
     SymbolInformationList(Vec<SymbolInformation>),
     #[from]
     DocumentSymbolList(Vec<DocumentSymbol>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9748,9 +9736,6 @@ pub enum ImplementationRequestResponse {
     Definition(Definition),
     #[from]
     DefinitionLinkList(Vec<DefinitionLink>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -9780,9 +9765,6 @@ pub enum InlineCompletionRequestResponse {
     InlineCompletionList(InlineCompletionList),
     #[from]
     InlineCompletionItemList(Vec<InlineCompletionItem>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 /// Inline value information can be provided by different means:
@@ -10020,9 +10002,6 @@ pub enum SemanticTokensDeltaRequestResponse {
     SemanticTokens(SemanticTokens),
     #[from]
     SemanticTokensDelta(SemanticTokensDelta),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
@@ -10126,9 +10105,6 @@ pub enum TypeDefinitionRequestResponse {
     Definition(Definition),
     #[from]
     DefinitionLinkList(Vec<DefinitionLink>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
@@ -10191,9 +10167,6 @@ pub enum WorkspaceSymbolRequestResponse {
     SymbolInformationList(Vec<SymbolInformation>),
     #[from]
     WorkspaceSymbolList(Vec<WorkspaceSymbol>),
-    #[serde(rename = "null")]
-    #[from(())]
-    Null,
 }
 
 /// A request to resolve the implementation locations of a symbol at a given text
@@ -10205,7 +10178,7 @@ impl Request for ImplementationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentImplementation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ImplementationParams;
-    type Result = ImplementationRequestResponse;
+    type Result = Option<ImplementationRequestResponse>;
 }
 
 /// A request to resolve the type definition locations of a symbol at a given text
@@ -10217,7 +10190,7 @@ impl Request for TypeDefinitionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentTypeDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeDefinitionParams;
-    type Result = TypeDefinitionRequestResponse;
+    type Result = Option<TypeDefinitionRequestResponse>;
 }
 
 /// The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
@@ -10306,7 +10279,7 @@ impl Request for DeclarationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDeclaration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeclarationParams;
-    type Result = DeclarationRequestResponse;
+    type Result = Option<DeclarationRequestResponse>;
 }
 
 /// A request to provide selection ranges in a document. The request's
@@ -10387,7 +10360,7 @@ impl Request for SemanticTokensDeltaRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFullDelta;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensDeltaParams;
-    type Result = SemanticTokensDeltaRequestResponse;
+    type Result = Option<SemanticTokensDeltaRequestResponse>;
 }
 
 /// @since 3.16.0
@@ -10639,7 +10612,7 @@ impl Request for InlineCompletionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineCompletionParams;
-    type Result = InlineCompletionRequestResponse;
+    type Result = Option<InlineCompletionRequestResponse>;
 }
 
 /// The `workspace/textDocumentContent` request is sent from the client to the
@@ -10760,7 +10733,7 @@ impl Request for CompletionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CompletionParams;
-    type Result = CompletionRequestResponse;
+    type Result = Option<CompletionRequestResponse>;
 }
 
 /// Request to resolve additional information for a given completion item.The request's
@@ -10806,7 +10779,7 @@ impl Request for DefinitionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DefinitionParams;
-    type Result = DefinitionRequestResponse;
+    type Result = Option<DefinitionRequestResponse>;
 }
 
 /// A request to resolve project-wide references for the symbol denoted
@@ -10845,7 +10818,7 @@ impl Request for DocumentSymbolRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentSymbolParams;
-    type Result = DocumentSymbolRequestResponse;
+    type Result = Option<DocumentSymbolRequestResponse>;
 }
 
 /// A request to provide commands for the given text document and range.
@@ -10885,7 +10858,7 @@ impl Request for WorkspaceSymbolRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceSymbolParams;
-    type Result = WorkspaceSymbolRequestResponse;
+    type Result = Option<WorkspaceSymbolRequestResponse>;
 }
 
 /// A request to resolve the range inside the workspace
