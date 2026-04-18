@@ -69,7 +69,7 @@ impl RequestObject {
             jsonrpc: Version::TwoPointZero,
             id: Some(id),
             params,
-            method: R::METHOD.to_string(),
+            method: R::METHOD.into(),
         }
     }
 
@@ -445,7 +445,7 @@ mod test {
         let range4 = Range::default();
         assert!(range4 < range3);
 
-        let method = LspRequestMethods::TextDocumentOnTypeFormatting.to_string();
+        let method: String = LspRequestMethods::TextDocumentOnTypeFormatting.into();
         assert_eq!(method, "textDocument/onTypeFormatting");
         let method = LspRequestMethods::Shutdown.to_string();
         assert_eq!(method, "shutdown");
@@ -711,6 +711,20 @@ mod test {
             &ser
         );
 
-        // TODO: Allow error code enums to be converted into ints, so we can pass LspErrorCodes here.
+        let id = Id::String("foo-req".into());
+        let res = ResponseObject::from_error(
+            id,
+            Error {
+                code: crate::ErrorCodes::Custom(crate::LspErrorCodes::ContentModified.into()),
+                message: "failed to foo the bar".into(),
+                data: Some(serde_json::to_value(String::from("hi")).unwrap()),
+            },
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","error":{"code":-32801,"message":"failed to foo the bar","data":"hi"},"id":"foo-req"}"#,
+            &ser
+        );
     }
 }

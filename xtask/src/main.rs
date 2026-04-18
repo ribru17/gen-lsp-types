@@ -8,7 +8,7 @@ use std::{
 };
 
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use regex::{Captures, Regex};
 
 use crate::{
@@ -512,43 +512,6 @@ fn main() {
         }
     };
 
-    let postdefs = {
-        let req_arms = model.requests.iter().map(|req| {
-            let arm_ident = format_ident!("{}", method_to_pascal(&req.method));
-            let method = &req.method;
-            quote! {
-                LspRequestMethods::#arm_ident => #method,
-            }
-        });
-        let noti_arms = model.notifications.iter().map(|noti| {
-            let arm_ident = format_ident!("{}", method_to_pascal(&noti.method));
-            let method = &noti.method;
-            quote! {
-                LspNotificationMethods::#arm_ident => #method,
-            }
-        });
-        quote! {
-            impl fmt::Display for LspRequestMethods {
-                fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                    let printable = match self {
-                        #(#req_arms)*
-                        LspRequestMethods::Custom(custom) => custom,
-                    };
-                    write!(f, "{}", printable)
-                }
-            }
-            impl fmt::Display for LspNotificationMethods {
-                fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                    let printable = match self {
-                        #(#noti_arms)*
-                        LspNotificationMethods::Custom(custom) => custom,
-                    };
-                    write!(f, "{}", printable)
-                }
-            }
-        }
-    };
-
     let mut enum_or_types = BTreeMap::new();
 
     let structures = model
@@ -661,8 +624,7 @@ fn main() {
         .chain(type_aliases)
         .chain(enum_ors)
         .chain(requests)
-        .chain(notifications)
-        .chain(iter::once(postdefs));
+        .chain(notifications);
 
     let formatted_items: Vec<String> = all_items
         .map(|request| {

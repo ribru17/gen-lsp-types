@@ -6820,62 +6820,107 @@ pub struct ClientSemanticTokensRequestFullDelta {
 ///
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum SemanticTokenTypes {
-    #[serde(rename = "namespace")]
     Namespace,
     /// Represents a generic type. Acts as a fallback for types which can't be mapped to
     /// a specific type like class or enum.
-    #[serde(rename = "type")]
     Type,
-    #[serde(rename = "class")]
     Class,
-    #[serde(rename = "enum")]
     Enum,
-    #[serde(rename = "interface")]
     Interface,
-    #[serde(rename = "struct")]
     Struct,
-    #[serde(rename = "typeParameter")]
     TypeParameter,
-    #[serde(rename = "parameter")]
     Parameter,
-    #[serde(rename = "variable")]
     Variable,
-    #[serde(rename = "property")]
     Property,
-    #[serde(rename = "enumMember")]
     EnumMember,
-    #[serde(rename = "event")]
     Event,
-    #[serde(rename = "function")]
     Function,
-    #[serde(rename = "method")]
     Method,
-    #[serde(rename = "macro")]
     Macro,
-    #[serde(rename = "keyword")]
     Keyword,
-    #[serde(rename = "modifier")]
     Modifier,
-    #[serde(rename = "comment")]
     Comment,
-    #[serde(rename = "string")]
     String,
-    #[serde(rename = "number")]
     Number,
-    #[serde(rename = "regexp")]
     Regexp,
-    #[serde(rename = "operator")]
     Operator,
     /// @since 3.17.0
-    #[serde(rename = "decorator")]
     Decorator,
     /// @since 3.18.0
-    #[serde(rename = "label")]
     Label,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
+}
+impl From<SemanticTokenTypes> for String {
+    fn from(e: SemanticTokenTypes) -> Self {
+        match e {
+            SemanticTokenTypes::Namespace => "namespace".to_string(),
+            SemanticTokenTypes::Type => "type".to_string(),
+            SemanticTokenTypes::Class => "class".to_string(),
+            SemanticTokenTypes::Enum => "enum".to_string(),
+            SemanticTokenTypes::Interface => "interface".to_string(),
+            SemanticTokenTypes::Struct => "struct".to_string(),
+            SemanticTokenTypes::TypeParameter => "typeParameter".to_string(),
+            SemanticTokenTypes::Parameter => "parameter".to_string(),
+            SemanticTokenTypes::Variable => "variable".to_string(),
+            SemanticTokenTypes::Property => "property".to_string(),
+            SemanticTokenTypes::EnumMember => "enumMember".to_string(),
+            SemanticTokenTypes::Event => "event".to_string(),
+            SemanticTokenTypes::Function => "function".to_string(),
+            SemanticTokenTypes::Method => "method".to_string(),
+            SemanticTokenTypes::Macro => "macro".to_string(),
+            SemanticTokenTypes::Keyword => "keyword".to_string(),
+            SemanticTokenTypes::Modifier => "modifier".to_string(),
+            SemanticTokenTypes::Comment => "comment".to_string(),
+            SemanticTokenTypes::String => "string".to_string(),
+            SemanticTokenTypes::Number => "number".to_string(),
+            SemanticTokenTypes::Regexp => "regexp".to_string(),
+            SemanticTokenTypes::Operator => "operator".to_string(),
+            SemanticTokenTypes::Decorator => "decorator".to_string(),
+            SemanticTokenTypes::Label => "label".to_string(),
+            SemanticTokenTypes::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for SemanticTokenTypes {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "namespace" => SemanticTokenTypes::Namespace,
+            "type" => SemanticTokenTypes::Type,
+            "class" => SemanticTokenTypes::Class,
+            "enum" => SemanticTokenTypes::Enum,
+            "interface" => SemanticTokenTypes::Interface,
+            "struct" => SemanticTokenTypes::Struct,
+            "typeParameter" => SemanticTokenTypes::TypeParameter,
+            "parameter" => SemanticTokenTypes::Parameter,
+            "variable" => SemanticTokenTypes::Variable,
+            "property" => SemanticTokenTypes::Property,
+            "enumMember" => SemanticTokenTypes::EnumMember,
+            "event" => SemanticTokenTypes::Event,
+            "function" => SemanticTokenTypes::Function,
+            "method" => SemanticTokenTypes::Method,
+            "macro" => SemanticTokenTypes::Macro,
+            "keyword" => SemanticTokenTypes::Keyword,
+            "modifier" => SemanticTokenTypes::Modifier,
+            "comment" => SemanticTokenTypes::Comment,
+            "string" => SemanticTokenTypes::String,
+            "number" => SemanticTokenTypes::Number,
+            "regexp" => SemanticTokenTypes::Regexp,
+            "operator" => SemanticTokenTypes::Operator,
+            "decorator" => SemanticTokenTypes::Decorator,
+            "label" => SemanticTokenTypes::Label,
+            _ => SemanticTokenTypes::Custom(v),
+        }
+    }
+}
+impl fmt::Display for SemanticTokenTypes {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
 }
 
 /// A set of predefined token modifiers. This set is not fixed
@@ -6884,49 +6929,104 @@ pub enum SemanticTokenTypes {
 ///
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum SemanticTokenModifiers {
-    #[serde(rename = "declaration")]
     Declaration,
-    #[serde(rename = "definition")]
     Definition,
-    #[serde(rename = "readonly")]
     Readonly,
-    #[serde(rename = "static")]
     Static,
-    #[serde(rename = "deprecated")]
     Deprecated,
-    #[serde(rename = "abstract")]
     Abstract,
-    #[serde(rename = "async")]
     Async,
-    #[serde(rename = "modification")]
     Modification,
-    #[serde(rename = "documentation")]
     Documentation,
-    #[serde(rename = "defaultLibrary")]
     DefaultLibrary,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
+}
+impl From<SemanticTokenModifiers> for String {
+    fn from(e: SemanticTokenModifiers) -> Self {
+        match e {
+            SemanticTokenModifiers::Declaration => "declaration".to_string(),
+            SemanticTokenModifiers::Definition => "definition".to_string(),
+            SemanticTokenModifiers::Readonly => "readonly".to_string(),
+            SemanticTokenModifiers::Static => "static".to_string(),
+            SemanticTokenModifiers::Deprecated => "deprecated".to_string(),
+            SemanticTokenModifiers::Abstract => "abstract".to_string(),
+            SemanticTokenModifiers::Async => "async".to_string(),
+            SemanticTokenModifiers::Modification => "modification".to_string(),
+            SemanticTokenModifiers::Documentation => "documentation".to_string(),
+            SemanticTokenModifiers::DefaultLibrary => "defaultLibrary".to_string(),
+            SemanticTokenModifiers::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for SemanticTokenModifiers {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "declaration" => SemanticTokenModifiers::Declaration,
+            "definition" => SemanticTokenModifiers::Definition,
+            "readonly" => SemanticTokenModifiers::Readonly,
+            "static" => SemanticTokenModifiers::Static,
+            "deprecated" => SemanticTokenModifiers::Deprecated,
+            "abstract" => SemanticTokenModifiers::Abstract,
+            "async" => SemanticTokenModifiers::Async,
+            "modification" => SemanticTokenModifiers::Modification,
+            "documentation" => SemanticTokenModifiers::Documentation,
+            "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
+            _ => SemanticTokenModifiers::Custom(v),
+        }
+    }
+}
+impl fmt::Display for SemanticTokenModifiers {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
 }
 
 /// The document diagnostic report kinds.
 ///
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum DocumentDiagnosticReportKind {
     /// A diagnostic report with a full
     /// set of problems.
-    #[serde(rename = "full")]
     Full,
     /// A report indicating that the last
     /// returned report is still accurate.
-    #[serde(rename = "unchanged")]
     Unchanged,
+}
+impl From<DocumentDiagnosticReportKind> for String {
+    fn from(e: DocumentDiagnosticReportKind) -> Self {
+        match e {
+            DocumentDiagnosticReportKind::Full => "full".to_string(),
+            DocumentDiagnosticReportKind::Unchanged => "unchanged".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for DocumentDiagnosticReportKind {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "full" => Ok(DocumentDiagnosticReportKind::Full),
+            "unchanged" => Ok(DocumentDiagnosticReportKind::Unchanged),
+            _ => Err(format!("Invalid DocumentDiagnosticReportKind: {}", v)),
+        }
+    }
+}
+impl fmt::Display for DocumentDiagnosticReportKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 /// Predefined error codes.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "i32", from = "i32")]
 pub enum ErrorCodes {
     ParseError,
     InvalidRequest,
@@ -6938,45 +7038,40 @@ pub enum ErrorCodes {
     ServerNotInitialized,
     UnknownErrorCode,
     /// A custom value.
+    #[serde(untagged)]
     Custom(i32),
 }
-impl Serialize for ErrorCodes {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            ErrorCodes::ParseError => serializer.serialize_i32(-32700i32),
-            ErrorCodes::InvalidRequest => serializer.serialize_i32(-32600i32),
-            ErrorCodes::MethodNotFound => serializer.serialize_i32(-32601i32),
-            ErrorCodes::InvalidParams => serializer.serialize_i32(-32602i32),
-            ErrorCodes::InternalError => serializer.serialize_i32(-32603i32),
-            ErrorCodes::ServerNotInitialized => serializer.serialize_i32(-32002i32),
-            ErrorCodes::UnknownErrorCode => serializer.serialize_i32(-32001i32),
-            ErrorCodes::Custom(custom) => serializer.serialize_i32(*custom),
+impl From<ErrorCodes> for i32 {
+    fn from(e: ErrorCodes) -> Self {
+        match e {
+            ErrorCodes::ParseError => -32700i32,
+            ErrorCodes::InvalidRequest => -32600i32,
+            ErrorCodes::MethodNotFound => -32601i32,
+            ErrorCodes::InvalidParams => -32602i32,
+            ErrorCodes::InternalError => -32603i32,
+            ErrorCodes::ServerNotInitialized => -32002i32,
+            ErrorCodes::UnknownErrorCode => -32001i32,
+            ErrorCodes::Custom(any) => any,
         }
     }
 }
-impl<'de> Deserialize<'de> for ErrorCodes {
-    fn deserialize<D>(deserializer: D) -> Result<ErrorCodes, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = i32::deserialize(deserializer)?;
-        match value {
-            -32700i32 => Ok(ErrorCodes::ParseError),
-            -32600i32 => Ok(ErrorCodes::InvalidRequest),
-            -32601i32 => Ok(ErrorCodes::MethodNotFound),
-            -32602i32 => Ok(ErrorCodes::InvalidParams),
-            -32603i32 => Ok(ErrorCodes::InternalError),
-            -32002i32 => Ok(ErrorCodes::ServerNotInitialized),
-            -32001i32 => Ok(ErrorCodes::UnknownErrorCode),
-            custom => Ok(ErrorCodes::Custom(custom)),
+impl From<i32> for ErrorCodes {
+    fn from(v: i32) -> Self {
+        match v {
+            -32700i32 => ErrorCodes::ParseError,
+            -32600i32 => ErrorCodes::InvalidRequest,
+            -32601i32 => ErrorCodes::MethodNotFound,
+            -32602i32 => ErrorCodes::InvalidParams,
+            -32603i32 => ErrorCodes::InternalError,
+            -32002i32 => ErrorCodes::ServerNotInitialized,
+            -32001i32 => ErrorCodes::UnknownErrorCode,
+            _ => ErrorCodes::Custom(v),
         }
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "i32", from = "i32")]
 pub enum LspErrorCodes {
     /// A request failed but it was syntactically correct, e.g the
     /// method name was known and the parameters were valid. The error
@@ -7004,57 +7099,76 @@ pub enum LspErrorCodes {
     /// the cancel.
     RequestCancelled,
     /// A custom value.
+    #[serde(untagged)]
     Custom(i32),
 }
-impl Serialize for LspErrorCodes {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            LspErrorCodes::RequestFailed => serializer.serialize_i32(-32803i32),
-            LspErrorCodes::ServerCancelled => serializer.serialize_i32(-32802i32),
-            LspErrorCodes::ContentModified => serializer.serialize_i32(-32801i32),
-            LspErrorCodes::RequestCancelled => serializer.serialize_i32(-32800i32),
-            LspErrorCodes::Custom(custom) => serializer.serialize_i32(*custom),
+impl From<LspErrorCodes> for i32 {
+    fn from(e: LspErrorCodes) -> Self {
+        match e {
+            LspErrorCodes::RequestFailed => -32803i32,
+            LspErrorCodes::ServerCancelled => -32802i32,
+            LspErrorCodes::ContentModified => -32801i32,
+            LspErrorCodes::RequestCancelled => -32800i32,
+            LspErrorCodes::Custom(any) => any,
         }
     }
 }
-impl<'de> Deserialize<'de> for LspErrorCodes {
-    fn deserialize<D>(deserializer: D) -> Result<LspErrorCodes, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = i32::deserialize(deserializer)?;
-        match value {
-            -32803i32 => Ok(LspErrorCodes::RequestFailed),
-            -32802i32 => Ok(LspErrorCodes::ServerCancelled),
-            -32801i32 => Ok(LspErrorCodes::ContentModified),
-            -32800i32 => Ok(LspErrorCodes::RequestCancelled),
-            custom => Ok(LspErrorCodes::Custom(custom)),
+impl From<i32> for LspErrorCodes {
+    fn from(v: i32) -> Self {
+        match v {
+            -32803i32 => LspErrorCodes::RequestFailed,
+            -32802i32 => LspErrorCodes::ServerCancelled,
+            -32801i32 => LspErrorCodes::ContentModified,
+            -32800i32 => LspErrorCodes::RequestCancelled,
+            _ => LspErrorCodes::Custom(v),
         }
     }
 }
 
 /// A set of predefined range kinds.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum FoldingRangeKind {
     /// Folding range for a comment
-    #[serde(rename = "comment")]
     Comment,
     /// Folding range for an import or include
-    #[serde(rename = "imports")]
     Imports,
     /// Folding range for a region (e.g. `#region`)
-    #[serde(rename = "region")]
     Region,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
 }
+impl From<FoldingRangeKind> for String {
+    fn from(e: FoldingRangeKind) -> Self {
+        match e {
+            FoldingRangeKind::Comment => "comment".to_string(),
+            FoldingRangeKind::Imports => "imports".to_string(),
+            FoldingRangeKind::Region => "region".to_string(),
+            FoldingRangeKind::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for FoldingRangeKind {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "comment" => FoldingRangeKind::Comment,
+            "imports" => FoldingRangeKind::Imports,
+            "region" => FoldingRangeKind::Region,
+            _ => FoldingRangeKind::Custom(v),
+        }
+    }
+}
+impl fmt::Display for FoldingRangeKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
+}
 
 /// A symbol kind.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum SymbolKind {
     File,
     Module,
@@ -7083,48 +7197,42 @@ pub enum SymbolKind {
     Operator,
     TypeParameter,
 }
-impl Serialize for SymbolKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            SymbolKind::File => serializer.serialize_u32(1u32),
-            SymbolKind::Module => serializer.serialize_u32(2u32),
-            SymbolKind::Namespace => serializer.serialize_u32(3u32),
-            SymbolKind::Package => serializer.serialize_u32(4u32),
-            SymbolKind::Class => serializer.serialize_u32(5u32),
-            SymbolKind::Method => serializer.serialize_u32(6u32),
-            SymbolKind::Property => serializer.serialize_u32(7u32),
-            SymbolKind::Field => serializer.serialize_u32(8u32),
-            SymbolKind::Constructor => serializer.serialize_u32(9u32),
-            SymbolKind::Enum => serializer.serialize_u32(10u32),
-            SymbolKind::Interface => serializer.serialize_u32(11u32),
-            SymbolKind::Function => serializer.serialize_u32(12u32),
-            SymbolKind::Variable => serializer.serialize_u32(13u32),
-            SymbolKind::Constant => serializer.serialize_u32(14u32),
-            SymbolKind::String => serializer.serialize_u32(15u32),
-            SymbolKind::Number => serializer.serialize_u32(16u32),
-            SymbolKind::Boolean => serializer.serialize_u32(17u32),
-            SymbolKind::Array => serializer.serialize_u32(18u32),
-            SymbolKind::Object => serializer.serialize_u32(19u32),
-            SymbolKind::Key => serializer.serialize_u32(20u32),
-            SymbolKind::Null => serializer.serialize_u32(21u32),
-            SymbolKind::EnumMember => serializer.serialize_u32(22u32),
-            SymbolKind::Struct => serializer.serialize_u32(23u32),
-            SymbolKind::Event => serializer.serialize_u32(24u32),
-            SymbolKind::Operator => serializer.serialize_u32(25u32),
-            SymbolKind::TypeParameter => serializer.serialize_u32(26u32),
+impl From<SymbolKind> for u32 {
+    fn from(e: SymbolKind) -> Self {
+        match e {
+            SymbolKind::File => 1u32,
+            SymbolKind::Module => 2u32,
+            SymbolKind::Namespace => 3u32,
+            SymbolKind::Package => 4u32,
+            SymbolKind::Class => 5u32,
+            SymbolKind::Method => 6u32,
+            SymbolKind::Property => 7u32,
+            SymbolKind::Field => 8u32,
+            SymbolKind::Constructor => 9u32,
+            SymbolKind::Enum => 10u32,
+            SymbolKind::Interface => 11u32,
+            SymbolKind::Function => 12u32,
+            SymbolKind::Variable => 13u32,
+            SymbolKind::Constant => 14u32,
+            SymbolKind::String => 15u32,
+            SymbolKind::Number => 16u32,
+            SymbolKind::Boolean => 17u32,
+            SymbolKind::Array => 18u32,
+            SymbolKind::Object => 19u32,
+            SymbolKind::Key => 20u32,
+            SymbolKind::Null => 21u32,
+            SymbolKind::EnumMember => 22u32,
+            SymbolKind::Struct => 23u32,
+            SymbolKind::Event => 24u32,
+            SymbolKind::Operator => 25u32,
+            SymbolKind::TypeParameter => 26u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for SymbolKind {
-    fn deserialize<D>(deserializer: D) -> Result<SymbolKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for SymbolKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(SymbolKind::File),
             2u32 => Ok(SymbolKind::Module),
             3u32 => Ok(SymbolKind::Namespace),
@@ -7151,13 +7259,7 @@ impl<'de> Deserialize<'de> for SymbolKind {
             24u32 => Ok(SymbolKind::Event),
             25u32 => Ok(SymbolKind::Operator),
             26u32 => Ok(SymbolKind::TypeParameter),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing SymbolKind: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid SymbolKind: {}", v)),
         }
     }
 }
@@ -7165,36 +7267,25 @@ impl<'de> Deserialize<'de> for SymbolKind {
 /// Symbol tags are extra annotations that tweak the rendering of a symbol.
 ///
 /// @since 3.16
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum SymbolTag {
     /// Render a symbol as obsolete, usually using a strike-out.
     Deprecated,
 }
-impl Serialize for SymbolTag {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            SymbolTag::Deprecated => serializer.serialize_u32(1u32),
+impl From<SymbolTag> for u32 {
+    fn from(e: SymbolTag) -> Self {
+        match e {
+            SymbolTag::Deprecated => 1u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for SymbolTag {
-    fn deserialize<D>(deserializer: D) -> Result<SymbolTag, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for SymbolTag {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(SymbolTag::Deprecated),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing SymbolTag: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid SymbolTag: {}", v)),
         }
     }
 }
@@ -7203,84 +7294,124 @@ impl<'de> Deserialize<'de> for SymbolTag {
 ///
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum UniquenessLevel {
     /// The moniker is only unique inside a document
-    #[serde(rename = "document")]
     Document,
     /// The moniker is unique inside a project for which a dump got created
-    #[serde(rename = "project")]
     Project,
     /// The moniker is unique inside the group to which a project belongs
-    #[serde(rename = "group")]
     Group,
     /// The moniker is unique inside the moniker scheme.
-    #[serde(rename = "scheme")]
     Scheme,
     /// The moniker is globally unique
-    #[serde(rename = "global")]
     Global,
+}
+impl From<UniquenessLevel> for String {
+    fn from(e: UniquenessLevel) -> Self {
+        match e {
+            UniquenessLevel::Document => "document".to_string(),
+            UniquenessLevel::Project => "project".to_string(),
+            UniquenessLevel::Group => "group".to_string(),
+            UniquenessLevel::Scheme => "scheme".to_string(),
+            UniquenessLevel::Global => "global".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for UniquenessLevel {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "document" => Ok(UniquenessLevel::Document),
+            "project" => Ok(UniquenessLevel::Project),
+            "group" => Ok(UniquenessLevel::Group),
+            "scheme" => Ok(UniquenessLevel::Scheme),
+            "global" => Ok(UniquenessLevel::Global),
+            _ => Err(format!("Invalid UniquenessLevel: {}", v)),
+        }
+    }
+}
+impl fmt::Display for UniquenessLevel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 /// The moniker kind.
 ///
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum MonikerKind {
     /// The moniker represent a symbol that is imported into a project
-    #[serde(rename = "import")]
     Import,
     /// The moniker represents a symbol that is exported from a project
-    #[serde(rename = "export")]
     Export,
     /// The moniker represents a symbol that is local to a project (e.g. a local
     /// variable of a function, a class not visible outside the project, ...)
-    #[serde(rename = "local")]
     Local,
+}
+impl From<MonikerKind> for String {
+    fn from(e: MonikerKind) -> Self {
+        match e {
+            MonikerKind::Import => "import".to_string(),
+            MonikerKind::Export => "export".to_string(),
+            MonikerKind::Local => "local".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for MonikerKind {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "import" => Ok(MonikerKind::Import),
+            "export" => Ok(MonikerKind::Export),
+            "local" => Ok(MonikerKind::Local),
+            _ => Err(format!("Invalid MonikerKind: {}", v)),
+        }
+    }
+}
+impl fmt::Display for MonikerKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 /// Inlay hint kinds.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum InlayHintKind {
     /// An inlay hint that for a type annotation.
     Type,
     /// An inlay hint that is for a parameter.
     Parameter,
 }
-impl Serialize for InlayHintKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            InlayHintKind::Type => serializer.serialize_u32(1u32),
-            InlayHintKind::Parameter => serializer.serialize_u32(2u32),
+impl From<InlayHintKind> for u32 {
+    fn from(e: InlayHintKind) -> Self {
+        match e {
+            InlayHintKind::Type => 1u32,
+            InlayHintKind::Parameter => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for InlayHintKind {
-    fn deserialize<D>(deserializer: D) -> Result<InlayHintKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for InlayHintKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(InlayHintKind::Type),
             2u32 => Ok(InlayHintKind::Parameter),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing InlayHintKind: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid InlayHintKind: {}", v)),
         }
     }
 }
 
 /// The message type
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum MessageType {
     /// An error message.
     Error,
@@ -7296,46 +7427,35 @@ pub enum MessageType {
     /// @proposed
     Debug,
 }
-impl Serialize for MessageType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            MessageType::Error => serializer.serialize_u32(1u32),
-            MessageType::Warning => serializer.serialize_u32(2u32),
-            MessageType::Info => serializer.serialize_u32(3u32),
-            MessageType::Log => serializer.serialize_u32(4u32),
-            MessageType::Debug => serializer.serialize_u32(5u32),
+impl From<MessageType> for u32 {
+    fn from(e: MessageType) -> Self {
+        match e {
+            MessageType::Error => 1u32,
+            MessageType::Warning => 2u32,
+            MessageType::Info => 3u32,
+            MessageType::Log => 4u32,
+            MessageType::Debug => 5u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for MessageType {
-    fn deserialize<D>(deserializer: D) -> Result<MessageType, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for MessageType {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(MessageType::Error),
             2u32 => Ok(MessageType::Warning),
             3u32 => Ok(MessageType::Info),
             4u32 => Ok(MessageType::Log),
             5u32 => Ok(MessageType::Debug),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing MessageType: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid MessageType: {}", v)),
         }
     }
 }
 
 /// Defines how the host (editor) should sync
 /// document changes to the language server.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum TextDocumentSyncKind {
     /// Documents should not be synced at all.
     None,
@@ -7347,43 +7467,30 @@ pub enum TextDocumentSyncKind {
     /// send.
     Incremental,
 }
-impl Serialize for TextDocumentSyncKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            TextDocumentSyncKind::None => serializer.serialize_u32(0u32),
-            TextDocumentSyncKind::Full => serializer.serialize_u32(1u32),
-            TextDocumentSyncKind::Incremental => serializer.serialize_u32(2u32),
+impl From<TextDocumentSyncKind> for u32 {
+    fn from(e: TextDocumentSyncKind) -> Self {
+        match e {
+            TextDocumentSyncKind::None => 0u32,
+            TextDocumentSyncKind::Full => 1u32,
+            TextDocumentSyncKind::Incremental => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for TextDocumentSyncKind {
-    fn deserialize<D>(deserializer: D) -> Result<TextDocumentSyncKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for TextDocumentSyncKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             0u32 => Ok(TextDocumentSyncKind::None),
             1u32 => Ok(TextDocumentSyncKind::Full),
             2u32 => Ok(TextDocumentSyncKind::Incremental),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing TextDocumentSyncKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid TextDocumentSyncKind: {}", v)),
         }
     }
 }
 
 /// Represents reasons why a text document is saved.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum TextDocumentSaveReason {
     /// Manually triggered, e.g. by the user pressing save, by starting debugging,
     /// or by an API call.
@@ -7393,43 +7500,30 @@ pub enum TextDocumentSaveReason {
     /// When the editor lost focus.
     FocusOut,
 }
-impl Serialize for TextDocumentSaveReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            TextDocumentSaveReason::Manual => serializer.serialize_u32(1u32),
-            TextDocumentSaveReason::AfterDelay => serializer.serialize_u32(2u32),
-            TextDocumentSaveReason::FocusOut => serializer.serialize_u32(3u32),
+impl From<TextDocumentSaveReason> for u32 {
+    fn from(e: TextDocumentSaveReason) -> Self {
+        match e {
+            TextDocumentSaveReason::Manual => 1u32,
+            TextDocumentSaveReason::AfterDelay => 2u32,
+            TextDocumentSaveReason::FocusOut => 3u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for TextDocumentSaveReason {
-    fn deserialize<D>(deserializer: D) -> Result<TextDocumentSaveReason, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for TextDocumentSaveReason {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(TextDocumentSaveReason::Manual),
             2u32 => Ok(TextDocumentSaveReason::AfterDelay),
             3u32 => Ok(TextDocumentSaveReason::FocusOut),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing TextDocumentSaveReason: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid TextDocumentSaveReason: {}", v)),
         }
     }
 }
 
 /// The kind of a completion entry.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum CompletionItemKind {
     Text,
     Method,
@@ -7457,47 +7551,41 @@ pub enum CompletionItemKind {
     Operator,
     TypeParameter,
 }
-impl Serialize for CompletionItemKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            CompletionItemKind::Text => serializer.serialize_u32(1u32),
-            CompletionItemKind::Method => serializer.serialize_u32(2u32),
-            CompletionItemKind::Function => serializer.serialize_u32(3u32),
-            CompletionItemKind::Constructor => serializer.serialize_u32(4u32),
-            CompletionItemKind::Field => serializer.serialize_u32(5u32),
-            CompletionItemKind::Variable => serializer.serialize_u32(6u32),
-            CompletionItemKind::Class => serializer.serialize_u32(7u32),
-            CompletionItemKind::Interface => serializer.serialize_u32(8u32),
-            CompletionItemKind::Module => serializer.serialize_u32(9u32),
-            CompletionItemKind::Property => serializer.serialize_u32(10u32),
-            CompletionItemKind::Unit => serializer.serialize_u32(11u32),
-            CompletionItemKind::Value => serializer.serialize_u32(12u32),
-            CompletionItemKind::Enum => serializer.serialize_u32(13u32),
-            CompletionItemKind::Keyword => serializer.serialize_u32(14u32),
-            CompletionItemKind::Snippet => serializer.serialize_u32(15u32),
-            CompletionItemKind::Color => serializer.serialize_u32(16u32),
-            CompletionItemKind::File => serializer.serialize_u32(17u32),
-            CompletionItemKind::Reference => serializer.serialize_u32(18u32),
-            CompletionItemKind::Folder => serializer.serialize_u32(19u32),
-            CompletionItemKind::EnumMember => serializer.serialize_u32(20u32),
-            CompletionItemKind::Constant => serializer.serialize_u32(21u32),
-            CompletionItemKind::Struct => serializer.serialize_u32(22u32),
-            CompletionItemKind::Event => serializer.serialize_u32(23u32),
-            CompletionItemKind::Operator => serializer.serialize_u32(24u32),
-            CompletionItemKind::TypeParameter => serializer.serialize_u32(25u32),
+impl From<CompletionItemKind> for u32 {
+    fn from(e: CompletionItemKind) -> Self {
+        match e {
+            CompletionItemKind::Text => 1u32,
+            CompletionItemKind::Method => 2u32,
+            CompletionItemKind::Function => 3u32,
+            CompletionItemKind::Constructor => 4u32,
+            CompletionItemKind::Field => 5u32,
+            CompletionItemKind::Variable => 6u32,
+            CompletionItemKind::Class => 7u32,
+            CompletionItemKind::Interface => 8u32,
+            CompletionItemKind::Module => 9u32,
+            CompletionItemKind::Property => 10u32,
+            CompletionItemKind::Unit => 11u32,
+            CompletionItemKind::Value => 12u32,
+            CompletionItemKind::Enum => 13u32,
+            CompletionItemKind::Keyword => 14u32,
+            CompletionItemKind::Snippet => 15u32,
+            CompletionItemKind::Color => 16u32,
+            CompletionItemKind::File => 17u32,
+            CompletionItemKind::Reference => 18u32,
+            CompletionItemKind::Folder => 19u32,
+            CompletionItemKind::EnumMember => 20u32,
+            CompletionItemKind::Constant => 21u32,
+            CompletionItemKind::Struct => 22u32,
+            CompletionItemKind::Event => 23u32,
+            CompletionItemKind::Operator => 24u32,
+            CompletionItemKind::TypeParameter => 25u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for CompletionItemKind {
-    fn deserialize<D>(deserializer: D) -> Result<CompletionItemKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for CompletionItemKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(CompletionItemKind::Text),
             2u32 => Ok(CompletionItemKind::Method),
             3u32 => Ok(CompletionItemKind::Function),
@@ -7523,15 +7611,7 @@ impl<'de> Deserialize<'de> for CompletionItemKind {
             23u32 => Ok(CompletionItemKind::Event),
             24u32 => Ok(CompletionItemKind::Operator),
             25u32 => Ok(CompletionItemKind::TypeParameter),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing CompletionItemKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid CompletionItemKind: {}", v)),
         }
     }
 }
@@ -7540,45 +7620,33 @@ impl<'de> Deserialize<'de> for CompletionItemKind {
 /// item.
 ///
 /// @since 3.15.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum CompletionItemTag {
     /// Render a completion as obsolete, usually using a strike-out.
     Deprecated,
 }
-impl Serialize for CompletionItemTag {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            CompletionItemTag::Deprecated => serializer.serialize_u32(1u32),
+impl From<CompletionItemTag> for u32 {
+    fn from(e: CompletionItemTag) -> Self {
+        match e {
+            CompletionItemTag::Deprecated => 1u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for CompletionItemTag {
-    fn deserialize<D>(deserializer: D) -> Result<CompletionItemTag, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for CompletionItemTag {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(CompletionItemTag::Deprecated),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing CompletionItemTag: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid CompletionItemTag: {}", v)),
         }
     }
 }
 
 /// Defines whether the insert text in a completion item should be interpreted as
 /// plain text or a snippet.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum InsertTextFormat {
     /// The primary text to be inserted is treated as a plain string.
     PlainText,
@@ -7592,35 +7660,21 @@ pub enum InsertTextFormat {
     /// See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
     Snippet,
 }
-impl Serialize for InsertTextFormat {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            InsertTextFormat::PlainText => serializer.serialize_u32(1u32),
-            InsertTextFormat::Snippet => serializer.serialize_u32(2u32),
+impl From<InsertTextFormat> for u32 {
+    fn from(e: InsertTextFormat) -> Self {
+        match e {
+            InsertTextFormat::PlainText => 1u32,
+            InsertTextFormat::Snippet => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for InsertTextFormat {
-    fn deserialize<D>(deserializer: D) -> Result<InsertTextFormat, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for InsertTextFormat {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(InsertTextFormat::PlainText),
             2u32 => Ok(InsertTextFormat::Snippet),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing InsertTextFormat: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid InsertTextFormat: {}", v)),
         }
     }
 }
@@ -7629,7 +7683,8 @@ impl<'de> Deserialize<'de> for InsertTextFormat {
 /// item insertion.
 ///
 /// @since 3.16.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum InsertTextMode {
     /// The insertion or replace strings is taken as it is. If the
     /// value is multi line the lines below the cursor will be
@@ -7646,41 +7701,28 @@ pub enum InsertTextMode {
     /// following lines inserted will be indented using 2 tabs as well.
     AdjustIndentation,
 }
-impl Serialize for InsertTextMode {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            InsertTextMode::AsIs => serializer.serialize_u32(1u32),
-            InsertTextMode::AdjustIndentation => serializer.serialize_u32(2u32),
+impl From<InsertTextMode> for u32 {
+    fn from(e: InsertTextMode) -> Self {
+        match e {
+            InsertTextMode::AsIs => 1u32,
+            InsertTextMode::AdjustIndentation => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for InsertTextMode {
-    fn deserialize<D>(deserializer: D) -> Result<InsertTextMode, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for InsertTextMode {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(InsertTextMode::AsIs),
             2u32 => Ok(InsertTextMode::AdjustIndentation),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing InsertTextMode: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid InsertTextMode: {}", v)),
         }
     }
 }
 
 /// A document highlight kind.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum DocumentHighlightKind {
     /// A textual occurrence.
     Text,
@@ -7689,52 +7731,36 @@ pub enum DocumentHighlightKind {
     /// Write-access of a symbol, like writing to a variable.
     Write,
 }
-impl Serialize for DocumentHighlightKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            DocumentHighlightKind::Text => serializer.serialize_u32(1u32),
-            DocumentHighlightKind::Read => serializer.serialize_u32(2u32),
-            DocumentHighlightKind::Write => serializer.serialize_u32(3u32),
+impl From<DocumentHighlightKind> for u32 {
+    fn from(e: DocumentHighlightKind) -> Self {
+        match e {
+            DocumentHighlightKind::Text => 1u32,
+            DocumentHighlightKind::Read => 2u32,
+            DocumentHighlightKind::Write => 3u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for DocumentHighlightKind {
-    fn deserialize<D>(deserializer: D) -> Result<DocumentHighlightKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for DocumentHighlightKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(DocumentHighlightKind::Text),
             2u32 => Ok(DocumentHighlightKind::Read),
             3u32 => Ok(DocumentHighlightKind::Write),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing DocumentHighlightKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid DocumentHighlightKind: {}", v)),
         }
     }
 }
 
 /// A set of predefined code action kinds
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum CodeActionKind {
     /// Empty kind.
-    #[serde(rename = "")]
     Empty,
     /// Base kind for quickfix actions: 'quickfix'
-    #[serde(rename = "quickfix")]
     QuickFix,
     /// Base kind for refactoring actions: 'refactor'
-    #[serde(rename = "refactor")]
     Refactor,
     /// Base kind for refactoring extraction actions: 'refactor.extract'
     ///
@@ -7745,7 +7771,6 @@ pub enum CodeActionKind {
     /// - Extract variable
     /// - Extract interface from class
     /// - ...
-    #[serde(rename = "refactor.extract")]
     RefactorExtract,
     /// Base kind for refactoring inline actions: 'refactor.inline'
     ///
@@ -7755,7 +7780,6 @@ pub enum CodeActionKind {
     /// - Inline variable
     /// - Inline constant
     /// - ...
-    #[serde(rename = "refactor.inline")]
     RefactorInline,
     /// Base kind for refactoring move actions: `refactor.move`
     ///
@@ -7768,7 +7792,6 @@ pub enum CodeActionKind {
     ///
     /// @since 3.18.0
     /// @proposed
-    #[serde(rename = "refactor.move")]
     RefactorMove,
     /// Base kind for refactoring rewrite actions: 'refactor.rewrite'
     ///
@@ -7780,15 +7803,12 @@ pub enum CodeActionKind {
     /// - Make method static
     /// - Move method to base class
     /// - ...
-    #[serde(rename = "refactor.rewrite")]
     RefactorRewrite,
     /// Base kind for source actions: `source`
     ///
     /// Source code actions apply to the entire file.
-    #[serde(rename = "source")]
     Source,
     /// Base kind for an organize imports source action: `source.organizeImports`
-    #[serde(rename = "source.organizeImports")]
     SourceOrganizeImports,
     /// Base kind for auto-fix source actions: `source.fixAll`.
     ///
@@ -7796,67 +7816,120 @@ pub enum CodeActionKind {
     /// They should not suppress errors or perform unsafe fixes such as generating new types or classes.
     ///
     /// @since 3.15.0
-    #[serde(rename = "source.fixAll")]
     SourceFixAll,
     /// Base kind for all code actions applying to the entire notebook's scope. CodeActionKinds using
     /// this should always begin with `notebook.`
     ///
     /// @since 3.18.0
-    #[serde(rename = "notebook")]
     Notebook,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
 }
+impl From<CodeActionKind> for String {
+    fn from(e: CodeActionKind) -> Self {
+        match e {
+            CodeActionKind::Empty => "".to_string(),
+            CodeActionKind::QuickFix => "quickfix".to_string(),
+            CodeActionKind::Refactor => "refactor".to_string(),
+            CodeActionKind::RefactorExtract => "refactor.extract".to_string(),
+            CodeActionKind::RefactorInline => "refactor.inline".to_string(),
+            CodeActionKind::RefactorMove => "refactor.move".to_string(),
+            CodeActionKind::RefactorRewrite => "refactor.rewrite".to_string(),
+            CodeActionKind::Source => "source".to_string(),
+            CodeActionKind::SourceOrganizeImports => "source.organizeImports".to_string(),
+            CodeActionKind::SourceFixAll => "source.fixAll".to_string(),
+            CodeActionKind::Notebook => "notebook".to_string(),
+            CodeActionKind::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for CodeActionKind {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "" => CodeActionKind::Empty,
+            "quickfix" => CodeActionKind::QuickFix,
+            "refactor" => CodeActionKind::Refactor,
+            "refactor.extract" => CodeActionKind::RefactorExtract,
+            "refactor.inline" => CodeActionKind::RefactorInline,
+            "refactor.move" => CodeActionKind::RefactorMove,
+            "refactor.rewrite" => CodeActionKind::RefactorRewrite,
+            "source" => CodeActionKind::Source,
+            "source.organizeImports" => CodeActionKind::SourceOrganizeImports,
+            "source.fixAll" => CodeActionKind::SourceFixAll,
+            "notebook" => CodeActionKind::Notebook,
+            _ => CodeActionKind::Custom(v),
+        }
+    }
+}
+impl fmt::Display for CodeActionKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
+}
 
 /// Code action tags are extra annotations that tweak the behavior of a code action.
 ///
 /// @since 3.18.0 - proposed
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum CodeActionTag {
     /// Marks the code action as LLM-generated.
     LLMGenerated,
 }
-impl Serialize for CodeActionTag {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            CodeActionTag::LLMGenerated => serializer.serialize_u32(1u32),
+impl From<CodeActionTag> for u32 {
+    fn from(e: CodeActionTag) -> Self {
+        match e {
+            CodeActionTag::LLMGenerated => 1u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for CodeActionTag {
-    fn deserialize<D>(deserializer: D) -> Result<CodeActionTag, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for CodeActionTag {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(CodeActionTag::LLMGenerated),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing CodeActionTag: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid CodeActionTag: {}", v)),
         }
     }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum TraceValue {
     /// Turn tracing off.
-    #[serde(rename = "off")]
     Off,
     /// Trace messages only.
-    #[serde(rename = "messages")]
     Messages,
     /// Verbose message tracing.
-    #[serde(rename = "verbose")]
     Verbose,
+}
+impl From<TraceValue> for String {
+    fn from(e: TraceValue) -> Self {
+        match e {
+            TraceValue::Off => "off".to_string(),
+            TraceValue::Messages => "messages".to_string(),
+            TraceValue::Verbose => "verbose".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for TraceValue {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "off" => Ok(TraceValue::Off),
+            "messages" => Ok(TraceValue::Messages),
+            "verbose" => Ok(TraceValue::Verbose),
+            _ => Err(format!("Invalid TraceValue: {}", v)),
+        }
+    }
+}
+impl fmt::Display for TraceValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 /// Describes the content type that a client supports in various
@@ -7865,192 +7938,284 @@ pub enum TraceValue {
 /// Please note that `MarkupKinds` must not start with a `$`. This kinds
 /// are reserved for internal usage.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum MarkupKind {
     /// Plain text is supported as a content format
-    #[serde(rename = "plaintext")]
     PlainText,
     /// Markdown is supported as a content format
-    #[serde(rename = "markdown")]
     Markdown,
+}
+impl From<MarkupKind> for String {
+    fn from(e: MarkupKind) -> Self {
+        match e {
+            MarkupKind::PlainText => "plaintext".to_string(),
+            MarkupKind::Markdown => "markdown".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for MarkupKind {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "plaintext" => Ok(MarkupKind::PlainText),
+            "markdown" => Ok(MarkupKind::Markdown),
+            _ => Err(format!("Invalid MarkupKind: {}", v)),
+        }
+    }
+}
+impl fmt::Display for MarkupKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 /// Predefined Language kinds
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum LanguageKind {
-    #[serde(rename = "abap")]
     ABAP,
-    #[serde(rename = "bat")]
     WindowsBat,
-    #[serde(rename = "bibtex")]
     BibTeX,
-    #[serde(rename = "clojure")]
     Clojure,
-    #[serde(rename = "coffeescript")]
     Coffeescript,
-    #[serde(rename = "c")]
     C,
-    #[serde(rename = "cpp")]
     CPP,
-    #[serde(rename = "csharp")]
     CSharp,
-    #[serde(rename = "css")]
     CSS,
     /// @since 3.18.0
     /// @proposed
-    #[serde(rename = "d")]
     D,
     /// @since 3.18.0
     /// @proposed
-    #[serde(rename = "pascal")]
     Delphi,
-    #[serde(rename = "diff")]
     Diff,
-    #[serde(rename = "dart")]
     Dart,
-    #[serde(rename = "dockerfile")]
     Dockerfile,
-    #[serde(rename = "elixir")]
     Elixir,
-    #[serde(rename = "erlang")]
     Erlang,
-    #[serde(rename = "fsharp")]
     FSharp,
-    #[serde(rename = "git-commit")]
     GitCommit,
-    #[serde(rename = "rebase")]
     GitRebase,
-    #[serde(rename = "go")]
     Go,
-    #[serde(rename = "groovy")]
     Groovy,
-    #[serde(rename = "handlebars")]
     Handlebars,
-    #[serde(rename = "haskell")]
     Haskell,
-    #[serde(rename = "html")]
     HTML,
-    #[serde(rename = "ini")]
     Ini,
-    #[serde(rename = "java")]
     Java,
-    #[serde(rename = "javascript")]
     JavaScript,
-    #[serde(rename = "javascriptreact")]
     JavaScriptReact,
-    #[serde(rename = "json")]
     JSON,
-    #[serde(rename = "latex")]
     LaTeX,
-    #[serde(rename = "less")]
     Less,
-    #[serde(rename = "lua")]
     Lua,
-    #[serde(rename = "makefile")]
     Makefile,
-    #[serde(rename = "markdown")]
     Markdown,
-    #[serde(rename = "objective-c")]
     ObjectiveC,
-    #[serde(rename = "objective-cpp")]
     ObjectiveCPP,
     /// @since 3.18.0
     /// @proposed
-    #[serde(rename = "pascal")]
     Pascal,
-    #[serde(rename = "perl")]
     Perl,
-    #[serde(rename = "perl6")]
     Perl6,
-    #[serde(rename = "php")]
     PHP,
-    #[serde(rename = "powershell")]
     Powershell,
-    #[serde(rename = "jade")]
     Pug,
-    #[serde(rename = "python")]
     Python,
-    #[serde(rename = "r")]
     R,
-    #[serde(rename = "razor")]
     Razor,
-    #[serde(rename = "ruby")]
     Ruby,
-    #[serde(rename = "rust")]
     Rust,
-    #[serde(rename = "scss")]
     SCSS,
-    #[serde(rename = "sass")]
     SASS,
-    #[serde(rename = "scala")]
     Scala,
-    #[serde(rename = "shaderlab")]
     ShaderLab,
-    #[serde(rename = "shellscript")]
     ShellScript,
-    #[serde(rename = "sql")]
     SQL,
-    #[serde(rename = "swift")]
     Swift,
-    #[serde(rename = "typescript")]
     TypeScript,
-    #[serde(rename = "typescriptreact")]
     TypeScriptReact,
-    #[serde(rename = "tex")]
     TeX,
-    #[serde(rename = "vb")]
     VisualBasic,
-    #[serde(rename = "xml")]
     XML,
-    #[serde(rename = "xsl")]
     XSL,
-    #[serde(rename = "yaml")]
     YAML,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
+}
+impl From<LanguageKind> for String {
+    fn from(e: LanguageKind) -> Self {
+        match e {
+            LanguageKind::ABAP => "abap".to_string(),
+            LanguageKind::WindowsBat => "bat".to_string(),
+            LanguageKind::BibTeX => "bibtex".to_string(),
+            LanguageKind::Clojure => "clojure".to_string(),
+            LanguageKind::Coffeescript => "coffeescript".to_string(),
+            LanguageKind::C => "c".to_string(),
+            LanguageKind::CPP => "cpp".to_string(),
+            LanguageKind::CSharp => "csharp".to_string(),
+            LanguageKind::CSS => "css".to_string(),
+            LanguageKind::D => "d".to_string(),
+            LanguageKind::Delphi => "pascal".to_string(),
+            LanguageKind::Diff => "diff".to_string(),
+            LanguageKind::Dart => "dart".to_string(),
+            LanguageKind::Dockerfile => "dockerfile".to_string(),
+            LanguageKind::Elixir => "elixir".to_string(),
+            LanguageKind::Erlang => "erlang".to_string(),
+            LanguageKind::FSharp => "fsharp".to_string(),
+            LanguageKind::GitCommit => "git-commit".to_string(),
+            LanguageKind::GitRebase => "rebase".to_string(),
+            LanguageKind::Go => "go".to_string(),
+            LanguageKind::Groovy => "groovy".to_string(),
+            LanguageKind::Handlebars => "handlebars".to_string(),
+            LanguageKind::Haskell => "haskell".to_string(),
+            LanguageKind::HTML => "html".to_string(),
+            LanguageKind::Ini => "ini".to_string(),
+            LanguageKind::Java => "java".to_string(),
+            LanguageKind::JavaScript => "javascript".to_string(),
+            LanguageKind::JavaScriptReact => "javascriptreact".to_string(),
+            LanguageKind::JSON => "json".to_string(),
+            LanguageKind::LaTeX => "latex".to_string(),
+            LanguageKind::Less => "less".to_string(),
+            LanguageKind::Lua => "lua".to_string(),
+            LanguageKind::Makefile => "makefile".to_string(),
+            LanguageKind::Markdown => "markdown".to_string(),
+            LanguageKind::ObjectiveC => "objective-c".to_string(),
+            LanguageKind::ObjectiveCPP => "objective-cpp".to_string(),
+            LanguageKind::Pascal => "pascal".to_string(),
+            LanguageKind::Perl => "perl".to_string(),
+            LanguageKind::Perl6 => "perl6".to_string(),
+            LanguageKind::PHP => "php".to_string(),
+            LanguageKind::Powershell => "powershell".to_string(),
+            LanguageKind::Pug => "jade".to_string(),
+            LanguageKind::Python => "python".to_string(),
+            LanguageKind::R => "r".to_string(),
+            LanguageKind::Razor => "razor".to_string(),
+            LanguageKind::Ruby => "ruby".to_string(),
+            LanguageKind::Rust => "rust".to_string(),
+            LanguageKind::SCSS => "scss".to_string(),
+            LanguageKind::SASS => "sass".to_string(),
+            LanguageKind::Scala => "scala".to_string(),
+            LanguageKind::ShaderLab => "shaderlab".to_string(),
+            LanguageKind::ShellScript => "shellscript".to_string(),
+            LanguageKind::SQL => "sql".to_string(),
+            LanguageKind::Swift => "swift".to_string(),
+            LanguageKind::TypeScript => "typescript".to_string(),
+            LanguageKind::TypeScriptReact => "typescriptreact".to_string(),
+            LanguageKind::TeX => "tex".to_string(),
+            LanguageKind::VisualBasic => "vb".to_string(),
+            LanguageKind::XML => "xml".to_string(),
+            LanguageKind::XSL => "xsl".to_string(),
+            LanguageKind::YAML => "yaml".to_string(),
+            LanguageKind::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for LanguageKind {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "abap" => LanguageKind::ABAP,
+            "bat" => LanguageKind::WindowsBat,
+            "bibtex" => LanguageKind::BibTeX,
+            "clojure" => LanguageKind::Clojure,
+            "coffeescript" => LanguageKind::Coffeescript,
+            "c" => LanguageKind::C,
+            "cpp" => LanguageKind::CPP,
+            "csharp" => LanguageKind::CSharp,
+            "css" => LanguageKind::CSS,
+            "d" => LanguageKind::D,
+            "pascal" => LanguageKind::Delphi,
+            "diff" => LanguageKind::Diff,
+            "dart" => LanguageKind::Dart,
+            "dockerfile" => LanguageKind::Dockerfile,
+            "elixir" => LanguageKind::Elixir,
+            "erlang" => LanguageKind::Erlang,
+            "fsharp" => LanguageKind::FSharp,
+            "git-commit" => LanguageKind::GitCommit,
+            "rebase" => LanguageKind::GitRebase,
+            "go" => LanguageKind::Go,
+            "groovy" => LanguageKind::Groovy,
+            "handlebars" => LanguageKind::Handlebars,
+            "haskell" => LanguageKind::Haskell,
+            "html" => LanguageKind::HTML,
+            "ini" => LanguageKind::Ini,
+            "java" => LanguageKind::Java,
+            "javascript" => LanguageKind::JavaScript,
+            "javascriptreact" => LanguageKind::JavaScriptReact,
+            "json" => LanguageKind::JSON,
+            "latex" => LanguageKind::LaTeX,
+            "less" => LanguageKind::Less,
+            "lua" => LanguageKind::Lua,
+            "makefile" => LanguageKind::Makefile,
+            "markdown" => LanguageKind::Markdown,
+            "objective-c" => LanguageKind::ObjectiveC,
+            "objective-cpp" => LanguageKind::ObjectiveCPP,
+            "pascal" => LanguageKind::Pascal,
+            "perl" => LanguageKind::Perl,
+            "perl6" => LanguageKind::Perl6,
+            "php" => LanguageKind::PHP,
+            "powershell" => LanguageKind::Powershell,
+            "jade" => LanguageKind::Pug,
+            "python" => LanguageKind::Python,
+            "r" => LanguageKind::R,
+            "razor" => LanguageKind::Razor,
+            "ruby" => LanguageKind::Ruby,
+            "rust" => LanguageKind::Rust,
+            "scss" => LanguageKind::SCSS,
+            "sass" => LanguageKind::SASS,
+            "scala" => LanguageKind::Scala,
+            "shaderlab" => LanguageKind::ShaderLab,
+            "shellscript" => LanguageKind::ShellScript,
+            "sql" => LanguageKind::SQL,
+            "swift" => LanguageKind::Swift,
+            "typescript" => LanguageKind::TypeScript,
+            "typescriptreact" => LanguageKind::TypeScriptReact,
+            "tex" => LanguageKind::TeX,
+            "vb" => LanguageKind::VisualBasic,
+            "xml" => LanguageKind::XML,
+            "xsl" => LanguageKind::XSL,
+            "yaml" => LanguageKind::YAML,
+            _ => LanguageKind::Custom(v),
+        }
+    }
+}
+impl fmt::Display for LanguageKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
 }
 
 /// Describes how an [inline completion provider][InlineCompletionItemProvider] was triggered.
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum InlineCompletionTriggerKind {
     /// Completion was triggered explicitly by a user gesture.
     Invoked,
     /// Completion was triggered automatically while editing.
     Automatic,
 }
-impl Serialize for InlineCompletionTriggerKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            InlineCompletionTriggerKind::Invoked => serializer.serialize_u32(1u32),
-            InlineCompletionTriggerKind::Automatic => serializer.serialize_u32(2u32),
+impl From<InlineCompletionTriggerKind> for u32 {
+    fn from(e: InlineCompletionTriggerKind) -> Self {
+        match e {
+            InlineCompletionTriggerKind::Invoked => 1u32,
+            InlineCompletionTriggerKind::Automatic => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for InlineCompletionTriggerKind {
-    fn deserialize<D>(deserializer: D) -> Result<InlineCompletionTriggerKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for InlineCompletionTriggerKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(InlineCompletionTriggerKind::Invoked),
             2u32 => Ok(InlineCompletionTriggerKind::Automatic),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing InlineCompletionTriggerKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid InlineCompletionTriggerKind: {}", v)),
         }
     }
 }
@@ -8059,30 +8224,55 @@ impl<'de> Deserialize<'de> for InlineCompletionTriggerKind {
 ///
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum PositionEncodingKind {
     /// Character offsets count UTF-8 code units (e.g. bytes).
-    #[serde(rename = "utf-8")]
     UTF8,
     /// Character offsets count UTF-16 code units.
     ///
     /// This is the default and must always be supported
     /// by servers
-    #[serde(rename = "utf-16")]
     UTF16,
     /// Character offsets count UTF-32 code units.
     ///
     /// Implementation note: these are the same as Unicode codepoints,
     /// so this `PositionEncodingKind` may also be used for an
     /// encoding-agnostic representation of character offsets.
-    #[serde(rename = "utf-32")]
     UTF32,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
 }
+impl From<PositionEncodingKind> for String {
+    fn from(e: PositionEncodingKind) -> Self {
+        match e {
+            PositionEncodingKind::UTF8 => "utf-8".to_string(),
+            PositionEncodingKind::UTF16 => "utf-16".to_string(),
+            PositionEncodingKind::UTF32 => "utf-32".to_string(),
+            PositionEncodingKind::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for PositionEncodingKind {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "utf-8" => PositionEncodingKind::UTF8,
+            "utf-16" => PositionEncodingKind::UTF16,
+            "utf-32" => PositionEncodingKind::UTF32,
+            _ => PositionEncodingKind::Custom(v),
+        }
+    }
+}
+impl fmt::Display for PositionEncodingKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
+}
 
 /// The file event type
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum FileChangeType {
     /// The file got created.
     Created,
@@ -8091,42 +8281,29 @@ pub enum FileChangeType {
     /// The file got deleted.
     Deleted,
 }
-impl Serialize for FileChangeType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            FileChangeType::Created => serializer.serialize_u32(1u32),
-            FileChangeType::Changed => serializer.serialize_u32(2u32),
-            FileChangeType::Deleted => serializer.serialize_u32(3u32),
+impl From<FileChangeType> for u32 {
+    fn from(e: FileChangeType) -> Self {
+        match e {
+            FileChangeType::Created => 1u32,
+            FileChangeType::Changed => 2u32,
+            FileChangeType::Deleted => 3u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for FileChangeType {
-    fn deserialize<D>(deserializer: D) -> Result<FileChangeType, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for FileChangeType {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(FileChangeType::Created),
             2u32 => Ok(FileChangeType::Changed),
             3u32 => Ok(FileChangeType::Deleted),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing FileChangeType: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid FileChangeType: {}", v)),
         }
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", from = "u32")]
 pub enum WatchKind {
     /// Interested in create events.
     Create,
@@ -8135,38 +8312,33 @@ pub enum WatchKind {
     /// Interested in delete events
     Delete,
     /// A custom value.
+    #[serde(untagged)]
     Custom(u32),
 }
-impl Serialize for WatchKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            WatchKind::Create => serializer.serialize_u32(1u32),
-            WatchKind::Change => serializer.serialize_u32(2u32),
-            WatchKind::Delete => serializer.serialize_u32(4u32),
-            WatchKind::Custom(custom) => serializer.serialize_u32(*custom),
+impl From<WatchKind> for u32 {
+    fn from(e: WatchKind) -> Self {
+        match e {
+            WatchKind::Create => 1u32,
+            WatchKind::Change => 2u32,
+            WatchKind::Delete => 4u32,
+            WatchKind::Custom(any) => any,
         }
     }
 }
-impl<'de> Deserialize<'de> for WatchKind {
-    fn deserialize<D>(deserializer: D) -> Result<WatchKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
-            1u32 => Ok(WatchKind::Create),
-            2u32 => Ok(WatchKind::Change),
-            4u32 => Ok(WatchKind::Delete),
-            custom => Ok(WatchKind::Custom(custom)),
+impl From<u32> for WatchKind {
+    fn from(v: u32) -> Self {
+        match v {
+            1u32 => WatchKind::Create,
+            2u32 => WatchKind::Change,
+            4u32 => WatchKind::Delete,
+            _ => WatchKind::Custom(v),
         }
     }
 }
 
 /// The diagnostic's severity.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum DiagnosticSeverity {
     /// Reports an error.
     Error,
@@ -8177,39 +8349,25 @@ pub enum DiagnosticSeverity {
     /// Reports a hint.
     Hint,
 }
-impl Serialize for DiagnosticSeverity {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            DiagnosticSeverity::Error => serializer.serialize_u32(1u32),
-            DiagnosticSeverity::Warning => serializer.serialize_u32(2u32),
-            DiagnosticSeverity::Information => serializer.serialize_u32(3u32),
-            DiagnosticSeverity::Hint => serializer.serialize_u32(4u32),
+impl From<DiagnosticSeverity> for u32 {
+    fn from(e: DiagnosticSeverity) -> Self {
+        match e {
+            DiagnosticSeverity::Error => 1u32,
+            DiagnosticSeverity::Warning => 2u32,
+            DiagnosticSeverity::Information => 3u32,
+            DiagnosticSeverity::Hint => 4u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for DiagnosticSeverity {
-    fn deserialize<D>(deserializer: D) -> Result<DiagnosticSeverity, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for DiagnosticSeverity {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(DiagnosticSeverity::Error),
             2u32 => Ok(DiagnosticSeverity::Warning),
             3u32 => Ok(DiagnosticSeverity::Information),
             4u32 => Ok(DiagnosticSeverity::Hint),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing DiagnosticSeverity: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid DiagnosticSeverity: {}", v)),
         }
     }
 }
@@ -8217,7 +8375,8 @@ impl<'de> Deserialize<'de> for DiagnosticSeverity {
 /// The diagnostic tags.
 ///
 /// @since 3.15.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum DiagnosticTag {
     /// Unused or unnecessary code.
     ///
@@ -8229,39 +8388,28 @@ pub enum DiagnosticTag {
     /// Clients are allowed to rendered diagnostics with this tag strike through.
     Deprecated,
 }
-impl Serialize for DiagnosticTag {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            DiagnosticTag::Unnecessary => serializer.serialize_u32(1u32),
-            DiagnosticTag::Deprecated => serializer.serialize_u32(2u32),
+impl From<DiagnosticTag> for u32 {
+    fn from(e: DiagnosticTag) -> Self {
+        match e {
+            DiagnosticTag::Unnecessary => 1u32,
+            DiagnosticTag::Deprecated => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for DiagnosticTag {
-    fn deserialize<D>(deserializer: D) -> Result<DiagnosticTag, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for DiagnosticTag {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(DiagnosticTag::Unnecessary),
             2u32 => Ok(DiagnosticTag::Deprecated),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing DiagnosticTag: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid DiagnosticTag: {}", v)),
         }
     }
 }
 
 /// How a completion was triggered
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum CompletionTriggerKind {
     /// Completion was triggered by typing an identifier (24x7 code
     /// complete), manual invocation (e.g Ctrl+Space) or via API.
@@ -8272,39 +8420,23 @@ pub enum CompletionTriggerKind {
     /// Completion was re-triggered as current completion list is incomplete
     TriggerForIncompleteCompletions,
 }
-impl Serialize for CompletionTriggerKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            CompletionTriggerKind::Invoked => serializer.serialize_u32(1u32),
-            CompletionTriggerKind::TriggerCharacter => serializer.serialize_u32(2u32),
-            CompletionTriggerKind::TriggerForIncompleteCompletions => {
-                serializer.serialize_u32(3u32)
-            }
+impl From<CompletionTriggerKind> for u32 {
+    fn from(e: CompletionTriggerKind) -> Self {
+        match e {
+            CompletionTriggerKind::Invoked => 1u32,
+            CompletionTriggerKind::TriggerCharacter => 2u32,
+            CompletionTriggerKind::TriggerForIncompleteCompletions => 3u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for CompletionTriggerKind {
-    fn deserialize<D>(deserializer: D) -> Result<CompletionTriggerKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for CompletionTriggerKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(CompletionTriggerKind::Invoked),
             2u32 => Ok(CompletionTriggerKind::TriggerCharacter),
             3u32 => Ok(CompletionTriggerKind::TriggerForIncompleteCompletions),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing CompletionTriggerKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid CompletionTriggerKind: {}", v)),
         }
     }
 }
@@ -8313,7 +8445,8 @@ impl<'de> Deserialize<'de> for CompletionTriggerKind {
 /// merged.
 ///
 /// @since 3.18.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum ApplyKind {
     /// The value from the individual item (if provided and not `null`) will be
     /// used instead of the default.
@@ -8324,33 +8457,21 @@ pub enum ApplyKind {
     /// that supports merging.
     Merge,
 }
-impl Serialize for ApplyKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            ApplyKind::Replace => serializer.serialize_u32(1u32),
-            ApplyKind::Merge => serializer.serialize_u32(2u32),
+impl From<ApplyKind> for u32 {
+    fn from(e: ApplyKind) -> Self {
+        match e {
+            ApplyKind::Replace => 1u32,
+            ApplyKind::Merge => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for ApplyKind {
-    fn deserialize<D>(deserializer: D) -> Result<ApplyKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for ApplyKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(ApplyKind::Replace),
             2u32 => Ok(ApplyKind::Merge),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!("Unexpected value when deserializing ApplyKind: {e}"),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid ApplyKind: {}", v)),
         }
     }
 }
@@ -8358,7 +8479,8 @@ impl<'de> Deserialize<'de> for ApplyKind {
 /// How a signature help was triggered.
 ///
 /// @since 3.15.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum SignatureHelpTriggerKind {
     /// Signature help was invoked manually by the user or by a command.
     Invoked,
@@ -8367,37 +8489,23 @@ pub enum SignatureHelpTriggerKind {
     /// Signature help was triggered by the cursor moving or by the document content changing.
     ContentChange,
 }
-impl Serialize for SignatureHelpTriggerKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            SignatureHelpTriggerKind::Invoked => serializer.serialize_u32(1u32),
-            SignatureHelpTriggerKind::TriggerCharacter => serializer.serialize_u32(2u32),
-            SignatureHelpTriggerKind::ContentChange => serializer.serialize_u32(3u32),
+impl From<SignatureHelpTriggerKind> for u32 {
+    fn from(e: SignatureHelpTriggerKind) -> Self {
+        match e {
+            SignatureHelpTriggerKind::Invoked => 1u32,
+            SignatureHelpTriggerKind::TriggerCharacter => 2u32,
+            SignatureHelpTriggerKind::ContentChange => 3u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for SignatureHelpTriggerKind {
-    fn deserialize<D>(deserializer: D) -> Result<SignatureHelpTriggerKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for SignatureHelpTriggerKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(SignatureHelpTriggerKind::Invoked),
             2u32 => Ok(SignatureHelpTriggerKind::TriggerCharacter),
             3u32 => Ok(SignatureHelpTriggerKind::ContentChange),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing SignatureHelpTriggerKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid SignatureHelpTriggerKind: {}", v)),
         }
     }
 }
@@ -8405,7 +8513,8 @@ impl<'de> Deserialize<'de> for SignatureHelpTriggerKind {
 /// The reason why code actions were requested.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum CodeActionTriggerKind {
     /// Code actions were explicitly requested by the user or by an extension.
     Invoked,
@@ -8415,35 +8524,21 @@ pub enum CodeActionTriggerKind {
     /// also be triggered when file content changes.
     Automatic,
 }
-impl Serialize for CodeActionTriggerKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            CodeActionTriggerKind::Invoked => serializer.serialize_u32(1u32),
-            CodeActionTriggerKind::Automatic => serializer.serialize_u32(2u32),
+impl From<CodeActionTriggerKind> for u32 {
+    fn from(e: CodeActionTriggerKind) -> Self {
+        match e {
+            CodeActionTriggerKind::Invoked => 1u32,
+            CodeActionTriggerKind::Automatic => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for CodeActionTriggerKind {
-    fn deserialize<D>(deserializer: D) -> Result<CodeActionTriggerKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for CodeActionTriggerKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(CodeActionTriggerKind::Invoked),
             2u32 => Ok(CodeActionTriggerKind::Automatic),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing CodeActionTriggerKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid CodeActionTriggerKind: {}", v)),
         }
     }
 }
@@ -8453,337 +8548,758 @@ impl<'de> Deserialize<'de> for CodeActionTriggerKind {
 ///
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum FileOperationPatternKind {
     /// The pattern matches a file only.
-    #[serde(rename = "file")]
     File,
     /// The pattern matches a folder only.
-    #[serde(rename = "folder")]
     Folder,
+}
+impl From<FileOperationPatternKind> for String {
+    fn from(e: FileOperationPatternKind) -> Self {
+        match e {
+            FileOperationPatternKind::File => "file".to_string(),
+            FileOperationPatternKind::Folder => "folder".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for FileOperationPatternKind {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "file" => Ok(FileOperationPatternKind::File),
+            "folder" => Ok(FileOperationPatternKind::Folder),
+            _ => Err(format!("Invalid FileOperationPatternKind: {}", v)),
+        }
+    }
+}
+impl fmt::Display for FileOperationPatternKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 /// A notebook cell kind.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum NotebookCellKind {
     /// A markup-cell is formatted source that is used for display.
     Markup,
     /// A code-cell is source code.
     Code,
 }
-impl Serialize for NotebookCellKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            NotebookCellKind::Markup => serializer.serialize_u32(1u32),
-            NotebookCellKind::Code => serializer.serialize_u32(2u32),
+impl From<NotebookCellKind> for u32 {
+    fn from(e: NotebookCellKind) -> Self {
+        match e {
+            NotebookCellKind::Markup => 1u32,
+            NotebookCellKind::Code => 2u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for NotebookCellKind {
-    fn deserialize<D>(deserializer: D) -> Result<NotebookCellKind, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for NotebookCellKind {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(NotebookCellKind::Markup),
             2u32 => Ok(NotebookCellKind::Code),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing NotebookCellKind: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid NotebookCellKind: {}", v)),
         }
     }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum ResourceOperationKind {
     /// Supports creating new files and folders.
-    #[serde(rename = "create")]
     Create,
     /// Supports renaming existing files and folders.
-    #[serde(rename = "rename")]
     Rename,
     /// Supports deleting existing files and folders.
-    #[serde(rename = "delete")]
     Delete,
+}
+impl From<ResourceOperationKind> for String {
+    fn from(e: ResourceOperationKind) -> Self {
+        match e {
+            ResourceOperationKind::Create => "create".to_string(),
+            ResourceOperationKind::Rename => "rename".to_string(),
+            ResourceOperationKind::Delete => "delete".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for ResourceOperationKind {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "create" => Ok(ResourceOperationKind::Create),
+            "rename" => Ok(ResourceOperationKind::Rename),
+            "delete" => Ok(ResourceOperationKind::Delete),
+            _ => Err(format!("Invalid ResourceOperationKind: {}", v)),
+        }
+    }
+}
+impl fmt::Display for ResourceOperationKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum FailureHandlingKind {
     /// Applying the workspace change is simply aborted if one of the changes provided
     /// fails. All operations executed before the failing operation stay executed.
-    #[serde(rename = "abort")]
     Abort,
     /// All operations are executed transactional. That means they either all
     /// succeed or no changes at all are applied to the workspace.
-    #[serde(rename = "transactional")]
     Transactional,
     /// If the workspace edit contains only textual file changes they are executed transactional.
     /// If resource changes (create, rename or delete file) are part of the change the failure
     /// handling strategy is abort.
-    #[serde(rename = "textOnlyTransactional")]
     TextOnlyTransactional,
     /// The client tries to undo the operations already executed. But there is no
     /// guarantee that this is succeeding.
-    #[serde(rename = "undo")]
     Undo,
 }
+impl From<FailureHandlingKind> for String {
+    fn from(e: FailureHandlingKind) -> Self {
+        match e {
+            FailureHandlingKind::Abort => "abort".to_string(),
+            FailureHandlingKind::Transactional => "transactional".to_string(),
+            FailureHandlingKind::TextOnlyTransactional => {
+                "textOnlyTransactional".to_string()
+            }
+            FailureHandlingKind::Undo => "undo".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for FailureHandlingKind {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "abort" => Ok(FailureHandlingKind::Abort),
+            "transactional" => Ok(FailureHandlingKind::Transactional),
+            "textOnlyTransactional" => Ok(FailureHandlingKind::TextOnlyTransactional),
+            "undo" => Ok(FailureHandlingKind::Undo),
+            _ => Err(format!("Invalid FailureHandlingKind: {}", v)),
+        }
+    }
+}
+impl fmt::Display for FailureHandlingKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
+}
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "u32", try_from = "u32")]
 pub enum PrepareSupportDefaultBehavior {
     /// The client's default behavior is to select the identifier
     /// according the to language's syntax rule.
     Identifier,
 }
-impl Serialize for PrepareSupportDefaultBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        match self {
-            PrepareSupportDefaultBehavior::Identifier => serializer.serialize_u32(1u32),
+impl From<PrepareSupportDefaultBehavior> for u32 {
+    fn from(e: PrepareSupportDefaultBehavior) -> Self {
+        match e {
+            PrepareSupportDefaultBehavior::Identifier => 1u32,
         }
     }
 }
-impl<'de> Deserialize<'de> for PrepareSupportDefaultBehavior {
-    fn deserialize<D>(deserializer: D) -> Result<PrepareSupportDefaultBehavior, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let value = u32::deserialize(deserializer)?;
-        match value {
+impl TryFrom<u32> for PrepareSupportDefaultBehavior {
+    type Error = String;
+    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+        match v {
             1u32 => Ok(PrepareSupportDefaultBehavior::Identifier),
-            e => {
-                Err(
-                    serde::de::Error::custom(
-                        format!(
-                            "Unexpected value when deserializing PrepareSupportDefaultBehavior: {e}"
-                        ),
-                    ),
-                )
-            }
+            _ => Err(format!("Invalid PrepareSupportDefaultBehavior: {}", v)),
         }
     }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
+#[serde(into = "String", try_from = "String")]
 pub enum TokenFormat {
-    #[serde(rename = "relative")]
     Relative,
+}
+impl From<TokenFormat> for String {
+    fn from(e: TokenFormat) -> Self {
+        match e {
+            TokenFormat::Relative => "relative".to_string(),
+        }
+    }
+}
+impl TryFrom<String> for TokenFormat {
+    type Error = String;
+    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+        match v.as_str() {
+            "relative" => Ok(TokenFormat::Relative),
+            _ => Err(format!("Invalid TokenFormat: {}", v)),
+        }
+    }
+}
+impl fmt::Display for TokenFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = (*self).into();
+        write!(f, "{}", s)
+    }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum LspRequestMethods {
-    #[serde(rename = "textDocument/implementation")]
     TextDocumentImplementation,
-    #[serde(rename = "textDocument/typeDefinition")]
     TextDocumentTypeDefinition,
-    #[serde(rename = "workspace/workspaceFolders")]
     WorkspaceWorkspaceFolders,
-    #[serde(rename = "workspace/configuration")]
     WorkspaceConfiguration,
-    #[serde(rename = "textDocument/documentColor")]
     TextDocumentDocumentColor,
-    #[serde(rename = "textDocument/colorPresentation")]
     TextDocumentColorPresentation,
-    #[serde(rename = "textDocument/foldingRange")]
     TextDocumentFoldingRange,
-    #[serde(rename = "workspace/foldingRange/refresh")]
     WorkspaceFoldingRangeRefresh,
-    #[serde(rename = "textDocument/declaration")]
     TextDocumentDeclaration,
-    #[serde(rename = "textDocument/selectionRange")]
     TextDocumentSelectionRange,
-    #[serde(rename = "window/workDoneProgress/create")]
     WindowWorkDoneProgressCreate,
-    #[serde(rename = "textDocument/prepareCallHierarchy")]
     TextDocumentPrepareCallHierarchy,
-    #[serde(rename = "callHierarchy/incomingCalls")]
     CallHierarchyIncomingCalls,
-    #[serde(rename = "callHierarchy/outgoingCalls")]
     CallHierarchyOutgoingCalls,
-    #[serde(rename = "textDocument/semanticTokens/full")]
     TextDocumentSemanticTokensFull,
-    #[serde(rename = "textDocument/semanticTokens/full/delta")]
     TextDocumentSemanticTokensFullDelta,
-    #[serde(rename = "textDocument/semanticTokens/range")]
     TextDocumentSemanticTokensRange,
-    #[serde(rename = "workspace/semanticTokens/refresh")]
     WorkspaceSemanticTokensRefresh,
-    #[serde(rename = "window/showDocument")]
     WindowShowDocument,
-    #[serde(rename = "textDocument/linkedEditingRange")]
     TextDocumentLinkedEditingRange,
-    #[serde(rename = "workspace/willCreateFiles")]
     WorkspaceWillCreateFiles,
-    #[serde(rename = "workspace/willRenameFiles")]
     WorkspaceWillRenameFiles,
-    #[serde(rename = "workspace/willDeleteFiles")]
     WorkspaceWillDeleteFiles,
-    #[serde(rename = "textDocument/moniker")]
     TextDocumentMoniker,
-    #[serde(rename = "textDocument/prepareTypeHierarchy")]
     TextDocumentPrepareTypeHierarchy,
-    #[serde(rename = "typeHierarchy/supertypes")]
     TypeHierarchySupertypes,
-    #[serde(rename = "typeHierarchy/subtypes")]
     TypeHierarchySubtypes,
-    #[serde(rename = "textDocument/inlineValue")]
     TextDocumentInlineValue,
-    #[serde(rename = "workspace/inlineValue/refresh")]
     WorkspaceInlineValueRefresh,
-    #[serde(rename = "textDocument/inlayHint")]
     TextDocumentInlayHint,
-    #[serde(rename = "inlayHint/resolve")]
     InlayHintResolve,
-    #[serde(rename = "workspace/inlayHint/refresh")]
     WorkspaceInlayHintRefresh,
-    #[serde(rename = "textDocument/diagnostic")]
     TextDocumentDiagnostic,
-    #[serde(rename = "workspace/diagnostic")]
     WorkspaceDiagnostic,
-    #[serde(rename = "workspace/diagnostic/refresh")]
     WorkspaceDiagnosticRefresh,
-    #[serde(rename = "textDocument/inlineCompletion")]
     TextDocumentInlineCompletion,
-    #[serde(rename = "workspace/textDocumentContent")]
     WorkspaceTextDocumentContent,
-    #[serde(rename = "workspace/textDocumentContent/refresh")]
     WorkspaceTextDocumentContentRefresh,
-    #[serde(rename = "client/registerCapability")]
     ClientRegisterCapability,
-    #[serde(rename = "client/unregisterCapability")]
     ClientUnregisterCapability,
-    #[serde(rename = "initialize")]
     Initialize,
-    #[serde(rename = "shutdown")]
     Shutdown,
-    #[serde(rename = "window/showMessageRequest")]
     WindowShowMessageRequest,
-    #[serde(rename = "textDocument/willSaveWaitUntil")]
     TextDocumentWillSaveWaitUntil,
-    #[serde(rename = "textDocument/completion")]
     TextDocumentCompletion,
-    #[serde(rename = "completionItem/resolve")]
     CompletionItemResolve,
-    #[serde(rename = "textDocument/hover")]
     TextDocumentHover,
-    #[serde(rename = "textDocument/signatureHelp")]
     TextDocumentSignatureHelp,
-    #[serde(rename = "textDocument/definition")]
     TextDocumentDefinition,
-    #[serde(rename = "textDocument/references")]
     TextDocumentReferences,
-    #[serde(rename = "textDocument/documentHighlight")]
     TextDocumentDocumentHighlight,
-    #[serde(rename = "textDocument/documentSymbol")]
     TextDocumentDocumentSymbol,
-    #[serde(rename = "textDocument/codeAction")]
     TextDocumentCodeAction,
-    #[serde(rename = "codeAction/resolve")]
     CodeActionResolve,
-    #[serde(rename = "workspace/symbol")]
     WorkspaceSymbol,
-    #[serde(rename = "workspaceSymbol/resolve")]
     WorkspaceSymbolResolve,
-    #[serde(rename = "textDocument/codeLens")]
     TextDocumentCodeLens,
-    #[serde(rename = "codeLens/resolve")]
     CodeLensResolve,
-    #[serde(rename = "workspace/codeLens/refresh")]
     WorkspaceCodeLensRefresh,
-    #[serde(rename = "textDocument/documentLink")]
     TextDocumentDocumentLink,
-    #[serde(rename = "documentLink/resolve")]
     DocumentLinkResolve,
-    #[serde(rename = "textDocument/formatting")]
     TextDocumentFormatting,
-    #[serde(rename = "textDocument/rangeFormatting")]
     TextDocumentRangeFormatting,
-    #[serde(rename = "textDocument/rangesFormatting")]
     TextDocumentRangesFormatting,
-    #[serde(rename = "textDocument/onTypeFormatting")]
     TextDocumentOnTypeFormatting,
-    #[serde(rename = "textDocument/rename")]
     TextDocumentRename,
-    #[serde(rename = "textDocument/prepareRename")]
     TextDocumentPrepareRename,
-    #[serde(rename = "workspace/executeCommand")]
     WorkspaceExecuteCommand,
-    #[serde(rename = "workspace/applyEdit")]
     WorkspaceApplyEdit,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
 }
+impl From<LspRequestMethods> for String {
+    fn from(e: LspRequestMethods) -> Self {
+        match e {
+            LspRequestMethods::TextDocumentImplementation => {
+                "textDocument/implementation".to_string()
+            }
+            LspRequestMethods::TextDocumentTypeDefinition => {
+                "textDocument/typeDefinition".to_string()
+            }
+            LspRequestMethods::WorkspaceWorkspaceFolders => {
+                "workspace/workspaceFolders".to_string()
+            }
+            LspRequestMethods::WorkspaceConfiguration => {
+                "workspace/configuration".to_string()
+            }
+            LspRequestMethods::TextDocumentDocumentColor => {
+                "textDocument/documentColor".to_string()
+            }
+            LspRequestMethods::TextDocumentColorPresentation => {
+                "textDocument/colorPresentation".to_string()
+            }
+            LspRequestMethods::TextDocumentFoldingRange => {
+                "textDocument/foldingRange".to_string()
+            }
+            LspRequestMethods::WorkspaceFoldingRangeRefresh => {
+                "workspace/foldingRange/refresh".to_string()
+            }
+            LspRequestMethods::TextDocumentDeclaration => {
+                "textDocument/declaration".to_string()
+            }
+            LspRequestMethods::TextDocumentSelectionRange => {
+                "textDocument/selectionRange".to_string()
+            }
+            LspRequestMethods::WindowWorkDoneProgressCreate => {
+                "window/workDoneProgress/create".to_string()
+            }
+            LspRequestMethods::TextDocumentPrepareCallHierarchy => {
+                "textDocument/prepareCallHierarchy".to_string()
+            }
+            LspRequestMethods::CallHierarchyIncomingCalls => {
+                "callHierarchy/incomingCalls".to_string()
+            }
+            LspRequestMethods::CallHierarchyOutgoingCalls => {
+                "callHierarchy/outgoingCalls".to_string()
+            }
+            LspRequestMethods::TextDocumentSemanticTokensFull => {
+                "textDocument/semanticTokens/full".to_string()
+            }
+            LspRequestMethods::TextDocumentSemanticTokensFullDelta => {
+                "textDocument/semanticTokens/full/delta".to_string()
+            }
+            LspRequestMethods::TextDocumentSemanticTokensRange => {
+                "textDocument/semanticTokens/range".to_string()
+            }
+            LspRequestMethods::WorkspaceSemanticTokensRefresh => {
+                "workspace/semanticTokens/refresh".to_string()
+            }
+            LspRequestMethods::WindowShowDocument => "window/showDocument".to_string(),
+            LspRequestMethods::TextDocumentLinkedEditingRange => {
+                "textDocument/linkedEditingRange".to_string()
+            }
+            LspRequestMethods::WorkspaceWillCreateFiles => {
+                "workspace/willCreateFiles".to_string()
+            }
+            LspRequestMethods::WorkspaceWillRenameFiles => {
+                "workspace/willRenameFiles".to_string()
+            }
+            LspRequestMethods::WorkspaceWillDeleteFiles => {
+                "workspace/willDeleteFiles".to_string()
+            }
+            LspRequestMethods::TextDocumentMoniker => "textDocument/moniker".to_string(),
+            LspRequestMethods::TextDocumentPrepareTypeHierarchy => {
+                "textDocument/prepareTypeHierarchy".to_string()
+            }
+            LspRequestMethods::TypeHierarchySupertypes => {
+                "typeHierarchy/supertypes".to_string()
+            }
+            LspRequestMethods::TypeHierarchySubtypes => {
+                "typeHierarchy/subtypes".to_string()
+            }
+            LspRequestMethods::TextDocumentInlineValue => {
+                "textDocument/inlineValue".to_string()
+            }
+            LspRequestMethods::WorkspaceInlineValueRefresh => {
+                "workspace/inlineValue/refresh".to_string()
+            }
+            LspRequestMethods::TextDocumentInlayHint => {
+                "textDocument/inlayHint".to_string()
+            }
+            LspRequestMethods::InlayHintResolve => "inlayHint/resolve".to_string(),
+            LspRequestMethods::WorkspaceInlayHintRefresh => {
+                "workspace/inlayHint/refresh".to_string()
+            }
+            LspRequestMethods::TextDocumentDiagnostic => {
+                "textDocument/diagnostic".to_string()
+            }
+            LspRequestMethods::WorkspaceDiagnostic => "workspace/diagnostic".to_string(),
+            LspRequestMethods::WorkspaceDiagnosticRefresh => {
+                "workspace/diagnostic/refresh".to_string()
+            }
+            LspRequestMethods::TextDocumentInlineCompletion => {
+                "textDocument/inlineCompletion".to_string()
+            }
+            LspRequestMethods::WorkspaceTextDocumentContent => {
+                "workspace/textDocumentContent".to_string()
+            }
+            LspRequestMethods::WorkspaceTextDocumentContentRefresh => {
+                "workspace/textDocumentContent/refresh".to_string()
+            }
+            LspRequestMethods::ClientRegisterCapability => {
+                "client/registerCapability".to_string()
+            }
+            LspRequestMethods::ClientUnregisterCapability => {
+                "client/unregisterCapability".to_string()
+            }
+            LspRequestMethods::Initialize => "initialize".to_string(),
+            LspRequestMethods::Shutdown => "shutdown".to_string(),
+            LspRequestMethods::WindowShowMessageRequest => {
+                "window/showMessageRequest".to_string()
+            }
+            LspRequestMethods::TextDocumentWillSaveWaitUntil => {
+                "textDocument/willSaveWaitUntil".to_string()
+            }
+            LspRequestMethods::TextDocumentCompletion => {
+                "textDocument/completion".to_string()
+            }
+            LspRequestMethods::CompletionItemResolve => {
+                "completionItem/resolve".to_string()
+            }
+            LspRequestMethods::TextDocumentHover => "textDocument/hover".to_string(),
+            LspRequestMethods::TextDocumentSignatureHelp => {
+                "textDocument/signatureHelp".to_string()
+            }
+            LspRequestMethods::TextDocumentDefinition => {
+                "textDocument/definition".to_string()
+            }
+            LspRequestMethods::TextDocumentReferences => {
+                "textDocument/references".to_string()
+            }
+            LspRequestMethods::TextDocumentDocumentHighlight => {
+                "textDocument/documentHighlight".to_string()
+            }
+            LspRequestMethods::TextDocumentDocumentSymbol => {
+                "textDocument/documentSymbol".to_string()
+            }
+            LspRequestMethods::TextDocumentCodeAction => {
+                "textDocument/codeAction".to_string()
+            }
+            LspRequestMethods::CodeActionResolve => "codeAction/resolve".to_string(),
+            LspRequestMethods::WorkspaceSymbol => "workspace/symbol".to_string(),
+            LspRequestMethods::WorkspaceSymbolResolve => {
+                "workspaceSymbol/resolve".to_string()
+            }
+            LspRequestMethods::TextDocumentCodeLens => {
+                "textDocument/codeLens".to_string()
+            }
+            LspRequestMethods::CodeLensResolve => "codeLens/resolve".to_string(),
+            LspRequestMethods::WorkspaceCodeLensRefresh => {
+                "workspace/codeLens/refresh".to_string()
+            }
+            LspRequestMethods::TextDocumentDocumentLink => {
+                "textDocument/documentLink".to_string()
+            }
+            LspRequestMethods::DocumentLinkResolve => "documentLink/resolve".to_string(),
+            LspRequestMethods::TextDocumentFormatting => {
+                "textDocument/formatting".to_string()
+            }
+            LspRequestMethods::TextDocumentRangeFormatting => {
+                "textDocument/rangeFormatting".to_string()
+            }
+            LspRequestMethods::TextDocumentRangesFormatting => {
+                "textDocument/rangesFormatting".to_string()
+            }
+            LspRequestMethods::TextDocumentOnTypeFormatting => {
+                "textDocument/onTypeFormatting".to_string()
+            }
+            LspRequestMethods::TextDocumentRename => "textDocument/rename".to_string(),
+            LspRequestMethods::TextDocumentPrepareRename => {
+                "textDocument/prepareRename".to_string()
+            }
+            LspRequestMethods::WorkspaceExecuteCommand => {
+                "workspace/executeCommand".to_string()
+            }
+            LspRequestMethods::WorkspaceApplyEdit => "workspace/applyEdit".to_string(),
+            LspRequestMethods::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for LspRequestMethods {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "textDocument/implementation" => {
+                LspRequestMethods::TextDocumentImplementation
+            }
+            "textDocument/typeDefinition" => {
+                LspRequestMethods::TextDocumentTypeDefinition
+            }
+            "workspace/workspaceFolders" => LspRequestMethods::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => LspRequestMethods::WorkspaceConfiguration,
+            "textDocument/documentColor" => LspRequestMethods::TextDocumentDocumentColor,
+            "textDocument/colorPresentation" => {
+                LspRequestMethods::TextDocumentColorPresentation
+            }
+            "textDocument/foldingRange" => LspRequestMethods::TextDocumentFoldingRange,
+            "workspace/foldingRange/refresh" => {
+                LspRequestMethods::WorkspaceFoldingRangeRefresh
+            }
+            "textDocument/declaration" => LspRequestMethods::TextDocumentDeclaration,
+            "textDocument/selectionRange" => {
+                LspRequestMethods::TextDocumentSelectionRange
+            }
+            "window/workDoneProgress/create" => {
+                LspRequestMethods::WindowWorkDoneProgressCreate
+            }
+            "textDocument/prepareCallHierarchy" => {
+                LspRequestMethods::TextDocumentPrepareCallHierarchy
+            }
+            "callHierarchy/incomingCalls" => {
+                LspRequestMethods::CallHierarchyIncomingCalls
+            }
+            "callHierarchy/outgoingCalls" => {
+                LspRequestMethods::CallHierarchyOutgoingCalls
+            }
+            "textDocument/semanticTokens/full" => {
+                LspRequestMethods::TextDocumentSemanticTokensFull
+            }
+            "textDocument/semanticTokens/full/delta" => {
+                LspRequestMethods::TextDocumentSemanticTokensFullDelta
+            }
+            "textDocument/semanticTokens/range" => {
+                LspRequestMethods::TextDocumentSemanticTokensRange
+            }
+            "workspace/semanticTokens/refresh" => {
+                LspRequestMethods::WorkspaceSemanticTokensRefresh
+            }
+            "window/showDocument" => LspRequestMethods::WindowShowDocument,
+            "textDocument/linkedEditingRange" => {
+                LspRequestMethods::TextDocumentLinkedEditingRange
+            }
+            "workspace/willCreateFiles" => LspRequestMethods::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => LspRequestMethods::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => LspRequestMethods::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => LspRequestMethods::TextDocumentMoniker,
+            "textDocument/prepareTypeHierarchy" => {
+                LspRequestMethods::TextDocumentPrepareTypeHierarchy
+            }
+            "typeHierarchy/supertypes" => LspRequestMethods::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => LspRequestMethods::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => LspRequestMethods::TextDocumentInlineValue,
+            "workspace/inlineValue/refresh" => {
+                LspRequestMethods::WorkspaceInlineValueRefresh
+            }
+            "textDocument/inlayHint" => LspRequestMethods::TextDocumentInlayHint,
+            "inlayHint/resolve" => LspRequestMethods::InlayHintResolve,
+            "workspace/inlayHint/refresh" => LspRequestMethods::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => LspRequestMethods::TextDocumentDiagnostic,
+            "workspace/diagnostic" => LspRequestMethods::WorkspaceDiagnostic,
+            "workspace/diagnostic/refresh" => {
+                LspRequestMethods::WorkspaceDiagnosticRefresh
+            }
+            "textDocument/inlineCompletion" => {
+                LspRequestMethods::TextDocumentInlineCompletion
+            }
+            "workspace/textDocumentContent" => {
+                LspRequestMethods::WorkspaceTextDocumentContent
+            }
+            "workspace/textDocumentContent/refresh" => {
+                LspRequestMethods::WorkspaceTextDocumentContentRefresh
+            }
+            "client/registerCapability" => LspRequestMethods::ClientRegisterCapability,
+            "client/unregisterCapability" => {
+                LspRequestMethods::ClientUnregisterCapability
+            }
+            "initialize" => LspRequestMethods::Initialize,
+            "shutdown" => LspRequestMethods::Shutdown,
+            "window/showMessageRequest" => LspRequestMethods::WindowShowMessageRequest,
+            "textDocument/willSaveWaitUntil" => {
+                LspRequestMethods::TextDocumentWillSaveWaitUntil
+            }
+            "textDocument/completion" => LspRequestMethods::TextDocumentCompletion,
+            "completionItem/resolve" => LspRequestMethods::CompletionItemResolve,
+            "textDocument/hover" => LspRequestMethods::TextDocumentHover,
+            "textDocument/signatureHelp" => LspRequestMethods::TextDocumentSignatureHelp,
+            "textDocument/definition" => LspRequestMethods::TextDocumentDefinition,
+            "textDocument/references" => LspRequestMethods::TextDocumentReferences,
+            "textDocument/documentHighlight" => {
+                LspRequestMethods::TextDocumentDocumentHighlight
+            }
+            "textDocument/documentSymbol" => {
+                LspRequestMethods::TextDocumentDocumentSymbol
+            }
+            "textDocument/codeAction" => LspRequestMethods::TextDocumentCodeAction,
+            "codeAction/resolve" => LspRequestMethods::CodeActionResolve,
+            "workspace/symbol" => LspRequestMethods::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => LspRequestMethods::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => LspRequestMethods::TextDocumentCodeLens,
+            "codeLens/resolve" => LspRequestMethods::CodeLensResolve,
+            "workspace/codeLens/refresh" => LspRequestMethods::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => LspRequestMethods::TextDocumentDocumentLink,
+            "documentLink/resolve" => LspRequestMethods::DocumentLinkResolve,
+            "textDocument/formatting" => LspRequestMethods::TextDocumentFormatting,
+            "textDocument/rangeFormatting" => {
+                LspRequestMethods::TextDocumentRangeFormatting
+            }
+            "textDocument/rangesFormatting" => {
+                LspRequestMethods::TextDocumentRangesFormatting
+            }
+            "textDocument/onTypeFormatting" => {
+                LspRequestMethods::TextDocumentOnTypeFormatting
+            }
+            "textDocument/rename" => LspRequestMethods::TextDocumentRename,
+            "textDocument/prepareRename" => LspRequestMethods::TextDocumentPrepareRename,
+            "workspace/executeCommand" => LspRequestMethods::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => LspRequestMethods::WorkspaceApplyEdit,
+            _ => LspRequestMethods::Custom(v),
+        }
+    }
+}
+impl fmt::Display for LspRequestMethods {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
+}
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum LspNotificationMethods {
-    #[serde(rename = "workspace/didChangeWorkspaceFolders")]
     WorkspaceDidChangeWorkspaceFolders,
-    #[serde(rename = "window/workDoneProgress/cancel")]
     WindowWorkDoneProgressCancel,
-    #[serde(rename = "workspace/didCreateFiles")]
     WorkspaceDidCreateFiles,
-    #[serde(rename = "workspace/didRenameFiles")]
     WorkspaceDidRenameFiles,
-    #[serde(rename = "workspace/didDeleteFiles")]
     WorkspaceDidDeleteFiles,
-    #[serde(rename = "notebookDocument/didOpen")]
     NotebookDocumentDidOpen,
-    #[serde(rename = "notebookDocument/didChange")]
     NotebookDocumentDidChange,
-    #[serde(rename = "notebookDocument/didSave")]
     NotebookDocumentDidSave,
-    #[serde(rename = "notebookDocument/didClose")]
     NotebookDocumentDidClose,
-    #[serde(rename = "initialized")]
     Initialized,
-    #[serde(rename = "exit")]
     Exit,
-    #[serde(rename = "workspace/didChangeConfiguration")]
     WorkspaceDidChangeConfiguration,
-    #[serde(rename = "window/showMessage")]
     WindowShowMessage,
-    #[serde(rename = "window/logMessage")]
     WindowLogMessage,
-    #[serde(rename = "telemetry/event")]
     TelemetryEvent,
-    #[serde(rename = "textDocument/didOpen")]
     TextDocumentDidOpen,
-    #[serde(rename = "textDocument/didChange")]
     TextDocumentDidChange,
-    #[serde(rename = "textDocument/didClose")]
     TextDocumentDidClose,
-    #[serde(rename = "textDocument/didSave")]
     TextDocumentDidSave,
-    #[serde(rename = "textDocument/willSave")]
     TextDocumentWillSave,
-    #[serde(rename = "workspace/didChangeWatchedFiles")]
     WorkspaceDidChangeWatchedFiles,
-    #[serde(rename = "textDocument/publishDiagnostics")]
     TextDocumentPublishDiagnostics,
-    #[serde(rename = "$/setTrace")]
     SetTrace,
-    #[serde(rename = "$/logTrace")]
     LogTrace,
-    #[serde(rename = "$/cancelRequest")]
     CancelRequest,
-    #[serde(rename = "$/progress")]
     Progress,
     /// A custom value.
     #[serde(untagged)]
     Custom(String),
+}
+impl From<LspNotificationMethods> for String {
+    fn from(e: LspNotificationMethods) -> Self {
+        match e {
+            LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders => {
+                "workspace/didChangeWorkspaceFolders".to_string()
+            }
+            LspNotificationMethods::WindowWorkDoneProgressCancel => {
+                "window/workDoneProgress/cancel".to_string()
+            }
+            LspNotificationMethods::WorkspaceDidCreateFiles => {
+                "workspace/didCreateFiles".to_string()
+            }
+            LspNotificationMethods::WorkspaceDidRenameFiles => {
+                "workspace/didRenameFiles".to_string()
+            }
+            LspNotificationMethods::WorkspaceDidDeleteFiles => {
+                "workspace/didDeleteFiles".to_string()
+            }
+            LspNotificationMethods::NotebookDocumentDidOpen => {
+                "notebookDocument/didOpen".to_string()
+            }
+            LspNotificationMethods::NotebookDocumentDidChange => {
+                "notebookDocument/didChange".to_string()
+            }
+            LspNotificationMethods::NotebookDocumentDidSave => {
+                "notebookDocument/didSave".to_string()
+            }
+            LspNotificationMethods::NotebookDocumentDidClose => {
+                "notebookDocument/didClose".to_string()
+            }
+            LspNotificationMethods::Initialized => "initialized".to_string(),
+            LspNotificationMethods::Exit => "exit".to_string(),
+            LspNotificationMethods::WorkspaceDidChangeConfiguration => {
+                "workspace/didChangeConfiguration".to_string()
+            }
+            LspNotificationMethods::WindowShowMessage => "window/showMessage".to_string(),
+            LspNotificationMethods::WindowLogMessage => "window/logMessage".to_string(),
+            LspNotificationMethods::TelemetryEvent => "telemetry/event".to_string(),
+            LspNotificationMethods::TextDocumentDidOpen => {
+                "textDocument/didOpen".to_string()
+            }
+            LspNotificationMethods::TextDocumentDidChange => {
+                "textDocument/didChange".to_string()
+            }
+            LspNotificationMethods::TextDocumentDidClose => {
+                "textDocument/didClose".to_string()
+            }
+            LspNotificationMethods::TextDocumentDidSave => {
+                "textDocument/didSave".to_string()
+            }
+            LspNotificationMethods::TextDocumentWillSave => {
+                "textDocument/willSave".to_string()
+            }
+            LspNotificationMethods::WorkspaceDidChangeWatchedFiles => {
+                "workspace/didChangeWatchedFiles".to_string()
+            }
+            LspNotificationMethods::TextDocumentPublishDiagnostics => {
+                "textDocument/publishDiagnostics".to_string()
+            }
+            LspNotificationMethods::SetTrace => "$/setTrace".to_string(),
+            LspNotificationMethods::LogTrace => "$/logTrace".to_string(),
+            LspNotificationMethods::CancelRequest => "$/cancelRequest".to_string(),
+            LspNotificationMethods::Progress => "$/progress".to_string(),
+            LspNotificationMethods::Custom(any) => any,
+        }
+    }
+}
+impl From<String> for LspNotificationMethods {
+    fn from(v: String) -> Self {
+        match v.as_str() {
+            "workspace/didChangeWorkspaceFolders" => {
+                LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders
+            }
+            "window/workDoneProgress/cancel" => {
+                LspNotificationMethods::WindowWorkDoneProgressCancel
+            }
+            "workspace/didCreateFiles" => LspNotificationMethods::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => LspNotificationMethods::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => LspNotificationMethods::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => LspNotificationMethods::NotebookDocumentDidOpen,
+            "notebookDocument/didChange" => {
+                LspNotificationMethods::NotebookDocumentDidChange
+            }
+            "notebookDocument/didSave" => LspNotificationMethods::NotebookDocumentDidSave,
+            "notebookDocument/didClose" => {
+                LspNotificationMethods::NotebookDocumentDidClose
+            }
+            "initialized" => LspNotificationMethods::Initialized,
+            "exit" => LspNotificationMethods::Exit,
+            "workspace/didChangeConfiguration" => {
+                LspNotificationMethods::WorkspaceDidChangeConfiguration
+            }
+            "window/showMessage" => LspNotificationMethods::WindowShowMessage,
+            "window/logMessage" => LspNotificationMethods::WindowLogMessage,
+            "telemetry/event" => LspNotificationMethods::TelemetryEvent,
+            "textDocument/didOpen" => LspNotificationMethods::TextDocumentDidOpen,
+            "textDocument/didChange" => LspNotificationMethods::TextDocumentDidChange,
+            "textDocument/didClose" => LspNotificationMethods::TextDocumentDidClose,
+            "textDocument/didSave" => LspNotificationMethods::TextDocumentDidSave,
+            "textDocument/willSave" => LspNotificationMethods::TextDocumentWillSave,
+            "workspace/didChangeWatchedFiles" => {
+                LspNotificationMethods::WorkspaceDidChangeWatchedFiles
+            }
+            "textDocument/publishDiagnostics" => {
+                LspNotificationMethods::TextDocumentPublishDiagnostics
+            }
+            "$/setTrace" => LspNotificationMethods::SetTrace,
+            "$/logTrace" => LspNotificationMethods::LogTrace,
+            "$/cancelRequest" => LspNotificationMethods::CancelRequest,
+            "$/progress" => LspNotificationMethods::Progress,
+            _ => LspNotificationMethods::Custom(v),
+        }
+    }
+}
+impl fmt::Display for LspNotificationMethods {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s: String = self.clone().into();
+        write!(f, "{}", s)
+    }
 }
 
 /// Information about where a symbol is defined.
@@ -10795,184 +11311,4 @@ impl Notification for ProgressNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::Progress;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = ProgressParams;
-}
-
-impl fmt::Display for LspRequestMethods {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let printable = match self {
-            LspRequestMethods::TextDocumentImplementation => {
-                "textDocument/implementation"
-            }
-            LspRequestMethods::TextDocumentTypeDefinition => {
-                "textDocument/typeDefinition"
-            }
-            LspRequestMethods::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
-            LspRequestMethods::WorkspaceConfiguration => "workspace/configuration",
-            LspRequestMethods::TextDocumentDocumentColor => "textDocument/documentColor",
-            LspRequestMethods::TextDocumentColorPresentation => {
-                "textDocument/colorPresentation"
-            }
-            LspRequestMethods::TextDocumentFoldingRange => "textDocument/foldingRange",
-            LspRequestMethods::WorkspaceFoldingRangeRefresh => {
-                "workspace/foldingRange/refresh"
-            }
-            LspRequestMethods::TextDocumentDeclaration => "textDocument/declaration",
-            LspRequestMethods::TextDocumentSelectionRange => {
-                "textDocument/selectionRange"
-            }
-            LspRequestMethods::WindowWorkDoneProgressCreate => {
-                "window/workDoneProgress/create"
-            }
-            LspRequestMethods::TextDocumentPrepareCallHierarchy => {
-                "textDocument/prepareCallHierarchy"
-            }
-            LspRequestMethods::CallHierarchyIncomingCalls => {
-                "callHierarchy/incomingCalls"
-            }
-            LspRequestMethods::CallHierarchyOutgoingCalls => {
-                "callHierarchy/outgoingCalls"
-            }
-            LspRequestMethods::TextDocumentSemanticTokensFull => {
-                "textDocument/semanticTokens/full"
-            }
-            LspRequestMethods::TextDocumentSemanticTokensFullDelta => {
-                "textDocument/semanticTokens/full/delta"
-            }
-            LspRequestMethods::TextDocumentSemanticTokensRange => {
-                "textDocument/semanticTokens/range"
-            }
-            LspRequestMethods::WorkspaceSemanticTokensRefresh => {
-                "workspace/semanticTokens/refresh"
-            }
-            LspRequestMethods::WindowShowDocument => "window/showDocument",
-            LspRequestMethods::TextDocumentLinkedEditingRange => {
-                "textDocument/linkedEditingRange"
-            }
-            LspRequestMethods::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
-            LspRequestMethods::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
-            LspRequestMethods::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
-            LspRequestMethods::TextDocumentMoniker => "textDocument/moniker",
-            LspRequestMethods::TextDocumentPrepareTypeHierarchy => {
-                "textDocument/prepareTypeHierarchy"
-            }
-            LspRequestMethods::TypeHierarchySupertypes => "typeHierarchy/supertypes",
-            LspRequestMethods::TypeHierarchySubtypes => "typeHierarchy/subtypes",
-            LspRequestMethods::TextDocumentInlineValue => "textDocument/inlineValue",
-            LspRequestMethods::WorkspaceInlineValueRefresh => {
-                "workspace/inlineValue/refresh"
-            }
-            LspRequestMethods::TextDocumentInlayHint => "textDocument/inlayHint",
-            LspRequestMethods::InlayHintResolve => "inlayHint/resolve",
-            LspRequestMethods::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
-            LspRequestMethods::TextDocumentDiagnostic => "textDocument/diagnostic",
-            LspRequestMethods::WorkspaceDiagnostic => "workspace/diagnostic",
-            LspRequestMethods::WorkspaceDiagnosticRefresh => {
-                "workspace/diagnostic/refresh"
-            }
-            LspRequestMethods::TextDocumentInlineCompletion => {
-                "textDocument/inlineCompletion"
-            }
-            LspRequestMethods::WorkspaceTextDocumentContent => {
-                "workspace/textDocumentContent"
-            }
-            LspRequestMethods::WorkspaceTextDocumentContentRefresh => {
-                "workspace/textDocumentContent/refresh"
-            }
-            LspRequestMethods::ClientRegisterCapability => "client/registerCapability",
-            LspRequestMethods::ClientUnregisterCapability => {
-                "client/unregisterCapability"
-            }
-            LspRequestMethods::Initialize => "initialize",
-            LspRequestMethods::Shutdown => "shutdown",
-            LspRequestMethods::WindowShowMessageRequest => "window/showMessageRequest",
-            LspRequestMethods::TextDocumentWillSaveWaitUntil => {
-                "textDocument/willSaveWaitUntil"
-            }
-            LspRequestMethods::TextDocumentCompletion => "textDocument/completion",
-            LspRequestMethods::CompletionItemResolve => "completionItem/resolve",
-            LspRequestMethods::TextDocumentHover => "textDocument/hover",
-            LspRequestMethods::TextDocumentSignatureHelp => "textDocument/signatureHelp",
-            LspRequestMethods::TextDocumentDefinition => "textDocument/definition",
-            LspRequestMethods::TextDocumentReferences => "textDocument/references",
-            LspRequestMethods::TextDocumentDocumentHighlight => {
-                "textDocument/documentHighlight"
-            }
-            LspRequestMethods::TextDocumentDocumentSymbol => {
-                "textDocument/documentSymbol"
-            }
-            LspRequestMethods::TextDocumentCodeAction => "textDocument/codeAction",
-            LspRequestMethods::CodeActionResolve => "codeAction/resolve",
-            LspRequestMethods::WorkspaceSymbol => "workspace/symbol",
-            LspRequestMethods::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
-            LspRequestMethods::TextDocumentCodeLens => "textDocument/codeLens",
-            LspRequestMethods::CodeLensResolve => "codeLens/resolve",
-            LspRequestMethods::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
-            LspRequestMethods::TextDocumentDocumentLink => "textDocument/documentLink",
-            LspRequestMethods::DocumentLinkResolve => "documentLink/resolve",
-            LspRequestMethods::TextDocumentFormatting => "textDocument/formatting",
-            LspRequestMethods::TextDocumentRangeFormatting => {
-                "textDocument/rangeFormatting"
-            }
-            LspRequestMethods::TextDocumentRangesFormatting => {
-                "textDocument/rangesFormatting"
-            }
-            LspRequestMethods::TextDocumentOnTypeFormatting => {
-                "textDocument/onTypeFormatting"
-            }
-            LspRequestMethods::TextDocumentRename => "textDocument/rename",
-            LspRequestMethods::TextDocumentPrepareRename => "textDocument/prepareRename",
-            LspRequestMethods::WorkspaceExecuteCommand => "workspace/executeCommand",
-            LspRequestMethods::WorkspaceApplyEdit => "workspace/applyEdit",
-            LspRequestMethods::Custom(custom) => custom,
-        };
-        write!(f, "{}", printable)
-    }
-}
-impl fmt::Display for LspNotificationMethods {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let printable = match self {
-            LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders => {
-                "workspace/didChangeWorkspaceFolders"
-            }
-            LspNotificationMethods::WindowWorkDoneProgressCancel => {
-                "window/workDoneProgress/cancel"
-            }
-            LspNotificationMethods::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
-            LspNotificationMethods::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
-            LspNotificationMethods::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
-            LspNotificationMethods::NotebookDocumentDidOpen => "notebookDocument/didOpen",
-            LspNotificationMethods::NotebookDocumentDidChange => {
-                "notebookDocument/didChange"
-            }
-            LspNotificationMethods::NotebookDocumentDidSave => "notebookDocument/didSave",
-            LspNotificationMethods::NotebookDocumentDidClose => {
-                "notebookDocument/didClose"
-            }
-            LspNotificationMethods::Initialized => "initialized",
-            LspNotificationMethods::Exit => "exit",
-            LspNotificationMethods::WorkspaceDidChangeConfiguration => {
-                "workspace/didChangeConfiguration"
-            }
-            LspNotificationMethods::WindowShowMessage => "window/showMessage",
-            LspNotificationMethods::WindowLogMessage => "window/logMessage",
-            LspNotificationMethods::TelemetryEvent => "telemetry/event",
-            LspNotificationMethods::TextDocumentDidOpen => "textDocument/didOpen",
-            LspNotificationMethods::TextDocumentDidChange => "textDocument/didChange",
-            LspNotificationMethods::TextDocumentDidClose => "textDocument/didClose",
-            LspNotificationMethods::TextDocumentDidSave => "textDocument/didSave",
-            LspNotificationMethods::TextDocumentWillSave => "textDocument/willSave",
-            LspNotificationMethods::WorkspaceDidChangeWatchedFiles => {
-                "workspace/didChangeWatchedFiles"
-            }
-            LspNotificationMethods::TextDocumentPublishDiagnostics => {
-                "textDocument/publishDiagnostics"
-            }
-            LspNotificationMethods::SetTrace => "$/setTrace",
-            LspNotificationMethods::LogTrace => "$/logTrace",
-            LspNotificationMethods::CancelRequest => "$/cancelRequest",
-            LspNotificationMethods::Progress => "$/progress",
-            LspNotificationMethods::Custom(custom) => custom,
-        };
-        write!(f, "{}", printable)
-    }
 }

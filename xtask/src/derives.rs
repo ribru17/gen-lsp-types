@@ -69,18 +69,21 @@ pub fn get_struct_derives(
 }
 
 pub fn get_enum_derives(enumeration: &Enumeration) -> Vec<&'static str> {
-    let mut derives = vec!["PartialEq", "Eq", "Hash", "Debug", "Clone"];
+    let mut derives = vec![
+        "PartialEq",
+        "Eq",
+        "Hash",
+        "Debug",
+        "Clone",
+        "Serialize",
+        "Deserialize",
+    ];
     if matches!(
         enumeration.type_.name,
         EnumerationTypeName::Integer | EnumerationTypeName::Uinteger
-    ) {
+    ) || enumeration.supports_custom_values != Some(true)
+    {
         derives.push("Copy");
-    } else {
-        derives.push("Serialize");
-        derives.push("Deserialize");
-        if enumeration.supports_custom_values != Some(true) {
-            derives.push("Copy");
-        }
     }
     derives
 }
