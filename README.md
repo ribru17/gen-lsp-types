@@ -145,7 +145,7 @@ The generated Rust struct looks like the following:
 /// Delete file operation
 pub struct DeleteFile {
     /// The file to delete.
-    pub uri: String,
+    pub uri: Uri,
     /// Delete options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<DeleteFileOptions>,

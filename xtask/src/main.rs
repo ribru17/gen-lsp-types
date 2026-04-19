@@ -488,6 +488,7 @@ fn main() {
         }
 
         /// Indicates in which direction a message is sent in the protocol.
+        #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
         pub enum MessageDirection {
             ClientToServer,
             ServerToClient,
@@ -505,6 +506,23 @@ fn main() {
             type Result: DeserializeOwned + Serialize + Send + Sync;
             const METHOD: LspRequestMethods;
             const MESSAGE_DIRECTION: MessageDirection;
+        }
+
+        /// URIs are transferred as strings. The URI's format is defined in https://tools.ietf.org/html/rfc3986.
+        #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, From)]
+        #[from(String, &str)]
+        pub struct Uri(pub String);
+
+        impl AsRef<str> for Uri {
+            fn as_ref(&self) -> &str {
+                &self.0
+            }
+        }
+
+        impl fmt::Display for Uri {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, "{}", self.0)
+            }
         }
     };
 
