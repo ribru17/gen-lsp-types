@@ -10,6 +10,9 @@ keywords = ["lsp", "codegen"]
 readme = "README.md"
 categories = ["development-tools"]
 
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
 derive_more = { version = "2.1.1", features = ["from"] }
 serde = { workspace = true }
