@@ -467,6 +467,7 @@ fn main() {
             clippy::doc_lazy_continuation,
             unreachable_patterns,
             clippy::large_enum_variant,
+            clippy::too_many_arguments,
             rustdoc::invalid_codeblock_attributes
         )]
         #![cfg_attr(any(), rustfmt::skip)]
@@ -474,6 +475,7 @@ fn main() {
 
     let imports = quote! {
         use derive_more::From;
+        use derive_new::new as New;
         use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
         use std::{borrow::Cow, collections::HashMap, fmt};
     };

@@ -247,13 +247,14 @@ mod test {
     use std::collections::{HashMap, HashSet};
 
     use crate::{
-        CodeLensRefreshRequest, ColorPresentation, CreateFile, DeleteFile, DocumentChange,
-        DocumentSymbol, Error, ExitNotification, FoldingRangeKind, Id, ImplementationRequest,
-        ImplementationRequestResponse, InitializeParams, InitializedNotification,
-        InitializedParams, LspNotificationMethods, LspRequestMethods, MarkupKind, Position, Range,
-        RequestObject, ResponseObject, ShowMessageRequest, SymbolKind,
-        TextDocumentRegistrationOptions, TypeDefinitionParams, TypeDefinitionRequest, WatchKind,
-        WorkDoneProgressEnd, WorkspaceFoldersInitializeParams, WorkspaceFoldersRequest,
+        CodeLensRefreshRequest, ColorPresentation, CreateFile, DeleteFile, Diagnostic,
+        DiagnosticSeverity, DocumentChange, DocumentSymbol, Error, ExitNotification,
+        FoldingRangeKind, Id, ImplementationRequest, ImplementationRequestResponse,
+        InitializeParams, InitializedNotification, InitializedParams, Location,
+        LspNotificationMethods, LspRequestMethods, MarkupKind, Position, Range, RequestObject,
+        ResponseObject, ShowMessageRequest, SymbolKind, TextDocumentRegistrationOptions,
+        TypeDefinitionParams, TypeDefinitionRequest, Uri, WatchKind, WorkDoneProgressEnd,
+        WorkspaceFoldersInitializeParams, WorkspaceFoldersRequest,
         WorkspaceFoldersServerCapabilities,
     };
 
@@ -752,6 +753,56 @@ mod test {
         assert_eq!(
             r#"{"jsonrpc":"2.0","error":{"code":-32801,"message":"failed to foo the bar","data":"hi"},"id":"foo-req"}"#,
             &ser
+        );
+    }
+
+    #[test]
+    fn structures_new_constructor() {
+        assert_eq!(
+            Position::new(1, 2),
+            Position {
+                line: 1,
+                character: 2
+            }
+        );
+        assert_eq!(
+            Range::new(Position::new(0, 0), Position::new(0, 99)),
+            Range {
+                start: Position::default(),
+                end: Position {
+                    line: 0,
+                    character: 99
+                }
+            }
+        );
+
+        assert_eq!(
+            Location::new(Uri("foo".into()), Range::default()),
+            Location {
+                uri: Uri("foo".into()),
+                range: Range::default()
+            }
+        );
+
+        // For some structures, the new() constructor does not help as much.
+        assert_eq!(
+            Diagnostic::new(
+                Range::default(),
+                Some(DiagnosticSeverity::Warning),
+                None,
+                None,
+                None,
+                "bad".into(),
+                None,
+                None,
+                None
+            ),
+            Diagnostic {
+                range: Range::default(),
+                message: "bad".into(),
+                severity: Some(DiagnosticSeverity::Warning),
+                ..Default::default()
+            }
         );
     }
 }

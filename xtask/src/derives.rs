@@ -12,7 +12,14 @@ pub fn get_struct_derives(
     type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> Vec<&'static str> {
     // Start with the commonly shared derives.
-    let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
+    let mut derives = vec![
+        "Serialize",
+        "Deserialize",
+        "PartialEq",
+        "Debug",
+        "Clone",
+        "New",
+    ];
 
     let mut eqable = true;
     let mut hashable = true;
