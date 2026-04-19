@@ -6,12 +6,13 @@
     clippy::large_enum_variant,
     rustdoc::invalid_codeblock_attributes
 )]
+#![cfg_attr(any(), rustfmt::skip)]
 
 use derive_more::From;
 use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
 use std::{borrow::Cow, collections::HashMap, fmt};
 
-pub(crate) fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     T: Deserialize<'de>,
     D: Deserializer<'de>,
@@ -6919,7 +6920,7 @@ impl From<String> for SemanticTokenTypes {
 impl fmt::Display for SemanticTokenTypes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -6982,7 +6983,7 @@ impl From<String> for SemanticTokenModifiers {
 impl fmt::Display for SemanticTokenModifiers {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7013,14 +7014,14 @@ impl TryFrom<String> for DocumentDiagnosticReportKind {
         match v.as_str() {
             "full" => Ok(DocumentDiagnosticReportKind::Full),
             "unchanged" => Ok(DocumentDiagnosticReportKind::Unchanged),
-            _ => Err(format!("Invalid DocumentDiagnosticReportKind: {}", v)),
+            _ => Err(format!("Invalid DocumentDiagnosticReportKind: {v}")),
         }
     }
 }
 impl fmt::Display for DocumentDiagnosticReportKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7162,7 +7163,7 @@ impl From<String> for FoldingRangeKind {
 impl fmt::Display for FoldingRangeKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7259,7 +7260,7 @@ impl TryFrom<u32> for SymbolKind {
             24u32 => Ok(SymbolKind::Event),
             25u32 => Ok(SymbolKind::Operator),
             26u32 => Ok(SymbolKind::TypeParameter),
-            _ => Err(format!("Invalid SymbolKind: {}", v)),
+            _ => Err(format!("Invalid SymbolKind: {v}")),
         }
     }
 }
@@ -7285,7 +7286,7 @@ impl TryFrom<u32> for SymbolTag {
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
             1u32 => Ok(SymbolTag::Deprecated),
-            _ => Err(format!("Invalid SymbolTag: {}", v)),
+            _ => Err(format!("Invalid SymbolTag: {v}")),
         }
     }
 }
@@ -7327,14 +7328,14 @@ impl TryFrom<String> for UniquenessLevel {
             "group" => Ok(UniquenessLevel::Group),
             "scheme" => Ok(UniquenessLevel::Scheme),
             "global" => Ok(UniquenessLevel::Global),
-            _ => Err(format!("Invalid UniquenessLevel: {}", v)),
+            _ => Err(format!("Invalid UniquenessLevel: {v}")),
         }
     }
 }
 impl fmt::Display for UniquenessLevel {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7368,14 +7369,14 @@ impl TryFrom<String> for MonikerKind {
             "import" => Ok(MonikerKind::Import),
             "export" => Ok(MonikerKind::Export),
             "local" => Ok(MonikerKind::Local),
-            _ => Err(format!("Invalid MonikerKind: {}", v)),
+            _ => Err(format!("Invalid MonikerKind: {v}")),
         }
     }
 }
 impl fmt::Display for MonikerKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7404,7 +7405,7 @@ impl TryFrom<u32> for InlayHintKind {
         match v {
             1u32 => Ok(InlayHintKind::Type),
             2u32 => Ok(InlayHintKind::Parameter),
-            _ => Err(format!("Invalid InlayHintKind: {}", v)),
+            _ => Err(format!("Invalid InlayHintKind: {v}")),
         }
     }
 }
@@ -7447,7 +7448,7 @@ impl TryFrom<u32> for MessageType {
             3u32 => Ok(MessageType::Info),
             4u32 => Ok(MessageType::Log),
             5u32 => Ok(MessageType::Debug),
-            _ => Err(format!("Invalid MessageType: {}", v)),
+            _ => Err(format!("Invalid MessageType: {v}")),
         }
     }
 }
@@ -7483,7 +7484,7 @@ impl TryFrom<u32> for TextDocumentSyncKind {
             0u32 => Ok(TextDocumentSyncKind::None),
             1u32 => Ok(TextDocumentSyncKind::Full),
             2u32 => Ok(TextDocumentSyncKind::Incremental),
-            _ => Err(format!("Invalid TextDocumentSyncKind: {}", v)),
+            _ => Err(format!("Invalid TextDocumentSyncKind: {v}")),
         }
     }
 }
@@ -7516,7 +7517,7 @@ impl TryFrom<u32> for TextDocumentSaveReason {
             1u32 => Ok(TextDocumentSaveReason::Manual),
             2u32 => Ok(TextDocumentSaveReason::AfterDelay),
             3u32 => Ok(TextDocumentSaveReason::FocusOut),
-            _ => Err(format!("Invalid TextDocumentSaveReason: {}", v)),
+            _ => Err(format!("Invalid TextDocumentSaveReason: {v}")),
         }
     }
 }
@@ -7611,7 +7612,7 @@ impl TryFrom<u32> for CompletionItemKind {
             23u32 => Ok(CompletionItemKind::Event),
             24u32 => Ok(CompletionItemKind::Operator),
             25u32 => Ok(CompletionItemKind::TypeParameter),
-            _ => Err(format!("Invalid CompletionItemKind: {}", v)),
+            _ => Err(format!("Invalid CompletionItemKind: {v}")),
         }
     }
 }
@@ -7638,7 +7639,7 @@ impl TryFrom<u32> for CompletionItemTag {
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
             1u32 => Ok(CompletionItemTag::Deprecated),
-            _ => Err(format!("Invalid CompletionItemTag: {}", v)),
+            _ => Err(format!("Invalid CompletionItemTag: {v}")),
         }
     }
 }
@@ -7674,7 +7675,7 @@ impl TryFrom<u32> for InsertTextFormat {
         match v {
             1u32 => Ok(InsertTextFormat::PlainText),
             2u32 => Ok(InsertTextFormat::Snippet),
-            _ => Err(format!("Invalid InsertTextFormat: {}", v)),
+            _ => Err(format!("Invalid InsertTextFormat: {v}")),
         }
     }
 }
@@ -7715,7 +7716,7 @@ impl TryFrom<u32> for InsertTextMode {
         match v {
             1u32 => Ok(InsertTextMode::AsIs),
             2u32 => Ok(InsertTextMode::AdjustIndentation),
-            _ => Err(format!("Invalid InsertTextMode: {}", v)),
+            _ => Err(format!("Invalid InsertTextMode: {v}")),
         }
     }
 }
@@ -7747,7 +7748,7 @@ impl TryFrom<u32> for DocumentHighlightKind {
             1u32 => Ok(DocumentHighlightKind::Text),
             2u32 => Ok(DocumentHighlightKind::Read),
             3u32 => Ok(DocumentHighlightKind::Write),
-            _ => Err(format!("Invalid DocumentHighlightKind: {}", v)),
+            _ => Err(format!("Invalid DocumentHighlightKind: {v}")),
         }
     }
 }
@@ -7865,7 +7866,7 @@ impl From<String> for CodeActionKind {
 impl fmt::Display for CodeActionKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7890,7 +7891,7 @@ impl TryFrom<u32> for CodeActionTag {
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
             1u32 => Ok(CodeActionTag::LLMGenerated),
-            _ => Err(format!("Invalid CodeActionTag: {}", v)),
+            _ => Err(format!("Invalid CodeActionTag: {v}")),
         }
     }
 }
@@ -7921,14 +7922,14 @@ impl TryFrom<String> for TraceValue {
             "off" => Ok(TraceValue::Off),
             "messages" => Ok(TraceValue::Messages),
             "verbose" => Ok(TraceValue::Verbose),
-            _ => Err(format!("Invalid TraceValue: {}", v)),
+            _ => Err(format!("Invalid TraceValue: {v}")),
         }
     }
 }
 impl fmt::Display for TraceValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -7959,14 +7960,14 @@ impl TryFrom<String> for MarkupKind {
         match v.as_str() {
             "plaintext" => Ok(MarkupKind::PlainText),
             "markdown" => Ok(MarkupKind::Markdown),
-            _ => Err(format!("Invalid MarkupKind: {}", v)),
+            _ => Err(format!("Invalid MarkupKind: {v}")),
         }
     }
 }
 impl fmt::Display for MarkupKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -8185,7 +8186,7 @@ impl From<String> for LanguageKind {
 impl fmt::Display for LanguageKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -8215,7 +8216,7 @@ impl TryFrom<u32> for InlineCompletionTriggerKind {
         match v {
             1u32 => Ok(InlineCompletionTriggerKind::Invoked),
             2u32 => Ok(InlineCompletionTriggerKind::Automatic),
-            _ => Err(format!("Invalid InlineCompletionTriggerKind: {}", v)),
+            _ => Err(format!("Invalid InlineCompletionTriggerKind: {v}")),
         }
     }
 }
@@ -8266,7 +8267,7 @@ impl From<String> for PositionEncodingKind {
 impl fmt::Display for PositionEncodingKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -8297,7 +8298,7 @@ impl TryFrom<u32> for FileChangeType {
             1u32 => Ok(FileChangeType::Created),
             2u32 => Ok(FileChangeType::Changed),
             3u32 => Ok(FileChangeType::Deleted),
-            _ => Err(format!("Invalid FileChangeType: {}", v)),
+            _ => Err(format!("Invalid FileChangeType: {v}")),
         }
     }
 }
@@ -8367,7 +8368,7 @@ impl TryFrom<u32> for DiagnosticSeverity {
             2u32 => Ok(DiagnosticSeverity::Warning),
             3u32 => Ok(DiagnosticSeverity::Information),
             4u32 => Ok(DiagnosticSeverity::Hint),
-            _ => Err(format!("Invalid DiagnosticSeverity: {}", v)),
+            _ => Err(format!("Invalid DiagnosticSeverity: {v}")),
         }
     }
 }
@@ -8402,7 +8403,7 @@ impl TryFrom<u32> for DiagnosticTag {
         match v {
             1u32 => Ok(DiagnosticTag::Unnecessary),
             2u32 => Ok(DiagnosticTag::Deprecated),
-            _ => Err(format!("Invalid DiagnosticTag: {}", v)),
+            _ => Err(format!("Invalid DiagnosticTag: {v}")),
         }
     }
 }
@@ -8436,7 +8437,7 @@ impl TryFrom<u32> for CompletionTriggerKind {
             1u32 => Ok(CompletionTriggerKind::Invoked),
             2u32 => Ok(CompletionTriggerKind::TriggerCharacter),
             3u32 => Ok(CompletionTriggerKind::TriggerForIncompleteCompletions),
-            _ => Err(format!("Invalid CompletionTriggerKind: {}", v)),
+            _ => Err(format!("Invalid CompletionTriggerKind: {v}")),
         }
     }
 }
@@ -8471,7 +8472,7 @@ impl TryFrom<u32> for ApplyKind {
         match v {
             1u32 => Ok(ApplyKind::Replace),
             2u32 => Ok(ApplyKind::Merge),
-            _ => Err(format!("Invalid ApplyKind: {}", v)),
+            _ => Err(format!("Invalid ApplyKind: {v}")),
         }
     }
 }
@@ -8505,7 +8506,7 @@ impl TryFrom<u32> for SignatureHelpTriggerKind {
             1u32 => Ok(SignatureHelpTriggerKind::Invoked),
             2u32 => Ok(SignatureHelpTriggerKind::TriggerCharacter),
             3u32 => Ok(SignatureHelpTriggerKind::ContentChange),
-            _ => Err(format!("Invalid SignatureHelpTriggerKind: {}", v)),
+            _ => Err(format!("Invalid SignatureHelpTriggerKind: {v}")),
         }
     }
 }
@@ -8538,7 +8539,7 @@ impl TryFrom<u32> for CodeActionTriggerKind {
         match v {
             1u32 => Ok(CodeActionTriggerKind::Invoked),
             2u32 => Ok(CodeActionTriggerKind::Automatic),
-            _ => Err(format!("Invalid CodeActionTriggerKind: {}", v)),
+            _ => Err(format!("Invalid CodeActionTriggerKind: {v}")),
         }
     }
 }
@@ -8569,14 +8570,14 @@ impl TryFrom<String> for FileOperationPatternKind {
         match v.as_str() {
             "file" => Ok(FileOperationPatternKind::File),
             "folder" => Ok(FileOperationPatternKind::Folder),
-            _ => Err(format!("Invalid FileOperationPatternKind: {}", v)),
+            _ => Err(format!("Invalid FileOperationPatternKind: {v}")),
         }
     }
 }
 impl fmt::Display for FileOperationPatternKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -8605,7 +8606,7 @@ impl TryFrom<u32> for NotebookCellKind {
         match v {
             1u32 => Ok(NotebookCellKind::Markup),
             2u32 => Ok(NotebookCellKind::Code),
-            _ => Err(format!("Invalid NotebookCellKind: {}", v)),
+            _ => Err(format!("Invalid NotebookCellKind: {v}")),
         }
     }
 }
@@ -8636,14 +8637,14 @@ impl TryFrom<String> for ResourceOperationKind {
             "create" => Ok(ResourceOperationKind::Create),
             "rename" => Ok(ResourceOperationKind::Rename),
             "delete" => Ok(ResourceOperationKind::Delete),
-            _ => Err(format!("Invalid ResourceOperationKind: {}", v)),
+            _ => Err(format!("Invalid ResourceOperationKind: {v}")),
         }
     }
 }
 impl fmt::Display for ResourceOperationKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -8684,14 +8685,14 @@ impl TryFrom<String> for FailureHandlingKind {
             "transactional" => Ok(FailureHandlingKind::Transactional),
             "textOnlyTransactional" => Ok(FailureHandlingKind::TextOnlyTransactional),
             "undo" => Ok(FailureHandlingKind::Undo),
-            _ => Err(format!("Invalid FailureHandlingKind: {}", v)),
+            _ => Err(format!("Invalid FailureHandlingKind: {v}")),
         }
     }
 }
 impl fmt::Display for FailureHandlingKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -8714,7 +8715,7 @@ impl TryFrom<u32> for PrepareSupportDefaultBehavior {
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
             1u32 => Ok(PrepareSupportDefaultBehavior::Identifier),
-            _ => Err(format!("Invalid PrepareSupportDefaultBehavior: {}", v)),
+            _ => Err(format!("Invalid PrepareSupportDefaultBehavior: {v}")),
         }
     }
 }
@@ -8736,14 +8737,14 @@ impl TryFrom<String> for TokenFormat {
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
             "relative" => Ok(TokenFormat::Relative),
-            _ => Err(format!("Invalid TokenFormat: {}", v)),
+            _ => Err(format!("Invalid TokenFormat: {v}")),
         }
     }
 }
 impl fmt::Display for TokenFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -9144,7 +9145,7 @@ impl From<String> for LspRequestMethods {
 impl fmt::Display for LspRequestMethods {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 
@@ -9298,7 +9299,7 @@ impl From<String> for LspNotificationMethods {
 impl fmt::Display for LspNotificationMethods {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
-        write!(f, "{}", s)
+        write!(f, "{s}")
     }
 }
 

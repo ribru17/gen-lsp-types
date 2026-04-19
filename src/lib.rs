@@ -1,8 +1,16 @@
 mod generated;
 
 pub use generated::*;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
+
+fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+where
+    T: Deserialize<'de>,
+    D: Deserializer<'de>,
+{
+    T::deserialize(deserializer).map(Some)
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 enum Version {
@@ -55,6 +63,11 @@ pub struct RequestObject {
 
 impl RequestObject {
     /// Creates a JSON-RPC Request object from a server request.
+    ///
+    /// # Panics
+    ///
+    /// Will panic if `result` cannot be serialized (impossible unless the trait was implemented
+    /// incorrectly).
     pub fn from_request<R>(id: Id, params: R::Params) -> Self
     where
         R: Request,
@@ -65,7 +78,7 @@ impl RequestObject {
             Value::Array(_) | Value::Object(_) => Some(params),
             _ => panic!("Parameters must be an object or array, if not omitted."),
         };
-        RequestObject {
+        Self {
             jsonrpc: Version::TwoPointZero,
             id: Some(id),
             params,
@@ -74,6 +87,11 @@ impl RequestObject {
     }
 
     /// Creates a JSON-RPC Request object from a server notification.
+    ///
+    /// # Panics
+    ///
+    /// Will panic if `result` cannot be serialized (impossible unless the trait was implemented
+    /// incorrectly).
     pub fn from_notification<N>(params: N::Params) -> Self
     where
         N: Notification,
@@ -84,7 +102,7 @@ impl RequestObject {
             Value::Array(_) | Value::Object(_) => Some(params),
             _ => panic!("Parameters must be an object or array, if not omitted."),
         };
-        RequestObject {
+        Self {
             jsonrpc: Version::TwoPointZero,
             method: N::METHOD.to_string(),
             params,
@@ -93,21 +111,25 @@ impl RequestObject {
     }
 
     /// Returns the method to be invoked.
+    #[must_use]
     pub fn method(&self) -> &str {
         self.method.as_ref()
     }
 
     /// Returns the id.
+    #[must_use]
     pub const fn id(&self) -> Option<&Id> {
         self.id.as_ref()
     }
 
     /// Returns the params.
+    #[must_use]
     pub const fn params(&self) -> Option<&Value> {
         self.params.as_ref()
     }
 
     /// Splits the request into the method name, request ID, and the parameters.
+    #[must_use]
     pub fn into_parts(self) -> (String, Option<Id>, Option<Value>) {
         (self.method, self.id, self.params)
     }
@@ -155,6 +177,11 @@ pub struct ResponseObject {
 
 impl ResponseObject {
     /// Creates a successful Response object from a result value.
+    ///
+    /// # Panics
+    ///
+    /// Will panic if `result` cannot be serialized (impossible unless the trait was implemented
+    /// incorrectly).
     pub fn from_success<R>(id: Id, result: R::Result) -> Self
     where
         R: Request,
@@ -168,6 +195,7 @@ impl ResponseObject {
     }
 
     /// Creates an error Response object from an error value.
+    #[must_use]
     pub const fn from_error(id: Id, error: Error) -> Self {
         Self {
             jsonrpc: Version::TwoPointZero,
@@ -177,33 +205,38 @@ impl ResponseObject {
     }
 
     /// Returns `true` if the Response object indicates success.
+    #[must_use]
     pub const fn is_ok(&self) -> bool {
         matches!(self.kind, Kind::Ok { .. })
     }
 
     /// Returns `true` if the Response object indicates failure.
+    #[must_use]
     pub const fn is_error(&self) -> bool {
         !self.is_ok()
     }
 
     /// Returns the corresponding Response object ID.
+    #[must_use]
     pub const fn id(&self) -> &Id {
         &self.id
     }
 
     /// Returns the `result` value, if present.
+    #[must_use]
     pub const fn result(&self) -> Option<&Value> {
         match &self.kind {
             Kind::Ok { result } => Some(result),
-            _ => None,
+            Kind::Err { .. } => None,
         }
     }
 
     /// Returns the `error` object, if present.
+    #[must_use]
     pub const fn error(&self) -> Option<&Error> {
         match &self.kind {
             Kind::Err { error } => Some(error),
-            _ => None,
+            Kind::Ok { .. } => None,
         }
     }
 }
@@ -306,7 +339,7 @@ mod test {
 
         let wfip_str = serde_json::to_string(&wfip).unwrap();
 
-        assert_eq!(wfip_str, r#"{}"#);
+        assert_eq!(wfip_str, r"{}");
 
         assert_eq!(
             serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
@@ -346,13 +379,13 @@ mod test {
 
         let doc_sym = DocumentSymbol {
             kind: crate::SymbolKind::Function,
-            name: Default::default(),
-            detail: Default::default(),
-            tags: Default::default(),
-            deprecated: Default::default(),
-            range: Default::default(),
-            selection_range: Default::default(),
-            children: Default::default(),
+            name: String::default(),
+            detail: Option::default(),
+            tags: Option::default(),
+            deprecated: Option::default(),
+            range: Range::default(),
+            selection_range: Range::default(),
+            children: Option::default(),
         };
         let table = HashSet::from([doc_sym.clone()]);
         assert!(table.contains(&doc_sym));
@@ -664,7 +697,7 @@ mod test {
         );
         assert_eq!(res, serde_json::from_str(&ser).unwrap());
 
-        let res = ResponseObject::from_success::<CodeLensRefreshRequest>(id.clone(), ());
+        let res = ResponseObject::from_success::<CodeLensRefreshRequest>(id, ());
 
         let ser = serde_json::to_string(&res).unwrap();
         assert_eq!(r#"{"jsonrpc":"2.0","result":null,"id":123}"#, &ser);
