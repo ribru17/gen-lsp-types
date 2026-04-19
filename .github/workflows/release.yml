@@ -11,19 +11,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: taiki-e/create-gh-release-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
   publish:
-    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@1.88.0
+      - uses: dtolnay/rust-toolchain@1.95.0
       - name: Publish to crates.io
         run: cargo publish --package gen-lsp-types --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
