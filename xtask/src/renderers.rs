@@ -734,11 +734,8 @@ fn render_type(
         Type::BaseType(base_type) => match base_type.name {
             BaseTypes::Uinteger => quote! { u32 },
             BaseTypes::Integer => quote! { i32 },
-            // NOTE: Potentially pick a URI type and decode the latter two base types as that,
-            // rather than as strings? This question has been the subject of controversy...
-            BaseTypes::String | BaseTypes::RegExp | BaseTypes::Uri | BaseTypes::DocumentUri => {
-                quote! { String }
-            }
+            BaseTypes::String | BaseTypes::RegExp => quote! { String },
+            BaseTypes::Uri | BaseTypes::DocumentUri => quote! { Uri },
             BaseTypes::Boolean => quote! { bool },
             BaseTypes::Decimal => quote! { f32 },
             BaseTypes::Null => quote! { () },

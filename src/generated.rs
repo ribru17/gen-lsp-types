@@ -20,6 +20,7 @@ where
     T::deserialize(deserializer).map(Some)
 }
 /// Indicates in which direction a message is sent in the protocol.
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 pub enum MessageDirection {
     ClientToServer,
     ServerToClient,
@@ -35,6 +36,20 @@ pub trait Request {
     type Result: DeserializeOwned + Serialize + Send + Sync;
     const METHOD: LspRequestMethods;
     const MESSAGE_DIRECTION: MessageDirection;
+}
+/// URIs are transferred as strings. The URI's format is defined in https://tools.ietf.org/html/rfc3986.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, From)]
+#[from(String, &str)]
+pub struct Uri(pub String);
+impl AsRef<str> for Uri {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+impl fmt::Display for Uri {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
@@ -53,7 +68,7 @@ pub struct ImplementationParams {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
-    pub uri: String,
+    pub uri: Uri,
     pub range: Range,
 }
 
@@ -95,7 +110,7 @@ pub struct TypeDefinitionRegistrationOptions {
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFolder {
     /// The associated URI for this workspace folder.
-    pub uri: String,
+    pub uri: Uri,
     /// The name of the workspace folder. Used to refer to this
     /// workspace folder in the user interface.
     pub name: String,
@@ -356,7 +371,7 @@ pub struct CallHierarchyItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub detail: Option<String>,
     /// The resource identifier of this item.
-    pub uri: String,
+    pub uri: Uri,
     /// The range enclosing this symbol not including leading/trailing whitespace but everything else, e.g. comments and code.
     pub range: Range,
     /// The range that should be selected and revealed when this symbol is being picked, e.g. the name of a function.
@@ -533,7 +548,7 @@ pub struct SemanticTokensRangeParams {
 #[serde(rename_all = "camelCase")]
 pub struct ShowDocumentParams {
     /// The uri to show.
-    pub uri: String,
+    pub uri: Uri,
     /// Indicates to show the resource in an external program.
     /// To show, for example, `https://code.visualstudio.com/`
     /// in the default WEB browser set `external` to `true`.
@@ -627,7 +642,7 @@ pub struct CreateFilesParams {
 pub struct WorkspaceEdit {
     /// Holds changes to existing resources.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub changes: Option<HashMap<String, Vec<TextEdit>>>,
+    pub changes: Option<HashMap<Uri, Vec<TextEdit>>>,
     /// Depending on the client capability `workspace.workspaceEdit.resourceOperations` document changes
     /// are either an array of `TextDocumentEdit`s to express changes to n different text documents
     /// where each text document edit addresses a specific version of a text document. Or it can contain
@@ -750,7 +765,7 @@ pub struct TypeHierarchyItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub detail: Option<String>,
     /// The resource identifier of this item.
-    pub uri: String,
+    pub uri: Uri,
     /// The range enclosing this symbol not including leading/trailing whitespace
     /// but everything else, e.g. comments and code.
     pub range: Range,
@@ -941,7 +956,7 @@ pub struct DocumentDiagnosticParams {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentDiagnosticReportPartialResult {
-    pub related_documents: HashMap<String, RelatedDocument>,
+    pub related_documents: HashMap<Uri, RelatedDocument>,
 }
 
 /// Cancellation data returned from a diagnostic request.
@@ -1148,7 +1163,7 @@ pub struct InlineCompletionRegistrationOptions {
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentParams {
     /// The uri of the text document.
-    pub uri: String,
+    pub uri: Uri,
 }
 
 /// Result of the `workspace/textDocumentContent` request.
@@ -1186,7 +1201,7 @@ pub struct TextDocumentContentRegistrationOptions {
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentRefreshParams {
     /// The uri of the text document to refresh.
-    pub uri: String,
+    pub uri: Uri,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
@@ -1239,7 +1254,7 @@ pub struct InitializeParams {
     ///
     /// @deprecated in favour of workspaceFolders.
     #[deprecated(note = "in favour of workspaceFolders.")]
-    pub root_uri: Option<String>,
+    pub root_uri: Option<Uri>,
     /// The capabilities provided by the client (editor or tool)
     pub capabilities: ClientCapabilities,
     /// User provided initialization options.
@@ -1453,7 +1468,7 @@ pub struct DidChangeWatchedFilesRegistrationOptions {
 #[serde(rename_all = "camelCase")]
 pub struct PublishDiagnosticsParams {
     /// The URI for which diagnostic information is reported.
-    pub uri: String,
+    pub uri: Uri,
     /// Optional the version number of the document the diagnostics are published for.
     ///
     /// @since 3.15.0
@@ -2169,7 +2184,7 @@ pub struct DocumentLink {
     pub range: Range,
     /// The uri this link points to. If missing a resolve request is sent later.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub target: Option<String>,
+    pub target: Option<Uri>,
     /// The tooltip text when you hover over this link.
     ///
     /// If a tooltip is provided, is will be displayed in a string that includes instructions on how to
@@ -2653,7 +2668,7 @@ pub struct LocationLink {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub origin_selection_range: Option<Range>,
     /// The target resource identifier of this link.
-    pub target_uri: String,
+    pub target_uri: Uri,
     /// The full target range of this link. If the target for example is a symbol then target range is the
     /// range enclosing this symbol not including leading/trailing whitespace but everything else
     /// like comments. This information is typically used to highlight the range in the editor.
@@ -2735,7 +2750,7 @@ pub struct WorkspaceFoldersChangeEvent {
 pub struct ConfigurationItem {
     /// The scope to get the configuration section for.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub scope_uri: Option<String>,
+    pub scope_uri: Option<Uri>,
     /// The configuration section asked for.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub section: Option<String>,
@@ -2746,7 +2761,7 @@ pub struct ConfigurationItem {
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentIdentifier {
     /// The text document's uri.
-    pub uri: String,
+    pub uri: Uri,
 }
 
 /// Represents a color in RGBA space.
@@ -2924,7 +2939,7 @@ pub struct TextDocumentEdit {
 #[serde(try_from = "ShadowCreateFile", into = "ShadowCreateFile")]
 pub struct CreateFile {
     /// The resource to create.
-    pub uri: String,
+    pub uri: Uri,
     /// Additional options
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<CreateFileOptions>,
@@ -2938,7 +2953,7 @@ pub struct CreateFile {
 #[serde(rename_all = "camelCase")]
 struct ShadowCreateFile {
     /// The resource to create.
-    pub uri: String,
+    pub uri: Uri,
     /// Additional options
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<CreateFileOptions>,
@@ -2979,9 +2994,9 @@ impl From<CreateFile> for ShadowCreateFile {
 #[serde(try_from = "ShadowRenameFile", into = "ShadowRenameFile")]
 pub struct RenameFile {
     /// The old (existing) location.
-    pub old_uri: String,
+    pub old_uri: Uri,
     /// The new location.
-    pub new_uri: String,
+    pub new_uri: Uri,
     /// Rename options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<RenameFileOptions>,
@@ -2995,9 +3010,9 @@ pub struct RenameFile {
 #[serde(rename_all = "camelCase")]
 struct ShadowRenameFile {
     /// The old (existing) location.
-    pub old_uri: String,
+    pub old_uri: Uri,
     /// The new location.
-    pub new_uri: String,
+    pub new_uri: Uri,
     /// Rename options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<RenameFileOptions>,
@@ -3040,7 +3055,7 @@ impl From<RenameFile> for ShadowRenameFile {
 #[serde(try_from = "ShadowDeleteFile", into = "ShadowDeleteFile")]
 pub struct DeleteFile {
     /// The file to delete.
-    pub uri: String,
+    pub uri: Uri,
     /// Delete options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<DeleteFileOptions>,
@@ -3054,7 +3069,7 @@ pub struct DeleteFile {
 #[serde(rename_all = "camelCase")]
 struct ShadowDeleteFile {
     /// The file to delete.
-    pub uri: String,
+    pub uri: Uri,
     /// Delete options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<DeleteFileOptions>,
@@ -3322,7 +3337,7 @@ pub struct RelatedFullDocumentDiagnosticReport {
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub related_documents: Option<HashMap<String, RelatedDocument>>,
+    pub related_documents: Option<HashMap<Uri, RelatedDocument>>,
     #[serde(flatten)]
     pub full_document_diagnostic_report: FullDocumentDiagnosticReport,
 }
@@ -3341,7 +3356,7 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
     ///
     /// @since 3.17.0
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub related_documents: Option<HashMap<String, RelatedDocument>>,
+    pub related_documents: Option<HashMap<Uri, RelatedDocument>>,
     #[serde(flatten)]
     pub unchanged_document_diagnostic_report: UnchangedDocumentDiagnosticReport,
 }
@@ -3476,7 +3491,7 @@ pub struct DiagnosticOptions {
 pub struct PreviousResultId {
     /// The URI for which the client knowns a
     /// result id.
-    pub uri: String,
+    pub uri: Uri,
     /// The value of the previous result id.
     pub value: String,
 }
@@ -3488,7 +3503,7 @@ pub struct PreviousResultId {
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocument {
     /// The notebook document's uri.
-    pub uri: String,
+    pub uri: Uri,
     /// The type of the notebook.
     pub notebook_type: String,
     /// The version number of this document (it will increase after each
@@ -3510,7 +3525,7 @@ pub struct NotebookDocument {
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentItem {
     /// The text document's uri.
-    pub uri: String,
+    pub uri: Uri,
     /// The text document's language identifier.
     pub language_id: LanguageKind,
     /// The version number of this document (it will increase after each
@@ -3553,7 +3568,7 @@ pub struct VersionedNotebookDocumentIdentifier {
     /// The version number of this notebook document.
     pub version: i32,
     /// The notebook document's uri.
-    pub uri: String,
+    pub uri: Uri,
 }
 
 /// A change event for a notebook document.
@@ -3579,7 +3594,7 @@ pub struct NotebookDocumentChangeEvent {
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentIdentifier {
     /// The notebook document's uri.
-    pub uri: String,
+    pub uri: Uri,
 }
 
 /// Provides information about the context in which an inline completion was requested.
@@ -3888,7 +3903,7 @@ pub struct SaveOptions {
 #[serde(rename_all = "camelCase")]
 pub struct FileEvent {
     /// The file's uri.
-    pub uri: String,
+    pub uri: Uri,
     /// The change type.
     #[serde(rename = "type")]
     pub kind: FileChangeType,
@@ -4373,7 +4388,7 @@ pub struct CodeActionOptions {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct LocationUriOnly {
-    pub uri: String,
+    pub uri: Uri,
 }
 
 /// Server capabilities for a [WorkspaceSymbolRequest].
@@ -4664,7 +4679,7 @@ pub struct FileOperationPattern {
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFullDocumentDiagnosticReport {
     /// The URI for which diagnostic information is reported.
-    pub uri: String,
+    pub uri: Uri,
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
     pub version: Option<i32>,
@@ -4679,7 +4694,7 @@ pub struct WorkspaceFullDocumentDiagnosticReport {
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceUnchangedDocumentDiagnosticReport {
     /// The URI for which diagnostic information is reported.
-    pub uri: String,
+    pub uri: Uri,
     /// The version number for which the diagnostics are reported.
     /// If the document is not marked as open `null` can be provided.
     pub version: Option<i32>,
@@ -4701,7 +4716,7 @@ pub struct NotebookCell {
     pub kind: NotebookCellKind,
     /// The URI of the cell's text document
     /// content.
-    pub document: String,
+    pub document: Uri,
     /// Additional metadata stored with the cell.
     ///
     /// Note: should always be an object literal (e.g. LSPObject)
@@ -4893,7 +4908,7 @@ pub struct TextDocumentContentChangeWholeDocument {
 #[serde(rename_all = "camelCase")]
 pub struct CodeDescription {
     /// An URI to open with more information about the diagnostic error.
-    pub href: String,
+    pub href: Uri,
 }
 
 /// Represents a related message and source code location for a diagnostic. This should be
@@ -9373,7 +9388,7 @@ pub enum BaseUri {
     #[from]
     WorkspaceFolder(WorkspaceFolder),
     #[from]
-    Uri(String),
+    Uri(Uri),
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]

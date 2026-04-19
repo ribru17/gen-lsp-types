@@ -511,7 +511,7 @@ mod test {
         assert!(serde_json::from_str::<WorkDoneProgressEnd>(fake_ser).is_err());
 
         let doc_change = CreateFile {
-            uri: "file:///foo.txt".to_string(),
+            uri: "file:///foo.txt".to_string().into(),
             options: None,
             annotation_id: None,
         };
@@ -526,7 +526,7 @@ mod test {
         assert_eq!(
             deser,
             DocumentChange::DeleteFile(DeleteFile {
-                uri: "file:///foo.txt".to_string(),
+                uri: crate::Uri("file:///foo.txt".to_string()),
                 options: None,
                 annotation_id: Some(String::from("foo"))
             })
