@@ -38,7 +38,7 @@ static LINK_RE_3: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{@link +(\w+)
 static LINK_RE_4: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\{@link(code)? +(\w+)\.(\w+)\}").unwrap());
 
-/// Convert a method name to PascalCase. E.g. `textDocument/diagnostic` => `TextDocumentDiagnostic`
+/// Convert a method name to `PascalCase`. E.g. `textDocument/diagnostic` => `TextDocumentDiagnostic`
 fn method_to_pascal(method: &str) -> String {
     let mut result = String::with_capacity(method.len());
     let mut capitalize = true;
@@ -52,7 +52,7 @@ fn method_to_pascal(method: &str) -> String {
                     result.push(ch.to_ascii_uppercase());
                     capitalize = false;
                 } else {
-                    result.push(ch)
+                    result.push(ch);
                 }
             }
         }
@@ -79,7 +79,7 @@ fn camel_to_snake(camel: &str) -> String {
     snake
 }
 
-/// Converts from camelCase to PascalCase.
+/// Converts from camelCase to `PascalCase`.
 fn camel_to_pascal(mut camel: String) -> String {
     camel[0..1].make_ascii_uppercase();
     camel
@@ -136,7 +136,7 @@ fn _has_field_conflict_impl<'a: 'b, 'b>(
 ) -> bool {
     for type_ in mixins.iter().chain(extends) {
         let Type::ReferenceType(reference_type) = type_ else {
-            panic!("Expected mixin/extend type to be a reference: {:?}", type_);
+            panic!("Expected mixin/extend type to be a reference: {type_:?}");
         };
         if let Some(structure) = structs_map.get(&reference_type.name) {
             for prop in &structure.properties {
@@ -173,7 +173,7 @@ fn get_all_inner_properties(
 
     while let Some(type_) = mixins.pop() {
         let Type::ReferenceType(reference_type) = type_ else {
-            panic!("Expected mixin/extend type to be a reference: {:?}", type_);
+            panic!("Expected mixin/extend type to be a reference: {type_:?}");
         };
         if let Some(structure) = structs_map.get(&reference_type.name) {
             for prop in &structure.properties {
@@ -201,7 +201,6 @@ fn resolve_struct_properties(
 ) -> (Vec<Property>, Vec<Property>) {
     let has_conflict = has_field_conflict(&properties, &extends, &mixins, structs_map);
     if has_conflict {
-        // TODO: Only inline the specific mixins/extends which cause conflicts?
         return (
             get_all_inner_properties(properties, extends, mixins, structs_map, &mut None),
             Vec::new(),
@@ -211,7 +210,7 @@ fn resolve_struct_properties(
     let mut mixin_props = Vec::with_capacity(extends.len() + mixins.len());
     mixins.into_iter().chain(extends).for_each(|type_| {
         let Type::ReferenceType(reference_type) = &type_ else {
-            panic!("Expected mixin/extend type to be a reference: {:?}", type_);
+            panic!("Expected mixin/extend type to be a reference: {type_:?}");
         };
         // Inline mixin/extend structs which start with an underscore. This is for convenience.
         if reference_type.name.starts_with('_') {
@@ -249,19 +248,15 @@ fn resolve_struct_properties(
 
 fn is_nullable(type_: &Type) -> bool {
     match type_ {
-        Type::OrType(or_type) => or_type
-            .items
-            .iter()
-            .find(|item| {
-                matches!(
-                    item,
-                    Type::BaseType(BaseType {
-                        kind: _,
-                        name: BaseTypes::Null
-                    })
-                )
-            })
-            .is_some(),
+        Type::OrType(or_type) => or_type.items.iter().any(|item| {
+            matches!(
+                item,
+                Type::BaseType(BaseType {
+                    kind: _,
+                    name: BaseTypes::Null
+                })
+            )
+        }),
         _ => false,
     }
 }
@@ -474,6 +469,7 @@ fn main() {
             clippy::large_enum_variant,
             rustdoc::invalid_codeblock_attributes
         )]
+        #![cfg_attr(any(), rustfmt::skip)]
     };
 
     let imports = quote! {
@@ -483,7 +479,7 @@ fn main() {
     };
 
     let predefs = quote! {
-        pub(crate) fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+        fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
         where
             T: Deserialize<'de>,
             D: Deserializer<'de>,

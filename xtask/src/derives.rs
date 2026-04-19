@@ -183,19 +183,15 @@ pub fn is_defaultable(
             Type::BaseType(BaseType { kind: _, name }) => {
                 !matches!(name, BaseTypes::DocumentUri | BaseTypes::Uri)
             }
-            Type::OrType(or_type) => or_type
-                .items
-                .iter()
-                .find(|item| {
-                    matches!(
-                        item,
-                        Type::BaseType(BaseType {
-                            kind: _,
-                            name: BaseTypes::Null
-                        })
-                    )
-                })
-                .is_some(),
+            Type::OrType(or_type) => or_type.items.iter().any(|item| {
+                matches!(
+                    item,
+                    Type::BaseType(BaseType {
+                        kind: _,
+                        name: BaseTypes::Null
+                    })
+                )
+            }),
             Type::TupleType(tuple_type) => tuple_type
                 .items
                 .iter()

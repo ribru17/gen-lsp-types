@@ -1,0 +1,68 @@
+name: Validate LSP Metamodel Sync
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+jobs:
+  enforce-metamodel-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Remote Metamodel and Schema
+        run: |
+          curl -s -o upstream_metamodel.json https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.json
+          curl -s -o upstream_metamodel.schema.json https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.schema.json
+
+      - name: Verify Integrity of Metamodel
+        run: |
+          LOCAL_METAMODEL="xtask/metaModel.json"
+
+          if [ ! -f "$LOCAL_METAMODEL" ]; then
+            echo "::error::Local metamodel file not found at $LOCAL_METAMODEL"
+            exit 1
+          fi
+
+          jq -S . "$LOCAL_METAMODEL" > local_normalized.json
+          jq -S . upstream_metamodel.json > upstream_normalized.json
+
+          if diff local_normalized.json upstream_normalized.json > /dev/null; then
+            echo "Success: Local metamodel is up to date with upstream."
+            exit 0
+          else
+            echo "::error::The local LSP metamodel is out of sync with the official Microsoft spec."
+            echo "::notice::Please update $LOCAL_METAMODEL to match the latest version."
+
+            diff -u local_normalized.json upstream_normalized.json || true
+            exit 1
+          fi
+
+      - name: Verify Integrity of Metamodel Schema
+        run: |
+          LOCAL_METAMODEL_SCHEMA="xtask/metaModel.schema.json"
+
+          if [ ! -f "$LOCAL_METAMODEL_SCHEMA" ]; then
+            echo "::error::Local metamodel file not found at $LOCAL_METAMODEL_SCHEMA"
+            exit 1
+          fi
+
+          jq -S . "$LOCAL_METAMODEL_SCHEMA" > local_normalized.schema.json
+          jq -S . upstream_metamodel.schema.json > upstream_normalized.schema.json
+
+          if diff local_normalized.schema.json upstream_normalized.schema.json > /dev/null; then
+            echo "Success: Local metamodel is up to date with upstream."
+            exit 0
+          else
+            echo "::error::The local LSP metamodel is out of sync with the official Microsoft spec."
+            echo "::notice::Please update $LOCAL_METAMODEL_SCHEMA to match the latest version."
+
+            diff -u local_normalized.schema.json upstream_normalized.schema.json || true
+            exit 1
+          fi

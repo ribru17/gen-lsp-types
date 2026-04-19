@@ -394,8 +394,8 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         sers.push(quote! { #name_ident::Custom(any) => any, });
         desers.push(quote! { _ => #name_ident::Custom(v), });
     } else {
-        let fmt = format!("Invalid {}: {{}}", name_ident);
-        desers.push(quote! { _ => Err(format!(#fmt, v)), });
+        let fmt = format!("Invalid {name_ident}: {{v}}");
+        desers.push(quote! { _ => Err(format!(#fmt)), });
     }
 
     let enum_tokens = quote! {
@@ -436,7 +436,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             impl fmt::Display for #name_ident {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                     let s: String = #s.into();
-                    write!(f, "{}", s)
+                    write!(f, "{s}")
                 }
             }
         })
@@ -501,8 +501,7 @@ pub fn render_structure(
     let has_kind = structure
         .properties
         .iter()
-        .find(|property| property.name == "kind")
-        .is_some();
+        .any(|property| property.name == "kind");
     let (structure_props, mixin_props) = resolve_struct_properties(
         structure.properties,
         structure.extends,
@@ -627,8 +626,8 @@ pub fn render_structure(
     }));
 
     let shadow = if let Some(strlit_prop) = string_lit_prop {
-        let shadow_name = format!("Shadow{}", name);
-        let ident = format_ident!("{}", shadow_name);
+        let shadow_name = format!("Shadow{name}");
+        let ident = format_ident!("{shadow_name}");
         let prop_name = format_ident!("{}", camel_to_snake(&strlit_prop.name));
         let Type::StringLiteralType(lit_type) = strlit_prop.type_ else {
             unreachable!()
