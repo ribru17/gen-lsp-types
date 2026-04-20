@@ -318,7 +318,8 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     };
     let name_ident = format_ident!("{}", name);
 
-    let (mut sers, mut desers) = (
+    let (mut sers, mut desers, mut desers_borrowed) = (
+        Vec::with_capacity(enumeration.values.len()),
         Vec::with_capacity(enumeration.values.len()),
         Vec::with_capacity(enumeration.values.len()),
     );
@@ -369,6 +370,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             };
             let full_name = quote! { #name_ident::#ident };
             if supports_custom {
+                desers_borrowed.push(quote! { #value => #full_name, });
                 desers.push(quote! { #value => #full_name, });
             } else {
                 desers.push(quote! { #value => Ok(#full_name), });
@@ -457,6 +459,20 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     } else {
         None
     };
+    let from_static_str = if is_str_enum && supports_custom {
+        Some(quote! {
+            impl From<&'static str> for #name_ident {
+                fn from(s: &'static str) -> Self {
+                    match s {
+                        #(#desers_borrowed)*
+                        _ => #name_ident::Custom(Cow::Borrowed(s)),
+                    }
+                }
+            }
+        })
+    } else {
+        None
+    };
     let traits = quote! {
         impl From<#name_ident> for #value_type {
             fn from(e: #name_ident) -> Self {
@@ -475,6 +491,8 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
                 }
             }
         }
+
+        #from_static_str
 
         #display
     };

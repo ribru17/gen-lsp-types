@@ -555,6 +555,12 @@ mod test {
     }
 
     #[test]
+    fn str_enum_into() {
+        const CONSTANT: &'static str = "my_custom_variant";
+        let _parsed: LspNotificationMethods = CONSTANT.into();
+    }
+
+    #[test]
     fn int_enum() {
         let sk = SymbolKind::Namespace;
         let ser = serde_json::to_string(&sk).unwrap();

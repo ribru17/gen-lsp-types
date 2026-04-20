@@ -7039,6 +7039,37 @@ impl From<String> for SemanticTokenTypes {
         }
     }
 }
+impl From<&'static str> for SemanticTokenTypes {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "namespace" => SemanticTokenTypes::Namespace,
+            "type" => SemanticTokenTypes::Type,
+            "class" => SemanticTokenTypes::Class,
+            "enum" => SemanticTokenTypes::Enum,
+            "interface" => SemanticTokenTypes::Interface,
+            "struct" => SemanticTokenTypes::Struct,
+            "typeParameter" => SemanticTokenTypes::TypeParameter,
+            "parameter" => SemanticTokenTypes::Parameter,
+            "variable" => SemanticTokenTypes::Variable,
+            "property" => SemanticTokenTypes::Property,
+            "enumMember" => SemanticTokenTypes::EnumMember,
+            "event" => SemanticTokenTypes::Event,
+            "function" => SemanticTokenTypes::Function,
+            "method" => SemanticTokenTypes::Method,
+            "macro" => SemanticTokenTypes::Macro,
+            "keyword" => SemanticTokenTypes::Keyword,
+            "modifier" => SemanticTokenTypes::Modifier,
+            "comment" => SemanticTokenTypes::Comment,
+            "string" => SemanticTokenTypes::String,
+            "number" => SemanticTokenTypes::Number,
+            "regexp" => SemanticTokenTypes::Regexp,
+            "operator" => SemanticTokenTypes::Operator,
+            "decorator" => SemanticTokenTypes::Decorator,
+            "label" => SemanticTokenTypes::Label,
+            _ => SemanticTokenTypes::Custom(Cow::Borrowed(s)),
+        }
+    }
+}
 impl fmt::Display for SemanticTokenTypes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
@@ -7099,6 +7130,23 @@ impl From<String> for SemanticTokenModifiers {
             "documentation" => SemanticTokenModifiers::Documentation,
             "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
             _ => SemanticTokenModifiers::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl From<&'static str> for SemanticTokenModifiers {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "declaration" => SemanticTokenModifiers::Declaration,
+            "definition" => SemanticTokenModifiers::Definition,
+            "readonly" => SemanticTokenModifiers::Readonly,
+            "static" => SemanticTokenModifiers::Static,
+            "deprecated" => SemanticTokenModifiers::Deprecated,
+            "abstract" => SemanticTokenModifiers::Abstract,
+            "async" => SemanticTokenModifiers::Async,
+            "modification" => SemanticTokenModifiers::Modification,
+            "documentation" => SemanticTokenModifiers::Documentation,
+            "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
+            _ => SemanticTokenModifiers::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -7279,6 +7327,16 @@ impl From<String> for FoldingRangeKind {
             "imports" => FoldingRangeKind::Imports,
             "region" => FoldingRangeKind::Region,
             _ => FoldingRangeKind::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl From<&'static str> for FoldingRangeKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "comment" => FoldingRangeKind::Comment,
+            "imports" => FoldingRangeKind::Imports,
+            "region" => FoldingRangeKind::Region,
+            _ => FoldingRangeKind::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -7985,6 +8043,24 @@ impl From<String> for CodeActionKind {
         }
     }
 }
+impl From<&'static str> for CodeActionKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "" => CodeActionKind::Empty,
+            "quickfix" => CodeActionKind::QuickFix,
+            "refactor" => CodeActionKind::Refactor,
+            "refactor.extract" => CodeActionKind::RefactorExtract,
+            "refactor.inline" => CodeActionKind::RefactorInline,
+            "refactor.move" => CodeActionKind::RefactorMove,
+            "refactor.rewrite" => CodeActionKind::RefactorRewrite,
+            "source" => CodeActionKind::Source,
+            "source.organizeImports" => CodeActionKind::SourceOrganizeImports,
+            "source.fixAll" => CodeActionKind::SourceFixAll,
+            "notebook" => CodeActionKind::Notebook,
+            _ => CodeActionKind::Custom(Cow::Borrowed(s)),
+        }
+    }
+}
 impl fmt::Display for CodeActionKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
@@ -8305,6 +8381,74 @@ impl From<String> for LanguageKind {
         }
     }
 }
+impl From<&'static str> for LanguageKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "abap" => LanguageKind::ABAP,
+            "bat" => LanguageKind::WindowsBat,
+            "bibtex" => LanguageKind::BibTeX,
+            "clojure" => LanguageKind::Clojure,
+            "coffeescript" => LanguageKind::Coffeescript,
+            "c" => LanguageKind::C,
+            "cpp" => LanguageKind::CPP,
+            "csharp" => LanguageKind::CSharp,
+            "css" => LanguageKind::CSS,
+            "d" => LanguageKind::D,
+            "pascal" => LanguageKind::Delphi,
+            "diff" => LanguageKind::Diff,
+            "dart" => LanguageKind::Dart,
+            "dockerfile" => LanguageKind::Dockerfile,
+            "elixir" => LanguageKind::Elixir,
+            "erlang" => LanguageKind::Erlang,
+            "fsharp" => LanguageKind::FSharp,
+            "git-commit" => LanguageKind::GitCommit,
+            "rebase" => LanguageKind::GitRebase,
+            "go" => LanguageKind::Go,
+            "groovy" => LanguageKind::Groovy,
+            "handlebars" => LanguageKind::Handlebars,
+            "haskell" => LanguageKind::Haskell,
+            "html" => LanguageKind::HTML,
+            "ini" => LanguageKind::Ini,
+            "java" => LanguageKind::Java,
+            "javascript" => LanguageKind::JavaScript,
+            "javascriptreact" => LanguageKind::JavaScriptReact,
+            "json" => LanguageKind::JSON,
+            "latex" => LanguageKind::LaTeX,
+            "less" => LanguageKind::Less,
+            "lua" => LanguageKind::Lua,
+            "makefile" => LanguageKind::Makefile,
+            "markdown" => LanguageKind::Markdown,
+            "objective-c" => LanguageKind::ObjectiveC,
+            "objective-cpp" => LanguageKind::ObjectiveCPP,
+            "pascal" => LanguageKind::Pascal,
+            "perl" => LanguageKind::Perl,
+            "perl6" => LanguageKind::Perl6,
+            "php" => LanguageKind::PHP,
+            "powershell" => LanguageKind::Powershell,
+            "jade" => LanguageKind::Pug,
+            "python" => LanguageKind::Python,
+            "r" => LanguageKind::R,
+            "razor" => LanguageKind::Razor,
+            "ruby" => LanguageKind::Ruby,
+            "rust" => LanguageKind::Rust,
+            "scss" => LanguageKind::SCSS,
+            "sass" => LanguageKind::SASS,
+            "scala" => LanguageKind::Scala,
+            "shaderlab" => LanguageKind::ShaderLab,
+            "shellscript" => LanguageKind::ShellScript,
+            "sql" => LanguageKind::SQL,
+            "swift" => LanguageKind::Swift,
+            "typescript" => LanguageKind::TypeScript,
+            "typescriptreact" => LanguageKind::TypeScriptReact,
+            "tex" => LanguageKind::TeX,
+            "vb" => LanguageKind::VisualBasic,
+            "xml" => LanguageKind::XML,
+            "xsl" => LanguageKind::XSL,
+            "yaml" => LanguageKind::YAML,
+            _ => LanguageKind::Custom(Cow::Borrowed(s)),
+        }
+    }
+}
 impl fmt::Display for LanguageKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
@@ -8383,6 +8527,16 @@ impl From<String> for PositionEncodingKind {
             "utf-16" => PositionEncodingKind::UTF16,
             "utf-32" => PositionEncodingKind::UTF32,
             _ => PositionEncodingKind::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl From<&'static str> for PositionEncodingKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "utf-8" => PositionEncodingKind::UTF8,
+            "utf-16" => PositionEncodingKind::UTF16,
+            "utf-32" => PositionEncodingKind::UTF32,
+            _ => PositionEncodingKind::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -9264,6 +9418,136 @@ impl From<String> for LspRequestMethods {
         }
     }
 }
+impl From<&'static str> for LspRequestMethods {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "textDocument/implementation" => {
+                LspRequestMethods::TextDocumentImplementation
+            }
+            "textDocument/typeDefinition" => {
+                LspRequestMethods::TextDocumentTypeDefinition
+            }
+            "workspace/workspaceFolders" => LspRequestMethods::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => LspRequestMethods::WorkspaceConfiguration,
+            "textDocument/documentColor" => LspRequestMethods::TextDocumentDocumentColor,
+            "textDocument/colorPresentation" => {
+                LspRequestMethods::TextDocumentColorPresentation
+            }
+            "textDocument/foldingRange" => LspRequestMethods::TextDocumentFoldingRange,
+            "workspace/foldingRange/refresh" => {
+                LspRequestMethods::WorkspaceFoldingRangeRefresh
+            }
+            "textDocument/declaration" => LspRequestMethods::TextDocumentDeclaration,
+            "textDocument/selectionRange" => {
+                LspRequestMethods::TextDocumentSelectionRange
+            }
+            "window/workDoneProgress/create" => {
+                LspRequestMethods::WindowWorkDoneProgressCreate
+            }
+            "textDocument/prepareCallHierarchy" => {
+                LspRequestMethods::TextDocumentPrepareCallHierarchy
+            }
+            "callHierarchy/incomingCalls" => {
+                LspRequestMethods::CallHierarchyIncomingCalls
+            }
+            "callHierarchy/outgoingCalls" => {
+                LspRequestMethods::CallHierarchyOutgoingCalls
+            }
+            "textDocument/semanticTokens/full" => {
+                LspRequestMethods::TextDocumentSemanticTokensFull
+            }
+            "textDocument/semanticTokens/full/delta" => {
+                LspRequestMethods::TextDocumentSemanticTokensFullDelta
+            }
+            "textDocument/semanticTokens/range" => {
+                LspRequestMethods::TextDocumentSemanticTokensRange
+            }
+            "workspace/semanticTokens/refresh" => {
+                LspRequestMethods::WorkspaceSemanticTokensRefresh
+            }
+            "window/showDocument" => LspRequestMethods::WindowShowDocument,
+            "textDocument/linkedEditingRange" => {
+                LspRequestMethods::TextDocumentLinkedEditingRange
+            }
+            "workspace/willCreateFiles" => LspRequestMethods::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => LspRequestMethods::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => LspRequestMethods::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => LspRequestMethods::TextDocumentMoniker,
+            "textDocument/prepareTypeHierarchy" => {
+                LspRequestMethods::TextDocumentPrepareTypeHierarchy
+            }
+            "typeHierarchy/supertypes" => LspRequestMethods::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => LspRequestMethods::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => LspRequestMethods::TextDocumentInlineValue,
+            "workspace/inlineValue/refresh" => {
+                LspRequestMethods::WorkspaceInlineValueRefresh
+            }
+            "textDocument/inlayHint" => LspRequestMethods::TextDocumentInlayHint,
+            "inlayHint/resolve" => LspRequestMethods::InlayHintResolve,
+            "workspace/inlayHint/refresh" => LspRequestMethods::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => LspRequestMethods::TextDocumentDiagnostic,
+            "workspace/diagnostic" => LspRequestMethods::WorkspaceDiagnostic,
+            "workspace/diagnostic/refresh" => {
+                LspRequestMethods::WorkspaceDiagnosticRefresh
+            }
+            "textDocument/inlineCompletion" => {
+                LspRequestMethods::TextDocumentInlineCompletion
+            }
+            "workspace/textDocumentContent" => {
+                LspRequestMethods::WorkspaceTextDocumentContent
+            }
+            "workspace/textDocumentContent/refresh" => {
+                LspRequestMethods::WorkspaceTextDocumentContentRefresh
+            }
+            "client/registerCapability" => LspRequestMethods::ClientRegisterCapability,
+            "client/unregisterCapability" => {
+                LspRequestMethods::ClientUnregisterCapability
+            }
+            "initialize" => LspRequestMethods::Initialize,
+            "shutdown" => LspRequestMethods::Shutdown,
+            "window/showMessageRequest" => LspRequestMethods::WindowShowMessageRequest,
+            "textDocument/willSaveWaitUntil" => {
+                LspRequestMethods::TextDocumentWillSaveWaitUntil
+            }
+            "textDocument/completion" => LspRequestMethods::TextDocumentCompletion,
+            "completionItem/resolve" => LspRequestMethods::CompletionItemResolve,
+            "textDocument/hover" => LspRequestMethods::TextDocumentHover,
+            "textDocument/signatureHelp" => LspRequestMethods::TextDocumentSignatureHelp,
+            "textDocument/definition" => LspRequestMethods::TextDocumentDefinition,
+            "textDocument/references" => LspRequestMethods::TextDocumentReferences,
+            "textDocument/documentHighlight" => {
+                LspRequestMethods::TextDocumentDocumentHighlight
+            }
+            "textDocument/documentSymbol" => {
+                LspRequestMethods::TextDocumentDocumentSymbol
+            }
+            "textDocument/codeAction" => LspRequestMethods::TextDocumentCodeAction,
+            "codeAction/resolve" => LspRequestMethods::CodeActionResolve,
+            "workspace/symbol" => LspRequestMethods::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => LspRequestMethods::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => LspRequestMethods::TextDocumentCodeLens,
+            "codeLens/resolve" => LspRequestMethods::CodeLensResolve,
+            "workspace/codeLens/refresh" => LspRequestMethods::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => LspRequestMethods::TextDocumentDocumentLink,
+            "documentLink/resolve" => LspRequestMethods::DocumentLinkResolve,
+            "textDocument/formatting" => LspRequestMethods::TextDocumentFormatting,
+            "textDocument/rangeFormatting" => {
+                LspRequestMethods::TextDocumentRangeFormatting
+            }
+            "textDocument/rangesFormatting" => {
+                LspRequestMethods::TextDocumentRangesFormatting
+            }
+            "textDocument/onTypeFormatting" => {
+                LspRequestMethods::TextDocumentOnTypeFormatting
+            }
+            "textDocument/rename" => LspRequestMethods::TextDocumentRename,
+            "textDocument/prepareRename" => LspRequestMethods::TextDocumentPrepareRename,
+            "workspace/executeCommand" => LspRequestMethods::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => LspRequestMethods::WorkspaceApplyEdit,
+            _ => LspRequestMethods::Custom(Cow::Borrowed(s)),
+        }
+    }
+}
 impl fmt::Display for LspRequestMethods {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
@@ -9415,6 +9699,53 @@ impl From<String> for LspNotificationMethods {
             "$/cancelRequest" => LspNotificationMethods::CancelRequest,
             "$/progress" => LspNotificationMethods::Progress,
             _ => LspNotificationMethods::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl From<&'static str> for LspNotificationMethods {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "workspace/didChangeWorkspaceFolders" => {
+                LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders
+            }
+            "window/workDoneProgress/cancel" => {
+                LspNotificationMethods::WindowWorkDoneProgressCancel
+            }
+            "workspace/didCreateFiles" => LspNotificationMethods::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => LspNotificationMethods::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => LspNotificationMethods::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => LspNotificationMethods::NotebookDocumentDidOpen,
+            "notebookDocument/didChange" => {
+                LspNotificationMethods::NotebookDocumentDidChange
+            }
+            "notebookDocument/didSave" => LspNotificationMethods::NotebookDocumentDidSave,
+            "notebookDocument/didClose" => {
+                LspNotificationMethods::NotebookDocumentDidClose
+            }
+            "initialized" => LspNotificationMethods::Initialized,
+            "exit" => LspNotificationMethods::Exit,
+            "workspace/didChangeConfiguration" => {
+                LspNotificationMethods::WorkspaceDidChangeConfiguration
+            }
+            "window/showMessage" => LspNotificationMethods::WindowShowMessage,
+            "window/logMessage" => LspNotificationMethods::WindowLogMessage,
+            "telemetry/event" => LspNotificationMethods::TelemetryEvent,
+            "textDocument/didOpen" => LspNotificationMethods::TextDocumentDidOpen,
+            "textDocument/didChange" => LspNotificationMethods::TextDocumentDidChange,
+            "textDocument/didClose" => LspNotificationMethods::TextDocumentDidClose,
+            "textDocument/didSave" => LspNotificationMethods::TextDocumentDidSave,
+            "textDocument/willSave" => LspNotificationMethods::TextDocumentWillSave,
+            "workspace/didChangeWatchedFiles" => {
+                LspNotificationMethods::WorkspaceDidChangeWatchedFiles
+            }
+            "textDocument/publishDiagnostics" => {
+                LspNotificationMethods::TextDocumentPublishDiagnostics
+            }
+            "$/setTrace" => LspNotificationMethods::SetTrace,
+            "$/logTrace" => LspNotificationMethods::LogTrace,
+            "$/cancelRequest" => LspNotificationMethods::CancelRequest,
+            "$/progress" => LspNotificationMethods::Progress,
+            _ => LspNotificationMethods::Custom(Cow::Borrowed(s)),
         }
     }
 }
