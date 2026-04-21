@@ -11,7 +11,9 @@
 
 use derive_more::From;
 use derive_new::new as New;
-use serde::{de::DeserializeOwned, Deserialize, Deserializer, Serialize};
+use serde::{
+    de::DeserializeOwned, Deserialize, Deserializer, ser::SerializeSeq as _, Serialize,
+};
 use std::{borrow::Cow, collections::HashMap, fmt};
 
 fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
@@ -51,6 +53,94 @@ impl AsRef<str> for Uri {
 impl fmt::Display for Uri {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+/// Represents a semantic token (serialized as five uintegers).
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Default, Hash)]
+pub struct SemanticToken {
+    /// Token line number, relative to the start of the previous token.
+    pub delta_line: u32,
+    /// Token start character, relative to the start of the previous token (relative to 0 or
+    /// the previous token’s start if they are on the same line).
+    pub delta_start: u32,
+    /// The length of the token.
+    pub length: u32,
+    /// Will be looked up in [`SemanticTokensLegend::token_types`]. We currently ask that
+    /// `tokenType` < 65536.
+    pub token_type: u32,
+    /// Each set bit will be looked up in [`SemanticTokensLegend::token_modifiers`].
+    pub token_modifiers_bitset: u32,
+}
+impl SemanticToken {
+    fn deserialize_tokens<'de, D>(
+        deserializer: D,
+    ) -> Result<Vec<SemanticToken>, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let data = Vec::<u32>::deserialize(deserializer)?;
+        let chunks = data.chunks_exact(5);
+        if !chunks.remainder().is_empty() {
+            return Result::Err(serde::de::Error::custom("Length is not divisible by 5"));
+        }
+        Result::Ok(
+            chunks
+                .map(|chunk| SemanticToken {
+                    delta_line: chunk[0],
+                    delta_start: chunk[1],
+                    length: chunk[2],
+                    token_type: chunk[3],
+                    token_modifiers_bitset: chunk[4],
+                })
+                .collect(),
+        )
+    }
+    fn serialize_tokens<S>(
+        tokens: &[SemanticToken],
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut seq = serializer.serialize_seq(Some(tokens.len() * 5))?;
+        for token in tokens.iter() {
+            seq.serialize_element(&token.delta_line)?;
+            seq.serialize_element(&token.delta_start)?;
+            seq.serialize_element(&token.length)?;
+            seq.serialize_element(&token.token_type)?;
+            seq.serialize_element(&token.token_modifiers_bitset)?;
+        }
+        seq.end()
+    }
+    fn deserialize_optional_tokens<'de, D>(
+        deserializer: D,
+    ) -> Result<Option<Vec<SemanticToken>>, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize)]
+        #[serde(transparent)]
+        struct Wrapper {
+            #[serde(deserialize_with = "SemanticToken::deserialize_tokens")]
+            tokens: Vec<SemanticToken>,
+        }
+        Ok(Option::<Wrapper>::deserialize(deserializer)?.map(|wrapper| wrapper.tokens))
+    }
+    fn serialize_optional_tokens<S>(
+        data: &Option<Vec<SemanticToken>>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        #[derive(Serialize)]
+        #[serde(transparent)]
+        struct Wrapper {
+            #[serde(serialize_with = "SemanticToken::serialize_tokens")]
+            tokens: Vec<SemanticToken>,
+        }
+        let opt = data.as_ref().map(|t| Wrapper { tokens: t.to_vec() });
+        opt.serialize(serializer)
     }
 }
 
@@ -475,14 +565,22 @@ pub struct SemanticTokens {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result_id: Option<String>,
     /// The actual tokens.
-    pub data: Vec<u32>,
+    #[serde(
+        deserialize_with = "SemanticToken::deserialize_tokens",
+        serialize_with = "SemanticToken::serialize_tokens"
+    )]
+    pub data: Vec<SemanticToken>,
 }
 
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, New, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensPartialResult {
-    pub data: Vec<u32>,
+    #[serde(
+        deserialize_with = "SemanticToken::deserialize_tokens",
+        serialize_with = "SemanticToken::serialize_tokens"
+    )]
+    pub data: Vec<SemanticToken>,
 }
 
 /// @since 3.16.0
@@ -2897,8 +2995,13 @@ pub struct SemanticTokensEdit {
     /// The count of elements to remove.
     pub delete_count: u32,
     /// The elements to insert.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub data: Option<Vec<u32>>,
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "SemanticToken::deserialize_optional_tokens",
+        serialize_with = "SemanticToken::serialize_optional_tokens"
+    )]
+    pub data: Option<Vec<SemanticToken>>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, New, Eq, Hash, Default, Copy)]

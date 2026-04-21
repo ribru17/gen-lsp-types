@@ -9,7 +9,7 @@ use crate::{
     is_nullable, method_to_pascal, render_documentation, resolve_struct_properties,
     schema::{
         BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName, MapKeyType,
-        MapKeyTypeObjectName, Notification, OrType, Request, Structure, Type, TypeAlias,
+        MapKeyTypeObjectName, Notification, OrType, Property, Request, Structure, Type, TypeAlias,
     },
 };
 
@@ -485,6 +485,51 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     }
 }
 
+/// Some properties should be handled specially, since further typing conveniences can be created
+/// beyond what the Metamodel provides.
+fn get_special_property(structure_name: &str, property: &Property) -> Option<TokenStream> {
+    let property_name = property.name.as_str();
+    match (structure_name, property_name) {
+        ("SemanticTokensEdit", "data") => {
+            assert_eq!(property.optional, Some(true));
+            let documentation = render_documentation(property.documentation.clone());
+            let deprecated = property
+                .deprecated
+                .as_ref()
+                .map(|note| quote! { #[deprecated(note = #note)] });
+            Some(quote! {
+                #documentation
+                #deprecated
+                #[serde(
+                    default,
+                    skip_serializing_if = "Option::is_none",
+                    deserialize_with = "SemanticToken::deserialize_optional_tokens",
+                    serialize_with = "SemanticToken::serialize_optional_tokens"
+                )]
+                pub data: Option<Vec<SemanticToken>>,
+            })
+        }
+        ("SemanticTokens", "data") | ("SemanticTokensPartialResult", "data") => {
+            assert_ne!(property.optional, Some(true));
+            let documentation = render_documentation(property.documentation.clone());
+            let deprecated = property
+                .deprecated
+                .as_ref()
+                .map(|note| quote! { #[deprecated(note = #note)] });
+            Some(quote! {
+                #documentation
+                #deprecated
+                #[serde(
+                    deserialize_with = "SemanticToken::deserialize_tokens",
+                    serialize_with = "SemanticToken::serialize_tokens"
+                )]
+                pub data: Vec<SemanticToken>,
+            })
+        }
+        _ => None,
+    }
+}
+
 pub fn render_structure(
     structure: Structure,
     structs_map: &HashMap<String, Structure>,
@@ -528,6 +573,10 @@ pub fn render_structure(
         .clone()
         .into_iter()
         .flat_map(|property| {
+            if let Some(special_prop) = get_special_property(&structure.name, &property) {
+                return Some(special_prop);
+            }
+
             if matches!(property.type_, Type::StringLiteralType(_)) {
                 string_lit_prop = Some(property);
                 return None;
