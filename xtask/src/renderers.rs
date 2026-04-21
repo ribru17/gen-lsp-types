@@ -542,11 +542,28 @@ pub fn render_structure(
         return None;
     }
 
-    let derives = get_struct_derives(&structure, structs_map, enums_map, type_aliases_map)
-        .into_iter()
-        .map(|derive| format_ident!("{derive}"));
+    let all_derives = get_struct_derives(&structure, structs_map, enums_map, type_aliases_map);
+    let always_derives = all_derives.iter().filter_map(|derive| {
+        if derive.1.is_none() {
+            Some(format_ident!("{}", derive.0))
+        } else {
+            None
+        }
+    });
+    let conditional_derives = all_derives
+        .iter()
+        .filter_map(|derive| {
+            if let Some(feature) = derive.1 {
+                let item = format_ident!("{}", derive.0);
+                Some(quote! { #[cfg_attr(feature = #feature, derive(#item))] })
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
     let mut attributes = quote! {
-        #[derive(#(#derives),*)]
+        #[derive(#(#always_derives),*)]
+        #(#conditional_derives)*
         #[serde(rename_all = "camelCase")]
     };
     let name = format_ident!("{}", structure.name);

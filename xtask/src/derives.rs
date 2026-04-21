@@ -10,16 +10,15 @@ pub fn get_struct_derives(
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
-) -> Vec<&'static str> {
+) -> HashMap<&'static str, Option<&'static str>> {
     // Start with the commonly shared derives.
-    let mut derives = vec![
-        "Serialize",
-        "Deserialize",
-        "PartialEq",
-        "Debug",
-        "Clone",
-        "New",
-    ];
+    let mut derives = HashMap::new();
+    derives.insert("Serialize", None);
+    derives.insert("Deserialize", None);
+    derives.insert("PartialEq", None);
+    derives.insert("Debug", None);
+    derives.insert("Clone", None);
+    derives.insert("New", Some("derive-new"));
 
     let mut eqable = true;
     let mut hashable = true;
@@ -54,22 +53,22 @@ pub fn get_struct_derives(
         }
     }
     if eqable {
-        derives.push("Eq");
+        derives.insert("Eq", None);
         if hashable {
-            derives.push("Hash");
+            derives.insert("Hash", None);
         }
     }
     if defaultable {
-        derives.push("Default");
+        derives.insert("Default", None);
     }
     if copyable {
-        derives.push("Copy");
+        derives.insert("Copy", None);
     }
 
     // Special derives.
     if matches!(structure.name.as_str(), "Position" | "Range") {
-        derives.push("PartialOrd");
-        derives.push("Ord");
+        derives.insert("PartialOrd", None);
+        derives.insert("Ord", None);
     }
 
     derives
