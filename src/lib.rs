@@ -556,7 +556,7 @@ mod test {
 
     #[test]
     fn str_enum_into() {
-        const CONSTANT: &'static str = "my_custom_variant";
+        const CONSTANT: &str = "my_custom_variant";
         let _parsed: LspNotificationMethods = CONSTANT.into();
     }
 
