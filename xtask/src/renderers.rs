@@ -543,13 +543,16 @@ pub fn render_structure(
     }
 
     let all_derives = get_struct_derives(&structure, structs_map, enums_map, type_aliases_map);
-    let always_derives = all_derives.iter().filter_map(|derive| {
-        if derive.1.is_none() {
-            Some(format_ident!("{}", derive.0))
-        } else {
-            None
-        }
-    });
+    let always_derives = all_derives
+        .iter()
+        .filter_map(|derive| {
+            if derive.1.is_none() {
+                Some(format_ident!("{}", derive.0))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<_>>();
     let conditional_derives = all_derives
         .iter()
         .filter_map(|derive| {

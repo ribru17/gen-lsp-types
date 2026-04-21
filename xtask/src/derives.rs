@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use crate::schema::{
     BaseType, BaseTypes, Enumeration, EnumerationTypeName, ReferenceType, Structure, Type,
@@ -10,9 +10,9 @@ pub fn get_struct_derives(
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
-) -> HashMap<&'static str, Option<&'static str>> {
+) -> BTreeMap<&'static str, Option<&'static str>> {
     // Start with the commonly shared derives.
-    let mut derives = HashMap::new();
+    let mut derives = BTreeMap::new();
     derives.insert("Serialize", None);
     derives.insert("Deserialize", None);
     derives.insert("PartialEq", None);

@@ -145,7 +145,7 @@ impl SemanticToken {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Hash, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ImplementationParams {
@@ -159,7 +159,7 @@ pub struct ImplementationParams {
 
 /// Represents a location inside a resource, such as a line
 /// inside a text file.
-#[derive(Eq, Deserialize, Clone, PartialEq, Hash, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
@@ -167,7 +167,7 @@ pub struct Location {
     pub range: Range,
 }
 
-#[derive(Serialize, PartialEq, Hash, Default, Deserialize, Eq, Clone, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ImplementationRegistrationOptions {
@@ -179,7 +179,7 @@ pub struct ImplementationRegistrationOptions {
     pub implementation_options: ImplementationOptions,
 }
 
-#[derive(Deserialize, Clone, PartialEq, Debug, Hash, Eq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeDefinitionParams {
@@ -191,7 +191,7 @@ pub struct TypeDefinitionParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 
-#[derive(Hash, Eq, Clone, Serialize, Deserialize, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeDefinitionRegistrationOptions {
@@ -204,7 +204,7 @@ pub struct TypeDefinitionRegistrationOptions {
 }
 
 /// A workspace folder inside a client.
-#[derive(Serialize, Clone, PartialEq, Deserialize, Eq, Hash, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFolder {
@@ -216,7 +216,7 @@ pub struct WorkspaceFolder {
 }
 
 /// The parameters of a `workspace/didChangeWorkspaceFolders` notification.
-#[derive(Clone, Default, Hash, Debug, Serialize, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeWorkspaceFoldersParams {
@@ -225,7 +225,7 @@ pub struct DidChangeWorkspaceFoldersParams {
 }
 
 /// The parameters of a configuration request.
-#[derive(Deserialize, Serialize, Debug, Default, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ConfigurationParams {
@@ -233,7 +233,7 @@ pub struct ConfigurationParams {
 }
 
 /// Parameters for a [DocumentColorRequest].
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Hash, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentColorParams {
@@ -246,7 +246,7 @@ pub struct DocumentColorParams {
 }
 
 /// Represents a color range from a document.
-#[derive(Clone, Deserialize, Copy, Serialize, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ColorInformation {
@@ -256,7 +256,7 @@ pub struct ColorInformation {
     pub color: Color,
 }
 
-#[derive(PartialEq, Eq, Deserialize, Hash, Serialize, Default, Debug, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentColorRegistrationOptions {
@@ -269,7 +269,7 @@ pub struct DocumentColorRegistrationOptions {
 }
 
 /// Parameters for a [ColorPresentationRequest].
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ColorPresentationParams {
@@ -285,7 +285,7 @@ pub struct ColorPresentationParams {
     pub partial_result_params: PartialResultParams,
 }
 
-#[derive(Serialize, Hash, Clone, Deserialize, Eq, Default, PartialEq, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ColorPresentation {
@@ -304,7 +304,7 @@ pub struct ColorPresentation {
     pub additional_text_edits: Option<Vec<TextEdit>>,
 }
 
-#[derive(Deserialize, Debug, PartialEq, Clone, Hash, Eq, Copy, Serialize, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkDoneProgressOptions {
@@ -313,7 +313,7 @@ pub struct WorkDoneProgressOptions {
 }
 
 /// General text document registration options.
-#[derive(Clone, Deserialize, Hash, Serialize, Default, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentRegistrationOptions {
@@ -323,7 +323,7 @@ pub struct TextDocumentRegistrationOptions {
 }
 
 /// Parameters for a [FoldingRangeRequest].
-#[derive(Deserialize, Clone, Serialize, PartialEq, Debug, Eq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeParams {
@@ -337,7 +337,7 @@ pub struct FoldingRangeParams {
 
 /// Represents a folding range. To be valid, start and end line must be bigger than zero and smaller
 /// than the number of lines in the document. Clients are free to ignore invalid ranges.
-#[derive(Serialize, Eq, Default, Clone, Deserialize, PartialEq, Hash, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRange {
@@ -367,7 +367,7 @@ pub struct FoldingRange {
     pub collapsed_text: Option<String>,
 }
 
-#[derive(Serialize, Hash, Deserialize, Eq, PartialEq, Default, Clone, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeRegistrationOptions {
@@ -379,7 +379,7 @@ pub struct FoldingRangeRegistrationOptions {
     pub folding_range_options: FoldingRangeOptions,
 }
 
-#[derive(Eq, Debug, Serialize, Deserialize, Clone, Hash, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DeclarationParams {
@@ -391,7 +391,7 @@ pub struct DeclarationParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 
-#[derive(Deserialize, Clone, Eq, Serialize, PartialEq, Hash, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DeclarationRegistrationOptions {
@@ -404,7 +404,7 @@ pub struct DeclarationRegistrationOptions {
 }
 
 /// A parameter literal used in selection range requests.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Hash, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SelectionRangeParams {
@@ -420,7 +420,7 @@ pub struct SelectionRangeParams {
 
 /// A selection range represents a part of a selection hierarchy. A selection range
 /// may have a parent selection range that contains it.
-#[derive(Serialize, Default, Debug, PartialEq, Clone, Hash, Deserialize, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SelectionRange {
@@ -431,7 +431,7 @@ pub struct SelectionRange {
     pub parent: Option<Box<SelectionRange>>,
 }
 
-#[derive(Hash, PartialEq, Eq, Serialize, Default, Debug, Deserialize, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SelectionRangeRegistrationOptions {
@@ -443,7 +443,7 @@ pub struct SelectionRangeRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 
-#[derive(Hash, Deserialize, Clone, PartialEq, Eq, Serialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkDoneProgressCreateParams {
@@ -451,7 +451,7 @@ pub struct WorkDoneProgressCreateParams {
     pub token: ProgressToken,
 }
 
-#[derive(PartialEq, Deserialize, Clone, Debug, Hash, Serialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkDoneProgressCancelParams {
@@ -462,7 +462,7 @@ pub struct WorkDoneProgressCancelParams {
 /// The parameter of a `textDocument/prepareCallHierarchy` request.
 ///
 /// @since 3.16.0
-#[derive(Eq, Serialize, Debug, Hash, Deserialize, PartialEq, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyPrepareParams {
@@ -476,7 +476,7 @@ pub struct CallHierarchyPrepareParams {
 /// of call hierarchy.
 ///
 /// @since 3.16.0
-#[derive(Debug, Serialize, Eq, PartialEq, Deserialize, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyItem {
@@ -506,7 +506,7 @@ pub struct CallHierarchyItem {
 /// Call hierarchy options used during static or dynamic registration.
 ///
 /// @since 3.16.0
-#[derive(Hash, PartialEq, Clone, Deserialize, Serialize, Debug, Eq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyRegistrationOptions {
@@ -521,7 +521,7 @@ pub struct CallHierarchyRegistrationOptions {
 /// The parameter of a `callHierarchy/incomingCalls` request.
 ///
 /// @since 3.16.0
-#[derive(Eq, PartialEq, Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyIncomingCallsParams {
@@ -535,7 +535,7 @@ pub struct CallHierarchyIncomingCallsParams {
 /// Represents an incoming call, e.g. a caller of a method or constructor.
 ///
 /// @since 3.16.0
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyIncomingCall {
@@ -549,7 +549,7 @@ pub struct CallHierarchyIncomingCall {
 /// The parameter of a `callHierarchy/outgoingCalls` request.
 ///
 /// @since 3.16.0
-#[derive(Clone, PartialEq, Deserialize, Debug, Eq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyOutgoingCallsParams {
@@ -563,7 +563,7 @@ pub struct CallHierarchyOutgoingCallsParams {
 /// Represents an outgoing call, e.g. calling a getter from a method or a method from a constructor etc.
 ///
 /// @since 3.16.0
-#[derive(Serialize, PartialEq, Debug, Clone, Deserialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyOutgoingCall {
@@ -576,7 +576,7 @@ pub struct CallHierarchyOutgoingCall {
 }
 
 /// @since 3.16.0
-#[derive(Clone, Hash, PartialEq, Deserialize, Serialize, Debug, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensParams {
@@ -589,7 +589,7 @@ pub struct SemanticTokensParams {
 }
 
 /// @since 3.16.0
-#[derive(Eq, Clone, Deserialize, Debug, PartialEq, Serialize, Hash, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokens {
@@ -608,7 +608,7 @@ pub struct SemanticTokens {
 }
 
 /// @since 3.16.0
-#[derive(PartialEq, Clone, Serialize, Debug, Default, Deserialize, Hash, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensPartialResult {
@@ -620,7 +620,7 @@ pub struct SemanticTokensPartialResult {
 }
 
 /// @since 3.16.0
-#[derive(Serialize, Debug, Default, PartialEq, Clone, Deserialize, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensRegistrationOptions {
@@ -633,7 +633,7 @@ pub struct SemanticTokensRegistrationOptions {
 }
 
 /// @since 3.16.0
-#[derive(Deserialize, Clone, PartialEq, Debug, Hash, Serialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensDeltaParams {
@@ -649,7 +649,7 @@ pub struct SemanticTokensDeltaParams {
 }
 
 /// @since 3.16.0
-#[derive(Debug, Clone, Hash, Serialize, Default, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensDelta {
@@ -660,7 +660,7 @@ pub struct SemanticTokensDelta {
 }
 
 /// @since 3.16.0
-#[derive(Clone, Eq, Default, Deserialize, Serialize, Hash, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensDeltaPartialResult {
@@ -668,7 +668,7 @@ pub struct SemanticTokensDeltaPartialResult {
 }
 
 /// @since 3.16.0
-#[derive(Debug, Hash, Deserialize, Serialize, PartialEq, Clone, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensRangeParams {
@@ -685,7 +685,7 @@ pub struct SemanticTokensRangeParams {
 /// Params to show a resource in the UI.
 ///
 /// @since 3.16.0
-#[derive(Eq, Debug, Serialize, PartialEq, Hash, Deserialize, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ShowDocumentParams {
@@ -713,7 +713,7 @@ pub struct ShowDocumentParams {
 /// The result of a showDocument request.
 ///
 /// @since 3.16.0
-#[derive(Default, Serialize, Hash, Eq, Clone, Copy, PartialEq, Deserialize, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ShowDocumentResult {
@@ -721,7 +721,7 @@ pub struct ShowDocumentResult {
     pub success: bool,
 }
 
-#[derive(PartialEq, Hash, Debug, Deserialize, Clone, Eq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LinkedEditingRangeParams {
@@ -734,7 +734,7 @@ pub struct LinkedEditingRangeParams {
 /// The result of a linked editing range request.
 ///
 /// @since 3.16.0
-#[derive(Default, Eq, Clone, PartialEq, Deserialize, Debug, Hash, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LinkedEditingRanges {
@@ -748,7 +748,7 @@ pub struct LinkedEditingRanges {
     pub word_pattern: Option<String>,
 }
 
-#[derive(Debug, Clone, Eq, Default, Hash, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LinkedEditingRangeRegistrationOptions {
@@ -764,7 +764,7 @@ pub struct LinkedEditingRangeRegistrationOptions {
 /// files.
 ///
 /// @since 3.16.0
-#[derive(Hash, Default, Deserialize, Debug, PartialEq, Clone, Serialize, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CreateFilesParams {
@@ -784,7 +784,7 @@ pub struct CreateFilesParams {
 /// An invalid sequence (e.g. (1) delete file a.txt and (2) insert text into file a.txt) will
 /// cause failure of the operation. How the client recovers from the failure is described by
 /// the client capability: `workspace.workspaceEdit.failureHandling`
-#[derive(Eq, Deserialize, Debug, Default, PartialEq, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceEdit {
@@ -818,7 +818,7 @@ pub struct WorkspaceEdit {
 /// The options to register for file operations.
 ///
 /// @since 3.16.0
-#[derive(Hash, Serialize, Deserialize, Eq, Default, PartialEq, Clone, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationRegistrationOptions {
@@ -830,7 +830,7 @@ pub struct FileOperationRegistrationOptions {
 /// files.
 ///
 /// @since 3.16.0
-#[derive(Debug, Hash, Eq, Default, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RenameFilesParams {
@@ -843,7 +843,7 @@ pub struct RenameFilesParams {
 /// files.
 ///
 /// @since 3.16.0
-#[derive(Eq, Default, Debug, Serialize, Deserialize, PartialEq, Clone, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DeleteFilesParams {
@@ -851,7 +851,7 @@ pub struct DeleteFilesParams {
     pub files: Vec<FileDelete>,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash, Serialize, Eq, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MonikerParams {
@@ -866,7 +866,7 @@ pub struct MonikerParams {
 /// Moniker definition to match LSIF 0.5 moniker definition.
 ///
 /// @since 3.16.0
-#[derive(Serialize, PartialEq, Hash, Debug, Clone, Deserialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Moniker {
@@ -882,7 +882,7 @@ pub struct Moniker {
     pub kind: Option<MonikerKind>,
 }
 
-#[derive(Serialize, Hash, Clone, Deserialize, Default, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MonikerRegistrationOptions {
@@ -895,7 +895,7 @@ pub struct MonikerRegistrationOptions {
 /// The parameter of a `textDocument/prepareTypeHierarchy` request.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Eq, Debug, Clone, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchyPrepareParams {
@@ -906,7 +906,7 @@ pub struct TypeHierarchyPrepareParams {
 }
 
 /// @since 3.17.0
-#[derive(Serialize, PartialEq, Clone, Debug, Eq, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchyItem {
@@ -940,7 +940,7 @@ pub struct TypeHierarchyItem {
 /// Type hierarchy options used during static or dynamic registration.
 ///
 /// @since 3.17.0
-#[derive(Clone, Default, Serialize, PartialEq, Eq, Deserialize, Debug, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchyRegistrationOptions {
@@ -955,7 +955,7 @@ pub struct TypeHierarchyRegistrationOptions {
 /// The parameter of a `typeHierarchy/supertypes` request.
 ///
 /// @since 3.17.0
-#[derive(Serialize, PartialEq, Deserialize, Debug, Clone, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchySupertypesParams {
@@ -969,7 +969,7 @@ pub struct TypeHierarchySupertypesParams {
 /// The parameter of a `typeHierarchy/subtypes` request.
 ///
 /// @since 3.17.0
-#[derive(Eq, Clone, Deserialize, Serialize, Debug, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchySubtypesParams {
@@ -983,7 +983,7 @@ pub struct TypeHierarchySubtypesParams {
 /// A parameter literal used in inline value requests.
 ///
 /// @since 3.17.0
-#[derive(Clone, Serialize, Hash, PartialEq, Deserialize, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueParams {
@@ -1001,7 +1001,7 @@ pub struct InlineValueParams {
 /// Inline value options used during static or dynamic registration.
 ///
 /// @since 3.17.0
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueRegistrationOptions {
@@ -1016,7 +1016,7 @@ pub struct InlineValueRegistrationOptions {
 /// A parameter literal used in inlay hint requests.
 ///
 /// @since 3.17.0
-#[derive(Serialize, Clone, Debug, PartialEq, Deserialize, Hash, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHintParams {
@@ -1031,7 +1031,7 @@ pub struct InlayHintParams {
 /// Inlay hint information.
 ///
 /// @since 3.17.0
-#[derive(Clone, Eq, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHint {
@@ -1082,7 +1082,7 @@ pub struct InlayHint {
 /// Inlay hint options used during static or dynamic registration.
 ///
 /// @since 3.17.0
-#[derive(Serialize, Hash, Default, Deserialize, Debug, Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHintRegistrationOptions {
@@ -1097,7 +1097,7 @@ pub struct InlayHintRegistrationOptions {
 /// Parameters of the document diagnostic request.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, PartialEq, Eq, Serialize, Debug, Hash, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentDiagnosticParams {
@@ -1118,7 +1118,7 @@ pub struct DocumentDiagnosticParams {
 /// A partial result for a document diagnostic report.
 ///
 /// @since 3.17.0
-#[derive(Default, Debug, PartialEq, Clone, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentDiagnosticReportPartialResult {
@@ -1128,7 +1128,7 @@ pub struct DocumentDiagnosticReportPartialResult {
 /// Cancellation data returned from a diagnostic request.
 ///
 /// @since 3.17.0
-#[derive(Clone, Eq, Debug, Default, PartialEq, Deserialize, Hash, Copy, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticServerCancellationData {
@@ -1138,7 +1138,7 @@ pub struct DiagnosticServerCancellationData {
 /// Diagnostic registration options.
 ///
 /// @since 3.17.0
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Hash, Clone, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticRegistrationOptions {
@@ -1153,7 +1153,7 @@ pub struct DiagnosticRegistrationOptions {
 /// Parameters of the workspace diagnostic request.
 ///
 /// @since 3.17.0
-#[derive(Default, Debug, Clone, PartialEq, Deserialize, Serialize, Eq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceDiagnosticParams {
@@ -1172,7 +1172,7 @@ pub struct WorkspaceDiagnosticParams {
 /// A workspace diagnostic report.
 ///
 /// @since 3.17.0
-#[derive(Debug, Deserialize, Clone, Serialize, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceDiagnosticReport {
@@ -1182,7 +1182,7 @@ pub struct WorkspaceDiagnosticReport {
 /// A partial result for a workspace diagnostic report.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Debug, Default, Eq, Clone, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceDiagnosticReportPartialResult {
@@ -1192,7 +1192,7 @@ pub struct WorkspaceDiagnosticReportPartialResult {
 /// The params sent in an open notebook document notification.
 ///
 /// @since 3.17.0
-#[derive(Clone, Eq, PartialEq, Serialize, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidOpenNotebookDocumentParams {
@@ -1206,7 +1206,7 @@ pub struct DidOpenNotebookDocumentParams {
 /// Registration options specific to a notebook.
 ///
 /// @since 3.17.0
-#[derive(Hash, Serialize, Default, Eq, Clone, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentSyncRegistrationOptions {
@@ -1219,7 +1219,7 @@ pub struct NotebookDocumentSyncRegistrationOptions {
 /// The params sent in a change notebook document notification.
 ///
 /// @since 3.17.0
-#[derive(Eq, Serialize, Debug, Deserialize, PartialEq, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeNotebookDocumentParams {
@@ -1247,7 +1247,7 @@ pub struct DidChangeNotebookDocumentParams {
 /// The params sent in a save notebook document notification.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Hash, Clone, Debug, Deserialize, Serialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidSaveNotebookDocumentParams {
@@ -1258,7 +1258,7 @@ pub struct DidSaveNotebookDocumentParams {
 /// The params sent in a close notebook document notification.
 ///
 /// @since 3.17.0
-#[derive(Eq, Debug, Deserialize, Hash, Clone, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidCloseNotebookDocumentParams {
@@ -1273,7 +1273,7 @@ pub struct DidCloseNotebookDocumentParams {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Serialize, Debug, Hash, Clone, Eq, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionParams {
@@ -1290,7 +1290,7 @@ pub struct InlineCompletionParams {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Eq, Deserialize, Serialize, Debug, PartialEq, Clone, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionList {
@@ -1302,7 +1302,7 @@ pub struct InlineCompletionList {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionItem {
@@ -1323,7 +1323,7 @@ pub struct InlineCompletionItem {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Serialize, Deserialize, Default, Debug, PartialEq, Clone, Hash, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionRegistrationOptions {
@@ -1339,7 +1339,7 @@ pub struct InlineCompletionRegistrationOptions {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Clone, PartialEq, Hash, Eq, Deserialize, Serialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentParams {
@@ -1351,7 +1351,7 @@ pub struct TextDocumentContentParams {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Clone, Serialize, Eq, Default, Deserialize, Debug, PartialEq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentResult {
@@ -1366,7 +1366,7 @@ pub struct TextDocumentContentResult {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Deserialize, Hash, Default, Serialize, PartialEq, Eq, Debug, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentRegistrationOptions {
@@ -1380,7 +1380,7 @@ pub struct TextDocumentContentRegistrationOptions {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Eq, Serialize, Debug, Clone, Deserialize, PartialEq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentRefreshParams {
@@ -1388,21 +1388,21 @@ pub struct TextDocumentContentRefreshParams {
     pub uri: Uri,
 }
 
-#[derive(Eq, Default, Debug, Clone, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RegistrationParams {
     pub registrations: Vec<Registration>,
 }
 
-#[derive(Serialize, Debug, Eq, Hash, Default, PartialEq, Deserialize, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct UnregistrationParams {
     pub unregisterations: Vec<Unregistration>,
 }
 
-#[derive(Default, PartialEq, Serialize, Deserialize, Eq, Debug, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InitializeParams {
@@ -1457,7 +1457,7 @@ pub struct InitializeParams {
 }
 
 /// The result returned from an initialize request.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InitializeResult {
@@ -1472,7 +1472,7 @@ pub struct InitializeResult {
 
 /// The data type of the ResponseError if the
 /// initialize request fails.
-#[derive(PartialEq, Eq, Deserialize, Debug, Serialize, Hash, Copy, Default, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InitializeError {
@@ -1483,13 +1483,13 @@ pub struct InitializeError {
     pub retry: bool,
 }
 
-#[derive(PartialEq, Serialize, Clone, Deserialize, Copy, Eq, Debug, Hash, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InitializedParams {}
 
 /// The parameters of a change configuration notification.
-#[derive(Eq, PartialEq, Clone, Deserialize, Serialize, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeConfigurationParams {
@@ -1497,7 +1497,7 @@ pub struct DidChangeConfigurationParams {
     pub settings: LspAny,
 }
 
-#[derive(Debug, Hash, Serialize, Eq, PartialEq, Default, Deserialize, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeConfigurationRegistrationOptions {
@@ -1506,7 +1506,7 @@ pub struct DidChangeConfigurationRegistrationOptions {
 }
 
 /// The parameters of a notification message.
-#[derive(Debug, Serialize, Clone, PartialEq, Hash, Deserialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ShowMessageParams {
@@ -1517,7 +1517,7 @@ pub struct ShowMessageParams {
     pub message: String,
 }
 
-#[derive(PartialEq, Deserialize, Eq, Debug, Serialize, Clone, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ShowMessageRequestParams {
@@ -1531,7 +1531,7 @@ pub struct ShowMessageRequestParams {
     pub actions: Option<Vec<MessageActionItem>>,
 }
 
-#[derive(Deserialize, PartialEq, Debug, Clone, Eq, Default, Serialize, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MessageActionItem {
@@ -1540,7 +1540,7 @@ pub struct MessageActionItem {
 }
 
 /// The log message parameters.
-#[derive(Debug, Serialize, Clone, PartialEq, Deserialize, Eq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LogMessageParams {
@@ -1552,7 +1552,7 @@ pub struct LogMessageParams {
 }
 
 /// The parameters sent in an open text document notification
-#[derive(PartialEq, Eq, Serialize, Hash, Debug, Deserialize, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidOpenTextDocumentParams {
@@ -1561,7 +1561,7 @@ pub struct DidOpenTextDocumentParams {
 }
 
 /// The change text document notification's parameters.
-#[derive(Clone, Eq, Hash, Deserialize, PartialEq, Serialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeTextDocumentParams {
@@ -1584,7 +1584,7 @@ pub struct DidChangeTextDocumentParams {
 }
 
 /// Describe options to be used when registered for text document change events.
-#[derive(Clone, PartialEq, Debug, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentChangeRegistrationOptions {
@@ -1595,7 +1595,7 @@ pub struct TextDocumentChangeRegistrationOptions {
 }
 
 /// The parameters sent in a close text document notification
-#[derive(Deserialize, Clone, Debug, PartialEq, Eq, Serialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidCloseTextDocumentParams {
@@ -1604,7 +1604,7 @@ pub struct DidCloseTextDocumentParams {
 }
 
 /// The parameters sent in a save text document notification
-#[derive(Serialize, Debug, Clone, Eq, Deserialize, Hash, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidSaveTextDocumentParams {
@@ -1617,7 +1617,7 @@ pub struct DidSaveTextDocumentParams {
 }
 
 /// Save registration options.
-#[derive(PartialEq, Deserialize, Eq, Default, Clone, Serialize, Debug, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentSaveRegistrationOptions {
@@ -1628,7 +1628,7 @@ pub struct TextDocumentSaveRegistrationOptions {
 }
 
 /// The parameters sent in a will save text document notification.
-#[derive(Clone, Deserialize, Hash, Serialize, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WillSaveTextDocumentParams {
@@ -1639,7 +1639,7 @@ pub struct WillSaveTextDocumentParams {
 }
 
 /// A text edit applicable to a text document.
-#[derive(Clone, Deserialize, Eq, Debug, PartialEq, Hash, Default, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextEdit {
@@ -1652,7 +1652,7 @@ pub struct TextEdit {
 }
 
 /// The watched files change notification's parameters.
-#[derive(Debug, Eq, Default, Deserialize, Hash, PartialEq, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeWatchedFilesParams {
@@ -1661,7 +1661,7 @@ pub struct DidChangeWatchedFilesParams {
 }
 
 /// Describe options to be used when registered for text document change events.
-#[derive(PartialEq, Deserialize, Serialize, Default, Hash, Debug, Clone, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeWatchedFilesRegistrationOptions {
@@ -1670,7 +1670,7 @@ pub struct DidChangeWatchedFilesRegistrationOptions {
 }
 
 /// The publish diagnostic notification's parameters.
-#[derive(Serialize, PartialEq, Clone, Eq, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PublishDiagnosticsParams {
@@ -1686,7 +1686,7 @@ pub struct PublishDiagnosticsParams {
 }
 
 /// Completion parameters
-#[derive(Debug, PartialEq, Serialize, Hash, Deserialize, Eq, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionParams {
@@ -1704,7 +1704,7 @@ pub struct CompletionParams {
 
 /// A completion item represents a text snippet that is
 /// proposed to complete text that is being typed.
-#[derive(Deserialize, Default, Eq, Debug, Clone, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionItem {
@@ -1848,7 +1848,7 @@ pub struct CompletionItem {
 
 /// Represents a collection of [completion items][CompletionItem] to be presented
 /// in the editor.
-#[derive(Debug, Deserialize, PartialEq, Clone, Eq, Serialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionList {
@@ -1898,7 +1898,7 @@ pub struct CompletionList {
 }
 
 /// Registration options for a [CompletionRequest].
-#[derive(Clone, Debug, PartialEq, Deserialize, Default, Hash, Serialize, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionRegistrationOptions {
@@ -1909,7 +1909,7 @@ pub struct CompletionRegistrationOptions {
 }
 
 /// Parameters for a [HoverRequest].
-#[derive(Clone, PartialEq, Eq, Serialize, Debug, Deserialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct HoverParams {
@@ -1920,7 +1920,7 @@ pub struct HoverParams {
 }
 
 /// The result of a hover request.
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Hover {
@@ -1933,7 +1933,7 @@ pub struct Hover {
 }
 
 /// Registration options for a [HoverRequest].
-#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Default, Hash, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct HoverRegistrationOptions {
@@ -1944,7 +1944,7 @@ pub struct HoverRegistrationOptions {
 }
 
 /// Parameters for a [SignatureHelpRequest].
-#[derive(Serialize, Debug, Hash, Eq, Clone, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpParams {
@@ -1963,7 +1963,7 @@ pub struct SignatureHelpParams {
 /// Signature help represents the signature of something
 /// callable. There can be multiple signature but only one
 /// active and only one active parameter.
-#[derive(Hash, Deserialize, Clone, Serialize, Eq, PartialEq, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelp {
@@ -2002,7 +2002,7 @@ pub struct SignatureHelp {
 }
 
 /// Registration options for a [SignatureHelpRequest].
-#[derive(Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpRegistrationOptions {
@@ -2013,7 +2013,7 @@ pub struct SignatureHelpRegistrationOptions {
 }
 
 /// Parameters for a [DefinitionRequest].
-#[derive(Hash, Serialize, Clone, Eq, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionParams {
@@ -2026,7 +2026,7 @@ pub struct DefinitionParams {
 }
 
 /// Registration options for a [DefinitionRequest].
-#[derive(Hash, Deserialize, Clone, PartialEq, Eq, Serialize, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionRegistrationOptions {
@@ -2037,7 +2037,7 @@ pub struct DefinitionRegistrationOptions {
 }
 
 /// Parameters for a [ReferencesRequest].
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceParams {
@@ -2051,7 +2051,7 @@ pub struct ReferenceParams {
 }
 
 /// Registration options for a [ReferencesRequest].
-#[derive(Hash, Deserialize, Eq, Debug, Clone, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceRegistrationOptions {
@@ -2062,7 +2062,7 @@ pub struct ReferenceRegistrationOptions {
 }
 
 /// Parameters for a [DocumentHighlightRequest].
-#[derive(Clone, Eq, PartialEq, Deserialize, Debug, Serialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightParams {
@@ -2077,7 +2077,7 @@ pub struct DocumentHighlightParams {
 /// A document highlight is a range inside a text document which deserves
 /// special attention. Usually a document highlight is visualized by changing
 /// the background color of its range.
-#[derive(Clone, Hash, PartialEq, Eq, Serialize, Deserialize, Default, Debug, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlight {
@@ -2089,7 +2089,7 @@ pub struct DocumentHighlight {
 }
 
 /// Registration options for a [DocumentHighlightRequest].
-#[derive(Deserialize, Debug, PartialEq, Serialize, Hash, Clone, Default, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightRegistrationOptions {
@@ -2100,7 +2100,7 @@ pub struct DocumentHighlightRegistrationOptions {
 }
 
 /// Parameters for a [DocumentSymbolRequest].
-#[derive(Clone, Deserialize, PartialEq, Debug, Eq, Serialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolParams {
@@ -2114,7 +2114,7 @@ pub struct DocumentSymbolParams {
 
 /// Represents information about programming constructs like variables, classes,
 /// interfaces etc.
-#[derive(Debug, Serialize, Clone, PartialEq, Deserialize, Hash, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SymbolInformation {
@@ -2142,7 +2142,7 @@ pub struct SymbolInformation {
 /// that appear in a document. Document symbols can be hierarchical and they
 /// have two ranges: one that encloses its definition and one that points to
 /// its most interesting range, e.g. the range of an identifier.
-#[derive(Eq, Clone, PartialEq, Deserialize, Hash, Serialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbol {
@@ -2178,7 +2178,7 @@ pub struct DocumentSymbol {
 }
 
 /// Registration options for a [DocumentSymbolRequest].
-#[derive(Serialize, Default, Hash, Debug, Eq, PartialEq, Clone, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolRegistrationOptions {
@@ -2189,7 +2189,7 @@ pub struct DocumentSymbolRegistrationOptions {
 }
 
 /// The parameters of a [CodeActionRequest].
-#[derive(PartialEq, Serialize, Clone, Deserialize, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionParams {
@@ -2209,7 +2209,7 @@ pub struct CodeActionParams {
 /// will be used to represent a command in the UI and, optionally,
 /// an array of arguments which will be passed to the command handler
 /// function when invoked.
-#[derive(Default, PartialEq, Serialize, Debug, Eq, Clone, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Command {
@@ -2233,7 +2233,7 @@ pub struct Command {
 /// to refactor code.
 ///
 /// A CodeAction must set either `edit` and/or a `command`. If both are supplied, the `edit` is applied first, then the `command` is executed.
-#[derive(Debug, Deserialize, Default, PartialEq, Clone, Eq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeAction {
@@ -2295,7 +2295,7 @@ pub struct CodeAction {
 }
 
 /// Registration options for a [CodeActionRequest].
-#[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionRegistrationOptions {
@@ -2306,7 +2306,7 @@ pub struct CodeActionRegistrationOptions {
 }
 
 /// The parameters of a [WorkspaceSymbolRequest].
-#[derive(Deserialize, PartialEq, Debug, Hash, Default, Clone, Serialize, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolParams {
@@ -2330,7 +2330,7 @@ pub struct WorkspaceSymbolParams {
 /// See also SymbolInformation.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Clone, Debug, Eq, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbol {
@@ -2349,7 +2349,7 @@ pub struct WorkspaceSymbol {
 }
 
 /// Registration options for a [WorkspaceSymbolRequest].
-#[derive(PartialEq, Serialize, Debug, Hash, Default, Copy, Deserialize, Eq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolRegistrationOptions {
@@ -2358,7 +2358,7 @@ pub struct WorkspaceSymbolRegistrationOptions {
 }
 
 /// The parameters of a [CodeLensRequest].
-#[derive(Serialize, PartialEq, Deserialize, Clone, Hash, Debug, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensParams {
@@ -2375,7 +2375,7 @@ pub struct CodeLensParams {
 ///
 /// A code lens is _unresolved_ when no command is associated to it. For performance
 /// reasons the creation of a code lens and resolving should be done in two stages.
-#[derive(Clone, Default, Serialize, Deserialize, PartialEq, Debug, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLens {
@@ -2391,7 +2391,7 @@ pub struct CodeLens {
 }
 
 /// Registration options for a [CodeLensRequest].
-#[derive(Clone, PartialEq, Serialize, Default, Eq, Debug, Deserialize, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensRegistrationOptions {
@@ -2402,7 +2402,7 @@ pub struct CodeLensRegistrationOptions {
 }
 
 /// The parameters of a [DocumentLinkRequest].
-#[derive(Clone, Deserialize, PartialEq, Hash, Eq, Serialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkParams {
@@ -2416,7 +2416,7 @@ pub struct DocumentLinkParams {
 
 /// A document link is a range in a text document that links to an internal or external resource, like another
 /// text document or a web site.
-#[derive(Eq, PartialEq, Clone, Serialize, Default, Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLink {
@@ -2441,7 +2441,7 @@ pub struct DocumentLink {
 }
 
 /// Registration options for a [DocumentLinkRequest].
-#[derive(Debug, PartialEq, Deserialize, Eq, Default, Hash, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkRegistrationOptions {
@@ -2452,7 +2452,7 @@ pub struct DocumentLinkRegistrationOptions {
 }
 
 /// The parameters of a [DocumentFormattingRequest].
-#[derive(Clone, Hash, Debug, Serialize, Eq, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingParams {
@@ -2465,7 +2465,7 @@ pub struct DocumentFormattingParams {
 }
 
 /// Registration options for a [DocumentFormattingRequest].
-#[derive(Default, Clone, Debug, Serialize, Deserialize, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingRegistrationOptions {
@@ -2476,7 +2476,7 @@ pub struct DocumentFormattingRegistrationOptions {
 }
 
 /// The parameters of a [DocumentRangeFormattingRequest].
-#[derive(Hash, Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingParams {
@@ -2491,7 +2491,7 @@ pub struct DocumentRangeFormattingParams {
 }
 
 /// Registration options for a [DocumentRangeFormattingRequest].
-#[derive(Deserialize, Debug, PartialEq, Hash, Serialize, Default, Clone, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingRegistrationOptions {
@@ -2505,7 +2505,7 @@ pub struct DocumentRangeFormattingRegistrationOptions {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Deserialize, Serialize, Clone, PartialEq, Hash, Debug, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangesFormattingParams {
@@ -2520,7 +2520,7 @@ pub struct DocumentRangesFormattingParams {
 }
 
 /// The parameters of a [DocumentOnTypeFormattingRequest].
-#[derive(Serialize, Eq, Debug, Hash, Clone, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingParams {
@@ -2540,7 +2540,7 @@ pub struct DocumentOnTypeFormattingParams {
 }
 
 /// Registration options for a [DocumentOnTypeFormattingRequest].
-#[derive(Default, Serialize, Clone, Deserialize, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingRegistrationOptions {
@@ -2551,7 +2551,7 @@ pub struct DocumentOnTypeFormattingRegistrationOptions {
 }
 
 /// The parameters of a [RenameRequest].
-#[derive(Clone, Deserialize, Hash, Debug, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RenameParams {
@@ -2566,7 +2566,7 @@ pub struct RenameParams {
 }
 
 /// Registration options for a [RenameRequest].
-#[derive(Eq, Hash, Default, Debug, Clone, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RenameRegistrationOptions {
@@ -2576,7 +2576,7 @@ pub struct RenameRegistrationOptions {
     pub rename_options: RenameOptions,
 }
 
-#[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PrepareRenameParams {
@@ -2587,7 +2587,7 @@ pub struct PrepareRenameParams {
 }
 
 /// The parameters of a [ExecuteCommandRequest].
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandParams {
@@ -2601,7 +2601,7 @@ pub struct ExecuteCommandParams {
 }
 
 /// Registration options for a [ExecuteCommandRequest].
-#[derive(PartialEq, Eq, Default, Deserialize, Clone, Hash, Serialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandRegistrationOptions {
@@ -2610,7 +2610,7 @@ pub struct ExecuteCommandRegistrationOptions {
 }
 
 /// The parameters passed via an apply workspace edit request.
-#[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ApplyWorkspaceEditParams {
@@ -2632,7 +2632,7 @@ pub struct ApplyWorkspaceEditParams {
 /// The result returned from the apply workspace edit request.
 ///
 /// @since 3.17 renamed from ApplyWorkspaceEditResponse
-#[derive(Serialize, PartialEq, Clone, Eq, Debug, Hash, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ApplyWorkspaceEditResult {
@@ -2650,7 +2650,7 @@ pub struct ApplyWorkspaceEditResult {
     pub failed_change: Option<u32>,
 }
 
-#[derive(Debug, Hash, Serialize, Clone, Eq, Deserialize, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowWorkDoneProgressBegin", into = "ShadowWorkDoneProgressBegin")]
@@ -2681,7 +2681,7 @@ pub struct WorkDoneProgressBegin {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percentage: Option<u32>,
 }
-#[derive(Debug, Hash, Serialize, Clone, Eq, Deserialize, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowWorkDoneProgressBegin {
@@ -2738,7 +2738,7 @@ impl From<WorkDoneProgressBegin> for ShadowWorkDoneProgressBegin {
     }
 }
 
-#[derive(PartialEq, Hash, Default, Deserialize, Debug, Eq, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(
@@ -2768,7 +2768,7 @@ pub struct WorkDoneProgressReport {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percentage: Option<u32>,
 }
-#[derive(PartialEq, Hash, Default, Deserialize, Debug, Eq, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowWorkDoneProgressReport {
@@ -2819,7 +2819,7 @@ impl From<WorkDoneProgressReport> for ShadowWorkDoneProgressReport {
     }
 }
 
-#[derive(PartialEq, Serialize, Deserialize, Clone, Eq, Debug, Default, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowWorkDoneProgressEnd", into = "ShadowWorkDoneProgressEnd")]
@@ -2829,7 +2829,7 @@ pub struct WorkDoneProgressEnd {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
 }
-#[derive(PartialEq, Serialize, Deserialize, Clone, Eq, Debug, Default, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowWorkDoneProgressEnd {
@@ -2859,14 +2859,14 @@ impl From<WorkDoneProgressEnd> for ShadowWorkDoneProgressEnd {
     }
 }
 
-#[derive(Hash, Serialize, PartialEq, Clone, Eq, Copy, Deserialize, Debug)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SetTraceParams {
     pub value: TraceValue,
 }
 
-#[derive(Hash, Eq, Default, PartialEq, Clone, Serialize, Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LogTraceParams {
@@ -2875,7 +2875,7 @@ pub struct LogTraceParams {
     pub verbose: Option<String>,
 }
 
-#[derive(Hash, Deserialize, Eq, Serialize, Clone, PartialEq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CancelParams {
@@ -2883,7 +2883,7 @@ pub struct CancelParams {
     pub id: Id,
 }
 
-#[derive(Clone, Eq, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ProgressParams {
@@ -2895,7 +2895,7 @@ pub struct ProgressParams {
 
 /// A parameter literal used in requests to pass a text document and a position inside that
 /// document.
-#[derive(Serialize, Deserialize, Hash, PartialEq, Clone, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentPositionParams {
@@ -2905,7 +2905,7 @@ pub struct TextDocumentPositionParams {
     pub position: Position,
 }
 
-#[derive(Default, Debug, PartialEq, Clone, Hash, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkDoneProgressParams {
@@ -2914,7 +2914,7 @@ pub struct WorkDoneProgressParams {
     pub work_done_token: Option<ProgressToken>,
 }
 
-#[derive(Default, Deserialize, Eq, Serialize, PartialEq, Hash, Clone, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PartialResultParams {
@@ -2926,7 +2926,7 @@ pub struct PartialResultParams {
 
 /// Represents the connection of two locations. Provides additional metadata over normal [locations][Location],
 /// including an origin range.
-#[derive(Deserialize, Hash, PartialEq, Eq, Serialize, Clone, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LocationLink {
@@ -2959,17 +2959,17 @@ pub struct LocationLink {
 /// }
 /// ```
 #[derive(
-    Debug,
     Clone,
-    Serialize,
     Copy,
+    Debug,
+    Default,
     Deserialize,
-    PartialOrd,
-    Hash,
-    PartialEq,
-    Ord,
     Eq,
-    Default
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Serialize
 )]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
@@ -2980,7 +2980,7 @@ pub struct Range {
     pub end: Position,
 }
 
-#[derive(Default, Eq, PartialEq, Copy, Clone, Debug, Serialize, Deserialize, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ImplementationOptions {
@@ -2990,7 +2990,7 @@ pub struct ImplementationOptions {
 
 /// Static registration options to be returned in the initialize
 /// request.
-#[derive(Default, PartialEq, Serialize, Clone, Hash, Deserialize, Debug, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct StaticRegistrationOptions {
@@ -3000,7 +3000,7 @@ pub struct StaticRegistrationOptions {
     pub id: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Default, Deserialize, Eq, Hash, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeDefinitionOptions {
@@ -3009,7 +3009,7 @@ pub struct TypeDefinitionOptions {
 }
 
 /// The workspace folder change event.
-#[derive(Deserialize, Default, Debug, Serialize, PartialEq, Eq, Hash, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFoldersChangeEvent {
@@ -3019,7 +3019,7 @@ pub struct WorkspaceFoldersChangeEvent {
     pub removed: Vec<WorkspaceFolder>,
 }
 
-#[derive(Clone, Debug, Serialize, Eq, PartialEq, Hash, Deserialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ConfigurationItem {
@@ -3032,7 +3032,7 @@ pub struct ConfigurationItem {
 }
 
 /// A literal to identify a text document in the client.
-#[derive(Eq, PartialEq, Serialize, Debug, Clone, Hash, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentIdentifier {
@@ -3041,7 +3041,7 @@ pub struct TextDocumentIdentifier {
 }
 
 /// Represents a color in RGBA space.
-#[derive(Serialize, Copy, Deserialize, PartialEq, Debug, Default, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Color {
@@ -3055,7 +3055,7 @@ pub struct Color {
     pub alpha: f32,
 }
 
-#[derive(Serialize, Default, Clone, Copy, PartialEq, Debug, Deserialize, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentColorOptions {
@@ -3063,7 +3063,7 @@ pub struct DocumentColorOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 
-#[derive(Default, Copy, Debug, Serialize, PartialEq, Hash, Deserialize, Eq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeOptions {
@@ -3071,7 +3071,7 @@ pub struct FoldingRangeOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 
-#[derive(Deserialize, Hash, Clone, Default, Serialize, Debug, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DeclarationOptions {
@@ -3107,17 +3107,17 @@ pub struct DeclarationOptions {
 ///
 /// @since 3.17.0 - support for negotiated position encoding.
 #[derive(
-    Deserialize,
     Clone,
-    Default,
     Copy,
-    PartialOrd,
-    Ord,
-    Serialize,
-    PartialEq,
-    Eq,
     Debug,
-    Hash
+    Default,
+    Deserialize,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Serialize
 )]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
@@ -3131,7 +3131,7 @@ pub struct Position {
     pub character: u32,
 }
 
-#[derive(Deserialize, Serialize, Debug, Eq, Default, Copy, PartialEq, Clone, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SelectionRangeOptions {
@@ -3142,7 +3142,7 @@ pub struct SelectionRangeOptions {
 /// Call hierarchy options used during static registration.
 ///
 /// @since 3.16.0
-#[derive(Deserialize, Default, Serialize, Copy, Clone, Eq, Hash, PartialEq, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyOptions {
@@ -3151,7 +3151,7 @@ pub struct CallHierarchyOptions {
 }
 
 /// @since 3.16.0
-#[derive(Deserialize, Default, Debug, Serialize, Eq, Clone, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensOptions {
@@ -3169,7 +3169,7 @@ pub struct SemanticTokensOptions {
 }
 
 /// @since 3.16.0
-#[derive(Default, Eq, Hash, Serialize, Deserialize, PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensEdit {
@@ -3187,7 +3187,7 @@ pub struct SemanticTokensEdit {
     pub data: Option<Vec<SemanticToken>>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Hash, Eq, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LinkedEditingRangeOptions {
@@ -3198,7 +3198,7 @@ pub struct LinkedEditingRangeOptions {
 /// Represents information on a file/folder create.
 ///
 /// @since 3.16.0
-#[derive(Debug, Deserialize, Clone, Default, Serialize, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileCreate {
@@ -3210,7 +3210,7 @@ pub struct FileCreate {
 /// on a document version Si and after they are applied move the document to version Si+1.
 /// So the creator of a TextDocumentEdit doesn't need to sort the array of edits or do any
 /// kind of ordering. However the edits must be non overlapping.
-#[derive(Hash, PartialEq, Debug, Eq, Serialize, Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentEdit {
@@ -3227,7 +3227,7 @@ pub struct TextDocumentEdit {
 }
 
 /// Create file operation.
-#[derive(PartialEq, Deserialize, Clone, Debug, Serialize, Eq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowCreateFile", into = "ShadowCreateFile")]
@@ -3243,7 +3243,7 @@ pub struct CreateFile {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
-#[derive(PartialEq, Deserialize, Clone, Debug, Serialize, Eq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowCreateFile {
@@ -3284,7 +3284,7 @@ impl From<CreateFile> for ShadowCreateFile {
 }
 
 /// Rename file operation
-#[derive(Clone, Eq, Debug, Hash, Serialize, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowRenameFile", into = "ShadowRenameFile")]
@@ -3302,7 +3302,7 @@ pub struct RenameFile {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
-#[derive(Clone, Eq, Debug, Hash, Serialize, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowRenameFile {
@@ -3347,7 +3347,7 @@ impl From<RenameFile> for ShadowRenameFile {
 }
 
 /// Delete file operation
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowDeleteFile", into = "ShadowDeleteFile")]
@@ -3363,7 +3363,7 @@ pub struct DeleteFile {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowDeleteFile {
@@ -3406,7 +3406,7 @@ impl From<DeleteFile> for ShadowDeleteFile {
 /// Additional information that describes document changes.
 ///
 /// @since 3.16.0
-#[derive(Serialize, Eq, Clone, PartialEq, Debug, Default, Hash, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ChangeAnnotation {
@@ -3427,7 +3427,7 @@ pub struct ChangeAnnotation {
 /// the server is interested in receiving.
 ///
 /// @since 3.16.0
-#[derive(Default, Clone, Hash, Debug, Eq, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationFilter {
@@ -3441,7 +3441,7 @@ pub struct FileOperationFilter {
 /// Represents information on a file/folder rename.
 ///
 /// @since 3.16.0
-#[derive(Deserialize, Debug, PartialEq, Serialize, Default, Eq, Clone, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileRename {
@@ -3454,7 +3454,7 @@ pub struct FileRename {
 /// Represents information on a file/folder delete.
 ///
 /// @since 3.16.0
-#[derive(Hash, Deserialize, Eq, Clone, Default, Serialize, PartialEq, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileDelete {
@@ -3462,7 +3462,7 @@ pub struct FileDelete {
     pub uri: String,
 }
 
-#[derive(Hash, Default, Eq, Debug, Copy, Serialize, PartialEq, Clone, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MonikerOptions {
@@ -3473,7 +3473,7 @@ pub struct MonikerOptions {
 /// Type hierarchy options used during static registration.
 ///
 /// @since 3.17.0
-#[derive(Debug, Default, Copy, Eq, Hash, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchyOptions {
@@ -3482,7 +3482,7 @@ pub struct TypeHierarchyOptions {
 }
 
 /// @since 3.17.0
-#[derive(Deserialize, Clone, Eq, Hash, Default, Debug, Serialize, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueContext {
@@ -3496,7 +3496,7 @@ pub struct InlineValueContext {
 /// Provide inline value as text.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Default, PartialEq, Hash, Serialize, Debug, Eq, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueText {
@@ -3511,7 +3511,7 @@ pub struct InlineValueText {
 /// An optional variable name can be used to override the extracted name.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Serialize, Clone, Hash, PartialEq, Default, Eq, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueVariableLookup {
@@ -3530,7 +3530,7 @@ pub struct InlineValueVariableLookup {
 /// An optional expression can be used to override the extracted expression.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Deserialize, Serialize, Default, Hash, Eq, Debug, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueEvaluatableExpression {
@@ -3545,7 +3545,7 @@ pub struct InlineValueEvaluatableExpression {
 /// Inline value options used during static registration.
 ///
 /// @since 3.17.0
-#[derive(Default, Deserialize, Debug, Clone, Eq, Serialize, Copy, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueOptions {
@@ -3557,7 +3557,7 @@ pub struct InlineValueOptions {
 /// of inlay hints.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Clone, Default, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHintLabelPart {
@@ -3611,7 +3611,7 @@ pub struct InlayHintLabelPart {
 ///
 /// *Please Note* that clients might sanitize the return markdown. A client could decide to
 /// remove HTML from the markdown to avoid script execution.
-#[derive(Clone, Hash, Eq, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MarkupContent {
@@ -3624,7 +3624,7 @@ pub struct MarkupContent {
 /// Inlay hint options used during static registration.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Serialize, Copy, Clone, Default, Eq, Hash, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHintOptions {
@@ -3639,7 +3639,7 @@ pub struct InlayHintOptions {
 /// A full diagnostic report with a set of related documents.
 ///
 /// @since 3.17.0
-#[derive(Debug, Clone, Deserialize, Eq, PartialEq, Serialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RelatedFullDocumentDiagnosticReport {
@@ -3659,7 +3659,7 @@ pub struct RelatedFullDocumentDiagnosticReport {
 /// An unchanged diagnostic report with a set of related documents.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, PartialEq, Clone, Serialize, Default, Eq, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RelatedUnchangedDocumentDiagnosticReport {
@@ -3679,7 +3679,7 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
 /// A diagnostic report with a full set of problems.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Clone, Serialize, Eq, Deserialize, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(
@@ -3695,7 +3695,7 @@ pub struct FullDocumentDiagnosticReport {
     /// The actual items.
     pub items: Vec<Diagnostic>,
 }
-#[derive(PartialEq, Clone, Serialize, Eq, Deserialize, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowFullDocumentDiagnosticReport {
@@ -3736,7 +3736,7 @@ impl From<FullDocumentDiagnosticReport> for ShadowFullDocumentDiagnosticReport {
 /// report is still accurate.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Eq, Serialize, Debug, Default, PartialEq, Clone, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(
@@ -3748,7 +3748,7 @@ pub struct UnchangedDocumentDiagnosticReport {
     /// diagnostic request for the same document.
     pub result_id: String,
 }
-#[derive(Deserialize, Eq, Serialize, Debug, Default, PartialEq, Clone, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowUnchangedDocumentDiagnosticReport {
@@ -3784,7 +3784,7 @@ for ShadowUnchangedDocumentDiagnosticReport {
 /// Diagnostic options.
 ///
 /// @since 3.17.0
-#[derive(Clone, Hash, Debug, Eq, Deserialize, Default, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticOptions {
@@ -3806,7 +3806,7 @@ pub struct DiagnosticOptions {
 /// A previous result id in a workspace pull request.
 ///
 /// @since 3.17.0
-#[derive(Eq, Serialize, Hash, Clone, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PreviousResultId {
@@ -3820,7 +3820,7 @@ pub struct PreviousResultId {
 /// A notebook document.
 ///
 /// @since 3.17.0
-#[derive(Serialize, PartialEq, Debug, Deserialize, Clone, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocument {
@@ -3843,7 +3843,7 @@ pub struct NotebookDocument {
 
 /// An item to transfer a text document from the client to the
 /// server.
-#[derive(Eq, Deserialize, Serialize, Debug, PartialEq, Clone, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentItem {
@@ -3871,7 +3871,7 @@ pub struct TextDocumentItem {
 /// cell will be synced.
 ///
 /// @since 3.17.0
-#[derive(Hash, Deserialize, Debug, Default, Serialize, PartialEq, Clone, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentSyncOptions {
@@ -3886,7 +3886,7 @@ pub struct NotebookDocumentSyncOptions {
 /// A versioned notebook document identifier.
 ///
 /// @since 3.17.0
-#[derive(Serialize, Hash, PartialEq, Clone, Eq, Deserialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct VersionedNotebookDocumentIdentifier {
@@ -3899,7 +3899,7 @@ pub struct VersionedNotebookDocumentIdentifier {
 /// A change event for a notebook document.
 ///
 /// @since 3.17.0
-#[derive(Eq, Deserialize, Debug, Serialize, PartialEq, Default, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentChangeEvent {
@@ -3916,7 +3916,7 @@ pub struct NotebookDocumentChangeEvent {
 /// A literal to identify a notebook document in the client.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Debug, Clone, Eq, Hash, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentIdentifier {
@@ -3928,7 +3928,7 @@ pub struct NotebookDocumentIdentifier {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Clone, PartialEq, Serialize, Debug, Hash, Deserialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionContext {
@@ -3949,7 +3949,7 @@ pub struct InlineCompletionContext {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(PartialEq, Clone, Debug, Default, Hash, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowStringValue", into = "ShadowStringValue")]
@@ -3957,7 +3957,7 @@ pub struct StringValue {
     /// The snippet string.
     pub value: String,
 }
-#[derive(PartialEq, Clone, Debug, Default, Hash, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 struct ShadowStringValue {
@@ -3987,7 +3987,7 @@ impl From<StringValue> for ShadowStringValue {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(PartialEq, Eq, Hash, Copy, Serialize, Clone, Deserialize, Default, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionOptions {
@@ -3999,7 +3999,7 @@ pub struct InlineCompletionOptions {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Debug, Clone, PartialEq, Serialize, Eq, Hash, Deserialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentOptions {
@@ -4008,7 +4008,7 @@ pub struct TextDocumentContentOptions {
 }
 
 /// General parameters to register for a notification or to register a provider.
-#[derive(Deserialize, PartialEq, Clone, Eq, Serialize, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Registration {
@@ -4023,7 +4023,7 @@ pub struct Registration {
 }
 
 /// General parameters to unregister a request or notification.
-#[derive(Clone, Hash, Deserialize, Default, PartialEq, Debug, Eq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Unregistration {
@@ -4034,7 +4034,7 @@ pub struct Unregistration {
     pub method: String,
 }
 
-#[derive(PartialEq, Hash, Serialize, Eq, Debug, Clone, Deserialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFoldersInitializeParams {
@@ -4052,7 +4052,7 @@ pub struct WorkspaceFoldersInitializeParams {
 
 /// Defines the capabilities provided by a language
 /// server.
-#[derive(Clone, Deserialize, Serialize, Default, Eq, PartialEq, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ServerCapabilities {
@@ -4205,7 +4205,7 @@ pub struct ServerCapabilities {
 ///
 /// @since 3.15.0
 /// @since 3.18.0 ServerInfo type name added.
-#[derive(PartialEq, Serialize, Default, Clone, Eq, Deserialize, Hash, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ServerInfo {
@@ -4217,7 +4217,7 @@ pub struct ServerInfo {
 }
 
 /// A text document identifier to denote a specific version of a text document.
-#[derive(Serialize, PartialEq, Eq, Hash, Clone, Deserialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct VersionedTextDocumentIdentifier {
@@ -4228,7 +4228,7 @@ pub struct VersionedTextDocumentIdentifier {
 }
 
 /// Save options.
-#[derive(Default, Deserialize, PartialEq, Hash, Copy, Clone, Eq, Serialize, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SaveOptions {
@@ -4238,7 +4238,7 @@ pub struct SaveOptions {
 }
 
 /// An event describing a file change.
-#[derive(Clone, Hash, Serialize, Debug, PartialEq, Deserialize, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileEvent {
@@ -4249,7 +4249,7 @@ pub struct FileEvent {
     pub kind: FileChangeType,
 }
 
-#[derive(Serialize, Eq, Debug, Deserialize, PartialEq, Clone, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileSystemWatcher {
@@ -4266,7 +4266,7 @@ pub struct FileSystemWatcher {
 
 /// Represents a diagnostic, such as a compiler error or warning. Diagnostic objects
 /// are only valid in the scope of a resource.
-#[derive(Default, Clone, Deserialize, Serialize, PartialEq, Debug, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct Diagnostic {
@@ -4311,7 +4311,7 @@ pub struct Diagnostic {
 }
 
 /// Contains additional information about the context in which a completion request is triggered.
-#[derive(Serialize, Hash, Clone, Deserialize, Eq, PartialEq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionContext {
@@ -4326,7 +4326,7 @@ pub struct CompletionContext {
 /// Additional details for a completion item label.
 ///
 /// @since 3.17.0
-#[derive(Eq, Deserialize, PartialEq, Clone, Default, Serialize, Debug, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionItemLabelDetails {
@@ -4343,7 +4343,7 @@ pub struct CompletionItemLabelDetails {
 /// A special text edit to provide an insert and a replace operation.
 ///
 /// @since 3.16.0
-#[derive(Hash, Clone, PartialEq, Debug, Default, Deserialize, Eq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InsertReplaceEdit {
@@ -4370,7 +4370,7 @@ pub struct InsertReplaceEdit {
 /// capability.
 ///
 /// @since 3.17.0
-#[derive(Default, PartialEq, Debug, Eq, Serialize, Deserialize, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionItemDefaults {
@@ -4418,7 +4418,7 @@ pub struct CompletionItemDefaults {
 /// capability.
 ///
 /// @since 3.18.0
-#[derive(PartialEq, Deserialize, Default, Copy, Hash, Serialize, Debug, Eq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionItemApplyKinds {
@@ -4466,7 +4466,7 @@ pub struct CompletionItemApplyKinds {
 }
 
 /// Completion options.
-#[derive(Clone, PartialEq, Default, Eq, Hash, Deserialize, Serialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionOptions {
@@ -4505,7 +4505,7 @@ pub struct CompletionOptions {
 }
 
 /// Hover options.
-#[derive(Deserialize, Serialize, Hash, Eq, Clone, Default, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct HoverOptions {
@@ -4516,7 +4516,7 @@ pub struct HoverOptions {
 /// Additional information about the context in which a signature help request was triggered.
 ///
 /// @since 3.15.0
-#[derive(Deserialize, Clone, Eq, Debug, PartialEq, Hash, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpContext {
@@ -4543,7 +4543,7 @@ pub struct SignatureHelpContext {
 /// Represents the signature of something callable. A signature
 /// can have a label, like a function-name, a doc-comment, and
 /// a set of parameters.
-#[derive(Default, Serialize, Hash, Eq, PartialEq, Clone, Deserialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureInformation {
@@ -4574,7 +4574,7 @@ pub struct SignatureInformation {
 }
 
 /// Server Capabilities for a [SignatureHelpRequest].
-#[derive(Debug, Default, Serialize, Eq, Hash, Deserialize, PartialEq, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpOptions {
@@ -4594,7 +4594,7 @@ pub struct SignatureHelpOptions {
 }
 
 /// Server Capabilities for a [DefinitionRequest].
-#[derive(Serialize, Clone, Hash, Default, Debug, Copy, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionOptions {
@@ -4604,7 +4604,7 @@ pub struct DefinitionOptions {
 
 /// Value-object that contains additional information when
 /// requesting references.
-#[derive(Hash, Deserialize, Debug, Clone, Default, PartialEq, Serialize, Eq, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceContext {
@@ -4613,7 +4613,7 @@ pub struct ReferenceContext {
 }
 
 /// Reference options.
-#[derive(Serialize, Hash, Copy, Debug, Clone, PartialEq, Deserialize, Default, Eq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceOptions {
@@ -4622,7 +4622,7 @@ pub struct ReferenceOptions {
 }
 
 /// Provider options for a [DocumentHighlightRequest].
-#[derive(PartialEq, Clone, Deserialize, Eq, Debug, Hash, Serialize, Copy, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightOptions {
@@ -4631,7 +4631,7 @@ pub struct DocumentHighlightOptions {
 }
 
 /// A base for all symbol information.
-#[derive(Deserialize, Serialize, PartialEq, Hash, Clone, Eq, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct BaseSymbolInformation {
@@ -4653,7 +4653,7 @@ pub struct BaseSymbolInformation {
 }
 
 /// Provider options for a [DocumentSymbolRequest].
-#[derive(PartialEq, Eq, Debug, Serialize, Clone, Deserialize, Hash, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolOptions {
@@ -4669,7 +4669,7 @@ pub struct DocumentSymbolOptions {
 
 /// Contains additional diagnostic information about the context in which
 /// a [code action][`CodeActionProvider::provideCodeActions`] is run.
-#[derive(Deserialize, Default, Serialize, Clone, PartialEq, Debug, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionContext {
@@ -4695,7 +4695,7 @@ pub struct CodeActionContext {
 /// Captures why the code action is currently disabled.
 ///
 /// @since 3.18.0
-#[derive(Default, Debug, Clone, Deserialize, PartialEq, Eq, Serialize, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionDisabled {
@@ -4706,7 +4706,7 @@ pub struct CodeActionDisabled {
 }
 
 /// Provider options for a [CodeActionRequest].
-#[derive(PartialEq, Serialize, Eq, Debug, Deserialize, Clone, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionOptions {
@@ -4746,7 +4746,7 @@ pub struct CodeActionOptions {
 /// Location with only uri and does not include range.
 ///
 /// @since 3.18.0
-#[derive(Eq, Clone, PartialEq, Deserialize, Hash, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LocationUriOnly {
@@ -4754,7 +4754,7 @@ pub struct LocationUriOnly {
 }
 
 /// Server capabilities for a [WorkspaceSymbolRequest].
-#[derive(Serialize, Clone, Debug, Eq, Hash, Copy, Deserialize, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolOptions {
@@ -4769,7 +4769,7 @@ pub struct WorkspaceSymbolOptions {
 }
 
 /// Code Lens provider options of a [CodeLensRequest].
-#[derive(Deserialize, Copy, Default, Serialize, PartialEq, Debug, Hash, Eq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensOptions {
@@ -4781,7 +4781,7 @@ pub struct CodeLensOptions {
 }
 
 /// Provider options for a [DocumentLinkRequest].
-#[derive(PartialEq, Debug, Eq, Hash, Serialize, Deserialize, Default, Clone, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkOptions {
@@ -4793,7 +4793,7 @@ pub struct DocumentLinkOptions {
 }
 
 /// Value-object describing what options formatting should use.
-#[derive(Deserialize, Hash, PartialEq, Serialize, Eq, Debug, Default, Copy, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FormattingOptions {
@@ -4819,7 +4819,7 @@ pub struct FormattingOptions {
 }
 
 /// Provider options for a [DocumentFormattingRequest].
-#[derive(Deserialize, PartialEq, Serialize, Default, Copy, Clone, Debug, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingOptions {
@@ -4828,7 +4828,7 @@ pub struct DocumentFormattingOptions {
 }
 
 /// Provider options for a [DocumentRangeFormattingRequest].
-#[derive(Copy, Deserialize, Hash, Eq, Debug, Clone, Serialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingOptions {
@@ -4843,7 +4843,7 @@ pub struct DocumentRangeFormattingOptions {
 }
 
 /// Provider options for a [DocumentOnTypeFormattingRequest].
-#[derive(Clone, PartialEq, Deserialize, Default, Serialize, Debug, Hash, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingOptions {
@@ -4855,7 +4855,7 @@ pub struct DocumentOnTypeFormattingOptions {
 }
 
 /// Provider options for a [RenameRequest].
-#[derive(Eq, Hash, Deserialize, Default, Copy, Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RenameOptions {
@@ -4869,7 +4869,7 @@ pub struct RenameOptions {
 }
 
 /// @since 3.18.0
-#[derive(Deserialize, Hash, Serialize, Default, Clone, PartialEq, Debug, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PrepareRenamePlaceholder {
@@ -4878,7 +4878,7 @@ pub struct PrepareRenamePlaceholder {
 }
 
 /// @since 3.18.0
-#[derive(Serialize, PartialEq, Debug, Clone, Eq, Hash, Default, Deserialize, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PrepareRenameDefaultBehavior {
@@ -4886,7 +4886,7 @@ pub struct PrepareRenameDefaultBehavior {
 }
 
 /// The server capabilities of a [ExecuteCommandRequest].
-#[derive(Serialize, Debug, Eq, PartialEq, Hash, Clone, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandOptions {
@@ -4900,7 +4900,7 @@ pub struct ExecuteCommandOptions {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Deserialize, PartialEq, Clone, Default, Eq, Copy, Hash, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceEditMetadata {
@@ -4910,7 +4910,7 @@ pub struct WorkspaceEditMetadata {
 }
 
 /// @since 3.16.0
-#[derive(Eq, Deserialize, Serialize, PartialEq, Debug, Clone, Hash, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensLegend {
@@ -4923,7 +4923,7 @@ pub struct SemanticTokensLegend {
 /// Semantic tokens options to support deltas for full documents
 ///
 /// @since 3.18.0
-#[derive(Serialize, Deserialize, Hash, PartialEq, Copy, Debug, Eq, Clone, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensFullDelta {
@@ -4933,7 +4933,7 @@ pub struct SemanticTokensFullDelta {
 }
 
 /// A text document identifier to optionally denote a specific version of a text document.
-#[derive(Deserialize, Clone, PartialEq, Serialize, Eq, Debug, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct OptionalVersionedTextDocumentIdentifier {
@@ -4950,7 +4950,7 @@ pub struct OptionalVersionedTextDocumentIdentifier {
 /// A special text edit with an additional change annotation.
 ///
 /// @since 3.16.0.
-#[derive(Deserialize, Default, Serialize, Debug, Clone, Hash, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct AnnotatedTextEdit {
@@ -4964,7 +4964,7 @@ pub struct AnnotatedTextEdit {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Eq, Default, Debug, Hash, PartialEq, Clone, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SnippetTextEdit {
@@ -4978,7 +4978,7 @@ pub struct SnippetTextEdit {
 }
 
 /// A generic resource operation.
-#[derive(PartialEq, Serialize, Hash, Eq, Clone, Default, Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ResourceOperation {
@@ -4992,7 +4992,7 @@ pub struct ResourceOperation {
 }
 
 /// Options to create a file.
-#[derive(Serialize, Deserialize, PartialEq, Default, Hash, Copy, Debug, Eq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CreateFileOptions {
@@ -5005,7 +5005,7 @@ pub struct CreateFileOptions {
 }
 
 /// Rename file options
-#[derive(Eq, Hash, Clone, PartialEq, Serialize, Debug, Deserialize, Default, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RenameFileOptions {
@@ -5018,7 +5018,7 @@ pub struct RenameFileOptions {
 }
 
 /// Delete file options
-#[derive(Default, Copy, Serialize, Clone, Hash, PartialEq, Deserialize, Eq, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DeleteFileOptions {
@@ -5034,7 +5034,7 @@ pub struct DeleteFileOptions {
 /// the server is interested in receiving.
 ///
 /// @since 3.16.0
-#[derive(PartialEq, Clone, Hash, Debug, Serialize, Eq, Deserialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationPattern {
@@ -5059,7 +5059,7 @@ pub struct FileOperationPattern {
 /// A full document diagnostic report for a workspace diagnostic result.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, PartialEq, Serialize, Clone, Debug, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFullDocumentDiagnosticReport {
@@ -5075,7 +5075,7 @@ pub struct WorkspaceFullDocumentDiagnosticReport {
 /// An unchanged document diagnostic report for a workspace diagnostic result.
 ///
 /// @since 3.17.0
-#[derive(Clone, Eq, Debug, Serialize, Deserialize, PartialEq, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceUnchangedDocumentDiagnosticReport {
@@ -5095,7 +5095,7 @@ pub struct WorkspaceUnchangedDocumentDiagnosticReport {
 /// notebook cell or the cell's text document.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Debug, Clone, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookCell {
@@ -5116,7 +5116,7 @@ pub struct NotebookCell {
 }
 
 /// @since 3.18.0
-#[derive(PartialEq, Clone, Eq, Hash, Deserialize, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentFilterWithNotebook {
@@ -5130,7 +5130,7 @@ pub struct NotebookDocumentFilterWithNotebook {
 }
 
 /// @since 3.18.0
-#[derive(Hash, Serialize, PartialEq, Clone, Default, Eq, Deserialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentFilterWithCells {
@@ -5146,7 +5146,7 @@ pub struct NotebookDocumentFilterWithCells {
 /// Cell changes to a notebook document.
 ///
 /// @since 3.18.0
-#[derive(Clone, Serialize, Eq, Deserialize, PartialEq, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentCellChanges {
@@ -5167,7 +5167,7 @@ pub struct NotebookDocumentCellChanges {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Eq, PartialEq, Debug, Serialize, Hash, Clone, Deserialize, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SelectedCompletionInfo {
@@ -5181,7 +5181,7 @@ pub struct SelectedCompletionInfo {
 ///
 /// @since 3.15.0
 /// @since 3.18.0 ClientInfo type name added.
-#[derive(Eq, Deserialize, Clone, Serialize, Debug, Hash, PartialEq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientInfo {
@@ -5193,7 +5193,7 @@ pub struct ClientInfo {
 }
 
 /// Defines the capabilities provided by the client.
-#[derive(Eq, PartialEq, Default, Serialize, Deserialize, Debug, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCapabilities {
@@ -5221,7 +5221,7 @@ pub struct ClientCapabilities {
     pub experimental: Option<LspAny>,
 }
 
-#[derive(PartialEq, Copy, Serialize, Default, Eq, Hash, Debug, Deserialize, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentSyncOptions {
@@ -5250,7 +5250,7 @@ pub struct TextDocumentSyncOptions {
 /// Defines workspace specific capabilities of the server.
 ///
 /// @since 3.18.0
-#[derive(PartialEq, Clone, Eq, Debug, Serialize, Deserialize, Default, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceOptions {
@@ -5273,7 +5273,7 @@ pub struct WorkspaceOptions {
 }
 
 /// @since 3.18.0
-#[derive(Eq, Serialize, PartialEq, Clone, Default, Deserialize, Hash, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentChangePartial {
@@ -5290,7 +5290,7 @@ pub struct TextDocumentContentChangePartial {
 }
 
 /// @since 3.18.0
-#[derive(Hash, Debug, Eq, PartialEq, Default, Clone, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentChangeWholeDocument {
@@ -5301,7 +5301,7 @@ pub struct TextDocumentContentChangeWholeDocument {
 /// Structure to capture a description for an error code.
 ///
 /// @since 3.16.0
-#[derive(Debug, Hash, Clone, PartialEq, Deserialize, Eq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeDescription {
@@ -5312,7 +5312,7 @@ pub struct CodeDescription {
 /// Represents a related message and source code location for a diagnostic. This should be
 /// used to point to code locations that cause or related to a diagnostics, e.g when duplicating
 /// a symbol in a scope.
-#[derive(Deserialize, Hash, Serialize, Eq, PartialEq, Debug, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticRelatedInformation {
@@ -5325,7 +5325,7 @@ pub struct DiagnosticRelatedInformation {
 /// Edit range variant that includes ranges for insert and replace operations.
 ///
 /// @since 3.18.0
-#[derive(PartialEq, Debug, Eq, Deserialize, Serialize, Default, Clone, Copy, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct EditRangeWithInsertReplace {
@@ -5334,7 +5334,7 @@ pub struct EditRangeWithInsertReplace {
 }
 
 /// @since 3.18.0
-#[derive(Copy, Serialize, Debug, Clone, Deserialize, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ServerCompletionItemOptions {
@@ -5349,7 +5349,7 @@ pub struct ServerCompletionItemOptions {
 
 /// @since 3.18.0
 /// @deprecated use MarkupContent instead.
-#[derive(Eq, Default, Serialize, Clone, Deserialize, Debug, PartialEq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 #[deprecated(note = "use MarkupContent instead.")]
@@ -5360,7 +5360,7 @@ pub struct MarkedStringWithLanguage {
 
 /// Represents a parameter of a callable-signature. A parameter can
 /// have a label and a doc-comment.
-#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ParameterInformation {
@@ -5387,7 +5387,7 @@ pub struct ParameterInformation {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Serialize, PartialEq, Debug, Deserialize, Clone, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionKindDocumentation {
@@ -5407,7 +5407,7 @@ pub struct CodeActionKindDocumentation {
 /// document by different properties.
 ///
 /// @since 3.17.0
-#[derive(Serialize, PartialEq, Eq, Deserialize, Clone, Hash, Debug)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookCellTextDocumentFilter {
@@ -5427,7 +5427,7 @@ pub struct NotebookCellTextDocumentFilter {
 /// Matching options for the file operation pattern.
 ///
 /// @since 3.16.0
-#[derive(Copy, Serialize, Debug, Hash, PartialEq, Default, Clone, Eq, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationPatternOptions {
@@ -5436,7 +5436,7 @@ pub struct FileOperationPatternOptions {
     pub ignore_case: Option<bool>,
 }
 
-#[derive(PartialEq, Default, Serialize, Clone, Copy, Eq, Deserialize, Hash, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ExecutionSummary {
@@ -5451,7 +5451,7 @@ pub struct ExecutionSummary {
 }
 
 /// @since 3.18.0
-#[derive(Serialize, Eq, PartialEq, Hash, Deserialize, Clone, Default, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookCellLanguage {
@@ -5461,7 +5461,7 @@ pub struct NotebookCellLanguage {
 /// Structural changes to cells in a notebook document.
 ///
 /// @since 3.18.0
-#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentCellChangeStructure {
@@ -5478,7 +5478,7 @@ pub struct NotebookDocumentCellChangeStructure {
 /// Content changes to a cell in a notebook document.
 ///
 /// @since 3.18.0
-#[derive(Serialize, Deserialize, Clone, Hash, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentCellContentChanges {
@@ -5487,7 +5487,7 @@ pub struct NotebookDocumentCellContentChanges {
 }
 
 /// Workspace specific client capabilities.
-#[derive(Deserialize, Hash, Default, PartialEq, Serialize, Clone, Debug, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceClientCapabilities {
@@ -5571,7 +5571,7 @@ pub struct WorkspaceClientCapabilities {
 }
 
 /// Text document specific client capabilities.
-#[derive(Clone, Serialize, Default, Eq, PartialEq, Deserialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentClientCapabilities {
@@ -5710,7 +5710,7 @@ pub struct TextDocumentClientCapabilities {
 /// Capabilities specific to the notebook document support.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Hash, Clone, Eq, Serialize, Copy, PartialEq, Default, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentClientCapabilities {
@@ -5720,7 +5720,7 @@ pub struct NotebookDocumentClientCapabilities {
     pub synchronization: NotebookDocumentSyncClientCapabilities,
 }
 
-#[derive(Copy, Default, Clone, Eq, Hash, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WindowClientCapabilities {
@@ -5750,7 +5750,7 @@ pub struct WindowClientCapabilities {
 /// General client capabilities.
 ///
 /// @since 3.16.0
-#[derive(Eq, Clone, Hash, Debug, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct GeneralClientCapabilities {
@@ -5794,7 +5794,7 @@ pub struct GeneralClientCapabilities {
     pub position_encodings: Option<Vec<PositionEncodingKind>>,
 }
 
-#[derive(Clone, Serialize, Eq, PartialEq, Debug, Deserialize, Hash, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceFoldersServerCapabilities {
@@ -5815,7 +5815,7 @@ pub struct WorkspaceFoldersServerCapabilities {
 /// Options for notifications/requests for user operations on files.
 ///
 /// @since 3.16.0
-#[derive(Serialize, Hash, Debug, PartialEq, Deserialize, Eq, Clone, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationOptions {
@@ -5844,7 +5844,7 @@ pub struct FileOperationOptions {
 /// folder root, but it can be another absolute URI as well.
 ///
 /// @since 3.17.0
-#[derive(Deserialize, Hash, Eq, Serialize, Debug, Clone, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RelativePattern {
@@ -5858,7 +5858,7 @@ pub struct RelativePattern {
 /// A document filter where `language` is required field.
 ///
 /// @since 3.18.0
-#[derive(Clone, Serialize, Debug, PartialEq, Hash, Eq, Default, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentFilterLanguage {
@@ -5879,7 +5879,7 @@ pub struct TextDocumentFilterLanguage {
 /// A document filter where `scheme` is required field.
 ///
 /// @since 3.18.0
-#[derive(Default, Serialize, Clone, PartialEq, Deserialize, Debug, Eq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentFilterScheme {
@@ -5900,7 +5900,7 @@ pub struct TextDocumentFilterScheme {
 /// A document filter where `pattern` is required field.
 ///
 /// @since 3.18.0
-#[derive(Deserialize, Eq, PartialEq, Clone, Debug, Serialize, Hash)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentFilterPattern {
@@ -5921,7 +5921,7 @@ pub struct TextDocumentFilterPattern {
 /// A notebook document filter where `notebookType` is required field.
 ///
 /// @since 3.18.0
-#[derive(Eq, Deserialize, Serialize, Clone, Debug, Default, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentFilterNotebookType {
@@ -5938,7 +5938,7 @@ pub struct NotebookDocumentFilterNotebookType {
 /// A notebook document filter where `scheme` is required field.
 ///
 /// @since 3.18.0
-#[derive(Default, Serialize, Clone, Hash, Debug, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentFilterScheme {
@@ -5955,7 +5955,7 @@ pub struct NotebookDocumentFilterScheme {
 /// A notebook document filter where `pattern` is required field.
 ///
 /// @since 3.18.0
-#[derive(Deserialize, Clone, Debug, Hash, Eq, Serialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentFilterPattern {
@@ -5973,7 +5973,7 @@ pub struct NotebookDocumentFilterPattern {
 /// array from state S to S'.
 ///
 /// @since 3.17.0
-#[derive(Clone, Deserialize, Serialize, Debug, Eq, PartialEq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookCellArrayChange {
@@ -5986,7 +5986,7 @@ pub struct NotebookCellArrayChange {
     pub cells: Option<Vec<NotebookCell>>,
 }
 
-#[derive(PartialEq, Eq, Debug, Hash, Serialize, Default, Deserialize, Clone)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceEditClientCapabilities {
@@ -6034,7 +6034,7 @@ pub struct WorkspaceEditClientCapabilities {
     pub snippet_edit_support: Option<bool>,
 }
 
-#[derive(PartialEq, Serialize, Clone, Deserialize, Debug, Copy, Hash, Default, Eq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeConfigurationClientCapabilities {
@@ -6043,7 +6043,7 @@ pub struct DidChangeConfigurationClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 
-#[derive(Deserialize, Hash, Default, Copy, Serialize, PartialEq, Clone, Debug, Eq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DidChangeWatchedFilesClientCapabilities {
@@ -6061,7 +6061,7 @@ pub struct DidChangeWatchedFilesClientCapabilities {
 }
 
 /// Client capabilities for a [WorkspaceSymbolRequest].
-#[derive(Eq, Default, Debug, Deserialize, Serialize, Clone, PartialEq, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolClientCapabilities {
@@ -6087,7 +6087,7 @@ pub struct WorkspaceSymbolClientCapabilities {
 }
 
 /// The client capabilities of a [ExecuteCommandRequest].
-#[derive(Clone, Copy, Deserialize, Default, Eq, Serialize, PartialEq, Hash, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandClientCapabilities {
@@ -6097,7 +6097,7 @@ pub struct ExecuteCommandClientCapabilities {
 }
 
 /// @since 3.16.0
-#[derive(Copy, Debug, Serialize, Hash, PartialEq, Clone, Eq, Default, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensWorkspaceClientCapabilities {
@@ -6113,7 +6113,7 @@ pub struct SemanticTokensWorkspaceClientCapabilities {
 }
 
 /// @since 3.16.0
-#[derive(Serialize, PartialEq, Clone, Default, Deserialize, Eq, Debug, Hash, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensWorkspaceClientCapabilities {
@@ -6134,7 +6134,7 @@ pub struct CodeLensWorkspaceClientCapabilities {
 /// like renaming a file in the UI.
 ///
 /// @since 3.16.0
-#[derive(Copy, PartialEq, Debug, Eq, Default, Clone, Hash, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationClientCapabilities {
@@ -6164,7 +6164,7 @@ pub struct FileOperationClientCapabilities {
 /// Client workspace capabilities specific to inline values.
 ///
 /// @since 3.17.0
-#[derive(Eq, Hash, Copy, Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueWorkspaceClientCapabilities {
@@ -6182,7 +6182,7 @@ pub struct InlineValueWorkspaceClientCapabilities {
 /// Client workspace capabilities specific to inlay hints.
 ///
 /// @since 3.17.0
-#[derive(Debug, Serialize, Deserialize, Eq, Default, PartialEq, Clone, Copy, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHintWorkspaceClientCapabilities {
@@ -6200,7 +6200,7 @@ pub struct InlayHintWorkspaceClientCapabilities {
 /// Workspace client capabilities specific to diagnostic pull requests.
 ///
 /// @since 3.17.0
-#[derive(Debug, Deserialize, Eq, Serialize, Default, Clone, PartialEq, Hash, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticWorkspaceClientCapabilities {
@@ -6219,7 +6219,7 @@ pub struct DiagnosticWorkspaceClientCapabilities {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Deserialize, Copy, Default, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeWorkspaceClientCapabilities {
@@ -6241,7 +6241,7 @@ pub struct FoldingRangeWorkspaceClientCapabilities {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Eq, Serialize, Deserialize, Debug, Clone, Hash, Default, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentClientCapabilities {
@@ -6250,7 +6250,7 @@ pub struct TextDocumentContentClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 
-#[derive(Copy, Serialize, Hash, Eq, Clone, Debug, Deserialize, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentSyncClientCapabilities {
@@ -6270,7 +6270,7 @@ pub struct TextDocumentSyncClientCapabilities {
     pub did_save: Option<bool>,
 }
 
-#[derive(Clone, Deserialize, Eq, PartialEq, Default, Debug, Hash, Serialize, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentFilterClientCapabilities {
@@ -6282,7 +6282,7 @@ pub struct TextDocumentFilterClientCapabilities {
 }
 
 /// Completion client capabilities
-#[derive(Serialize, Eq, Hash, Clone, Default, Debug, PartialEq, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionClientCapabilities {
@@ -6314,7 +6314,7 @@ pub struct CompletionClientCapabilities {
     pub completion_list: Option<CompletionListCapabilities>,
 }
 
-#[derive(Hash, Serialize, Clone, Eq, Debug, Deserialize, PartialEq, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct HoverClientCapabilities {
@@ -6328,7 +6328,7 @@ pub struct HoverClientCapabilities {
 }
 
 /// Client Capabilities for a [SignatureHelpRequest].
-#[derive(Clone, Serialize, Debug, PartialEq, Deserialize, Eq, Hash, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpClientCapabilities {
@@ -6350,7 +6350,7 @@ pub struct SignatureHelpClientCapabilities {
 }
 
 /// @since 3.14.0
-#[derive(PartialEq, Deserialize, Clone, Serialize, Copy, Default, Debug, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DeclarationClientCapabilities {
@@ -6365,7 +6365,7 @@ pub struct DeclarationClientCapabilities {
 }
 
 /// Client Capabilities for a [DefinitionRequest].
-#[derive(Debug, Clone, Copy, Hash, Default, Eq, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionClientCapabilities {
@@ -6380,7 +6380,7 @@ pub struct DefinitionClientCapabilities {
 }
 
 /// Since 3.6.0
-#[derive(Eq, Hash, Copy, Debug, Deserialize, Serialize, Clone, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeDefinitionClientCapabilities {
@@ -6397,7 +6397,7 @@ pub struct TypeDefinitionClientCapabilities {
 }
 
 /// @since 3.6.0
-#[derive(Copy, PartialEq, Deserialize, Clone, Serialize, Eq, Default, Hash, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ImplementationClientCapabilities {
@@ -6414,7 +6414,7 @@ pub struct ImplementationClientCapabilities {
 }
 
 /// Client Capabilities for a [ReferencesRequest].
-#[derive(PartialEq, Clone, Default, Hash, Deserialize, Debug, Copy, Serialize, Eq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceClientCapabilities {
@@ -6424,7 +6424,7 @@ pub struct ReferenceClientCapabilities {
 }
 
 /// Client Capabilities for a [DocumentHighlightRequest].
-#[derive(Serialize, Deserialize, Debug, Default, PartialEq, Clone, Eq, Hash, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightClientCapabilities {
@@ -6434,7 +6434,7 @@ pub struct DocumentHighlightClientCapabilities {
 }
 
 /// Client Capabilities for a [DocumentSymbolRequest].
-#[derive(Debug, Deserialize, Serialize, Default, Eq, Hash, Clone, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolClientCapabilities {
@@ -6464,7 +6464,7 @@ pub struct DocumentSymbolClientCapabilities {
 }
 
 /// The Client Capabilities of a [CodeActionRequest].
-#[derive(Serialize, PartialEq, Clone, Default, Eq, Debug, Hash, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionClientCapabilities {
@@ -6526,7 +6526,7 @@ pub struct CodeActionClientCapabilities {
 }
 
 /// The client capabilities  of a [CodeLensRequest].
-#[derive(Default, Eq, Debug, PartialEq, Deserialize, Hash, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensClientCapabilities {
@@ -6542,7 +6542,7 @@ pub struct CodeLensClientCapabilities {
 }
 
 /// The client capabilities of a [DocumentLinkRequest].
-#[derive(Hash, PartialEq, Default, Serialize, Copy, Debug, Clone, Eq, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkClientCapabilities {
@@ -6556,7 +6556,7 @@ pub struct DocumentLinkClientCapabilities {
     pub tooltip_support: Option<bool>,
 }
 
-#[derive(PartialEq, Clone, Hash, Copy, Default, Eq, Deserialize, Serialize, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentColorClientCapabilities {
@@ -6568,7 +6568,7 @@ pub struct DocumentColorClientCapabilities {
 }
 
 /// Client capabilities of a [DocumentFormattingRequest].
-#[derive(Default, Debug, Copy, Serialize, Deserialize, Eq, PartialEq, Clone, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingClientCapabilities {
@@ -6578,7 +6578,7 @@ pub struct DocumentFormattingClientCapabilities {
 }
 
 /// Client capabilities of a [DocumentRangeFormattingRequest].
-#[derive(Clone, Serialize, Hash, Default, Eq, Debug, Copy, Deserialize, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingClientCapabilities {
@@ -6594,7 +6594,7 @@ pub struct DocumentRangeFormattingClientCapabilities {
 }
 
 /// Client capabilities of a [DocumentOnTypeFormattingRequest].
-#[derive(Clone, Deserialize, Hash, PartialEq, Default, Debug, Eq, Copy, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingClientCapabilities {
@@ -6603,7 +6603,7 @@ pub struct DocumentOnTypeFormattingClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 
-#[derive(PartialEq, Default, Clone, Serialize, Eq, Deserialize, Hash, Debug, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RenameClientCapabilities {
@@ -6635,7 +6635,7 @@ pub struct RenameClientCapabilities {
     pub honors_change_annotations: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Eq, Hash, Default, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeClientCapabilities {
@@ -6667,7 +6667,7 @@ pub struct FoldingRangeClientCapabilities {
     pub folding_range: Option<ClientFoldingRangeOptions>,
 }
 
-#[derive(Default, Debug, Serialize, Hash, Copy, Eq, Deserialize, Clone, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SelectionRangeClientCapabilities {
@@ -6679,7 +6679,7 @@ pub struct SelectionRangeClientCapabilities {
 }
 
 /// The publish diagnostic client capabilities.
-#[derive(Clone, PartialEq, Serialize, Hash, Eq, Default, Deserialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct PublishDiagnosticsClientCapabilities {
@@ -6694,7 +6694,7 @@ pub struct PublishDiagnosticsClientCapabilities {
 }
 
 /// @since 3.16.0
-#[derive(Clone, Deserialize, Debug, Eq, Copy, Default, PartialEq, Hash, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CallHierarchyClientCapabilities {
@@ -6706,7 +6706,7 @@ pub struct CallHierarchyClientCapabilities {
 }
 
 /// @since 3.16.0
-#[derive(Default, Serialize, Eq, Deserialize, PartialEq, Clone, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct SemanticTokensClientCapabilities {
@@ -6761,7 +6761,7 @@ pub struct SemanticTokensClientCapabilities {
 /// Client capabilities for the linked editing range request.
 ///
 /// @since 3.16.0
-#[derive(Debug, Default, Copy, Clone, Eq, Serialize, Deserialize, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct LinkedEditingRangeClientCapabilities {
@@ -6775,7 +6775,7 @@ pub struct LinkedEditingRangeClientCapabilities {
 /// Client capabilities specific to the moniker request.
 ///
 /// @since 3.16.0
-#[derive(Debug, Serialize, Hash, Copy, Eq, Clone, PartialEq, Default, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MonikerClientCapabilities {
@@ -6787,7 +6787,7 @@ pub struct MonikerClientCapabilities {
 }
 
 /// @since 3.17.0
-#[derive(Serialize, Clone, Eq, Hash, Default, Copy, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct TypeHierarchyClientCapabilities {
@@ -6801,7 +6801,7 @@ pub struct TypeHierarchyClientCapabilities {
 /// Client capabilities specific to inline values.
 ///
 /// @since 3.17.0
-#[derive(Hash, Default, Copy, Deserialize, Debug, PartialEq, Eq, Clone, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueClientCapabilities {
@@ -6813,7 +6813,7 @@ pub struct InlineValueClientCapabilities {
 /// Inlay hint client capabilities.
 ///
 /// @since 3.17.0
-#[derive(Default, Deserialize, Hash, Debug, PartialEq, Clone, Eq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlayHintClientCapabilities {
@@ -6829,7 +6829,7 @@ pub struct InlayHintClientCapabilities {
 /// Client capabilities specific to diagnostic pull requests.
 ///
 /// @since 3.17.0
-#[derive(Hash, Default, PartialEq, Deserialize, Serialize, Clone, Eq, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticClientCapabilities {
@@ -6849,7 +6849,7 @@ pub struct DiagnosticClientCapabilities {
 ///
 /// @since 3.18.0
 /// @proposed
-#[derive(Debug, Hash, PartialEq, Deserialize, Serialize, Eq, Default, Copy, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionClientCapabilities {
@@ -6861,7 +6861,7 @@ pub struct InlineCompletionClientCapabilities {
 /// Notebook specific client capabilities.
 ///
 /// @since 3.17.0
-#[derive(Default, Eq, Hash, Copy, Deserialize, PartialEq, Debug, Serialize, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct NotebookDocumentSyncClientCapabilities {
@@ -6877,7 +6877,7 @@ pub struct NotebookDocumentSyncClientCapabilities {
 }
 
 /// Show message request client capabilities
-#[derive(Clone, PartialEq, Default, Copy, Debug, Eq, Deserialize, Serialize, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ShowMessageRequestClientCapabilities {
@@ -6889,7 +6889,7 @@ pub struct ShowMessageRequestClientCapabilities {
 /// Client capabilities for the showDocument request.
 ///
 /// @since 3.16.0
-#[derive(Deserialize, Debug, Eq, Clone, Copy, Serialize, Hash, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ShowDocumentClientCapabilities {
@@ -6899,7 +6899,7 @@ pub struct ShowDocumentClientCapabilities {
 }
 
 /// @since 3.18.0
-#[derive(Debug, Hash, Default, Deserialize, Clone, Serialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct StaleRequestSupportOptions {
@@ -6914,7 +6914,7 @@ pub struct StaleRequestSupportOptions {
 /// Client capabilities specific to regular expressions.
 ///
 /// @since 3.16.0
-#[derive(Deserialize, Debug, Clone, PartialEq, Hash, Eq, Default, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct RegularExpressionsClientCapabilities {
@@ -6928,7 +6928,7 @@ pub struct RegularExpressionsClientCapabilities {
 /// Client capabilities specific to the used markdown parser.
 ///
 /// @since 3.16.0
-#[derive(PartialEq, Clone, Hash, Default, Deserialize, Eq, Serialize, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct MarkdownClientCapabilities {
@@ -6946,7 +6946,7 @@ pub struct MarkdownClientCapabilities {
 }
 
 /// @since 3.18.0
-#[derive(Hash, Serialize, Clone, Deserialize, PartialEq, Default, Debug, Eq, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ChangeAnnotationsSupportOptions {
@@ -6958,7 +6958,7 @@ pub struct ChangeAnnotationsSupportOptions {
 }
 
 /// @since 3.18.0
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default, Clone, Hash, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSymbolKindOptions {
@@ -6975,7 +6975,7 @@ pub struct ClientSymbolKindOptions {
 }
 
 /// @since 3.18.0
-#[derive(PartialEq, Deserialize, Clone, Hash, Eq, Serialize, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSymbolTagOptions {
@@ -6984,7 +6984,7 @@ pub struct ClientSymbolTagOptions {
 }
 
 /// @since 3.18.0
-#[derive(Deserialize, Eq, PartialEq, Clone, Debug, Hash, Default, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSymbolResolveOptions {
@@ -6994,7 +6994,7 @@ pub struct ClientSymbolResolveOptions {
 }
 
 /// @since 3.18.0
-#[derive(Hash, Serialize, Deserialize, Clone, Eq, PartialEq, Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCompletionItemOptions {
@@ -7056,7 +7056,7 @@ pub struct ClientCompletionItemOptions {
 }
 
 /// @since 3.18.0
-#[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCompletionItemOptionsKind {
@@ -7076,7 +7076,7 @@ pub struct ClientCompletionItemOptionsKind {
 /// capabilities.
 ///
 /// @since 3.17.0
-#[derive(Hash, Debug, Default, Serialize, Clone, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionListCapabilities {
@@ -7106,7 +7106,7 @@ pub struct CompletionListCapabilities {
 }
 
 /// @since 3.18.0
-#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSignatureInformationOptions {
@@ -7134,7 +7134,7 @@ pub struct ClientSignatureInformationOptions {
 }
 
 /// @since 3.18.0
-#[derive(Eq, PartialEq, Hash, Debug, Default, Deserialize, Clone, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCodeActionLiteralOptions {
@@ -7144,7 +7144,7 @@ pub struct ClientCodeActionLiteralOptions {
 }
 
 /// @since 3.18.0
-#[derive(Deserialize, Serialize, Hash, PartialEq, Debug, Default, Clone, Eq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCodeActionResolveOptions {
@@ -7153,7 +7153,7 @@ pub struct ClientCodeActionResolveOptions {
 }
 
 /// @since 3.18.0 - proposed
-#[derive(Eq, Hash, PartialEq, Default, Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionTagOptions {
@@ -7162,7 +7162,7 @@ pub struct CodeActionTagOptions {
 }
 
 /// @since 3.18.0
-#[derive(Hash, Default, Eq, Serialize, Debug, Clone, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCodeLensResolveOptions {
@@ -7171,7 +7171,7 @@ pub struct ClientCodeLensResolveOptions {
 }
 
 /// @since 3.18.0
-#[derive(Clone, PartialEq, Debug, Default, Hash, Serialize, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientFoldingRangeKindOptions {
@@ -7184,7 +7184,7 @@ pub struct ClientFoldingRangeKindOptions {
 }
 
 /// @since 3.18.0
-#[derive(Clone, Deserialize, Hash, PartialEq, Debug, Eq, Copy, Serialize, Default)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientFoldingRangeOptions {
@@ -7197,7 +7197,7 @@ pub struct ClientFoldingRangeOptions {
 }
 
 /// General diagnostics capabilities for pull and push model.
-#[derive(Deserialize, Default, PartialEq, Eq, Clone, Debug, Hash, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct DiagnosticsCapabilities {
@@ -7225,7 +7225,7 @@ pub struct DiagnosticsCapabilities {
 }
 
 /// @since 3.18.0
-#[derive(Eq, PartialEq, Default, Debug, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSemanticTokensRequestOptions {
@@ -7240,7 +7240,7 @@ pub struct ClientSemanticTokensRequestOptions {
 }
 
 /// @since 3.18.0
-#[derive(Debug, Deserialize, Serialize, PartialEq, Eq, Default, Clone, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientInlayHintResolveOptions {
@@ -7249,7 +7249,7 @@ pub struct ClientInlayHintResolveOptions {
 }
 
 /// @since 3.18.0
-#[derive(Serialize, Clone, Hash, PartialEq, Deserialize, Eq, Debug, Default, Copy)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientShowMessageActionItemOptions {
@@ -7261,7 +7261,7 @@ pub struct ClientShowMessageActionItemOptions {
 }
 
 /// @since 3.18.0
-#[derive(Eq, Debug, PartialEq, Hash, Default, Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionItemTagOptions {
@@ -7270,7 +7270,7 @@ pub struct CompletionItemTagOptions {
 }
 
 /// @since 3.18.0
-#[derive(Serialize, Clone, Deserialize, Debug, Default, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCompletionItemResolveOptions {
@@ -7279,7 +7279,7 @@ pub struct ClientCompletionItemResolveOptions {
 }
 
 /// @since 3.18.0
-#[derive(Clone, Serialize, Default, Debug, Hash, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCompletionItemInsertTextModeOptions {
@@ -7287,7 +7287,7 @@ pub struct ClientCompletionItemInsertTextModeOptions {
 }
 
 /// @since 3.18.0
-#[derive(Serialize, Default, Debug, Deserialize, Copy, PartialEq, Eq, Clone, Hash)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSignatureParameterInformationOptions {
@@ -7300,7 +7300,7 @@ pub struct ClientSignatureParameterInformationOptions {
 }
 
 /// @since 3.18.0
-#[derive(Clone, Default, Eq, Serialize, Hash, PartialEq, Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientCodeActionKindOptions {
@@ -7312,7 +7312,7 @@ pub struct ClientCodeActionKindOptions {
 }
 
 /// @since 3.18.0
-#[derive(Debug, Deserialize, PartialEq, Serialize, Eq, Clone, Default, Hash)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientDiagnosticsTagOptions {
@@ -7321,7 +7321,7 @@ pub struct ClientDiagnosticsTagOptions {
 }
 
 /// @since 3.18.0
-#[derive(Default, Debug, Copy, PartialEq, Hash, Serialize, Deserialize, Eq, Clone)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 #[cfg_attr(feature = "derive-new", derive(New))]
 #[serde(rename_all = "camelCase")]
 pub struct ClientSemanticTokensRequestFullDelta {
