@@ -244,19 +244,12 @@ impl ResponseObject {
 #[cfg(test)]
 mod test {
     #![allow(deprecated)]
-    use std::collections::{HashMap, HashSet};
-
-    use crate::{
-        CodeLensRefreshRequest, ColorPresentation, CreateFile, DeleteFile, Diagnostic,
-        DiagnosticSeverity, DocumentChange, DocumentSymbol, Error, ExitNotification,
-        FoldingRangeKind, Id, ImplementationRequest, ImplementationRequestResponse,
-        InitializeParams, InitializedNotification, InitializedParams, Location,
-        LspNotificationMethods, LspRequestMethods, MarkupKind, Position, Range, RequestObject,
-        ResponseObject, ShowMessageRequest, SymbolKind, TextDocumentRegistrationOptions,
-        TypeDefinitionParams, TypeDefinitionRequest, Uri, WatchKind, WorkDoneProgressEnd,
-        WorkspaceFoldersInitializeParams, WorkspaceFoldersRequest,
-        WorkspaceFoldersServerCapabilities,
+    use std::{
+        borrow::Cow,
+        collections::{HashMap, HashSet},
     };
+
+    use crate::*;
 
     #[test]
     fn nullable_field() {
@@ -483,9 +476,9 @@ mod test {
         assert_eq!(method, "textDocument/onTypeFormatting");
         let method = LspRequestMethods::Shutdown.to_string();
         assert_eq!(method, "shutdown");
-        let method = LspRequestMethods::Custom("foo".into()).to_string();
+        let method = LspRequestMethods::Custom(Cow::Borrowed("foo")).to_string();
         assert_eq!(method, "foo");
-        let method = LspNotificationMethods::Custom("foo".into()).to_string();
+        let method = LspNotificationMethods::Custom(Cow::Borrowed("foo")).to_string();
         assert_eq!(method, "foo");
         let method = LspNotificationMethods::CancelRequest.to_string();
         assert_eq!(method, "$/cancelRequest");
@@ -547,13 +540,13 @@ mod test {
             FoldingRangeKind::Comment
         );
 
-        let frk = FoldingRangeKind::Custom("foo".into());
+        let frk = FoldingRangeKind::Custom(Cow::Borrowed("foo"));
         let ser = serde_json::to_string(&frk).unwrap();
 
         assert_eq!(ser, "\"foo\"");
         assert_eq!(
             serde_json::from_str::<FoldingRangeKind>(&ser).unwrap(),
-            FoldingRangeKind::Custom("foo".into())
+            FoldingRangeKind::Custom(Cow::Borrowed("foo"))
         );
 
         let mk = MarkupKind::PlainText;
@@ -804,5 +797,26 @@ mod test {
                 ..Default::default()
             }
         );
+    }
+
+    // Compile test to ensure constness of certain enums
+
+    enum _ParentModule {}
+
+    impl Request for _ParentModule {
+        type Params = ();
+        type Result = Option<DefinitionRequestResponse>;
+        const METHOD: LspRequestMethods =
+            LspRequestMethods::Custom(Cow::Borrowed("experimental/parentModule"));
+        const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+    }
+
+    enum _ServerStatusNotification {}
+
+    impl Notification for _ServerStatusNotification {
+        type Params = ();
+        const METHOD: LspNotificationMethods =
+            LspNotificationMethods::Custom(Cow::Borrowed("experimental/serverStatus"));
+        const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     }
 }

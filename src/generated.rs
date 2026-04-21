@@ -6872,7 +6872,7 @@ pub enum SemanticTokenTypes {
     Label,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<SemanticTokenTypes> for String {
     fn from(e: SemanticTokenTypes) -> Self {
@@ -6901,7 +6901,7 @@ impl From<SemanticTokenTypes> for String {
             SemanticTokenTypes::Operator => "operator".to_string(),
             SemanticTokenTypes::Decorator => "decorator".to_string(),
             SemanticTokenTypes::Label => "label".to_string(),
-            SemanticTokenTypes::Custom(any) => any,
+            SemanticTokenTypes::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -6932,7 +6932,7 @@ impl From<String> for SemanticTokenTypes {
             "operator" => SemanticTokenTypes::Operator,
             "decorator" => SemanticTokenTypes::Decorator,
             "label" => SemanticTokenTypes::Label,
-            _ => SemanticTokenTypes::Custom(v),
+            _ => SemanticTokenTypes::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -6963,7 +6963,7 @@ pub enum SemanticTokenModifiers {
     DefaultLibrary,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<SemanticTokenModifiers> for String {
     fn from(e: SemanticTokenModifiers) -> Self {
@@ -6978,7 +6978,7 @@ impl From<SemanticTokenModifiers> for String {
             SemanticTokenModifiers::Modification => "modification".to_string(),
             SemanticTokenModifiers::Documentation => "documentation".to_string(),
             SemanticTokenModifiers::DefaultLibrary => "defaultLibrary".to_string(),
-            SemanticTokenModifiers::Custom(any) => any,
+            SemanticTokenModifiers::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -6995,7 +6995,7 @@ impl From<String> for SemanticTokenModifiers {
             "modification" => SemanticTokenModifiers::Modification,
             "documentation" => SemanticTokenModifiers::Documentation,
             "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
-            _ => SemanticTokenModifiers::Custom(v),
+            _ => SemanticTokenModifiers::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -7157,7 +7157,7 @@ pub enum FoldingRangeKind {
     Region,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<FoldingRangeKind> for String {
     fn from(e: FoldingRangeKind) -> Self {
@@ -7165,7 +7165,7 @@ impl From<FoldingRangeKind> for String {
             FoldingRangeKind::Comment => "comment".to_string(),
             FoldingRangeKind::Imports => "imports".to_string(),
             FoldingRangeKind::Region => "region".to_string(),
-            FoldingRangeKind::Custom(any) => any,
+            FoldingRangeKind::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -7175,7 +7175,7 @@ impl From<String> for FoldingRangeKind {
             "comment" => FoldingRangeKind::Comment,
             "imports" => FoldingRangeKind::Imports,
             "region" => FoldingRangeKind::Region,
-            _ => FoldingRangeKind::Custom(v),
+            _ => FoldingRangeKind::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -7844,7 +7844,7 @@ pub enum CodeActionKind {
     Notebook,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<CodeActionKind> for String {
     fn from(e: CodeActionKind) -> Self {
@@ -7860,7 +7860,7 @@ impl From<CodeActionKind> for String {
             CodeActionKind::SourceOrganizeImports => "source.organizeImports".to_string(),
             CodeActionKind::SourceFixAll => "source.fixAll".to_string(),
             CodeActionKind::Notebook => "notebook".to_string(),
-            CodeActionKind::Custom(any) => any,
+            CodeActionKind::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -7878,7 +7878,7 @@ impl From<String> for CodeActionKind {
             "source.organizeImports" => CodeActionKind::SourceOrganizeImports,
             "source.fixAll" => CodeActionKind::SourceFixAll,
             "notebook" => CodeActionKind::Notebook,
-            _ => CodeActionKind::Custom(v),
+            _ => CodeActionKind::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -8064,7 +8064,7 @@ pub enum LanguageKind {
     YAML,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<LanguageKind> for String {
     fn from(e: LanguageKind) -> Self {
@@ -8130,7 +8130,7 @@ impl From<LanguageKind> for String {
             LanguageKind::XML => "xml".to_string(),
             LanguageKind::XSL => "xsl".to_string(),
             LanguageKind::YAML => "yaml".to_string(),
-            LanguageKind::Custom(any) => any,
+            LanguageKind::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -8198,7 +8198,7 @@ impl From<String> for LanguageKind {
             "xml" => LanguageKind::XML,
             "xsl" => LanguageKind::XSL,
             "yaml" => LanguageKind::YAML,
-            _ => LanguageKind::Custom(v),
+            _ => LanguageKind::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -8261,7 +8261,7 @@ pub enum PositionEncodingKind {
     UTF32,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<PositionEncodingKind> for String {
     fn from(e: PositionEncodingKind) -> Self {
@@ -8269,7 +8269,7 @@ impl From<PositionEncodingKind> for String {
             PositionEncodingKind::UTF8 => "utf-8".to_string(),
             PositionEncodingKind::UTF16 => "utf-16".to_string(),
             PositionEncodingKind::UTF32 => "utf-32".to_string(),
-            PositionEncodingKind::Custom(any) => any,
+            PositionEncodingKind::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -8279,7 +8279,7 @@ impl From<String> for PositionEncodingKind {
             "utf-8" => PositionEncodingKind::UTF8,
             "utf-16" => PositionEncodingKind::UTF16,
             "utf-32" => PositionEncodingKind::UTF32,
-            _ => PositionEncodingKind::Custom(v),
+            _ => PositionEncodingKind::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -8841,7 +8841,7 @@ pub enum LspRequestMethods {
     WorkspaceApplyEdit,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<LspRequestMethods> for String {
     fn from(e: LspRequestMethods) -> Self {
@@ -9027,7 +9027,7 @@ impl From<LspRequestMethods> for String {
                 "workspace/executeCommand".to_string()
             }
             LspRequestMethods::WorkspaceApplyEdit => "workspace/applyEdit".to_string(),
-            LspRequestMethods::Custom(any) => any,
+            LspRequestMethods::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -9157,7 +9157,7 @@ impl From<String> for LspRequestMethods {
             "textDocument/prepareRename" => LspRequestMethods::TextDocumentPrepareRename,
             "workspace/executeCommand" => LspRequestMethods::WorkspaceExecuteCommand,
             "workspace/applyEdit" => LspRequestMethods::WorkspaceApplyEdit,
-            _ => LspRequestMethods::Custom(v),
+            _ => LspRequestMethods::Custom(Cow::Owned(v)),
         }
     }
 }
@@ -9199,7 +9199,7 @@ pub enum LspNotificationMethods {
     Progress,
     /// A custom value.
     #[serde(untagged)]
-    Custom(String),
+    Custom(Cow<'static, str>),
 }
 impl From<LspNotificationMethods> for String {
     fn from(e: LspNotificationMethods) -> Self {
@@ -9264,7 +9264,7 @@ impl From<LspNotificationMethods> for String {
             LspNotificationMethods::LogTrace => "$/logTrace".to_string(),
             LspNotificationMethods::CancelRequest => "$/cancelRequest".to_string(),
             LspNotificationMethods::Progress => "$/progress".to_string(),
-            LspNotificationMethods::Custom(any) => any,
+            LspNotificationMethods::Custom(any) => any.into_owned(),
         }
     }
 }
@@ -9311,7 +9311,7 @@ impl From<String> for LspNotificationMethods {
             "$/logTrace" => LspNotificationMethods::LogTrace,
             "$/cancelRequest" => LspNotificationMethods::CancelRequest,
             "$/progress" => LspNotificationMethods::Progress,
-            _ => LspNotificationMethods::Custom(v),
+            _ => LspNotificationMethods::Custom(Cow::Owned(v)),
         }
     }
 }

@@ -386,13 +386,27 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         })
         .collect();
     if supports_custom {
+        // allow for constructing string enums in `const` contexts
+        let (custom_type, custom_ser, custom_deser) = if is_str_enum {
+            (
+                quote! { Cow<'static, str> },
+                quote! { #name_ident::Custom(any) => any.into_owned(), },
+                quote! { _ => #name_ident::Custom(Cow::Owned(v)), },
+            )
+        } else {
+            (
+                quote! { #value_type },
+                quote! { #name_ident::Custom(any) => any, },
+                quote! { _ => #name_ident::Custom(v), },
+            )
+        };
         values.push(quote! {
             /// A custom value.
             #[serde(untagged)]
-            Custom(#value_type)
+            Custom(#custom_type)
         });
-        sers.push(quote! { #name_ident::Custom(any) => any, });
-        desers.push(quote! { _ => #name_ident::Custom(v), });
+        sers.push(custom_ser);
+        desers.push(custom_deser);
     } else {
         let fmt = format!("Invalid {name_ident}: {{v}}");
         desers.push(quote! { _ => Err(format!(#fmt)), });
@@ -705,7 +719,7 @@ pub fn render_structure(
 ///
 /// * `type` - The type to be rendered.
 /// * `or_name` - The type name to give to an "or" type found within this type.
-/// * `or_documentation` - The documentation for the cretaed "or" type, if any.
+/// * `or_documentation` - The documentation for the created "or" type, if any.
 /// * `enum_or_types` - The "or" type to insert into if an "or" type is found. They will be aliased
 ///   and rendered as separate types, for better DX.
 fn render_type(
