@@ -427,7 +427,7 @@ mod test {
 
         let res = json_rpc::ResponseObject::from_success::<ImplementationRequest>(
             id.clone(),
-            Some(ImplementationRequestResponse::DefinitionLinkList(Vec::new())),
+            Some(ImplementationResponse::DefinitionLinkList(Vec::new())),
         );
 
         let ser = serde_json::to_string(&res).unwrap();
@@ -579,7 +579,7 @@ mod test {
         struct ParentModule;
         impl Request for ParentModule {
             type Params = ();
-            type Result = Option<DefinitionRequestResponse>;
+            type Result = Option<DefinitionResponse>;
             const METHOD: LspRequestMethods =
                 LspRequestMethods::Custom(Cow::Borrowed("experimental/parentModule"));
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;

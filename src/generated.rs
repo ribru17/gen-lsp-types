@@ -9898,7 +9898,7 @@ pub enum CodeActionProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
 #[serde(untagged)]
-pub enum CodeActionRequestResponse {
+pub enum CodeActionResponse {
     #[from]
     Command(Command),
     #[from]
@@ -9927,7 +9927,7 @@ pub enum CompletionItemTextEdit {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
 #[serde(untagged)]
-pub enum CompletionRequestResponse {
+pub enum CompletionResponse {
     #[from]
     CompletionItemList(Vec<CompletionItem>),
     #[from]
@@ -9968,7 +9968,7 @@ pub enum DeclarationProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
-pub enum DeclarationRequestResponse {
+pub enum DeclarationResponse {
     #[from]
     Declaration(Declaration),
     #[from]
@@ -10001,7 +10001,7 @@ pub enum DefinitionProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
-pub enum DefinitionRequestResponse {
+pub enum DefinitionResponse {
     #[from]
     Definition(Definition),
     #[from]
@@ -10097,7 +10097,7 @@ pub enum DocumentSymbolProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
-pub enum DocumentSymbolRequestResponse {
+pub enum DocumentSymbolResponse {
     #[from]
     SymbolInformationList(Vec<SymbolInformation>),
     #[from]
@@ -10196,7 +10196,7 @@ pub enum ImplementationProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
-pub enum ImplementationRequestResponse {
+pub enum ImplementationResponse {
     #[from]
     Definition(Definition),
     #[from]
@@ -10225,7 +10225,7 @@ pub enum InlineCompletionProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
 #[serde(untagged)]
-pub enum InlineCompletionRequestResponse {
+pub enum InlineCompletionResponse {
     #[from]
     InlineCompletionList(InlineCompletionList),
     #[from]
@@ -10462,7 +10462,7 @@ pub enum SelectionRangeProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
-pub enum SemanticTokensDeltaRequestResponse {
+pub enum SemanticTokensDeltaResponse {
     #[from]
     SemanticTokens(SemanticTokens),
     #[from]
@@ -10565,7 +10565,7 @@ pub enum TypeDefinitionProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq, Hash)]
 #[serde(untagged)]
-pub enum TypeDefinitionRequestResponse {
+pub enum TypeDefinitionResponse {
     #[from]
     Definition(Definition),
     #[from]
@@ -10627,7 +10627,7 @@ pub enum WorkspaceSymbolProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, From, Eq)]
 #[serde(untagged)]
-pub enum WorkspaceSymbolRequestResponse {
+pub enum WorkspaceSymbolResponse {
     #[from]
     SymbolInformationList(Vec<SymbolInformation>),
     #[from]
@@ -10643,7 +10643,7 @@ impl Request for ImplementationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentImplementation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ImplementationParams;
-    type Result = Option<ImplementationRequestResponse>;
+    type Result = Option<ImplementationResponse>;
 }
 
 /// A request to resolve the type definition locations of a symbol at a given text
@@ -10655,7 +10655,7 @@ impl Request for TypeDefinitionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentTypeDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeDefinitionParams;
-    type Result = Option<TypeDefinitionRequestResponse>;
+    type Result = Option<TypeDefinitionResponse>;
 }
 
 /// The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
@@ -10744,7 +10744,7 @@ impl Request for DeclarationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDeclaration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeclarationParams;
-    type Result = Option<DeclarationRequestResponse>;
+    type Result = Option<DeclarationResponse>;
 }
 
 /// A request to provide selection ranges in a document. The request's
@@ -10825,7 +10825,7 @@ impl Request for SemanticTokensDeltaRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFullDelta;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensDeltaParams;
-    type Result = Option<SemanticTokensDeltaRequestResponse>;
+    type Result = Option<SemanticTokensDeltaResponse>;
 }
 
 /// @since 3.16.0
@@ -11077,7 +11077,7 @@ impl Request for InlineCompletionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineCompletionParams;
-    type Result = Option<InlineCompletionRequestResponse>;
+    type Result = Option<InlineCompletionResponse>;
 }
 
 /// The `workspace/textDocumentContent` request is sent from the client to the
@@ -11198,7 +11198,7 @@ impl Request for CompletionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CompletionParams;
-    type Result = Option<CompletionRequestResponse>;
+    type Result = Option<CompletionResponse>;
 }
 
 /// Request to resolve additional information for a given completion item.The request's
@@ -11244,7 +11244,7 @@ impl Request for DefinitionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DefinitionParams;
-    type Result = Option<DefinitionRequestResponse>;
+    type Result = Option<DefinitionResponse>;
 }
 
 /// A request to resolve project-wide references for the symbol denoted
@@ -11283,7 +11283,7 @@ impl Request for DocumentSymbolRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentSymbolParams;
-    type Result = Option<DocumentSymbolRequestResponse>;
+    type Result = Option<DocumentSymbolResponse>;
 }
 
 /// A request to provide commands for the given text document and range.
@@ -11293,7 +11293,7 @@ impl Request for CodeActionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeAction;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeActionParams;
-    type Result = Option<Vec<CodeActionRequestResponse>>;
+    type Result = Option<Vec<CodeActionResponse>>;
 }
 
 /// Request to resolve additional information for a given code action.The request's
@@ -11323,7 +11323,7 @@ impl Request for WorkspaceSymbolRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceSymbolParams;
-    type Result = Option<WorkspaceSymbolRequestResponse>;
+    type Result = Option<WorkspaceSymbolResponse>;
 }
 
 /// A request to resolve the range inside the workspace

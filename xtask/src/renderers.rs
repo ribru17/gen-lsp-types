@@ -186,7 +186,12 @@ pub fn render_request(
     if is_nullable {
         collapse_null(&mut result);
     }
-    let mut result = render_type(result, &(name + "Response"), &None, enum_or_types);
+    let resp_name = name
+        .strip_suffix("Request")
+        .expect("Request name should end in request")
+        .to_owned()
+        + "Response";
+    let mut result = render_type(result, &resp_name, &None, enum_or_types);
     if is_nullable {
         result = quote! { Option<#result> };
     }
