@@ -198,7 +198,7 @@ pub fn render_request(
     quote! {
         #documentation
         #[derive(Debug)]
-        pub struct #name_ident;
+        pub enum #name_ident {}
 
         impl Request for #name_ident {
             const METHOD: LspRequestMethods = LspRequestMethods::#method;
@@ -242,7 +242,7 @@ pub fn render_notification(
     quote! {
         #documentation
         #[derive(Debug)]
-        pub struct #name_ident;
+        pub enum #name_ident {}
 
         impl Notification for #name_ident {
             const METHOD: LspNotificationMethods = LspNotificationMethods::#method;

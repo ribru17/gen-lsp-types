@@ -10638,7 +10638,7 @@ pub enum WorkspaceSymbolResponse {
 /// document position. The request's parameter is of type [TextDocumentPositionParams]
 /// the response is of type [Definition] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct ImplementationRequest;
+pub enum ImplementationRequest {}
 impl Request for ImplementationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentImplementation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10650,7 +10650,7 @@ impl Request for ImplementationRequest {
 /// document position. The request's parameter is of type [TextDocumentPositionParams]
 /// the response is of type [Definition] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct TypeDefinitionRequest;
+pub enum TypeDefinitionRequest {}
 impl Request for TypeDefinitionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentTypeDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10660,7 +10660,7 @@ impl Request for TypeDefinitionRequest {
 
 /// The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
 #[derive(Debug)]
-pub struct WorkspaceFoldersRequest;
+pub enum WorkspaceFoldersRequest {}
 impl Request for WorkspaceFoldersRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWorkspaceFolders;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10676,7 +10676,7 @@ impl Request for WorkspaceFoldersRequest {
 /// result of `workspace/configuration` requests) the server should register for an empty configuration
 /// change event and empty the cache if such an event is received.
 #[derive(Debug)]
-pub struct ConfigurationRequest;
+pub enum ConfigurationRequest {}
 impl Request for ConfigurationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceConfiguration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10689,7 +10689,7 @@ impl Request for ConfigurationRequest {
 /// response is of type [ColorInformation[]][ColorInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
-pub struct DocumentColorRequest;
+pub enum DocumentColorRequest {}
 impl Request for DocumentColorRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentColor;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10702,7 +10702,7 @@ impl Request for DocumentColorRequest {
 /// response is of type [ColorInformation[]][ColorInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
-pub struct ColorPresentationRequest;
+pub enum ColorPresentationRequest {}
 impl Request for ColorPresentationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentColorPresentation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10715,7 +10715,7 @@ impl Request for ColorPresentationRequest {
 /// response is of type [FoldingRangeList] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
-pub struct FoldingRangeRequest;
+pub enum FoldingRangeRequest {}
 impl Request for FoldingRangeRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentFoldingRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10726,7 +10726,7 @@ impl Request for FoldingRangeRequest {
 /// @since 3.18.0
 /// @proposed
 #[derive(Debug)]
-pub struct FoldingRangeRefreshRequest;
+pub enum FoldingRangeRefreshRequest {}
 impl Request for FoldingRangeRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceFoldingRangeRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10739,7 +10739,7 @@ impl Request for FoldingRangeRefreshRequest {
 /// the response is of type [Declaration] or a typed array of [DeclarationLink]
 /// or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct DeclarationRequest;
+pub enum DeclarationRequest {}
 impl Request for DeclarationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDeclaration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10752,7 +10752,7 @@ impl Request for DeclarationRequest {
 /// response is of type [SelectionRange[]][SelectionRange] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
-pub struct SelectionRangeRequest;
+pub enum SelectionRangeRequest {}
 impl Request for SelectionRangeRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSelectionRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10763,7 +10763,7 @@ impl Request for SelectionRangeRequest {
 /// The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
 /// reporting from the server.
 #[derive(Debug)]
-pub struct WorkDoneProgressCreateRequest;
+pub enum WorkDoneProgressCreateRequest {}
 impl Request for WorkDoneProgressCreateRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WindowWorkDoneProgressCreate;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10776,7 +10776,7 @@ impl Request for WorkDoneProgressCreateRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct CallHierarchyPrepareRequest;
+pub enum CallHierarchyPrepareRequest {}
 impl Request for CallHierarchyPrepareRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareCallHierarchy;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10788,7 +10788,7 @@ impl Request for CallHierarchyPrepareRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct CallHierarchyIncomingCallsRequest;
+pub enum CallHierarchyIncomingCallsRequest {}
 impl Request for CallHierarchyIncomingCallsRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::CallHierarchyIncomingCalls;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10800,7 +10800,7 @@ impl Request for CallHierarchyIncomingCallsRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct CallHierarchyOutgoingCallsRequest;
+pub enum CallHierarchyOutgoingCallsRequest {}
 impl Request for CallHierarchyOutgoingCallsRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::CallHierarchyOutgoingCalls;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10810,7 +10810,7 @@ impl Request for CallHierarchyOutgoingCallsRequest {
 
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct SemanticTokensRequest;
+pub enum SemanticTokensRequest {}
 impl Request for SemanticTokensRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFull;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10820,7 +10820,7 @@ impl Request for SemanticTokensRequest {
 
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct SemanticTokensDeltaRequest;
+pub enum SemanticTokensDeltaRequest {}
 impl Request for SemanticTokensDeltaRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFullDelta;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10830,7 +10830,7 @@ impl Request for SemanticTokensDeltaRequest {
 
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct SemanticTokensRangeRequest;
+pub enum SemanticTokensRangeRequest {}
 impl Request for SemanticTokensRangeRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10840,7 +10840,7 @@ impl Request for SemanticTokensRangeRequest {
 
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct SemanticTokensRefreshRequest;
+pub enum SemanticTokensRefreshRequest {}
 impl Request for SemanticTokensRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSemanticTokensRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10855,7 +10855,7 @@ impl Request for SemanticTokensRefreshRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct ShowDocumentRequest;
+pub enum ShowDocumentRequest {}
 impl Request for ShowDocumentRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WindowShowDocument;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10867,7 +10867,7 @@ impl Request for ShowDocumentRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct LinkedEditingRangeRequest;
+pub enum LinkedEditingRangeRequest {}
 impl Request for LinkedEditingRangeRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentLinkedEditingRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10884,7 +10884,7 @@ impl Request for LinkedEditingRangeRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct WillCreateFilesRequest;
+pub enum WillCreateFilesRequest {}
 impl Request for WillCreateFilesRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillCreateFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10897,7 +10897,7 @@ impl Request for WillCreateFilesRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct WillRenameFilesRequest;
+pub enum WillRenameFilesRequest {}
 impl Request for WillRenameFilesRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillRenameFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10910,7 +10910,7 @@ impl Request for WillRenameFilesRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct WillDeleteFilesRequest;
+pub enum WillDeleteFilesRequest {}
 impl Request for WillDeleteFilesRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillDeleteFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10922,7 +10922,7 @@ impl Request for WillDeleteFilesRequest {
 /// The request parameter is of type [TextDocumentPositionParams].
 /// The response is of type [Moniker[]][Moniker] or `null`.
 #[derive(Debug)]
-pub struct MonikerRequest;
+pub enum MonikerRequest {}
 impl Request for MonikerRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentMoniker;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10935,7 +10935,7 @@ impl Request for MonikerRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct TypeHierarchyPrepareRequest;
+pub enum TypeHierarchyPrepareRequest {}
 impl Request for TypeHierarchyPrepareRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareTypeHierarchy;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10947,7 +10947,7 @@ impl Request for TypeHierarchyPrepareRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct TypeHierarchySupertypesRequest;
+pub enum TypeHierarchySupertypesRequest {}
 impl Request for TypeHierarchySupertypesRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TypeHierarchySupertypes;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10959,7 +10959,7 @@ impl Request for TypeHierarchySupertypesRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct TypeHierarchySubtypesRequest;
+pub enum TypeHierarchySubtypesRequest {}
 impl Request for TypeHierarchySubtypesRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TypeHierarchySubtypes;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10973,7 +10973,7 @@ impl Request for TypeHierarchySubtypesRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct InlineValueRequest;
+pub enum InlineValueRequest {}
 impl Request for InlineValueRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineValue;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -10983,7 +10983,7 @@ impl Request for InlineValueRequest {
 
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct InlineValueRefreshRequest;
+pub enum InlineValueRefreshRequest {}
 impl Request for InlineValueRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceInlineValueRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -10997,7 +10997,7 @@ impl Request for InlineValueRefreshRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct InlayHintRequest;
+pub enum InlayHintRequest {}
 impl Request for InlayHintRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlayHint;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11011,7 +11011,7 @@ impl Request for InlayHintRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct InlayHintResolveRequest;
+pub enum InlayHintResolveRequest {}
 impl Request for InlayHintResolveRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::InlayHintResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11021,7 +11021,7 @@ impl Request for InlayHintResolveRequest {
 
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct InlayHintRefreshRequest;
+pub enum InlayHintRefreshRequest {}
 impl Request for InlayHintRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceInlayHintRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11033,7 +11033,7 @@ impl Request for InlayHintRefreshRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct DocumentDiagnosticRequest;
+pub enum DocumentDiagnosticRequest {}
 impl Request for DocumentDiagnosticRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDiagnostic;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11045,7 +11045,7 @@ impl Request for DocumentDiagnosticRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct WorkspaceDiagnosticRequest;
+pub enum WorkspaceDiagnosticRequest {}
 impl Request for WorkspaceDiagnosticRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceDiagnostic;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11057,7 +11057,7 @@ impl Request for WorkspaceDiagnosticRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct DiagnosticRefreshRequest;
+pub enum DiagnosticRefreshRequest {}
 impl Request for DiagnosticRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceDiagnosticRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11072,7 +11072,7 @@ impl Request for DiagnosticRefreshRequest {
 /// @since 3.18.0
 /// @proposed
 #[derive(Debug)]
-pub struct InlineCompletionRequest;
+pub enum InlineCompletionRequest {}
 impl Request for InlineCompletionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11086,7 +11086,7 @@ impl Request for InlineCompletionRequest {
 /// @since 3.18.0
 /// @proposed
 #[derive(Debug)]
-pub struct TextDocumentContentRequest;
+pub enum TextDocumentContentRequest {}
 impl Request for TextDocumentContentRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceTextDocumentContent;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11100,7 +11100,7 @@ impl Request for TextDocumentContentRequest {
 /// @since 3.18.0
 /// @proposed
 #[derive(Debug)]
-pub struct TextDocumentContentRefreshRequest;
+pub enum TextDocumentContentRefreshRequest {}
 impl Request for TextDocumentContentRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceTextDocumentContentRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11111,7 +11111,7 @@ impl Request for TextDocumentContentRefreshRequest {
 /// The `client/registerCapability` request is sent from the server to the client to register a new capability
 /// handler on the client side.
 #[derive(Debug)]
-pub struct RegistrationRequest;
+pub enum RegistrationRequest {}
 impl Request for RegistrationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::ClientRegisterCapability;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11122,7 +11122,7 @@ impl Request for RegistrationRequest {
 /// The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
 /// handler on the client side.
 #[derive(Debug)]
-pub struct UnregistrationRequest;
+pub enum UnregistrationRequest {}
 impl Request for UnregistrationRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::ClientUnregisterCapability;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11136,7 +11136,7 @@ impl Request for UnregistrationRequest {
 /// the response if of type [InitializeResult] of a Thenable that
 /// resolves to such.
 #[derive(Debug)]
-pub struct InitializeRequest;
+pub enum InitializeRequest {}
 impl Request for InitializeRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::Initialize;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11149,7 +11149,7 @@ impl Request for InitializeRequest {
 /// server. The only notification that is sent after a shutdown request
 /// is the exit event.
 #[derive(Debug)]
-pub struct ShutdownRequest;
+pub enum ShutdownRequest {}
 impl Request for ShutdownRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::Shutdown;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11160,7 +11160,7 @@ impl Request for ShutdownRequest {
 /// The show message request is sent from the server to the client to show a message
 /// and a set of options actions to the user.
 #[derive(Debug)]
-pub struct ShowMessageRequest;
+pub enum ShowMessageRequest {}
 impl Request for ShowMessageRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WindowShowMessageRequest;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11175,7 +11175,7 @@ impl Request for ShowMessageRequest {
 /// server constantly fails on this request. This is done to keep the save fast and
 /// reliable.
 #[derive(Debug)]
-pub struct WillSaveTextDocumentWaitUntilRequest;
+pub enum WillSaveTextDocumentWaitUntilRequest {}
 impl Request for WillSaveTextDocumentWaitUntilRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentWillSaveWaitUntil;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11193,7 +11193,7 @@ impl Request for WillSaveTextDocumentWaitUntilRequest {
 /// request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
 /// `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
 #[derive(Debug)]
-pub struct CompletionRequest;
+pub enum CompletionRequest {}
 impl Request for CompletionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11205,7 +11205,7 @@ impl Request for CompletionRequest {
 /// parameter is of type [CompletionItem] the response
 /// is of type [CompletionItem] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct CompletionResolveRequest;
+pub enum CompletionResolveRequest {}
 impl Request for CompletionResolveRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::CompletionItemResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11217,7 +11217,7 @@ impl Request for CompletionResolveRequest {
 /// parameter is of type [TextDocumentPosition] the response is of
 /// type [Hover] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct HoverRequest;
+pub enum HoverRequest {}
 impl Request for HoverRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentHover;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11226,7 +11226,7 @@ impl Request for HoverRequest {
 }
 
 #[derive(Debug)]
-pub struct SignatureHelpRequest;
+pub enum SignatureHelpRequest {}
 impl Request for SignatureHelpRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSignatureHelp;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11239,7 +11239,7 @@ impl Request for SignatureHelpRequest {
 /// the response is of either type [Definition] or a typed array of
 /// [DefinitionLink] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct DefinitionRequest;
+pub enum DefinitionRequest {}
 impl Request for DefinitionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11252,7 +11252,7 @@ impl Request for DefinitionRequest {
 /// type [ReferenceParams] the response is of type
 /// [Location[]][Location] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct ReferencesRequest;
+pub enum ReferencesRequest {}
 impl Request for ReferencesRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentReferences;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11265,7 +11265,7 @@ impl Request for ReferencesRequest {
 /// the request response is an array of type [DocumentHighlight]
 /// or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct DocumentHighlightRequest;
+pub enum DocumentHighlightRequest {}
 impl Request for DocumentHighlightRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentHighlight;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11278,7 +11278,7 @@ impl Request for DocumentHighlightRequest {
 /// response is of type [SymbolInformation[]][SymbolInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
-pub struct DocumentSymbolRequest;
+pub enum DocumentSymbolRequest {}
 impl Request for DocumentSymbolRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11288,7 +11288,7 @@ impl Request for DocumentSymbolRequest {
 
 /// A request to provide commands for the given text document and range.
 #[derive(Debug)]
-pub struct CodeActionRequest;
+pub enum CodeActionRequest {}
 impl Request for CodeActionRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeAction;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11300,7 +11300,7 @@ impl Request for CodeActionRequest {
 /// parameter is of type [CodeAction] the response
 /// is of type [CodeAction] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct CodeActionResolveRequest;
+pub enum CodeActionResolveRequest {}
 impl Request for CodeActionResolveRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::CodeActionResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11318,7 +11318,7 @@ impl Request for CodeActionResolveRequest {
 ///  `workspace.symbol.resolveSupport`.
 ///
 #[derive(Debug)]
-pub struct WorkspaceSymbolRequest;
+pub enum WorkspaceSymbolRequest {}
 impl Request for WorkspaceSymbolRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11331,7 +11331,7 @@ impl Request for WorkspaceSymbolRequest {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct WorkspaceSymbolResolveRequest;
+pub enum WorkspaceSymbolResolveRequest {}
 impl Request for WorkspaceSymbolResolveRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbolResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11341,7 +11341,7 @@ impl Request for WorkspaceSymbolResolveRequest {
 
 /// A request to provide code lens for the given text document.
 #[derive(Debug)]
-pub struct CodeLensRequest;
+pub enum CodeLensRequest {}
 impl Request for CodeLensRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeLens;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11351,7 +11351,7 @@ impl Request for CodeLensRequest {
 
 /// A request to resolve a command for a given code lens.
 #[derive(Debug)]
-pub struct CodeLensResolveRequest;
+pub enum CodeLensResolveRequest {}
 impl Request for CodeLensResolveRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::CodeLensResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11363,7 +11363,7 @@ impl Request for CodeLensResolveRequest {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct CodeLensRefreshRequest;
+pub enum CodeLensRefreshRequest {}
 impl Request for CodeLensRefreshRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceCodeLensRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11373,7 +11373,7 @@ impl Request for CodeLensRefreshRequest {
 
 /// A request to provide document links
 #[derive(Debug)]
-pub struct DocumentLinkRequest;
+pub enum DocumentLinkRequest {}
 impl Request for DocumentLinkRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentLink;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11385,7 +11385,7 @@ impl Request for DocumentLinkRequest {
 /// parameter is of type [DocumentLink] the response
 /// is of type [DocumentLink] or a Thenable that resolves to such.
 #[derive(Debug)]
-pub struct DocumentLinkResolveRequest;
+pub enum DocumentLinkResolveRequest {}
 impl Request for DocumentLinkResolveRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::DocumentLinkResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11395,7 +11395,7 @@ impl Request for DocumentLinkResolveRequest {
 
 /// A request to format a whole document.
 #[derive(Debug)]
-pub struct DocumentFormattingRequest;
+pub enum DocumentFormattingRequest {}
 impl Request for DocumentFormattingRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11405,7 +11405,7 @@ impl Request for DocumentFormattingRequest {
 
 /// A request to format a range in a document.
 #[derive(Debug)]
-pub struct DocumentRangeFormattingRequest;
+pub enum DocumentRangeFormattingRequest {}
 impl Request for DocumentRangeFormattingRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRangeFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11418,7 +11418,7 @@ impl Request for DocumentRangeFormattingRequest {
 /// @since 3.18.0
 /// @proposed
 #[derive(Debug)]
-pub struct DocumentRangesFormattingRequest;
+pub enum DocumentRangesFormattingRequest {}
 impl Request for DocumentRangesFormattingRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRangesFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11428,7 +11428,7 @@ impl Request for DocumentRangesFormattingRequest {
 
 /// A request to format a document on type.
 #[derive(Debug)]
-pub struct DocumentOnTypeFormattingRequest;
+pub enum DocumentOnTypeFormattingRequest {}
 impl Request for DocumentOnTypeFormattingRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentOnTypeFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11438,7 +11438,7 @@ impl Request for DocumentOnTypeFormattingRequest {
 
 /// A request to rename a symbol.
 #[derive(Debug)]
-pub struct RenameRequest;
+pub enum RenameRequest {}
 impl Request for RenameRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRename;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11450,7 +11450,7 @@ impl Request for RenameRequest {
 ///
 /// @since 3.16 - support for default behavior
 #[derive(Debug)]
-pub struct PrepareRenameRequest;
+pub enum PrepareRenameRequest {}
 impl Request for PrepareRenameRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareRename;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11461,7 +11461,7 @@ impl Request for PrepareRenameRequest {
 /// A request send from the client to the server to execute a command. The request might return
 /// a workspace edit which the client will apply to the workspace.
 #[derive(Debug)]
-pub struct ExecuteCommandRequest;
+pub enum ExecuteCommandRequest {}
 impl Request for ExecuteCommandRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceExecuteCommand;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11471,7 +11471,7 @@ impl Request for ExecuteCommandRequest {
 
 /// A request sent from the server to the client to modified certain resources.
 #[derive(Debug)]
-pub struct ApplyWorkspaceEditRequest;
+pub enum ApplyWorkspaceEditRequest {}
 impl Request for ApplyWorkspaceEditRequest {
     const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceApplyEdit;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11482,7 +11482,7 @@ impl Request for ApplyWorkspaceEditRequest {
 /// The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
 /// folder configuration changes.
 #[derive(Debug)]
-pub struct DidChangeWorkspaceFoldersNotification;
+pub enum DidChangeWorkspaceFoldersNotification {}
 impl Notification for DidChangeWorkspaceFoldersNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11492,7 +11492,7 @@ impl Notification for DidChangeWorkspaceFoldersNotification {
 /// The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
 /// initiated on the server side.
 #[derive(Debug)]
-pub struct WorkDoneProgressCancelNotification;
+pub enum WorkDoneProgressCancelNotification {}
 impl Notification for WorkDoneProgressCancelNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WindowWorkDoneProgressCancel;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11504,7 +11504,7 @@ impl Notification for WorkDoneProgressCancelNotification {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct DidCreateFilesNotification;
+pub enum DidCreateFilesNotification {}
 impl Notification for DidCreateFilesNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidCreateFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11516,7 +11516,7 @@ impl Notification for DidCreateFilesNotification {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct DidRenameFilesNotification;
+pub enum DidRenameFilesNotification {}
 impl Notification for DidRenameFilesNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidRenameFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11528,7 +11528,7 @@ impl Notification for DidRenameFilesNotification {
 ///
 /// @since 3.16.0
 #[derive(Debug)]
-pub struct DidDeleteFilesNotification;
+pub enum DidDeleteFilesNotification {}
 impl Notification for DidDeleteFilesNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidDeleteFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11539,7 +11539,7 @@ impl Notification for DidDeleteFilesNotification {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct DidOpenNotebookDocumentNotification;
+pub enum DidOpenNotebookDocumentNotification {}
 impl Notification for DidOpenNotebookDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidOpen;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11547,7 +11547,7 @@ impl Notification for DidOpenNotebookDocumentNotification {
 }
 
 #[derive(Debug)]
-pub struct DidChangeNotebookDocumentNotification;
+pub enum DidChangeNotebookDocumentNotification {}
 impl Notification for DidChangeNotebookDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidChange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11558,7 +11558,7 @@ impl Notification for DidChangeNotebookDocumentNotification {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct DidSaveNotebookDocumentNotification;
+pub enum DidSaveNotebookDocumentNotification {}
 impl Notification for DidSaveNotebookDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11569,7 +11569,7 @@ impl Notification for DidSaveNotebookDocumentNotification {
 ///
 /// @since 3.17.0
 #[derive(Debug)]
-pub struct DidCloseNotebookDocumentNotification;
+pub enum DidCloseNotebookDocumentNotification {}
 impl Notification for DidCloseNotebookDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidClose;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11580,7 +11580,7 @@ impl Notification for DidCloseNotebookDocumentNotification {
 /// server after the client is fully initialized and the server
 /// is allowed to send requests from the server to the client.
 #[derive(Debug)]
-pub struct InitializedNotification;
+pub enum InitializedNotification {}
 impl Notification for InitializedNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::Initialized;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11590,7 +11590,7 @@ impl Notification for InitializedNotification {
 /// The exit event is sent from the client to the server to
 /// ask the server to exit its process.
 #[derive(Debug)]
-pub struct ExitNotification;
+pub enum ExitNotification {}
 impl Notification for ExitNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::Exit;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11601,7 +11601,7 @@ impl Notification for ExitNotification {
 /// when the client's configuration has changed. The notification contains
 /// the changed configuration as defined by the language client.
 #[derive(Debug)]
-pub struct DidChangeConfigurationNotification;
+pub enum DidChangeConfigurationNotification {}
 impl Notification for DidChangeConfigurationNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeConfiguration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11611,7 +11611,7 @@ impl Notification for DidChangeConfigurationNotification {
 /// The show message notification is sent from a server to a client to ask
 /// the client to display a particular message in the user interface.
 #[derive(Debug)]
-pub struct ShowMessageNotification;
+pub enum ShowMessageNotification {}
 impl Notification for ShowMessageNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WindowShowMessage;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11621,7 +11621,7 @@ impl Notification for ShowMessageNotification {
 /// The log message notification is sent from the server to the client to ask
 /// the client to log a particular message.
 #[derive(Debug)]
-pub struct LogMessageNotification;
+pub enum LogMessageNotification {}
 impl Notification for LogMessageNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WindowLogMessage;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11631,7 +11631,7 @@ impl Notification for LogMessageNotification {
 /// The telemetry event notification is sent from the server to the client to ask
 /// the client to log telemetry data.
 #[derive(Debug)]
-pub struct TelemetryEventNotification;
+pub enum TelemetryEventNotification {}
 impl Notification for TelemetryEventNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TelemetryEvent;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11647,7 +11647,7 @@ impl Notification for TelemetryEventNotification {
 /// This means open and close notification must be balanced and the max open count
 /// is one.
 #[derive(Debug)]
-pub struct DidOpenTextDocumentNotification;
+pub enum DidOpenTextDocumentNotification {}
 impl Notification for DidOpenTextDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidOpen;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11657,7 +11657,7 @@ impl Notification for DidOpenTextDocumentNotification {
 /// The document change notification is sent from the client to the server to signal
 /// changes to a text document.
 #[derive(Debug)]
-pub struct DidChangeTextDocumentNotification;
+pub enum DidChangeTextDocumentNotification {}
 impl Notification for DidChangeTextDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidChange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11672,7 +11672,7 @@ impl Notification for DidChangeTextDocumentNotification {
 /// doesn't mean that the document was open in an editor before. A close
 /// notification requires a previous open notification to be sent.
 #[derive(Debug)]
-pub struct DidCloseTextDocumentNotification;
+pub enum DidCloseTextDocumentNotification {}
 impl Notification for DidCloseTextDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidClose;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11682,7 +11682,7 @@ impl Notification for DidCloseTextDocumentNotification {
 /// The document save notification is sent from the client to the server when
 /// the document got saved in the client.
 #[derive(Debug)]
-pub struct DidSaveTextDocumentNotification;
+pub enum DidSaveTextDocumentNotification {}
 impl Notification for DidSaveTextDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11692,7 +11692,7 @@ impl Notification for DidSaveTextDocumentNotification {
 /// A document will save notification is sent from the client to the server before
 /// the document is actually saved.
 #[derive(Debug)]
-pub struct WillSaveTextDocumentNotification;
+pub enum WillSaveTextDocumentNotification {}
 impl Notification for WillSaveTextDocumentNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentWillSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11702,7 +11702,7 @@ impl Notification for WillSaveTextDocumentNotification {
 /// The watched files notification is sent from the client to the server when
 /// the client detects changes to file watched by the language client.
 #[derive(Debug)]
-pub struct DidChangeWatchedFilesNotification;
+pub enum DidChangeWatchedFilesNotification {}
 impl Notification for DidChangeWatchedFilesNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeWatchedFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11712,7 +11712,7 @@ impl Notification for DidChangeWatchedFilesNotification {
 /// Diagnostics notification are sent from the server to the client to signal
 /// results of validation runs.
 #[derive(Debug)]
-pub struct PublishDiagnosticsNotification;
+pub enum PublishDiagnosticsNotification {}
 impl Notification for PublishDiagnosticsNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentPublishDiagnostics;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11720,7 +11720,7 @@ impl Notification for PublishDiagnosticsNotification {
 }
 
 #[derive(Debug)]
-pub struct SetTraceNotification;
+pub enum SetTraceNotification {}
 impl Notification for SetTraceNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::SetTrace;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
@@ -11728,7 +11728,7 @@ impl Notification for SetTraceNotification {
 }
 
 #[derive(Debug)]
-pub struct LogTraceNotification;
+pub enum LogTraceNotification {}
 impl Notification for LogTraceNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::LogTrace;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
@@ -11736,7 +11736,7 @@ impl Notification for LogTraceNotification {
 }
 
 #[derive(Debug)]
-pub struct CancelNotification;
+pub enum CancelNotification {}
 impl Notification for CancelNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::CancelRequest;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
@@ -11744,7 +11744,7 @@ impl Notification for CancelNotification {
 }
 
 #[derive(Debug)]
-pub struct ProgressNotification;
+pub enum ProgressNotification {}
 impl Notification for ProgressNotification {
     const METHOD: LspNotificationMethods = LspNotificationMethods::Progress;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
