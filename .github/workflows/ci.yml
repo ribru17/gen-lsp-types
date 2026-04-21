@@ -66,6 +66,15 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-debug-${{ hashFiles('**/Cargo.lock') }}
       - run: cargo test
+      - run: cargo test --features url
+      - run: cargo test --features fluent-uri
+      - run: |
+            if cargo b --features url --features fluent-uri; then
+              echo "Error: Command succeeded when it should have failed"
+              exit 1
+            else
+              echo "Success: Command failed as expected"
+            fi
 
   generate:
     name: Generate

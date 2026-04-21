@@ -3,7 +3,9 @@ pub mod json_rpc;
 
 pub use generated::*;
 
+/// Tests for default features.
 #[cfg(test)]
+#[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
 mod test {
     #![allow(deprecated)]
     use std::{
@@ -718,5 +720,39 @@ mod test {
         let stpr_ser = r#"{"data":[]}"#;
         assert_eq!(serde_json::to_string(&stpr).unwrap(), stpr_ser);
         assert_eq!(stpr, serde_json::from_str(stpr_ser).unwrap());
+    }
+}
+
+/// Tests for the "url" feature.
+#[cfg(test)]
+#[cfg(all(feature = "url", not(feature = "fluent-uri")))]
+mod test {
+    use crate::*;
+
+    #[test]
+    fn url_feature() {
+        let url = url::Url::parse("file://tmp/foo.txt/").unwrap();
+        let tdi = TextDocumentIdentifier { uri: url };
+        let ser = r#"{"uri":"file://tmp/foo.txt/"}"#;
+
+        assert_eq!(ser, serde_json::to_string(&tdi).unwrap());
+        assert_eq!(tdi, serde_json::from_str(ser).unwrap());
+    }
+}
+
+/// Tests for the "fluent-uri" feature.
+#[cfg(test)]
+#[cfg(all(feature = "fluent-uri", not(feature = "url")))]
+mod test {
+    use crate::*;
+
+    #[test]
+    fn url_feature() {
+        let uri = fluent_uri::Uri::try_from("file://tmp/foo.txt/".to_string()).unwrap();
+        let tdi = TextDocumentIdentifier { uri };
+        let ser = r#"{"uri":"file://tmp/foo.txt/"}"#;
+
+        assert_eq!(ser, serde_json::to_string(&tdi).unwrap());
+        assert_eq!(tdi, serde_json::from_str(ser).unwrap());
     }
 }
