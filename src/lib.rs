@@ -799,24 +799,150 @@ mod test {
         );
     }
 
-    // Compile test to ensure constness of certain enums
+    #[test]
+    fn custom_request_object_methods() {
+        struct ParentModule;
+        impl Request for ParentModule {
+            type Params = ();
+            type Result = Option<DefinitionRequestResponse>;
+            const METHOD: LspRequestMethods =
+                LspRequestMethods::Custom(Cow::Borrowed("experimental/parentModule"));
+            const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+        }
 
-    enum _ParentModule {}
+        let req = RequestObject::from_request::<ParentModule>(Id::Number(123), ());
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","id":123,"method":"experimental/parentModule"}"#,
+            serde_json::to_string(&req).unwrap()
+        );
 
-    impl Request for _ParentModule {
-        type Params = ();
-        type Result = Option<DefinitionRequestResponse>;
-        const METHOD: LspRequestMethods =
-            LspRequestMethods::Custom(Cow::Borrowed("experimental/parentModule"));
-        const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+        struct ServerStatusNotification;
+        impl Notification for ServerStatusNotification {
+            type Params = ();
+            const METHOD: LspNotificationMethods =
+                LspNotificationMethods::Custom(Cow::Borrowed("experimental/serverStatus"));
+            const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+        }
+
+        let noti = RequestObject::from_notification::<ServerStatusNotification>(());
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","method":"experimental/serverStatus"}"#,
+            serde_json::to_string(&noti).unwrap()
+        );
     }
 
-    enum _ServerStatusNotification {}
+    #[test]
+    fn semantic_tokens() {
+        let ste = SemanticTokensEdit {
+            start: 0,
+            delete_count: 1,
+            data: None,
+        };
+        let ste_ser = r#"{"start":0,"deleteCount":1}"#;
+        assert_eq!(serde_json::to_string(&ste).unwrap(), ste_ser);
+        assert_eq!(ste, serde_json::from_str(ste_ser).unwrap());
 
-    impl Notification for _ServerStatusNotification {
-        type Params = ();
-        const METHOD: LspNotificationMethods =
-            LspNotificationMethods::Custom(Cow::Borrowed("experimental/serverStatus"));
-        const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
+        let ste = SemanticTokensEdit {
+            start: 0,
+            delete_count: 1,
+            data: None,
+        };
+        let ste_ser_fake = r#"{"start":0,"deleteCount":1,"data":null}"#;
+        assert_eq!(serde_json::to_string(&ste).unwrap(), ste_ser);
+        // Be permissive on technically incorrect deserialization.
+        assert_eq!(ste, serde_json::from_str(ste_ser_fake).unwrap());
+
+        let ste = SemanticTokensEdit {
+            start: 0,
+            delete_count: 1,
+            data: Some(vec![
+                SemanticToken {
+                    delta_line: 2,
+                    delta_start: 5,
+                    length: 3,
+                    token_type: 0,
+                    token_modifiers_bitset: 3,
+                },
+                SemanticToken {
+                    delta_line: 0,
+                    delta_start: 5,
+                    length: 4,
+                    token_type: 1,
+                    token_modifiers_bitset: 0,
+                },
+            ]),
+        };
+        let ste_ser = r#"{"start":0,"deleteCount":1,"data":[2,5,3,0,3,0,5,4,1,0]}"#;
+        assert_eq!(serde_json::to_string(&ste).unwrap(), ste_ser);
+        assert_eq!(ste, serde_json::from_str(ste_ser).unwrap());
+
+        let ste = SemanticTokensEdit {
+            start: 0,
+            delete_count: 1,
+            data: Some(Vec::new()),
+        };
+        let ste_ser = r#"{"start":0,"deleteCount":1,"data":[]}"#;
+        assert_eq!(serde_json::to_string(&ste).unwrap(), ste_ser);
+        assert_eq!(ste, serde_json::from_str(ste_ser).unwrap());
+
+        let st = SemanticTokens {
+            result_id: None,
+            data: Vec::default(),
+        };
+        let st_ser = r#"{"data":[]}"#;
+        assert_eq!(serde_json::to_string(&st).unwrap(), st_ser);
+        assert_eq!(st, serde_json::from_str(st_ser).unwrap());
+
+        let st = SemanticTokens {
+            result_id: None,
+            data: vec![
+                SemanticToken {
+                    delta_line: 2,
+                    delta_start: 5,
+                    length: 3,
+                    token_type: 0,
+                    token_modifiers_bitset: 3,
+                },
+                SemanticToken {
+                    delta_line: 0,
+                    delta_start: 5,
+                    length: 4,
+                    token_type: 1,
+                    token_modifiers_bitset: 0,
+                },
+            ],
+        };
+        let st_ser = r#"{"data":[2,5,3,0,3,0,5,4,1,0]}"#;
+        assert_eq!(serde_json::to_string(&st).unwrap(), st_ser);
+        assert_eq!(st, serde_json::from_str(st_ser).unwrap());
+
+        let stpr = SemanticTokensPartialResult {
+            data: vec![
+                SemanticToken {
+                    delta_line: 2,
+                    delta_start: 5,
+                    length: 3,
+                    token_type: 0,
+                    token_modifiers_bitset: 3,
+                },
+                SemanticToken {
+                    delta_line: 0,
+                    delta_start: 5,
+                    length: 4,
+                    token_type: 1,
+                    token_modifiers_bitset: 0,
+                },
+            ],
+        };
+        let stpr_ser = r#"{"data":[2,5,3,0,3,0,5,4,1,0]}"#;
+        assert_eq!(serde_json::to_string(&stpr).unwrap(), stpr_ser);
+        assert_eq!(stpr, serde_json::from_str(stpr_ser).unwrap());
+
+        let stpr = SemanticTokensPartialResult {
+            data: Vec::default(),
+        };
+        let stpr_ser = r#"{"data":[]}"#;
+        assert_eq!(serde_json::to_string(&stpr).unwrap(), stpr_ser);
+        assert_eq!(stpr, serde_json::from_str(stpr_ser).unwrap());
     }
 }
