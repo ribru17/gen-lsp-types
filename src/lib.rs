@@ -158,6 +158,7 @@ mod test {
             serde_json::from_str::<WorkspaceFoldersInitializeParams>(&wfip_str).unwrap(),
             wfip
         );
+        assert_eq!(WorkspaceFolders::Null, ().into());
         let wfip = WorkspaceFoldersInitializeParams {
             workspace_folders: Some(().into()),
         };
