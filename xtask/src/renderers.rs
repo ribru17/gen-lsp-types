@@ -516,7 +516,15 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         None
     };
     let from_static_str = if is_str_enum && supports_custom {
+        let constructor_doc = format!(" Create a custom `{name}` from a string literal.");
         Some(quote! {
+            impl #name_ident {
+                #[doc = #constructor_doc]
+                pub const fn new(s: &'static str) -> Self {
+                    Self::Custom(Cow::Borrowed(s))
+                }
+            }
+
             impl From<&'static str> for #name_ident {
                 fn from(s: &'static str) -> Self {
                     match s {

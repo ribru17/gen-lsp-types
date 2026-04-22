@@ -10914,6 +10914,12 @@ impl From<String> for SemanticTokenTypes {
         }
     }
 }
+impl SemanticTokenTypes {
+    /// Create a custom `SemanticTokenTypes` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
 impl From<&'static str> for SemanticTokenTypes {
     fn from(s: &'static str) -> Self {
         match s {
@@ -11006,6 +11012,12 @@ impl From<String> for SemanticTokenModifiers {
             "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
             _ => SemanticTokenModifiers::Custom(Cow::Owned(v)),
         }
+    }
+}
+impl SemanticTokenModifiers {
+    /// Create a custom `SemanticTokenModifiers` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
     }
 }
 impl From<&'static str> for SemanticTokenModifiers {
@@ -11203,6 +11215,12 @@ impl From<String> for FoldingRangeKind {
             "region" => FoldingRangeKind::Region,
             _ => FoldingRangeKind::Custom(Cow::Owned(v)),
         }
+    }
+}
+impl FoldingRangeKind {
+    /// Create a custom `FoldingRangeKind` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
     }
 }
 impl From<&'static str> for FoldingRangeKind {
@@ -11918,6 +11936,12 @@ impl From<String> for CodeActionKind {
         }
     }
 }
+impl CodeActionKind {
+    /// Create a custom `CodeActionKind` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
 impl From<&'static str> for CodeActionKind {
     fn from(s: &'static str) -> Self {
         match s {
@@ -12256,6 +12280,12 @@ impl From<String> for LanguageKind {
         }
     }
 }
+impl LanguageKind {
+    /// Create a custom `LanguageKind` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
 impl From<&'static str> for LanguageKind {
     fn from(s: &'static str) -> Self {
         match s {
@@ -12403,6 +12433,12 @@ impl From<String> for PositionEncodingKind {
             "utf-32" => PositionEncodingKind::UTF32,
             _ => PositionEncodingKind::Custom(Cow::Owned(v)),
         }
+    }
+}
+impl PositionEncodingKind {
+    /// Create a custom `PositionEncodingKind` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
     }
 }
 impl From<&'static str> for PositionEncodingKind {
@@ -13293,6 +13329,12 @@ impl From<String> for LspRequestMethods {
         }
     }
 }
+impl LspRequestMethods {
+    /// Create a custom `LspRequestMethods` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
 impl From<&'static str> for LspRequestMethods {
     fn from(s: &'static str) -> Self {
         match s {
@@ -13575,6 +13617,12 @@ impl From<String> for LspNotificationMethods {
             "$/progress" => LspNotificationMethods::Progress,
             _ => LspNotificationMethods::Custom(Cow::Owned(v)),
         }
+    }
+}
+impl LspNotificationMethods {
+    /// Create a custom `LspNotificationMethods` from a string literal.
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
     }
 }
 impl From<&'static str> for LspNotificationMethods {

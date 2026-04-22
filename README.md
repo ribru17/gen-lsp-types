@@ -30,12 +30,15 @@ supports them:
 Special types `Position` and `Range` also derive `Ord` and `PartialOrd`, and
 string enumerations derive `From<String>` and `Display`.
 
-All structures generate `::new()` constructors for convenience.
+All structures generate `::new()` constructors for convenience. For the same
+reason, string enumerations supporting custom values will also provide `::new()`
+constructors, taking a `&'static str`.
 
-All "or" types in the spec (e.g. `bar: string | integer | null`) are represented as
-untagged `enum`s, with intuitive naming based on the context that the "or" type
-is defined in. Every "or" type `enum` implements `From` so it can be seamlessly
-converted from its member types. E.g., for the above example, you can do:
+All "or" types in the spec (e.g. `bar: string | integer | null`) are represented
+as untagged `enum`s, with intuitive naming based on the context that the "or"
+type is defined in. Every "or" type `enum` implements `From` so it can be
+seamlessly converted from its member types. E.g., for the above example, you can
+do:
 
 ```rust
 // This...
