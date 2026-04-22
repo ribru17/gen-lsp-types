@@ -30,8 +30,7 @@ supports them:
 Special types `Position` and `Range` also derive `Ord` and `PartialOrd`, and
 string enumerations derive `From<String>` and `Display`.
 
-All structures use [`derive-new`](https://github.com/nrc/derive-new) to generate
-`::new()` constructors for convenience.
+All structures generate `::new()` constructors for convenience.
 
 All "or" types in the spec (e.g. `bar: string | integer`) are represented as
 untagged `enum`s, with intuitive naming based on the context that the "or" type
