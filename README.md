@@ -182,9 +182,12 @@ downstream consumer. Developers migrating from the original `lsp-types` crate
 will notice that the URI type is just a newtype wrapper over a `String`,
 allowing them to internally represent URIs however they wish.
 
-In the future, this crate might use feature flags to deserialize URIs as
-`url::Url` or `fluent_uri::Uri` instead of the newtype wrapper, but I'd like to
-hear some discussion on whether this is a bad idea first.
+This crate also uses feature flags to allow downstream consumers to tell it to
+prefer a specific URI representation. The `url` feature instructs the library to
+deserialize URIs as `url::Url` (matching `lsp-types <=0.95.0`), and the
+`fluent-uri` feature instructs it to deserialize them as `fluent_uri::Uri`. Note
+that the two features are mutually exclusive, and by default just the `String`
+wrapper will be used.
 
 ## Stability
 
