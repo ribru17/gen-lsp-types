@@ -43,14 +43,7 @@ pub fn render_enum_ors(
     let mut toks = Vec::new();
 
     while let Some((name, (or_type, documentation))) = enum_or_types.pop_first() {
-        let mut derives = vec![
-            "Serialize",
-            "Deserialize",
-            "PartialEq",
-            "Debug",
-            "Clone",
-            "From",
-        ];
+        let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
 
         if or_type
             .items
@@ -82,66 +75,121 @@ pub fn render_enum_ors(
                 false
             }
         });
-        let members = or_type.items.into_iter().map(|item| {
-            if all_prefixed && let Type::ReferenceType(ref_type) = item.clone() {
-                let member = ref_type.name.strip_prefix(&name).unwrap();
-                let member_ident = format_ident!("{member}");
-                let type_ = render_type(item, &ref_type.name, &None, enum_or_types);
-                quote! {
-                    #[from]
-                    #member_ident(#type_)
-                }
-            } else {
-                let mut attr = quote! { #[from] };
-                let name = match item.clone() {
-                    Type::ReferenceType(ref_type) => ref_type.name,
-                    Type::BaseType(base_type) => match base_type.name {
-                        BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
-                        BaseTypes::Boolean => String::from("Bool"),
-                        BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
-                        BaseTypes::String => {
-                            attr = quote! { #[from(String, &str, Box<str>, Cow<'_, str>, char)] };
-                            String::from("String")
-                        }
-                        BaseTypes::Null => {
-                            return quote! {
-                                #[serde(rename = "null")]
-                                #[from(())]
-                                Null
+        let name_ident = format_ident!("{name}");
+        let (members, impls): (Vec<_>, Vec<_>) = or_type
+            .items
+            .into_iter()
+            .map(|item| {
+                if all_prefixed && let Type::ReferenceType(ref_type) = item.clone() {
+                    let member = ref_type.name.strip_prefix(&name).unwrap();
+                    let member_ident = format_ident!("{member}");
+                    let type_ = render_type(item, &ref_type.name, &None, enum_or_types);
+                    (
+                        quote! {
+                            #member_ident(#type_)
+                        },
+                        quote! {
+                            impl From<#type_> for #name_ident {
+                                fn from(v: #type_) -> Self {
+                                    Self::#member_ident(v)
+                                }
+                            }
+                        },
+                    )
+                } else {
+                    let mut is_string = false;
+                    let name = match item.clone() {
+                        Type::ReferenceType(ref_type) => ref_type.name,
+                        Type::BaseType(base_type) => match base_type.name {
+                            BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
+                            BaseTypes::Boolean => String::from("Bool"),
+                            BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
+                            BaseTypes::String => {
+                                is_string = true;
+                                String::from("String")
+                            }
+                            BaseTypes::Null => {
+                                return (
+                                    quote! {
+                                        Null
+                                    },
+                                    quote! {
+                                        impl From<()> for #name_ident {
+                                            fn from(_: ()) -> Self {
+                                                Self::Null
+                                            }
+                                        }
+                                    },
+                                );
+                            }
+                            a => unimplemented!("{a:?}"),
+                        },
+                        Type::TupleType(_) => String::from("Tuple"),
+                        Type::StructureLiteralType(_) => String::from("Object"),
+                        Type::ArrayType(array_type) => {
+                            let inner_name = match array_type.element {
+                                Type::ReferenceType(ref_type) => ref_type.name,
+                                Type::BaseType(base_type) => match base_type.name {
+                                    BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
+                                    BaseTypes::Boolean => String::from("Bool"),
+                                    BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
+                                    BaseTypes::String => String::from("String"),
+                                    BaseTypes::Null => String::from("Null"),
+                                    a => unimplemented!("{a:?}"),
+                                },
+                                Type::TupleType(_) => String::from("Tuple"),
+                                Type::StructureLiteralType(_) => String::from("Object"),
+                                a => unimplemented!("{a:?}"),
                             };
+                            format!("{inner_name}List")
                         }
                         a => unimplemented!("{a:?}"),
-                    },
-                    Type::TupleType(_) => String::from("Tuple"),
-                    Type::StructureLiteralType(_) => String::from("Object"),
-                    Type::ArrayType(array_type) => {
-                        let inner_name = match array_type.element {
-                            Type::ReferenceType(ref_type) => ref_type.name,
-                            Type::BaseType(base_type) => match base_type.name {
-                                BaseTypes::Integer | BaseTypes::Uinteger => String::from("Int"),
-                                BaseTypes::Boolean => String::from("Bool"),
-                                BaseTypes::DocumentUri | BaseTypes::Uri => String::from("Uri"),
-                                BaseTypes::String => String::from("String"),
-                                BaseTypes::Null => String::from("Null"),
-                                a => unimplemented!("{a:?}"),
-                            },
-                            Type::TupleType(_) => String::from("Tuple"),
-                            Type::StructureLiteralType(_) => String::from("Object"),
-                            a => unimplemented!("{a:?}"),
-                        };
-                        format!("{inner_name}List")
-                    }
-                    a => unimplemented!("{a:?}"),
-                };
-                let type_ = render_type(item, &name, &None, &mut Default::default());
-                let member_ident = format_ident!("{}", name);
-                quote! {
-                    #attr
-                    #member_ident(#type_)
+                    };
+                    let type_ = render_type(item, &name, &None, enum_or_types);
+                    let member_ident = format_ident!("{}", name);
+                    let more_impls = if is_string {
+                        Some(quote! {
+                            impl From<&str> for #name_ident {
+                                fn from(v: &str) -> Self {
+                                    Self::#member_ident(v.into())
+                                }
+                            }
+                            impl From<char> for #name_ident {
+                                fn from(v: char) -> Self {
+                                    Self::#member_ident(v.into())
+                                }
+                            }
+                            impl From<Box<str>> for #name_ident {
+                                fn from(v: Box<str>) -> Self {
+                                    Self::#member_ident(v.into())
+                                }
+                            }
+                            impl From<Cow<'_, str>> for #name_ident {
+                                fn from(v: Cow<'_, str>) -> Self {
+                                    Self::#member_ident(v.into())
+                                }
+                            }
+                        })
+                    } else {
+                        None
+                    };
+                    (
+                        quote! {
+                            #member_ident(#type_)
+                        },
+                        quote! {
+                            impl From<#type_> for #name_ident {
+                                fn from(v: #type_) -> Self {
+                                    Self::#member_ident(v)
+                                }
+                            }
+
+                            #more_impls
+                        },
+                    )
                 }
-            }
-        });
-        let name_ident = format_ident!("{name}");
+            })
+            .unzip();
         let derives = derives.iter().map(|d| format_ident!("{d}"));
         toks.push(quote! {
             #documentation
@@ -150,6 +198,8 @@ pub fn render_enum_ors(
             pub enum #name_ident {
                 #(#members),*
             }
+
+            #(#impls)*
         });
     }
     toks

@@ -32,7 +32,7 @@ string enumerations derive `From<String>` and `Display`.
 
 All structures generate `::new()` constructors for convenience.
 
-All "or" types in the spec (e.g. `bar: string | integer`) are represented as
+All "or" types in the spec (e.g. `bar: string | integer | null`) are represented as
 untagged `enum`s, with intuitive naming based on the context that the "or" type
 is defined in. Every "or" type `enum` implements `From` so it can be seamlessly
 converted from its member types. E.g., for the above example, you can do:
@@ -41,8 +41,11 @@ converted from its member types. E.g., for the above example, you can do:
 // This...
 let bar: Bar = 123.into();
 
+// ...or this...
+let bar: Bar = String::from("baz").into();
+
 // ...or this.
-let bar2: Bar = String::from("baz").into();
+let bar: Bar = ().into();
 ```
 
 ### Distinguishes between `null` and "not present" properties
