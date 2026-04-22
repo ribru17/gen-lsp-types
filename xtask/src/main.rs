@@ -13,8 +13,8 @@ use regex::{Captures, Regex};
 
 use crate::{
     renderers::{
-        render_enum_ors, render_enumeration, render_notification, render_request, render_structure,
-        render_type_alias,
+        render_enum_ors, render_enumeration, render_notification, render_notification_macro,
+        render_request, render_request_macro, render_structure, render_type_alias,
     },
     schema::{
         BaseType, BaseTypes, Enumeration, EnumerationEntry, EnumerationEntryValue, EnumerationType,
@@ -739,6 +739,9 @@ fn main() {
         .flat_map(|ta| render_type_alias(ta, &mut enum_or_types))
         .collect::<Vec<_>>();
 
+    let request_macro = render_request_macro(&model.requests);
+    let notification_macro = render_notification_macro(&model.notifications);
+
     let requests = model
         .requests
         .into_iter()
@@ -766,7 +769,9 @@ fn main() {
         .chain(type_aliases)
         .chain(enum_ors)
         .chain(requests)
-        .chain(notifications);
+        .chain(notifications)
+        .chain(iter::once(request_macro))
+        .chain(iter::once(notification_macro));
 
     let formatted_items: Vec<String> = all_items
         .map(|request| {

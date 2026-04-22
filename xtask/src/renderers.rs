@@ -901,6 +901,68 @@ pub fn render_structure(
     })
 }
 
+pub fn render_request_macro(requests: &[Request]) -> TokenStream {
+    let reqs = requests.iter().map(|req| {
+        let method = &req.method;
+        let type_ = format_ident!(
+            "{}",
+            req.type_name
+                .as_ref()
+                .expect("Request should have type name")
+        );
+        quote! {
+            (#method) => {
+                $crate::#type_
+            };
+        }
+    });
+    quote! {
+        /// Get the [`Request`] type for a request method.
+        ///
+        /// Example:
+        ///
+        /// ```
+        /// use gen_lsp_types::{Request, lsp_request};
+        /// let params: <lsp_request!("textDocument/formatting") as Request>::Params;
+        /// ```
+        #[macro_export]
+        macro_rules! lsp_request {
+            #(#reqs)*
+        }
+    }
+}
+
+pub fn render_notification_macro(requests: &[Notification]) -> TokenStream {
+    let notis = requests.iter().map(|noti| {
+        let method = &noti.method;
+        let type_ = format_ident!(
+            "{}",
+            noti.type_name
+                .as_ref()
+                .expect("Notification should have type name")
+        );
+        quote! {
+            (#method) => {
+                $crate::#type_
+            };
+        }
+    });
+    quote! {
+        /// Get the [`Notification`] type for a notification method.
+        ///
+        /// Example:
+        ///
+        /// ```
+        /// use gen_lsp_types::{Notification, lsp_notification};
+        /// let params: <lsp_notification!("textDocument/didChange") as Notification>::Params;
+        /// ```
+        #[macro_export]
+        macro_rules! lsp_notification {
+            #(#notis)*
+        }
+    }
+}
+
 /// Render an LSP type.
 ///
 /// Parameters:
