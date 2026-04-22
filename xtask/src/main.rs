@@ -471,7 +471,6 @@ fn main() {
 
     let imports = quote! {
         use derive_more::From;
-        use derive_new::new as New;
         use serde::{de::DeserializeOwned, Deserialize, Deserializer, ser::SerializeSeq as _, Serialize};
         use std::{borrow::Cow, collections::HashMap, fmt};
     };

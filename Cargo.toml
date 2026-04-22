@@ -14,7 +14,6 @@ categories = ["development-tools"]
 path = "src/lib.rs"
 
 [dependencies]
-derive-new = "0.7.0"
 derive_more = { version = "2.1.1", features = ["from"] }
 fluent-uri = { version = "0.4.1", features = ["serde"], optional = true }
 serde = { workspace = true }

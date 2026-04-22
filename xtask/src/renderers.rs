@@ -1,15 +1,16 @@
 use std::collections::{BTreeMap, HashMap};
 
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::{ToTokens, format_ident, quote};
 
 use crate::{
     camel_to_pascal, camel_to_snake,
     derives::{get_enum_derives, get_struct_derives, has_float, is_copyable, is_hashable},
     is_nullable, method_to_pascal, render_documentation, resolve_struct_properties,
     schema::{
-        BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName, MapKeyType,
-        MapKeyTypeObjectName, Notification, OrType, Property, Request, Structure, Type, TypeAlias,
+        ArrayType, BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName,
+        MapKeyType, MapKeyTypeObjectName, Notification, OrType, Property, Request, Structure, Type,
+        TypeAlias,
     },
 };
 
@@ -510,16 +511,34 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
 
 /// Some properties should be handled specially, since further typing conveniences can be created
 /// beyond what the Metamodel provides.
-fn get_special_property(structure_name: &str, property: &Property) -> Option<TokenStream> {
+fn get_special_property(
+    structure_name: &str,
+    property: &Property,
+    props_simplified: &mut Vec<(TokenStream, TokenStream)>,
+) -> Option<TokenStream> {
     let property_name = property.name.as_str();
     match (structure_name, property_name) {
         ("SemanticTokensEdit", "data") => {
             assert_eq!(property.optional, Some(true));
+            assert_eq!(
+                property.type_,
+                Type::ArrayType(
+                    ArrayType {
+                        kind: "array".into(),
+                        element: Type::BaseType(BaseType {
+                            kind: "base".into(),
+                            name: BaseTypes::Uinteger
+                        })
+                    }
+                    .into()
+                )
+            );
             let documentation = render_documentation(property.documentation.clone());
             let deprecated = property
                 .deprecated
                 .as_ref()
                 .map(|note| quote! { #[deprecated(note = #note)] });
+            props_simplified.push((quote! { data }, quote! { Option<Vec<SemanticToken>> }));
             Some(quote! {
                 #documentation
                 #deprecated
@@ -534,11 +553,25 @@ fn get_special_property(structure_name: &str, property: &Property) -> Option<Tok
         }
         ("SemanticTokens", "data") | ("SemanticTokensPartialResult", "data") => {
             assert_ne!(property.optional, Some(true));
+            assert_eq!(
+                property.type_,
+                Type::ArrayType(
+                    ArrayType {
+                        kind: "array".into(),
+                        element: Type::BaseType(BaseType {
+                            kind: "base".into(),
+                            name: BaseTypes::Uinteger
+                        })
+                    }
+                    .into()
+                )
+            );
             let documentation = render_documentation(property.documentation.clone());
             let deprecated = property
                 .deprecated
                 .as_ref()
                 .map(|note| quote! { #[deprecated(note = #note)] });
+            props_simplified.push((quote! { data }, quote! { Vec<SemanticToken> }));
             Some(quote! {
                 #documentation
                 #deprecated
@@ -590,13 +623,18 @@ pub fn render_structure(
         structure.mixins,
         structs_map,
     );
-    let mut string_lit_prop = None;
 
+    // A simplified representation of the struct props; a tuple of TokenStreams (name, type).
+    let mut props_simplified = Vec::with_capacity(structure_props.len());
+
+    let mut string_lit_prop = None;
     let mut properties: Vec<_> = structure_props
         .clone()
         .into_iter()
         .flat_map(|property| {
-            if let Some(special_prop) = get_special_property(&structure.name, &property) {
+            if let Some(special_prop) =
+                get_special_property(&structure.name, &property, &mut props_simplified)
+            {
                 return Some(special_prop);
             }
 
@@ -688,6 +726,8 @@ pub fn render_structure(
                 type_ = quote! { Option<#type_> }
             }
 
+            props_simplified.push((name.to_token_stream(), type_.clone()));
+
             Some(quote! {
                 #documentation
                 #deprecated
@@ -705,6 +745,7 @@ pub fn render_structure(
             &None,
             enum_or_types,
         );
+        props_simplified.push((name.to_token_stream(), type_.clone()));
         quote! {
             #[serde(flatten)]
             pub #name: #type_,
@@ -775,6 +816,22 @@ pub fn render_structure(
         None
     };
 
+    let constructor = {
+        let params = props_simplified
+            .iter()
+            .map(|(name, type_)| quote! { #name: #type_, });
+        let names = props_simplified.iter().map(|p| p.0.clone());
+        quote! {
+            impl #name {
+                pub const fn new(#(#params)*) -> Self {
+                    Self {
+                        #(#names),*
+                    }
+                }
+            }
+        }
+    };
+
     Some(quote! {
         #documentation
         #attributes
@@ -782,6 +839,7 @@ pub fn render_structure(
             #(#properties)*
         }
         #shadow
+        #constructor
     })
 }
 
