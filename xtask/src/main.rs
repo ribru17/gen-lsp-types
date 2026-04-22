@@ -506,22 +506,34 @@ fn main() {
             const MESSAGE_DIRECTION: MessageDirection;
         }
 
+        #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
         /// URIs are transferred as strings. The URI's format is defined in https://tools.ietf.org/html/rfc3986.
         #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, From)]
         #[from(String, &str)]
         pub struct Uri(pub String);
 
+        #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
         impl AsRef<str> for Uri {
             fn as_ref(&self) -> &str {
                 &self.0
             }
         }
 
+        #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
         impl fmt::Display for Uri {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 write!(f, "{}", self.0)
             }
         }
+
+        #[cfg(feature = "url")]
+        pub type Uri = url::Url;
+
+        #[cfg(all(feature = "fluent-uri", not(feature = "url")))]
+        pub type Uri = fluent_uri::Uri<String>;
+
+        #[cfg(all(feature = "url", feature = "fluent-uri"))]
+        compile_error!("Features 'url' and 'fluent-uri' are mutually exclusive and cannot be enabled together.");
 
         /// Represents a semantic token (serialized as five uintegers).
         #[derive(Debug, Eq, PartialEq, Copy, Clone, Default, Hash)]

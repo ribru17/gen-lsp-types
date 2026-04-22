@@ -16,8 +16,14 @@ path = "src/lib.rs"
 [dependencies]
 derive-new = "0.7.0"
 derive_more = { version = "2.1.1", features = ["from"] }
+fluent-uri = { version = "0.4.1", features = ["serde"], optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+url = { version = "2.5.8", features = ["serde"], optional = true }
+
+[features]
+url = ["dep:url"]
+fluent-uri = ["dep:fluent-uri"]
 
 [workspace]
 members = [".", "xtask"]
