@@ -722,6 +722,29 @@ mod test {
         assert_eq!(serde_json::to_string(&stpr).unwrap(), stpr_ser);
         assert_eq!(stpr, serde_json::from_str(stpr_ser).unwrap());
     }
+
+    #[test]
+    fn request_macro() {
+        let req = json_rpc::RequestObject::from_request::<lsp_request!("workspace/workspaceFolders")>(
+            json_rpc::Id::Number(123),
+            (),
+        );
+
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","id":123,"method":"workspace/workspaceFolders"}"#,
+            serde_json::to_string(&req).unwrap()
+        );
+    }
+
+    #[test]
+    fn notification_macro() {
+        let req = json_rpc::RequestObject::from_notification::<lsp_notification!("exit")>(());
+
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","method":"exit"}"#,
+            serde_json::to_string(&req).unwrap()
+        );
+    }
 }
 
 /// Tests for the "url" feature.

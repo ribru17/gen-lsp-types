@@ -16625,3 +16625,312 @@ impl Notification for ProgressNotification {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = ProgressParams;
 }
+
+/// Get the [`Request`] type for a request method.
+///
+/// Example:
+///
+/// ```
+/// use gen_lsp_types::{Request, lsp_request};
+/// let params: <lsp_request!("textDocument/formatting") as Request>::Params;
+/// ```
+#[macro_export]
+macro_rules! lsp_request {
+    ("textDocument/implementation") => {
+        $crate::ImplementationRequest
+    };
+    ("textDocument/typeDefinition") => {
+        $crate::TypeDefinitionRequest
+    };
+    ("workspace/workspaceFolders") => {
+        $crate::WorkspaceFoldersRequest
+    };
+    ("workspace/configuration") => {
+        $crate::ConfigurationRequest
+    };
+    ("textDocument/documentColor") => {
+        $crate::DocumentColorRequest
+    };
+    ("textDocument/colorPresentation") => {
+        $crate::ColorPresentationRequest
+    };
+    ("textDocument/foldingRange") => {
+        $crate::FoldingRangeRequest
+    };
+    ("workspace/foldingRange/refresh") => {
+        $crate::FoldingRangeRefreshRequest
+    };
+    ("textDocument/declaration") => {
+        $crate::DeclarationRequest
+    };
+    ("textDocument/selectionRange") => {
+        $crate::SelectionRangeRequest
+    };
+    ("window/workDoneProgress/create") => {
+        $crate::WorkDoneProgressCreateRequest
+    };
+    ("textDocument/prepareCallHierarchy") => {
+        $crate::CallHierarchyPrepareRequest
+    };
+    ("callHierarchy/incomingCalls") => {
+        $crate::CallHierarchyIncomingCallsRequest
+    };
+    ("callHierarchy/outgoingCalls") => {
+        $crate::CallHierarchyOutgoingCallsRequest
+    };
+    ("textDocument/semanticTokens/full") => {
+        $crate::SemanticTokensRequest
+    };
+    ("textDocument/semanticTokens/full/delta") => {
+        $crate::SemanticTokensDeltaRequest
+    };
+    ("textDocument/semanticTokens/range") => {
+        $crate::SemanticTokensRangeRequest
+    };
+    ("workspace/semanticTokens/refresh") => {
+        $crate::SemanticTokensRefreshRequest
+    };
+    ("window/showDocument") => {
+        $crate::ShowDocumentRequest
+    };
+    ("textDocument/linkedEditingRange") => {
+        $crate::LinkedEditingRangeRequest
+    };
+    ("workspace/willCreateFiles") => {
+        $crate::WillCreateFilesRequest
+    };
+    ("workspace/willRenameFiles") => {
+        $crate::WillRenameFilesRequest
+    };
+    ("workspace/willDeleteFiles") => {
+        $crate::WillDeleteFilesRequest
+    };
+    ("textDocument/moniker") => {
+        $crate::MonikerRequest
+    };
+    ("textDocument/prepareTypeHierarchy") => {
+        $crate::TypeHierarchyPrepareRequest
+    };
+    ("typeHierarchy/supertypes") => {
+        $crate::TypeHierarchySupertypesRequest
+    };
+    ("typeHierarchy/subtypes") => {
+        $crate::TypeHierarchySubtypesRequest
+    };
+    ("textDocument/inlineValue") => {
+        $crate::InlineValueRequest
+    };
+    ("workspace/inlineValue/refresh") => {
+        $crate::InlineValueRefreshRequest
+    };
+    ("textDocument/inlayHint") => {
+        $crate::InlayHintRequest
+    };
+    ("inlayHint/resolve") => {
+        $crate::InlayHintResolveRequest
+    };
+    ("workspace/inlayHint/refresh") => {
+        $crate::InlayHintRefreshRequest
+    };
+    ("textDocument/diagnostic") => {
+        $crate::DocumentDiagnosticRequest
+    };
+    ("workspace/diagnostic") => {
+        $crate::WorkspaceDiagnosticRequest
+    };
+    ("workspace/diagnostic/refresh") => {
+        $crate::DiagnosticRefreshRequest
+    };
+    ("textDocument/inlineCompletion") => {
+        $crate::InlineCompletionRequest
+    };
+    ("workspace/textDocumentContent") => {
+        $crate::TextDocumentContentRequest
+    };
+    ("workspace/textDocumentContent/refresh") => {
+        $crate::TextDocumentContentRefreshRequest
+    };
+    ("client/registerCapability") => {
+        $crate::RegistrationRequest
+    };
+    ("client/unregisterCapability") => {
+        $crate::UnregistrationRequest
+    };
+    ("initialize") => {
+        $crate::InitializeRequest
+    };
+    ("shutdown") => {
+        $crate::ShutdownRequest
+    };
+    ("window/showMessageRequest") => {
+        $crate::ShowMessageRequest
+    };
+    ("textDocument/willSaveWaitUntil") => {
+        $crate::WillSaveTextDocumentWaitUntilRequest
+    };
+    ("textDocument/completion") => {
+        $crate::CompletionRequest
+    };
+    ("completionItem/resolve") => {
+        $crate::CompletionResolveRequest
+    };
+    ("textDocument/hover") => {
+        $crate::HoverRequest
+    };
+    ("textDocument/signatureHelp") => {
+        $crate::SignatureHelpRequest
+    };
+    ("textDocument/definition") => {
+        $crate::DefinitionRequest
+    };
+    ("textDocument/references") => {
+        $crate::ReferencesRequest
+    };
+    ("textDocument/documentHighlight") => {
+        $crate::DocumentHighlightRequest
+    };
+    ("textDocument/documentSymbol") => {
+        $crate::DocumentSymbolRequest
+    };
+    ("textDocument/codeAction") => {
+        $crate::CodeActionRequest
+    };
+    ("codeAction/resolve") => {
+        $crate::CodeActionResolveRequest
+    };
+    ("workspace/symbol") => {
+        $crate::WorkspaceSymbolRequest
+    };
+    ("workspaceSymbol/resolve") => {
+        $crate::WorkspaceSymbolResolveRequest
+    };
+    ("textDocument/codeLens") => {
+        $crate::CodeLensRequest
+    };
+    ("codeLens/resolve") => {
+        $crate::CodeLensResolveRequest
+    };
+    ("workspace/codeLens/refresh") => {
+        $crate::CodeLensRefreshRequest
+    };
+    ("textDocument/documentLink") => {
+        $crate::DocumentLinkRequest
+    };
+    ("documentLink/resolve") => {
+        $crate::DocumentLinkResolveRequest
+    };
+    ("textDocument/formatting") => {
+        $crate::DocumentFormattingRequest
+    };
+    ("textDocument/rangeFormatting") => {
+        $crate::DocumentRangeFormattingRequest
+    };
+    ("textDocument/rangesFormatting") => {
+        $crate::DocumentRangesFormattingRequest
+    };
+    ("textDocument/onTypeFormatting") => {
+        $crate::DocumentOnTypeFormattingRequest
+    };
+    ("textDocument/rename") => {
+        $crate::RenameRequest
+    };
+    ("textDocument/prepareRename") => {
+        $crate::PrepareRenameRequest
+    };
+    ("workspace/executeCommand") => {
+        $crate::ExecuteCommandRequest
+    };
+    ("workspace/applyEdit") => {
+        $crate::ApplyWorkspaceEditRequest
+    };
+}
+
+/// Get the [`Notification`] type for a notification method.
+///
+/// Example:
+///
+/// ```
+/// use gen_lsp_types::{Notification, lsp_notification};
+/// let params: <lsp_notification!("textDocument/didChange") as Notification>::Params;
+/// ```
+#[macro_export]
+macro_rules! lsp_notification {
+    ("workspace/didChangeWorkspaceFolders") => {
+        $crate::DidChangeWorkspaceFoldersNotification
+    };
+    ("window/workDoneProgress/cancel") => {
+        $crate::WorkDoneProgressCancelNotification
+    };
+    ("workspace/didCreateFiles") => {
+        $crate::DidCreateFilesNotification
+    };
+    ("workspace/didRenameFiles") => {
+        $crate::DidRenameFilesNotification
+    };
+    ("workspace/didDeleteFiles") => {
+        $crate::DidDeleteFilesNotification
+    };
+    ("notebookDocument/didOpen") => {
+        $crate::DidOpenNotebookDocumentNotification
+    };
+    ("notebookDocument/didChange") => {
+        $crate::DidChangeNotebookDocumentNotification
+    };
+    ("notebookDocument/didSave") => {
+        $crate::DidSaveNotebookDocumentNotification
+    };
+    ("notebookDocument/didClose") => {
+        $crate::DidCloseNotebookDocumentNotification
+    };
+    ("initialized") => {
+        $crate::InitializedNotification
+    };
+    ("exit") => {
+        $crate::ExitNotification
+    };
+    ("workspace/didChangeConfiguration") => {
+        $crate::DidChangeConfigurationNotification
+    };
+    ("window/showMessage") => {
+        $crate::ShowMessageNotification
+    };
+    ("window/logMessage") => {
+        $crate::LogMessageNotification
+    };
+    ("telemetry/event") => {
+        $crate::TelemetryEventNotification
+    };
+    ("textDocument/didOpen") => {
+        $crate::DidOpenTextDocumentNotification
+    };
+    ("textDocument/didChange") => {
+        $crate::DidChangeTextDocumentNotification
+    };
+    ("textDocument/didClose") => {
+        $crate::DidCloseTextDocumentNotification
+    };
+    ("textDocument/didSave") => {
+        $crate::DidSaveTextDocumentNotification
+    };
+    ("textDocument/willSave") => {
+        $crate::WillSaveTextDocumentNotification
+    };
+    ("workspace/didChangeWatchedFiles") => {
+        $crate::DidChangeWatchedFilesNotification
+    };
+    ("textDocument/publishDiagnostics") => {
+        $crate::PublishDiagnosticsNotification
+    };
+    ("$/setTrace") => {
+        $crate::SetTraceNotification
+    };
+    ("$/logTrace") => {
+        $crate::LogTraceNotification
+    };
+    ("$/cancelRequest") => {
+        $crate::CancelNotification
+    };
+    ("$/progress") => {
+        $crate::ProgressNotification
+    };
+}
