@@ -597,7 +597,7 @@ mod test {
         impl Notification for ServerStatusNotification {
             type Params = ();
             const METHOD: LspNotificationMethods =
-                LspNotificationMethods::Custom(Cow::Borrowed("experimental/serverStatus"));
+                LspNotificationMethods::new("experimental/serverStatus");
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
         }
 
