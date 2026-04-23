@@ -313,10 +313,12 @@ mod test {
             serde_json::from_str::<FoldingRangeKind>(&ser).unwrap(),
             FoldingRangeKind::Custom(Cow::Borrowed("foo"))
         );
+        assert_eq!("foo", frk.as_str());
 
         let mk = MarkupKind::PlainText;
         assert_eq!("\"plaintext\"", serde_json::to_string(&mk).unwrap());
         assert!(serde_json::from_str::<MarkupKind>("foo").is_err());
+        assert_eq!("plaintext", mk.as_str());
     }
 
     #[test]

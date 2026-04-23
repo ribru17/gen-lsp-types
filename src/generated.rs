@@ -10957,6 +10957,37 @@ impl fmt::Display for SemanticTokenTypes {
         write!(f, "{s}")
     }
 }
+impl SemanticTokenTypes {
+    pub fn as_str(&self) -> &str {
+        match self {
+            SemanticTokenTypes::Namespace => "namespace",
+            SemanticTokenTypes::Type => "type",
+            SemanticTokenTypes::Class => "class",
+            SemanticTokenTypes::Enum => "enum",
+            SemanticTokenTypes::Interface => "interface",
+            SemanticTokenTypes::Struct => "struct",
+            SemanticTokenTypes::TypeParameter => "typeParameter",
+            SemanticTokenTypes::Parameter => "parameter",
+            SemanticTokenTypes::Variable => "variable",
+            SemanticTokenTypes::Property => "property",
+            SemanticTokenTypes::EnumMember => "enumMember",
+            SemanticTokenTypes::Event => "event",
+            SemanticTokenTypes::Function => "function",
+            SemanticTokenTypes::Method => "method",
+            SemanticTokenTypes::Macro => "macro",
+            SemanticTokenTypes::Keyword => "keyword",
+            SemanticTokenTypes::Modifier => "modifier",
+            SemanticTokenTypes::Comment => "comment",
+            SemanticTokenTypes::String => "string",
+            SemanticTokenTypes::Number => "number",
+            SemanticTokenTypes::Regexp => "regexp",
+            SemanticTokenTypes::Operator => "operator",
+            SemanticTokenTypes::Decorator => "decorator",
+            SemanticTokenTypes::Label => "label",
+            SemanticTokenTypes::Custom(any) => any,
+        }
+    }
+}
 
 /// A set of predefined token modifiers. This set is not fixed
 /// an clients can specify additional token types via the
@@ -11043,6 +11074,23 @@ impl fmt::Display for SemanticTokenModifiers {
         write!(f, "{s}")
     }
 }
+impl SemanticTokenModifiers {
+    pub fn as_str(&self) -> &str {
+        match self {
+            SemanticTokenModifiers::Declaration => "declaration",
+            SemanticTokenModifiers::Definition => "definition",
+            SemanticTokenModifiers::Readonly => "readonly",
+            SemanticTokenModifiers::Static => "static",
+            SemanticTokenModifiers::Deprecated => "deprecated",
+            SemanticTokenModifiers::Abstract => "abstract",
+            SemanticTokenModifiers::Async => "async",
+            SemanticTokenModifiers::Modification => "modification",
+            SemanticTokenModifiers::Documentation => "documentation",
+            SemanticTokenModifiers::DefaultLibrary => "defaultLibrary",
+            SemanticTokenModifiers::Custom(any) => any,
+        }
+    }
+}
 
 /// The document diagnostic report kinds.
 ///
@@ -11079,6 +11127,14 @@ impl fmt::Display for DocumentDiagnosticReportKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
         write!(f, "{s}")
+    }
+}
+impl DocumentDiagnosticReportKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            DocumentDiagnosticReportKind::Full => "full",
+            DocumentDiagnosticReportKind::Unchanged => "unchanged",
+        }
     }
 }
 
@@ -11237,6 +11293,16 @@ impl fmt::Display for FoldingRangeKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
         write!(f, "{s}")
+    }
+}
+impl FoldingRangeKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            FoldingRangeKind::Comment => "comment",
+            FoldingRangeKind::Imports => "imports",
+            FoldingRangeKind::Region => "region",
+            FoldingRangeKind::Custom(any) => any,
+        }
     }
 }
 
@@ -11411,6 +11477,17 @@ impl fmt::Display for UniquenessLevel {
         write!(f, "{s}")
     }
 }
+impl UniquenessLevel {
+    pub fn as_str(&self) -> &str {
+        match self {
+            UniquenessLevel::Document => "document",
+            UniquenessLevel::Project => "project",
+            UniquenessLevel::Group => "group",
+            UniquenessLevel::Scheme => "scheme",
+            UniquenessLevel::Global => "global",
+        }
+    }
+}
 
 /// The moniker kind.
 ///
@@ -11450,6 +11527,15 @@ impl fmt::Display for MonikerKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
         write!(f, "{s}")
+    }
+}
+impl MonikerKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            MonikerKind::Import => "import",
+            MonikerKind::Export => "export",
+            MonikerKind::Local => "local",
+        }
     }
 }
 
@@ -11966,6 +12052,24 @@ impl fmt::Display for CodeActionKind {
         write!(f, "{s}")
     }
 }
+impl CodeActionKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            CodeActionKind::Empty => "",
+            CodeActionKind::QuickFix => "quickfix",
+            CodeActionKind::Refactor => "refactor",
+            CodeActionKind::RefactorExtract => "refactor.extract",
+            CodeActionKind::RefactorInline => "refactor.inline",
+            CodeActionKind::RefactorMove => "refactor.move",
+            CodeActionKind::RefactorRewrite => "refactor.rewrite",
+            CodeActionKind::Source => "source",
+            CodeActionKind::SourceOrganizeImports => "source.organizeImports",
+            CodeActionKind::SourceFixAll => "source.fixAll",
+            CodeActionKind::Notebook => "notebook",
+            CodeActionKind::Custom(any) => any,
+        }
+    }
+}
 
 /// Code action tags are extra annotations that tweak the behavior of a code action.
 ///
@@ -12029,6 +12133,15 @@ impl fmt::Display for TraceValue {
         write!(f, "{s}")
     }
 }
+impl TraceValue {
+    pub fn as_str(&self) -> &str {
+        match self {
+            TraceValue::Off => "off",
+            TraceValue::Messages => "messages",
+            TraceValue::Verbose => "verbose",
+        }
+    }
+}
 
 /// Describes the content type that a client supports in various
 /// result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
@@ -12065,6 +12178,14 @@ impl fmt::Display for MarkupKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
         write!(f, "{s}")
+    }
+}
+impl MarkupKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            MarkupKind::PlainText => "plaintext",
+            MarkupKind::Markdown => "markdown",
+        }
     }
 }
 
@@ -12360,6 +12481,74 @@ impl fmt::Display for LanguageKind {
         write!(f, "{s}")
     }
 }
+impl LanguageKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            LanguageKind::ABAP => "abap",
+            LanguageKind::WindowsBat => "bat",
+            LanguageKind::BibTeX => "bibtex",
+            LanguageKind::Clojure => "clojure",
+            LanguageKind::Coffeescript => "coffeescript",
+            LanguageKind::C => "c",
+            LanguageKind::CPP => "cpp",
+            LanguageKind::CSharp => "csharp",
+            LanguageKind::CSS => "css",
+            LanguageKind::D => "d",
+            LanguageKind::Delphi => "pascal",
+            LanguageKind::Diff => "diff",
+            LanguageKind::Dart => "dart",
+            LanguageKind::Dockerfile => "dockerfile",
+            LanguageKind::Elixir => "elixir",
+            LanguageKind::Erlang => "erlang",
+            LanguageKind::FSharp => "fsharp",
+            LanguageKind::GitCommit => "git-commit",
+            LanguageKind::GitRebase => "rebase",
+            LanguageKind::Go => "go",
+            LanguageKind::Groovy => "groovy",
+            LanguageKind::Handlebars => "handlebars",
+            LanguageKind::Haskell => "haskell",
+            LanguageKind::HTML => "html",
+            LanguageKind::Ini => "ini",
+            LanguageKind::Java => "java",
+            LanguageKind::JavaScript => "javascript",
+            LanguageKind::JavaScriptReact => "javascriptreact",
+            LanguageKind::JSON => "json",
+            LanguageKind::LaTeX => "latex",
+            LanguageKind::Less => "less",
+            LanguageKind::Lua => "lua",
+            LanguageKind::Makefile => "makefile",
+            LanguageKind::Markdown => "markdown",
+            LanguageKind::ObjectiveC => "objective-c",
+            LanguageKind::ObjectiveCPP => "objective-cpp",
+            LanguageKind::Pascal => "pascal",
+            LanguageKind::Perl => "perl",
+            LanguageKind::Perl6 => "perl6",
+            LanguageKind::PHP => "php",
+            LanguageKind::Powershell => "powershell",
+            LanguageKind::Pug => "jade",
+            LanguageKind::Python => "python",
+            LanguageKind::R => "r",
+            LanguageKind::Razor => "razor",
+            LanguageKind::Ruby => "ruby",
+            LanguageKind::Rust => "rust",
+            LanguageKind::SCSS => "scss",
+            LanguageKind::SASS => "sass",
+            LanguageKind::Scala => "scala",
+            LanguageKind::ShaderLab => "shaderlab",
+            LanguageKind::ShellScript => "shellscript",
+            LanguageKind::SQL => "sql",
+            LanguageKind::Swift => "swift",
+            LanguageKind::TypeScript => "typescript",
+            LanguageKind::TypeScriptReact => "typescriptreact",
+            LanguageKind::TeX => "tex",
+            LanguageKind::VisualBasic => "vb",
+            LanguageKind::XML => "xml",
+            LanguageKind::XSL => "xsl",
+            LanguageKind::YAML => "yaml",
+            LanguageKind::Custom(any) => any,
+        }
+    }
+}
 
 /// Describes how an [inline completion provider][InlineCompletionItemProvider] was triggered.
 ///
@@ -12455,6 +12644,16 @@ impl fmt::Display for PositionEncodingKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
         write!(f, "{s}")
+    }
+}
+impl PositionEncodingKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            PositionEncodingKind::UTF8 => "utf-8",
+            PositionEncodingKind::UTF16 => "utf-16",
+            PositionEncodingKind::UTF32 => "utf-32",
+            PositionEncodingKind::Custom(any) => any,
+        }
     }
 }
 
@@ -12767,6 +12966,14 @@ impl fmt::Display for FileOperationPatternKind {
         write!(f, "{s}")
     }
 }
+impl FileOperationPatternKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            FileOperationPatternKind::File => "file",
+            FileOperationPatternKind::Folder => "folder",
+        }
+    }
+}
 
 /// A notebook cell kind.
 ///
@@ -12834,6 +13041,15 @@ impl fmt::Display for ResourceOperationKind {
         write!(f, "{s}")
     }
 }
+impl ResourceOperationKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            ResourceOperationKind::Create => "create",
+            ResourceOperationKind::Rename => "rename",
+            ResourceOperationKind::Delete => "delete",
+        }
+    }
+}
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "String", try_from = "String")]
@@ -12880,6 +13096,16 @@ impl fmt::Display for FailureHandlingKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
         write!(f, "{s}")
+    }
+}
+impl FailureHandlingKind {
+    pub fn as_str(&self) -> &str {
+        match self {
+            FailureHandlingKind::Abort => "abort",
+            FailureHandlingKind::Transactional => "transactional",
+            FailureHandlingKind::TextOnlyTransactional => "textOnlyTransactional",
+            FailureHandlingKind::Undo => "undo",
+        }
     }
 }
 
@@ -12932,6 +13158,13 @@ impl fmt::Display for TokenFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = (*self).into();
         write!(f, "{s}")
+    }
+}
+impl TokenFormat {
+    pub fn as_str(&self) -> &str {
+        match self {
+            TokenFormat::Relative => "relative",
+        }
     }
 }
 
@@ -13441,6 +13674,122 @@ impl fmt::Display for LspRequestMethod {
         write!(f, "{s}")
     }
 }
+impl LspRequestMethod {
+    pub fn as_str(&self) -> &str {
+        match self {
+            LspRequestMethod::TextDocumentImplementation => "textDocument/implementation",
+            LspRequestMethod::TextDocumentTypeDefinition => "textDocument/typeDefinition",
+            LspRequestMethod::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
+            LspRequestMethod::WorkspaceConfiguration => "workspace/configuration",
+            LspRequestMethod::TextDocumentDocumentColor => "textDocument/documentColor",
+            LspRequestMethod::TextDocumentColorPresentation => {
+                "textDocument/colorPresentation"
+            }
+            LspRequestMethod::TextDocumentFoldingRange => "textDocument/foldingRange",
+            LspRequestMethod::WorkspaceFoldingRangeRefresh => {
+                "workspace/foldingRange/refresh"
+            }
+            LspRequestMethod::TextDocumentDeclaration => "textDocument/declaration",
+            LspRequestMethod::TextDocumentSelectionRange => "textDocument/selectionRange",
+            LspRequestMethod::WindowWorkDoneProgressCreate => {
+                "window/workDoneProgress/create"
+            }
+            LspRequestMethod::TextDocumentPrepareCallHierarchy => {
+                "textDocument/prepareCallHierarchy"
+            }
+            LspRequestMethod::CallHierarchyIncomingCalls => "callHierarchy/incomingCalls",
+            LspRequestMethod::CallHierarchyOutgoingCalls => "callHierarchy/outgoingCalls",
+            LspRequestMethod::TextDocumentSemanticTokensFull => {
+                "textDocument/semanticTokens/full"
+            }
+            LspRequestMethod::TextDocumentSemanticTokensFullDelta => {
+                "textDocument/semanticTokens/full/delta"
+            }
+            LspRequestMethod::TextDocumentSemanticTokensRange => {
+                "textDocument/semanticTokens/range"
+            }
+            LspRequestMethod::WorkspaceSemanticTokensRefresh => {
+                "workspace/semanticTokens/refresh"
+            }
+            LspRequestMethod::WindowShowDocument => "window/showDocument",
+            LspRequestMethod::TextDocumentLinkedEditingRange => {
+                "textDocument/linkedEditingRange"
+            }
+            LspRequestMethod::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
+            LspRequestMethod::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
+            LspRequestMethod::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
+            LspRequestMethod::TextDocumentMoniker => "textDocument/moniker",
+            LspRequestMethod::TextDocumentPrepareTypeHierarchy => {
+                "textDocument/prepareTypeHierarchy"
+            }
+            LspRequestMethod::TypeHierarchySupertypes => "typeHierarchy/supertypes",
+            LspRequestMethod::TypeHierarchySubtypes => "typeHierarchy/subtypes",
+            LspRequestMethod::TextDocumentInlineValue => "textDocument/inlineValue",
+            LspRequestMethod::WorkspaceInlineValueRefresh => {
+                "workspace/inlineValue/refresh"
+            }
+            LspRequestMethod::TextDocumentInlayHint => "textDocument/inlayHint",
+            LspRequestMethod::InlayHintResolve => "inlayHint/resolve",
+            LspRequestMethod::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
+            LspRequestMethod::TextDocumentDiagnostic => "textDocument/diagnostic",
+            LspRequestMethod::WorkspaceDiagnostic => "workspace/diagnostic",
+            LspRequestMethod::WorkspaceDiagnosticRefresh => {
+                "workspace/diagnostic/refresh"
+            }
+            LspRequestMethod::TextDocumentInlineCompletion => {
+                "textDocument/inlineCompletion"
+            }
+            LspRequestMethod::WorkspaceTextDocumentContent => {
+                "workspace/textDocumentContent"
+            }
+            LspRequestMethod::WorkspaceTextDocumentContentRefresh => {
+                "workspace/textDocumentContent/refresh"
+            }
+            LspRequestMethod::ClientRegisterCapability => "client/registerCapability",
+            LspRequestMethod::ClientUnregisterCapability => "client/unregisterCapability",
+            LspRequestMethod::Initialize => "initialize",
+            LspRequestMethod::Shutdown => "shutdown",
+            LspRequestMethod::WindowShowMessageRequest => "window/showMessageRequest",
+            LspRequestMethod::TextDocumentWillSaveWaitUntil => {
+                "textDocument/willSaveWaitUntil"
+            }
+            LspRequestMethod::TextDocumentCompletion => "textDocument/completion",
+            LspRequestMethod::CompletionItemResolve => "completionItem/resolve",
+            LspRequestMethod::TextDocumentHover => "textDocument/hover",
+            LspRequestMethod::TextDocumentSignatureHelp => "textDocument/signatureHelp",
+            LspRequestMethod::TextDocumentDefinition => "textDocument/definition",
+            LspRequestMethod::TextDocumentReferences => "textDocument/references",
+            LspRequestMethod::TextDocumentDocumentHighlight => {
+                "textDocument/documentHighlight"
+            }
+            LspRequestMethod::TextDocumentDocumentSymbol => "textDocument/documentSymbol",
+            LspRequestMethod::TextDocumentCodeAction => "textDocument/codeAction",
+            LspRequestMethod::CodeActionResolve => "codeAction/resolve",
+            LspRequestMethod::WorkspaceSymbol => "workspace/symbol",
+            LspRequestMethod::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
+            LspRequestMethod::TextDocumentCodeLens => "textDocument/codeLens",
+            LspRequestMethod::CodeLensResolve => "codeLens/resolve",
+            LspRequestMethod::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
+            LspRequestMethod::TextDocumentDocumentLink => "textDocument/documentLink",
+            LspRequestMethod::DocumentLinkResolve => "documentLink/resolve",
+            LspRequestMethod::TextDocumentFormatting => "textDocument/formatting",
+            LspRequestMethod::TextDocumentRangeFormatting => {
+                "textDocument/rangeFormatting"
+            }
+            LspRequestMethod::TextDocumentRangesFormatting => {
+                "textDocument/rangesFormatting"
+            }
+            LspRequestMethod::TextDocumentOnTypeFormatting => {
+                "textDocument/onTypeFormatting"
+            }
+            LspRequestMethod::TextDocumentRename => "textDocument/rename",
+            LspRequestMethod::TextDocumentPrepareRename => "textDocument/prepareRename",
+            LspRequestMethod::WorkspaceExecuteCommand => "workspace/executeCommand",
+            LspRequestMethod::WorkspaceApplyEdit => "workspace/applyEdit",
+            LspRequestMethod::Custom(any) => any,
+        }
+    }
+}
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "String", from = "String")]
@@ -13646,6 +13995,53 @@ impl fmt::Display for LspNotificationMethod {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
         write!(f, "{s}")
+    }
+}
+impl LspNotificationMethod {
+    pub fn as_str(&self) -> &str {
+        match self {
+            LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders => {
+                "workspace/didChangeWorkspaceFolders"
+            }
+            LspNotificationMethod::WindowWorkDoneProgressCancel => {
+                "window/workDoneProgress/cancel"
+            }
+            LspNotificationMethod::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
+            LspNotificationMethod::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
+            LspNotificationMethod::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
+            LspNotificationMethod::NotebookDocumentDidOpen => "notebookDocument/didOpen",
+            LspNotificationMethod::NotebookDocumentDidChange => {
+                "notebookDocument/didChange"
+            }
+            LspNotificationMethod::NotebookDocumentDidSave => "notebookDocument/didSave",
+            LspNotificationMethod::NotebookDocumentDidClose => {
+                "notebookDocument/didClose"
+            }
+            LspNotificationMethod::Initialized => "initialized",
+            LspNotificationMethod::Exit => "exit",
+            LspNotificationMethod::WorkspaceDidChangeConfiguration => {
+                "workspace/didChangeConfiguration"
+            }
+            LspNotificationMethod::WindowShowMessage => "window/showMessage",
+            LspNotificationMethod::WindowLogMessage => "window/logMessage",
+            LspNotificationMethod::TelemetryEvent => "telemetry/event",
+            LspNotificationMethod::TextDocumentDidOpen => "textDocument/didOpen",
+            LspNotificationMethod::TextDocumentDidChange => "textDocument/didChange",
+            LspNotificationMethod::TextDocumentDidClose => "textDocument/didClose",
+            LspNotificationMethod::TextDocumentDidSave => "textDocument/didSave",
+            LspNotificationMethod::TextDocumentWillSave => "textDocument/willSave",
+            LspNotificationMethod::WorkspaceDidChangeWatchedFiles => {
+                "workspace/didChangeWatchedFiles"
+            }
+            LspNotificationMethod::TextDocumentPublishDiagnostics => {
+                "textDocument/publishDiagnostics"
+            }
+            LspNotificationMethod::SetTrace => "$/setTrace",
+            LspNotificationMethod::LogTrace => "$/logTrace",
+            LspNotificationMethod::CancelRequest => "$/cancelRequest",
+            LspNotificationMethod::Progress => "$/progress",
+            LspNotificationMethod::Custom(any) => any,
+        }
     }
 }
 
