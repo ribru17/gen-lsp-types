@@ -237,17 +237,17 @@ mod test {
         let range4 = Range::default();
         assert!(range4 < range3);
 
-        let method: String = LspRequestMethods::TextDocumentOnTypeFormatting.into();
+        let method: String = LspRequestMethod::TextDocumentOnTypeFormatting.into();
         assert_eq!(method, "textDocument/onTypeFormatting");
-        let method = LspRequestMethods::Shutdown.to_string();
+        let method = LspRequestMethod::Shutdown.to_string();
         assert_eq!(method, "shutdown");
-        let method = LspRequestMethods::Custom(Cow::Borrowed("foo")).to_string();
+        let method = LspRequestMethod::Custom(Cow::Borrowed("foo")).to_string();
         assert_eq!(method, "foo");
-        let method = LspNotificationMethods::Custom(Cow::Borrowed("foo")).to_string();
+        let method = LspNotificationMethod::Custom(Cow::Borrowed("foo")).to_string();
         assert_eq!(method, "foo");
-        let method = LspNotificationMethods::CancelRequest.to_string();
+        let method = LspNotificationMethod::CancelRequest.to_string();
         assert_eq!(method, "$/cancelRequest");
-        let method = LspNotificationMethods::WorkspaceDidChangeWatchedFiles.to_string();
+        let method = LspNotificationMethod::WorkspaceDidChangeWatchedFiles.to_string();
         assert_eq!(method, "workspace/didChangeWatchedFiles");
     }
 
@@ -322,7 +322,7 @@ mod test {
     #[test]
     fn str_enum_into() {
         const CONSTANT: &str = "my_custom_variant";
-        let _parsed: LspNotificationMethods = CONSTANT.into();
+        let _parsed: LspNotificationMethod = CONSTANT.into();
     }
 
     #[test]
@@ -581,8 +581,8 @@ mod test {
         impl Request for ParentModule {
             type Params = ();
             type Result = Option<DefinitionResponse>;
-            const METHOD: LspRequestMethods =
-                LspRequestMethods::Custom(Cow::Borrowed("experimental/parentModule"));
+            const METHOD: LspRequestMethod =
+                LspRequestMethod::Custom(Cow::Borrowed("experimental/parentModule"));
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
         }
 
@@ -596,8 +596,8 @@ mod test {
         struct ServerStatusNotification;
         impl Notification for ServerStatusNotification {
             type Params = ();
-            const METHOD: LspNotificationMethods =
-                LspNotificationMethods::new("experimental/serverStatus");
+            const METHOD: LspNotificationMethod =
+                LspNotificationMethod::new("experimental/serverStatus");
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
         }
 

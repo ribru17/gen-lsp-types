@@ -30,13 +30,13 @@ pub enum MessageDirection {
 }
 pub trait Notification {
     type Params: DeserializeOwned + Serialize + Send + Sync;
-    const METHOD: LspNotificationMethods;
+    const METHOD: LspNotificationMethod;
     const MESSAGE_DIRECTION: MessageDirection;
 }
 pub trait Request {
     type Params: DeserializeOwned + Serialize + Send + Sync;
     type Result: DeserializeOwned + Serialize + Send + Sync;
-    const METHOD: LspRequestMethods;
+    const METHOD: LspRequestMethod;
     const MESSAGE_DIRECTION: MessageDirection;
 }
 #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
@@ -12937,7 +12937,7 @@ impl fmt::Display for TokenFormat {
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "String", from = "String")]
-pub enum LspRequestMethods {
+pub enum LspRequestMethod {
     TextDocumentImplementation,
     TextDocumentTypeDefinition,
     WorkspaceWorkspaceFolders,
@@ -13011,461 +13011,431 @@ pub enum LspRequestMethods {
     #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
-impl From<LspRequestMethods> for String {
-    fn from(e: LspRequestMethods) -> Self {
+impl From<LspRequestMethod> for String {
+    fn from(e: LspRequestMethod) -> Self {
         match e {
-            LspRequestMethods::TextDocumentImplementation => {
+            LspRequestMethod::TextDocumentImplementation => {
                 "textDocument/implementation".to_string()
             }
-            LspRequestMethods::TextDocumentTypeDefinition => {
+            LspRequestMethod::TextDocumentTypeDefinition => {
                 "textDocument/typeDefinition".to_string()
             }
-            LspRequestMethods::WorkspaceWorkspaceFolders => {
+            LspRequestMethod::WorkspaceWorkspaceFolders => {
                 "workspace/workspaceFolders".to_string()
             }
-            LspRequestMethods::WorkspaceConfiguration => {
+            LspRequestMethod::WorkspaceConfiguration => {
                 "workspace/configuration".to_string()
             }
-            LspRequestMethods::TextDocumentDocumentColor => {
+            LspRequestMethod::TextDocumentDocumentColor => {
                 "textDocument/documentColor".to_string()
             }
-            LspRequestMethods::TextDocumentColorPresentation => {
+            LspRequestMethod::TextDocumentColorPresentation => {
                 "textDocument/colorPresentation".to_string()
             }
-            LspRequestMethods::TextDocumentFoldingRange => {
+            LspRequestMethod::TextDocumentFoldingRange => {
                 "textDocument/foldingRange".to_string()
             }
-            LspRequestMethods::WorkspaceFoldingRangeRefresh => {
+            LspRequestMethod::WorkspaceFoldingRangeRefresh => {
                 "workspace/foldingRange/refresh".to_string()
             }
-            LspRequestMethods::TextDocumentDeclaration => {
+            LspRequestMethod::TextDocumentDeclaration => {
                 "textDocument/declaration".to_string()
             }
-            LspRequestMethods::TextDocumentSelectionRange => {
+            LspRequestMethod::TextDocumentSelectionRange => {
                 "textDocument/selectionRange".to_string()
             }
-            LspRequestMethods::WindowWorkDoneProgressCreate => {
+            LspRequestMethod::WindowWorkDoneProgressCreate => {
                 "window/workDoneProgress/create".to_string()
             }
-            LspRequestMethods::TextDocumentPrepareCallHierarchy => {
+            LspRequestMethod::TextDocumentPrepareCallHierarchy => {
                 "textDocument/prepareCallHierarchy".to_string()
             }
-            LspRequestMethods::CallHierarchyIncomingCalls => {
+            LspRequestMethod::CallHierarchyIncomingCalls => {
                 "callHierarchy/incomingCalls".to_string()
             }
-            LspRequestMethods::CallHierarchyOutgoingCalls => {
+            LspRequestMethod::CallHierarchyOutgoingCalls => {
                 "callHierarchy/outgoingCalls".to_string()
             }
-            LspRequestMethods::TextDocumentSemanticTokensFull => {
+            LspRequestMethod::TextDocumentSemanticTokensFull => {
                 "textDocument/semanticTokens/full".to_string()
             }
-            LspRequestMethods::TextDocumentSemanticTokensFullDelta => {
+            LspRequestMethod::TextDocumentSemanticTokensFullDelta => {
                 "textDocument/semanticTokens/full/delta".to_string()
             }
-            LspRequestMethods::TextDocumentSemanticTokensRange => {
+            LspRequestMethod::TextDocumentSemanticTokensRange => {
                 "textDocument/semanticTokens/range".to_string()
             }
-            LspRequestMethods::WorkspaceSemanticTokensRefresh => {
+            LspRequestMethod::WorkspaceSemanticTokensRefresh => {
                 "workspace/semanticTokens/refresh".to_string()
             }
-            LspRequestMethods::WindowShowDocument => "window/showDocument".to_string(),
-            LspRequestMethods::TextDocumentLinkedEditingRange => {
+            LspRequestMethod::WindowShowDocument => "window/showDocument".to_string(),
+            LspRequestMethod::TextDocumentLinkedEditingRange => {
                 "textDocument/linkedEditingRange".to_string()
             }
-            LspRequestMethods::WorkspaceWillCreateFiles => {
+            LspRequestMethod::WorkspaceWillCreateFiles => {
                 "workspace/willCreateFiles".to_string()
             }
-            LspRequestMethods::WorkspaceWillRenameFiles => {
+            LspRequestMethod::WorkspaceWillRenameFiles => {
                 "workspace/willRenameFiles".to_string()
             }
-            LspRequestMethods::WorkspaceWillDeleteFiles => {
+            LspRequestMethod::WorkspaceWillDeleteFiles => {
                 "workspace/willDeleteFiles".to_string()
             }
-            LspRequestMethods::TextDocumentMoniker => "textDocument/moniker".to_string(),
-            LspRequestMethods::TextDocumentPrepareTypeHierarchy => {
+            LspRequestMethod::TextDocumentMoniker => "textDocument/moniker".to_string(),
+            LspRequestMethod::TextDocumentPrepareTypeHierarchy => {
                 "textDocument/prepareTypeHierarchy".to_string()
             }
-            LspRequestMethods::TypeHierarchySupertypes => {
+            LspRequestMethod::TypeHierarchySupertypes => {
                 "typeHierarchy/supertypes".to_string()
             }
-            LspRequestMethods::TypeHierarchySubtypes => {
+            LspRequestMethod::TypeHierarchySubtypes => {
                 "typeHierarchy/subtypes".to_string()
             }
-            LspRequestMethods::TextDocumentInlineValue => {
+            LspRequestMethod::TextDocumentInlineValue => {
                 "textDocument/inlineValue".to_string()
             }
-            LspRequestMethods::WorkspaceInlineValueRefresh => {
+            LspRequestMethod::WorkspaceInlineValueRefresh => {
                 "workspace/inlineValue/refresh".to_string()
             }
-            LspRequestMethods::TextDocumentInlayHint => {
+            LspRequestMethod::TextDocumentInlayHint => {
                 "textDocument/inlayHint".to_string()
             }
-            LspRequestMethods::InlayHintResolve => "inlayHint/resolve".to_string(),
-            LspRequestMethods::WorkspaceInlayHintRefresh => {
+            LspRequestMethod::InlayHintResolve => "inlayHint/resolve".to_string(),
+            LspRequestMethod::WorkspaceInlayHintRefresh => {
                 "workspace/inlayHint/refresh".to_string()
             }
-            LspRequestMethods::TextDocumentDiagnostic => {
+            LspRequestMethod::TextDocumentDiagnostic => {
                 "textDocument/diagnostic".to_string()
             }
-            LspRequestMethods::WorkspaceDiagnostic => "workspace/diagnostic".to_string(),
-            LspRequestMethods::WorkspaceDiagnosticRefresh => {
+            LspRequestMethod::WorkspaceDiagnostic => "workspace/diagnostic".to_string(),
+            LspRequestMethod::WorkspaceDiagnosticRefresh => {
                 "workspace/diagnostic/refresh".to_string()
             }
-            LspRequestMethods::TextDocumentInlineCompletion => {
+            LspRequestMethod::TextDocumentInlineCompletion => {
                 "textDocument/inlineCompletion".to_string()
             }
-            LspRequestMethods::WorkspaceTextDocumentContent => {
+            LspRequestMethod::WorkspaceTextDocumentContent => {
                 "workspace/textDocumentContent".to_string()
             }
-            LspRequestMethods::WorkspaceTextDocumentContentRefresh => {
+            LspRequestMethod::WorkspaceTextDocumentContentRefresh => {
                 "workspace/textDocumentContent/refresh".to_string()
             }
-            LspRequestMethods::ClientRegisterCapability => {
+            LspRequestMethod::ClientRegisterCapability => {
                 "client/registerCapability".to_string()
             }
-            LspRequestMethods::ClientUnregisterCapability => {
+            LspRequestMethod::ClientUnregisterCapability => {
                 "client/unregisterCapability".to_string()
             }
-            LspRequestMethods::Initialize => "initialize".to_string(),
-            LspRequestMethods::Shutdown => "shutdown".to_string(),
-            LspRequestMethods::WindowShowMessageRequest => {
+            LspRequestMethod::Initialize => "initialize".to_string(),
+            LspRequestMethod::Shutdown => "shutdown".to_string(),
+            LspRequestMethod::WindowShowMessageRequest => {
                 "window/showMessageRequest".to_string()
             }
-            LspRequestMethods::TextDocumentWillSaveWaitUntil => {
+            LspRequestMethod::TextDocumentWillSaveWaitUntil => {
                 "textDocument/willSaveWaitUntil".to_string()
             }
-            LspRequestMethods::TextDocumentCompletion => {
+            LspRequestMethod::TextDocumentCompletion => {
                 "textDocument/completion".to_string()
             }
-            LspRequestMethods::CompletionItemResolve => {
+            LspRequestMethod::CompletionItemResolve => {
                 "completionItem/resolve".to_string()
             }
-            LspRequestMethods::TextDocumentHover => "textDocument/hover".to_string(),
-            LspRequestMethods::TextDocumentSignatureHelp => {
+            LspRequestMethod::TextDocumentHover => "textDocument/hover".to_string(),
+            LspRequestMethod::TextDocumentSignatureHelp => {
                 "textDocument/signatureHelp".to_string()
             }
-            LspRequestMethods::TextDocumentDefinition => {
+            LspRequestMethod::TextDocumentDefinition => {
                 "textDocument/definition".to_string()
             }
-            LspRequestMethods::TextDocumentReferences => {
+            LspRequestMethod::TextDocumentReferences => {
                 "textDocument/references".to_string()
             }
-            LspRequestMethods::TextDocumentDocumentHighlight => {
+            LspRequestMethod::TextDocumentDocumentHighlight => {
                 "textDocument/documentHighlight".to_string()
             }
-            LspRequestMethods::TextDocumentDocumentSymbol => {
+            LspRequestMethod::TextDocumentDocumentSymbol => {
                 "textDocument/documentSymbol".to_string()
             }
-            LspRequestMethods::TextDocumentCodeAction => {
+            LspRequestMethod::TextDocumentCodeAction => {
                 "textDocument/codeAction".to_string()
             }
-            LspRequestMethods::CodeActionResolve => "codeAction/resolve".to_string(),
-            LspRequestMethods::WorkspaceSymbol => "workspace/symbol".to_string(),
-            LspRequestMethods::WorkspaceSymbolResolve => {
+            LspRequestMethod::CodeActionResolve => "codeAction/resolve".to_string(),
+            LspRequestMethod::WorkspaceSymbol => "workspace/symbol".to_string(),
+            LspRequestMethod::WorkspaceSymbolResolve => {
                 "workspaceSymbol/resolve".to_string()
             }
-            LspRequestMethods::TextDocumentCodeLens => {
-                "textDocument/codeLens".to_string()
-            }
-            LspRequestMethods::CodeLensResolve => "codeLens/resolve".to_string(),
-            LspRequestMethods::WorkspaceCodeLensRefresh => {
+            LspRequestMethod::TextDocumentCodeLens => "textDocument/codeLens".to_string(),
+            LspRequestMethod::CodeLensResolve => "codeLens/resolve".to_string(),
+            LspRequestMethod::WorkspaceCodeLensRefresh => {
                 "workspace/codeLens/refresh".to_string()
             }
-            LspRequestMethods::TextDocumentDocumentLink => {
+            LspRequestMethod::TextDocumentDocumentLink => {
                 "textDocument/documentLink".to_string()
             }
-            LspRequestMethods::DocumentLinkResolve => "documentLink/resolve".to_string(),
-            LspRequestMethods::TextDocumentFormatting => {
+            LspRequestMethod::DocumentLinkResolve => "documentLink/resolve".to_string(),
+            LspRequestMethod::TextDocumentFormatting => {
                 "textDocument/formatting".to_string()
             }
-            LspRequestMethods::TextDocumentRangeFormatting => {
+            LspRequestMethod::TextDocumentRangeFormatting => {
                 "textDocument/rangeFormatting".to_string()
             }
-            LspRequestMethods::TextDocumentRangesFormatting => {
+            LspRequestMethod::TextDocumentRangesFormatting => {
                 "textDocument/rangesFormatting".to_string()
             }
-            LspRequestMethods::TextDocumentOnTypeFormatting => {
+            LspRequestMethod::TextDocumentOnTypeFormatting => {
                 "textDocument/onTypeFormatting".to_string()
             }
-            LspRequestMethods::TextDocumentRename => "textDocument/rename".to_string(),
-            LspRequestMethods::TextDocumentPrepareRename => {
+            LspRequestMethod::TextDocumentRename => "textDocument/rename".to_string(),
+            LspRequestMethod::TextDocumentPrepareRename => {
                 "textDocument/prepareRename".to_string()
             }
-            LspRequestMethods::WorkspaceExecuteCommand => {
+            LspRequestMethod::WorkspaceExecuteCommand => {
                 "workspace/executeCommand".to_string()
             }
-            LspRequestMethods::WorkspaceApplyEdit => "workspace/applyEdit".to_string(),
-            LspRequestMethods::Custom(any) => any.into_owned(),
+            LspRequestMethod::WorkspaceApplyEdit => "workspace/applyEdit".to_string(),
+            LspRequestMethod::Custom(any) => any.into_owned(),
         }
     }
 }
-impl From<String> for LspRequestMethods {
+impl From<String> for LspRequestMethod {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "textDocument/implementation" => {
-                LspRequestMethods::TextDocumentImplementation
-            }
-            "textDocument/typeDefinition" => {
-                LspRequestMethods::TextDocumentTypeDefinition
-            }
-            "workspace/workspaceFolders" => LspRequestMethods::WorkspaceWorkspaceFolders,
-            "workspace/configuration" => LspRequestMethods::WorkspaceConfiguration,
-            "textDocument/documentColor" => LspRequestMethods::TextDocumentDocumentColor,
+            "textDocument/implementation" => LspRequestMethod::TextDocumentImplementation,
+            "textDocument/typeDefinition" => LspRequestMethod::TextDocumentTypeDefinition,
+            "workspace/workspaceFolders" => LspRequestMethod::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => LspRequestMethod::WorkspaceConfiguration,
+            "textDocument/documentColor" => LspRequestMethod::TextDocumentDocumentColor,
             "textDocument/colorPresentation" => {
-                LspRequestMethods::TextDocumentColorPresentation
+                LspRequestMethod::TextDocumentColorPresentation
             }
-            "textDocument/foldingRange" => LspRequestMethods::TextDocumentFoldingRange,
+            "textDocument/foldingRange" => LspRequestMethod::TextDocumentFoldingRange,
             "workspace/foldingRange/refresh" => {
-                LspRequestMethods::WorkspaceFoldingRangeRefresh
+                LspRequestMethod::WorkspaceFoldingRangeRefresh
             }
-            "textDocument/declaration" => LspRequestMethods::TextDocumentDeclaration,
-            "textDocument/selectionRange" => {
-                LspRequestMethods::TextDocumentSelectionRange
-            }
+            "textDocument/declaration" => LspRequestMethod::TextDocumentDeclaration,
+            "textDocument/selectionRange" => LspRequestMethod::TextDocumentSelectionRange,
             "window/workDoneProgress/create" => {
-                LspRequestMethods::WindowWorkDoneProgressCreate
+                LspRequestMethod::WindowWorkDoneProgressCreate
             }
             "textDocument/prepareCallHierarchy" => {
-                LspRequestMethods::TextDocumentPrepareCallHierarchy
+                LspRequestMethod::TextDocumentPrepareCallHierarchy
             }
-            "callHierarchy/incomingCalls" => {
-                LspRequestMethods::CallHierarchyIncomingCalls
-            }
-            "callHierarchy/outgoingCalls" => {
-                LspRequestMethods::CallHierarchyOutgoingCalls
-            }
+            "callHierarchy/incomingCalls" => LspRequestMethod::CallHierarchyIncomingCalls,
+            "callHierarchy/outgoingCalls" => LspRequestMethod::CallHierarchyOutgoingCalls,
             "textDocument/semanticTokens/full" => {
-                LspRequestMethods::TextDocumentSemanticTokensFull
+                LspRequestMethod::TextDocumentSemanticTokensFull
             }
             "textDocument/semanticTokens/full/delta" => {
-                LspRequestMethods::TextDocumentSemanticTokensFullDelta
+                LspRequestMethod::TextDocumentSemanticTokensFullDelta
             }
             "textDocument/semanticTokens/range" => {
-                LspRequestMethods::TextDocumentSemanticTokensRange
+                LspRequestMethod::TextDocumentSemanticTokensRange
             }
             "workspace/semanticTokens/refresh" => {
-                LspRequestMethods::WorkspaceSemanticTokensRefresh
+                LspRequestMethod::WorkspaceSemanticTokensRefresh
             }
-            "window/showDocument" => LspRequestMethods::WindowShowDocument,
+            "window/showDocument" => LspRequestMethod::WindowShowDocument,
             "textDocument/linkedEditingRange" => {
-                LspRequestMethods::TextDocumentLinkedEditingRange
+                LspRequestMethod::TextDocumentLinkedEditingRange
             }
-            "workspace/willCreateFiles" => LspRequestMethods::WorkspaceWillCreateFiles,
-            "workspace/willRenameFiles" => LspRequestMethods::WorkspaceWillRenameFiles,
-            "workspace/willDeleteFiles" => LspRequestMethods::WorkspaceWillDeleteFiles,
-            "textDocument/moniker" => LspRequestMethods::TextDocumentMoniker,
+            "workspace/willCreateFiles" => LspRequestMethod::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => LspRequestMethod::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => LspRequestMethod::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => LspRequestMethod::TextDocumentMoniker,
             "textDocument/prepareTypeHierarchy" => {
-                LspRequestMethods::TextDocumentPrepareTypeHierarchy
+                LspRequestMethod::TextDocumentPrepareTypeHierarchy
             }
-            "typeHierarchy/supertypes" => LspRequestMethods::TypeHierarchySupertypes,
-            "typeHierarchy/subtypes" => LspRequestMethods::TypeHierarchySubtypes,
-            "textDocument/inlineValue" => LspRequestMethods::TextDocumentInlineValue,
+            "typeHierarchy/supertypes" => LspRequestMethod::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => LspRequestMethod::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => LspRequestMethod::TextDocumentInlineValue,
             "workspace/inlineValue/refresh" => {
-                LspRequestMethods::WorkspaceInlineValueRefresh
+                LspRequestMethod::WorkspaceInlineValueRefresh
             }
-            "textDocument/inlayHint" => LspRequestMethods::TextDocumentInlayHint,
-            "inlayHint/resolve" => LspRequestMethods::InlayHintResolve,
-            "workspace/inlayHint/refresh" => LspRequestMethods::WorkspaceInlayHintRefresh,
-            "textDocument/diagnostic" => LspRequestMethods::TextDocumentDiagnostic,
-            "workspace/diagnostic" => LspRequestMethods::WorkspaceDiagnostic,
+            "textDocument/inlayHint" => LspRequestMethod::TextDocumentInlayHint,
+            "inlayHint/resolve" => LspRequestMethod::InlayHintResolve,
+            "workspace/inlayHint/refresh" => LspRequestMethod::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => LspRequestMethod::TextDocumentDiagnostic,
+            "workspace/diagnostic" => LspRequestMethod::WorkspaceDiagnostic,
             "workspace/diagnostic/refresh" => {
-                LspRequestMethods::WorkspaceDiagnosticRefresh
+                LspRequestMethod::WorkspaceDiagnosticRefresh
             }
             "textDocument/inlineCompletion" => {
-                LspRequestMethods::TextDocumentInlineCompletion
+                LspRequestMethod::TextDocumentInlineCompletion
             }
             "workspace/textDocumentContent" => {
-                LspRequestMethods::WorkspaceTextDocumentContent
+                LspRequestMethod::WorkspaceTextDocumentContent
             }
             "workspace/textDocumentContent/refresh" => {
-                LspRequestMethods::WorkspaceTextDocumentContentRefresh
+                LspRequestMethod::WorkspaceTextDocumentContentRefresh
             }
-            "client/registerCapability" => LspRequestMethods::ClientRegisterCapability,
-            "client/unregisterCapability" => {
-                LspRequestMethods::ClientUnregisterCapability
-            }
-            "initialize" => LspRequestMethods::Initialize,
-            "shutdown" => LspRequestMethods::Shutdown,
-            "window/showMessageRequest" => LspRequestMethods::WindowShowMessageRequest,
+            "client/registerCapability" => LspRequestMethod::ClientRegisterCapability,
+            "client/unregisterCapability" => LspRequestMethod::ClientUnregisterCapability,
+            "initialize" => LspRequestMethod::Initialize,
+            "shutdown" => LspRequestMethod::Shutdown,
+            "window/showMessageRequest" => LspRequestMethod::WindowShowMessageRequest,
             "textDocument/willSaveWaitUntil" => {
-                LspRequestMethods::TextDocumentWillSaveWaitUntil
+                LspRequestMethod::TextDocumentWillSaveWaitUntil
             }
-            "textDocument/completion" => LspRequestMethods::TextDocumentCompletion,
-            "completionItem/resolve" => LspRequestMethods::CompletionItemResolve,
-            "textDocument/hover" => LspRequestMethods::TextDocumentHover,
-            "textDocument/signatureHelp" => LspRequestMethods::TextDocumentSignatureHelp,
-            "textDocument/definition" => LspRequestMethods::TextDocumentDefinition,
-            "textDocument/references" => LspRequestMethods::TextDocumentReferences,
+            "textDocument/completion" => LspRequestMethod::TextDocumentCompletion,
+            "completionItem/resolve" => LspRequestMethod::CompletionItemResolve,
+            "textDocument/hover" => LspRequestMethod::TextDocumentHover,
+            "textDocument/signatureHelp" => LspRequestMethod::TextDocumentSignatureHelp,
+            "textDocument/definition" => LspRequestMethod::TextDocumentDefinition,
+            "textDocument/references" => LspRequestMethod::TextDocumentReferences,
             "textDocument/documentHighlight" => {
-                LspRequestMethods::TextDocumentDocumentHighlight
+                LspRequestMethod::TextDocumentDocumentHighlight
             }
-            "textDocument/documentSymbol" => {
-                LspRequestMethods::TextDocumentDocumentSymbol
-            }
-            "textDocument/codeAction" => LspRequestMethods::TextDocumentCodeAction,
-            "codeAction/resolve" => LspRequestMethods::CodeActionResolve,
-            "workspace/symbol" => LspRequestMethods::WorkspaceSymbol,
-            "workspaceSymbol/resolve" => LspRequestMethods::WorkspaceSymbolResolve,
-            "textDocument/codeLens" => LspRequestMethods::TextDocumentCodeLens,
-            "codeLens/resolve" => LspRequestMethods::CodeLensResolve,
-            "workspace/codeLens/refresh" => LspRequestMethods::WorkspaceCodeLensRefresh,
-            "textDocument/documentLink" => LspRequestMethods::TextDocumentDocumentLink,
-            "documentLink/resolve" => LspRequestMethods::DocumentLinkResolve,
-            "textDocument/formatting" => LspRequestMethods::TextDocumentFormatting,
+            "textDocument/documentSymbol" => LspRequestMethod::TextDocumentDocumentSymbol,
+            "textDocument/codeAction" => LspRequestMethod::TextDocumentCodeAction,
+            "codeAction/resolve" => LspRequestMethod::CodeActionResolve,
+            "workspace/symbol" => LspRequestMethod::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => LspRequestMethod::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => LspRequestMethod::TextDocumentCodeLens,
+            "codeLens/resolve" => LspRequestMethod::CodeLensResolve,
+            "workspace/codeLens/refresh" => LspRequestMethod::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => LspRequestMethod::TextDocumentDocumentLink,
+            "documentLink/resolve" => LspRequestMethod::DocumentLinkResolve,
+            "textDocument/formatting" => LspRequestMethod::TextDocumentFormatting,
             "textDocument/rangeFormatting" => {
-                LspRequestMethods::TextDocumentRangeFormatting
+                LspRequestMethod::TextDocumentRangeFormatting
             }
             "textDocument/rangesFormatting" => {
-                LspRequestMethods::TextDocumentRangesFormatting
+                LspRequestMethod::TextDocumentRangesFormatting
             }
             "textDocument/onTypeFormatting" => {
-                LspRequestMethods::TextDocumentOnTypeFormatting
+                LspRequestMethod::TextDocumentOnTypeFormatting
             }
-            "textDocument/rename" => LspRequestMethods::TextDocumentRename,
-            "textDocument/prepareRename" => LspRequestMethods::TextDocumentPrepareRename,
-            "workspace/executeCommand" => LspRequestMethods::WorkspaceExecuteCommand,
-            "workspace/applyEdit" => LspRequestMethods::WorkspaceApplyEdit,
-            _ => LspRequestMethods::Custom(Cow::Owned(v)),
+            "textDocument/rename" => LspRequestMethod::TextDocumentRename,
+            "textDocument/prepareRename" => LspRequestMethod::TextDocumentPrepareRename,
+            "workspace/executeCommand" => LspRequestMethod::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => LspRequestMethod::WorkspaceApplyEdit,
+            _ => LspRequestMethod::Custom(Cow::Owned(v)),
         }
     }
 }
-impl LspRequestMethods {
-    /// Create a custom `LspRequestMethods` from a string literal.
+impl LspRequestMethod {
+    /// Create a custom `LspRequestMethod` from a string literal.
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
 }
-impl From<&'static str> for LspRequestMethods {
+impl From<&'static str> for LspRequestMethod {
     fn from(s: &'static str) -> Self {
         match s {
-            "textDocument/implementation" => {
-                LspRequestMethods::TextDocumentImplementation
-            }
-            "textDocument/typeDefinition" => {
-                LspRequestMethods::TextDocumentTypeDefinition
-            }
-            "workspace/workspaceFolders" => LspRequestMethods::WorkspaceWorkspaceFolders,
-            "workspace/configuration" => LspRequestMethods::WorkspaceConfiguration,
-            "textDocument/documentColor" => LspRequestMethods::TextDocumentDocumentColor,
+            "textDocument/implementation" => LspRequestMethod::TextDocumentImplementation,
+            "textDocument/typeDefinition" => LspRequestMethod::TextDocumentTypeDefinition,
+            "workspace/workspaceFolders" => LspRequestMethod::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => LspRequestMethod::WorkspaceConfiguration,
+            "textDocument/documentColor" => LspRequestMethod::TextDocumentDocumentColor,
             "textDocument/colorPresentation" => {
-                LspRequestMethods::TextDocumentColorPresentation
+                LspRequestMethod::TextDocumentColorPresentation
             }
-            "textDocument/foldingRange" => LspRequestMethods::TextDocumentFoldingRange,
+            "textDocument/foldingRange" => LspRequestMethod::TextDocumentFoldingRange,
             "workspace/foldingRange/refresh" => {
-                LspRequestMethods::WorkspaceFoldingRangeRefresh
+                LspRequestMethod::WorkspaceFoldingRangeRefresh
             }
-            "textDocument/declaration" => LspRequestMethods::TextDocumentDeclaration,
-            "textDocument/selectionRange" => {
-                LspRequestMethods::TextDocumentSelectionRange
-            }
+            "textDocument/declaration" => LspRequestMethod::TextDocumentDeclaration,
+            "textDocument/selectionRange" => LspRequestMethod::TextDocumentSelectionRange,
             "window/workDoneProgress/create" => {
-                LspRequestMethods::WindowWorkDoneProgressCreate
+                LspRequestMethod::WindowWorkDoneProgressCreate
             }
             "textDocument/prepareCallHierarchy" => {
-                LspRequestMethods::TextDocumentPrepareCallHierarchy
+                LspRequestMethod::TextDocumentPrepareCallHierarchy
             }
-            "callHierarchy/incomingCalls" => {
-                LspRequestMethods::CallHierarchyIncomingCalls
-            }
-            "callHierarchy/outgoingCalls" => {
-                LspRequestMethods::CallHierarchyOutgoingCalls
-            }
+            "callHierarchy/incomingCalls" => LspRequestMethod::CallHierarchyIncomingCalls,
+            "callHierarchy/outgoingCalls" => LspRequestMethod::CallHierarchyOutgoingCalls,
             "textDocument/semanticTokens/full" => {
-                LspRequestMethods::TextDocumentSemanticTokensFull
+                LspRequestMethod::TextDocumentSemanticTokensFull
             }
             "textDocument/semanticTokens/full/delta" => {
-                LspRequestMethods::TextDocumentSemanticTokensFullDelta
+                LspRequestMethod::TextDocumentSemanticTokensFullDelta
             }
             "textDocument/semanticTokens/range" => {
-                LspRequestMethods::TextDocumentSemanticTokensRange
+                LspRequestMethod::TextDocumentSemanticTokensRange
             }
             "workspace/semanticTokens/refresh" => {
-                LspRequestMethods::WorkspaceSemanticTokensRefresh
+                LspRequestMethod::WorkspaceSemanticTokensRefresh
             }
-            "window/showDocument" => LspRequestMethods::WindowShowDocument,
+            "window/showDocument" => LspRequestMethod::WindowShowDocument,
             "textDocument/linkedEditingRange" => {
-                LspRequestMethods::TextDocumentLinkedEditingRange
+                LspRequestMethod::TextDocumentLinkedEditingRange
             }
-            "workspace/willCreateFiles" => LspRequestMethods::WorkspaceWillCreateFiles,
-            "workspace/willRenameFiles" => LspRequestMethods::WorkspaceWillRenameFiles,
-            "workspace/willDeleteFiles" => LspRequestMethods::WorkspaceWillDeleteFiles,
-            "textDocument/moniker" => LspRequestMethods::TextDocumentMoniker,
+            "workspace/willCreateFiles" => LspRequestMethod::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => LspRequestMethod::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => LspRequestMethod::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => LspRequestMethod::TextDocumentMoniker,
             "textDocument/prepareTypeHierarchy" => {
-                LspRequestMethods::TextDocumentPrepareTypeHierarchy
+                LspRequestMethod::TextDocumentPrepareTypeHierarchy
             }
-            "typeHierarchy/supertypes" => LspRequestMethods::TypeHierarchySupertypes,
-            "typeHierarchy/subtypes" => LspRequestMethods::TypeHierarchySubtypes,
-            "textDocument/inlineValue" => LspRequestMethods::TextDocumentInlineValue,
+            "typeHierarchy/supertypes" => LspRequestMethod::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => LspRequestMethod::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => LspRequestMethod::TextDocumentInlineValue,
             "workspace/inlineValue/refresh" => {
-                LspRequestMethods::WorkspaceInlineValueRefresh
+                LspRequestMethod::WorkspaceInlineValueRefresh
             }
-            "textDocument/inlayHint" => LspRequestMethods::TextDocumentInlayHint,
-            "inlayHint/resolve" => LspRequestMethods::InlayHintResolve,
-            "workspace/inlayHint/refresh" => LspRequestMethods::WorkspaceInlayHintRefresh,
-            "textDocument/diagnostic" => LspRequestMethods::TextDocumentDiagnostic,
-            "workspace/diagnostic" => LspRequestMethods::WorkspaceDiagnostic,
+            "textDocument/inlayHint" => LspRequestMethod::TextDocumentInlayHint,
+            "inlayHint/resolve" => LspRequestMethod::InlayHintResolve,
+            "workspace/inlayHint/refresh" => LspRequestMethod::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => LspRequestMethod::TextDocumentDiagnostic,
+            "workspace/diagnostic" => LspRequestMethod::WorkspaceDiagnostic,
             "workspace/diagnostic/refresh" => {
-                LspRequestMethods::WorkspaceDiagnosticRefresh
+                LspRequestMethod::WorkspaceDiagnosticRefresh
             }
             "textDocument/inlineCompletion" => {
-                LspRequestMethods::TextDocumentInlineCompletion
+                LspRequestMethod::TextDocumentInlineCompletion
             }
             "workspace/textDocumentContent" => {
-                LspRequestMethods::WorkspaceTextDocumentContent
+                LspRequestMethod::WorkspaceTextDocumentContent
             }
             "workspace/textDocumentContent/refresh" => {
-                LspRequestMethods::WorkspaceTextDocumentContentRefresh
+                LspRequestMethod::WorkspaceTextDocumentContentRefresh
             }
-            "client/registerCapability" => LspRequestMethods::ClientRegisterCapability,
-            "client/unregisterCapability" => {
-                LspRequestMethods::ClientUnregisterCapability
-            }
-            "initialize" => LspRequestMethods::Initialize,
-            "shutdown" => LspRequestMethods::Shutdown,
-            "window/showMessageRequest" => LspRequestMethods::WindowShowMessageRequest,
+            "client/registerCapability" => LspRequestMethod::ClientRegisterCapability,
+            "client/unregisterCapability" => LspRequestMethod::ClientUnregisterCapability,
+            "initialize" => LspRequestMethod::Initialize,
+            "shutdown" => LspRequestMethod::Shutdown,
+            "window/showMessageRequest" => LspRequestMethod::WindowShowMessageRequest,
             "textDocument/willSaveWaitUntil" => {
-                LspRequestMethods::TextDocumentWillSaveWaitUntil
+                LspRequestMethod::TextDocumentWillSaveWaitUntil
             }
-            "textDocument/completion" => LspRequestMethods::TextDocumentCompletion,
-            "completionItem/resolve" => LspRequestMethods::CompletionItemResolve,
-            "textDocument/hover" => LspRequestMethods::TextDocumentHover,
-            "textDocument/signatureHelp" => LspRequestMethods::TextDocumentSignatureHelp,
-            "textDocument/definition" => LspRequestMethods::TextDocumentDefinition,
-            "textDocument/references" => LspRequestMethods::TextDocumentReferences,
+            "textDocument/completion" => LspRequestMethod::TextDocumentCompletion,
+            "completionItem/resolve" => LspRequestMethod::CompletionItemResolve,
+            "textDocument/hover" => LspRequestMethod::TextDocumentHover,
+            "textDocument/signatureHelp" => LspRequestMethod::TextDocumentSignatureHelp,
+            "textDocument/definition" => LspRequestMethod::TextDocumentDefinition,
+            "textDocument/references" => LspRequestMethod::TextDocumentReferences,
             "textDocument/documentHighlight" => {
-                LspRequestMethods::TextDocumentDocumentHighlight
+                LspRequestMethod::TextDocumentDocumentHighlight
             }
-            "textDocument/documentSymbol" => {
-                LspRequestMethods::TextDocumentDocumentSymbol
-            }
-            "textDocument/codeAction" => LspRequestMethods::TextDocumentCodeAction,
-            "codeAction/resolve" => LspRequestMethods::CodeActionResolve,
-            "workspace/symbol" => LspRequestMethods::WorkspaceSymbol,
-            "workspaceSymbol/resolve" => LspRequestMethods::WorkspaceSymbolResolve,
-            "textDocument/codeLens" => LspRequestMethods::TextDocumentCodeLens,
-            "codeLens/resolve" => LspRequestMethods::CodeLensResolve,
-            "workspace/codeLens/refresh" => LspRequestMethods::WorkspaceCodeLensRefresh,
-            "textDocument/documentLink" => LspRequestMethods::TextDocumentDocumentLink,
-            "documentLink/resolve" => LspRequestMethods::DocumentLinkResolve,
-            "textDocument/formatting" => LspRequestMethods::TextDocumentFormatting,
+            "textDocument/documentSymbol" => LspRequestMethod::TextDocumentDocumentSymbol,
+            "textDocument/codeAction" => LspRequestMethod::TextDocumentCodeAction,
+            "codeAction/resolve" => LspRequestMethod::CodeActionResolve,
+            "workspace/symbol" => LspRequestMethod::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => LspRequestMethod::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => LspRequestMethod::TextDocumentCodeLens,
+            "codeLens/resolve" => LspRequestMethod::CodeLensResolve,
+            "workspace/codeLens/refresh" => LspRequestMethod::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => LspRequestMethod::TextDocumentDocumentLink,
+            "documentLink/resolve" => LspRequestMethod::DocumentLinkResolve,
+            "textDocument/formatting" => LspRequestMethod::TextDocumentFormatting,
             "textDocument/rangeFormatting" => {
-                LspRequestMethods::TextDocumentRangeFormatting
+                LspRequestMethod::TextDocumentRangeFormatting
             }
             "textDocument/rangesFormatting" => {
-                LspRequestMethods::TextDocumentRangesFormatting
+                LspRequestMethod::TextDocumentRangesFormatting
             }
             "textDocument/onTypeFormatting" => {
-                LspRequestMethods::TextDocumentOnTypeFormatting
+                LspRequestMethod::TextDocumentOnTypeFormatting
             }
-            "textDocument/rename" => LspRequestMethods::TextDocumentRename,
-            "textDocument/prepareRename" => LspRequestMethods::TextDocumentPrepareRename,
-            "workspace/executeCommand" => LspRequestMethods::WorkspaceExecuteCommand,
-            "workspace/applyEdit" => LspRequestMethods::WorkspaceApplyEdit,
-            _ => LspRequestMethods::Custom(Cow::Borrowed(s)),
+            "textDocument/rename" => LspRequestMethod::TextDocumentRename,
+            "textDocument/prepareRename" => LspRequestMethod::TextDocumentPrepareRename,
+            "workspace/executeCommand" => LspRequestMethod::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => LspRequestMethod::WorkspaceApplyEdit,
+            _ => LspRequestMethod::Custom(Cow::Borrowed(s)),
         }
     }
 }
-impl fmt::Display for LspRequestMethods {
+impl fmt::Display for LspRequestMethod {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
         write!(f, "{s}")
@@ -13474,7 +13444,7 @@ impl fmt::Display for LspRequestMethods {
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
 #[serde(into = "String", from = "String")]
-pub enum LspNotificationMethods {
+pub enum LspNotificationMethod {
     WorkspaceDidChangeWorkspaceFolders,
     WindowWorkDoneProgressCancel,
     WorkspaceDidCreateFiles,
@@ -13505,174 +13475,174 @@ pub enum LspNotificationMethods {
     #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
-impl From<LspNotificationMethods> for String {
-    fn from(e: LspNotificationMethods) -> Self {
+impl From<LspNotificationMethod> for String {
+    fn from(e: LspNotificationMethod) -> Self {
         match e {
-            LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders => {
+            LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders => {
                 "workspace/didChangeWorkspaceFolders".to_string()
             }
-            LspNotificationMethods::WindowWorkDoneProgressCancel => {
+            LspNotificationMethod::WindowWorkDoneProgressCancel => {
                 "window/workDoneProgress/cancel".to_string()
             }
-            LspNotificationMethods::WorkspaceDidCreateFiles => {
+            LspNotificationMethod::WorkspaceDidCreateFiles => {
                 "workspace/didCreateFiles".to_string()
             }
-            LspNotificationMethods::WorkspaceDidRenameFiles => {
+            LspNotificationMethod::WorkspaceDidRenameFiles => {
                 "workspace/didRenameFiles".to_string()
             }
-            LspNotificationMethods::WorkspaceDidDeleteFiles => {
+            LspNotificationMethod::WorkspaceDidDeleteFiles => {
                 "workspace/didDeleteFiles".to_string()
             }
-            LspNotificationMethods::NotebookDocumentDidOpen => {
+            LspNotificationMethod::NotebookDocumentDidOpen => {
                 "notebookDocument/didOpen".to_string()
             }
-            LspNotificationMethods::NotebookDocumentDidChange => {
+            LspNotificationMethod::NotebookDocumentDidChange => {
                 "notebookDocument/didChange".to_string()
             }
-            LspNotificationMethods::NotebookDocumentDidSave => {
+            LspNotificationMethod::NotebookDocumentDidSave => {
                 "notebookDocument/didSave".to_string()
             }
-            LspNotificationMethods::NotebookDocumentDidClose => {
+            LspNotificationMethod::NotebookDocumentDidClose => {
                 "notebookDocument/didClose".to_string()
             }
-            LspNotificationMethods::Initialized => "initialized".to_string(),
-            LspNotificationMethods::Exit => "exit".to_string(),
-            LspNotificationMethods::WorkspaceDidChangeConfiguration => {
+            LspNotificationMethod::Initialized => "initialized".to_string(),
+            LspNotificationMethod::Exit => "exit".to_string(),
+            LspNotificationMethod::WorkspaceDidChangeConfiguration => {
                 "workspace/didChangeConfiguration".to_string()
             }
-            LspNotificationMethods::WindowShowMessage => "window/showMessage".to_string(),
-            LspNotificationMethods::WindowLogMessage => "window/logMessage".to_string(),
-            LspNotificationMethods::TelemetryEvent => "telemetry/event".to_string(),
-            LspNotificationMethods::TextDocumentDidOpen => {
+            LspNotificationMethod::WindowShowMessage => "window/showMessage".to_string(),
+            LspNotificationMethod::WindowLogMessage => "window/logMessage".to_string(),
+            LspNotificationMethod::TelemetryEvent => "telemetry/event".to_string(),
+            LspNotificationMethod::TextDocumentDidOpen => {
                 "textDocument/didOpen".to_string()
             }
-            LspNotificationMethods::TextDocumentDidChange => {
+            LspNotificationMethod::TextDocumentDidChange => {
                 "textDocument/didChange".to_string()
             }
-            LspNotificationMethods::TextDocumentDidClose => {
+            LspNotificationMethod::TextDocumentDidClose => {
                 "textDocument/didClose".to_string()
             }
-            LspNotificationMethods::TextDocumentDidSave => {
+            LspNotificationMethod::TextDocumentDidSave => {
                 "textDocument/didSave".to_string()
             }
-            LspNotificationMethods::TextDocumentWillSave => {
+            LspNotificationMethod::TextDocumentWillSave => {
                 "textDocument/willSave".to_string()
             }
-            LspNotificationMethods::WorkspaceDidChangeWatchedFiles => {
+            LspNotificationMethod::WorkspaceDidChangeWatchedFiles => {
                 "workspace/didChangeWatchedFiles".to_string()
             }
-            LspNotificationMethods::TextDocumentPublishDiagnostics => {
+            LspNotificationMethod::TextDocumentPublishDiagnostics => {
                 "textDocument/publishDiagnostics".to_string()
             }
-            LspNotificationMethods::SetTrace => "$/setTrace".to_string(),
-            LspNotificationMethods::LogTrace => "$/logTrace".to_string(),
-            LspNotificationMethods::CancelRequest => "$/cancelRequest".to_string(),
-            LspNotificationMethods::Progress => "$/progress".to_string(),
-            LspNotificationMethods::Custom(any) => any.into_owned(),
+            LspNotificationMethod::SetTrace => "$/setTrace".to_string(),
+            LspNotificationMethod::LogTrace => "$/logTrace".to_string(),
+            LspNotificationMethod::CancelRequest => "$/cancelRequest".to_string(),
+            LspNotificationMethod::Progress => "$/progress".to_string(),
+            LspNotificationMethod::Custom(any) => any.into_owned(),
         }
     }
 }
-impl From<String> for LspNotificationMethods {
+impl From<String> for LspNotificationMethod {
     fn from(v: String) -> Self {
         match v.as_str() {
             "workspace/didChangeWorkspaceFolders" => {
-                LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders
+                LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders
             }
             "window/workDoneProgress/cancel" => {
-                LspNotificationMethods::WindowWorkDoneProgressCancel
+                LspNotificationMethod::WindowWorkDoneProgressCancel
             }
-            "workspace/didCreateFiles" => LspNotificationMethods::WorkspaceDidCreateFiles,
-            "workspace/didRenameFiles" => LspNotificationMethods::WorkspaceDidRenameFiles,
-            "workspace/didDeleteFiles" => LspNotificationMethods::WorkspaceDidDeleteFiles,
-            "notebookDocument/didOpen" => LspNotificationMethods::NotebookDocumentDidOpen,
+            "workspace/didCreateFiles" => LspNotificationMethod::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => LspNotificationMethod::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => LspNotificationMethod::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => LspNotificationMethod::NotebookDocumentDidOpen,
             "notebookDocument/didChange" => {
-                LspNotificationMethods::NotebookDocumentDidChange
+                LspNotificationMethod::NotebookDocumentDidChange
             }
-            "notebookDocument/didSave" => LspNotificationMethods::NotebookDocumentDidSave,
+            "notebookDocument/didSave" => LspNotificationMethod::NotebookDocumentDidSave,
             "notebookDocument/didClose" => {
-                LspNotificationMethods::NotebookDocumentDidClose
+                LspNotificationMethod::NotebookDocumentDidClose
             }
-            "initialized" => LspNotificationMethods::Initialized,
-            "exit" => LspNotificationMethods::Exit,
+            "initialized" => LspNotificationMethod::Initialized,
+            "exit" => LspNotificationMethod::Exit,
             "workspace/didChangeConfiguration" => {
-                LspNotificationMethods::WorkspaceDidChangeConfiguration
+                LspNotificationMethod::WorkspaceDidChangeConfiguration
             }
-            "window/showMessage" => LspNotificationMethods::WindowShowMessage,
-            "window/logMessage" => LspNotificationMethods::WindowLogMessage,
-            "telemetry/event" => LspNotificationMethods::TelemetryEvent,
-            "textDocument/didOpen" => LspNotificationMethods::TextDocumentDidOpen,
-            "textDocument/didChange" => LspNotificationMethods::TextDocumentDidChange,
-            "textDocument/didClose" => LspNotificationMethods::TextDocumentDidClose,
-            "textDocument/didSave" => LspNotificationMethods::TextDocumentDidSave,
-            "textDocument/willSave" => LspNotificationMethods::TextDocumentWillSave,
+            "window/showMessage" => LspNotificationMethod::WindowShowMessage,
+            "window/logMessage" => LspNotificationMethod::WindowLogMessage,
+            "telemetry/event" => LspNotificationMethod::TelemetryEvent,
+            "textDocument/didOpen" => LspNotificationMethod::TextDocumentDidOpen,
+            "textDocument/didChange" => LspNotificationMethod::TextDocumentDidChange,
+            "textDocument/didClose" => LspNotificationMethod::TextDocumentDidClose,
+            "textDocument/didSave" => LspNotificationMethod::TextDocumentDidSave,
+            "textDocument/willSave" => LspNotificationMethod::TextDocumentWillSave,
             "workspace/didChangeWatchedFiles" => {
-                LspNotificationMethods::WorkspaceDidChangeWatchedFiles
+                LspNotificationMethod::WorkspaceDidChangeWatchedFiles
             }
             "textDocument/publishDiagnostics" => {
-                LspNotificationMethods::TextDocumentPublishDiagnostics
+                LspNotificationMethod::TextDocumentPublishDiagnostics
             }
-            "$/setTrace" => LspNotificationMethods::SetTrace,
-            "$/logTrace" => LspNotificationMethods::LogTrace,
-            "$/cancelRequest" => LspNotificationMethods::CancelRequest,
-            "$/progress" => LspNotificationMethods::Progress,
-            _ => LspNotificationMethods::Custom(Cow::Owned(v)),
+            "$/setTrace" => LspNotificationMethod::SetTrace,
+            "$/logTrace" => LspNotificationMethod::LogTrace,
+            "$/cancelRequest" => LspNotificationMethod::CancelRequest,
+            "$/progress" => LspNotificationMethod::Progress,
+            _ => LspNotificationMethod::Custom(Cow::Owned(v)),
         }
     }
 }
-impl LspNotificationMethods {
-    /// Create a custom `LspNotificationMethods` from a string literal.
+impl LspNotificationMethod {
+    /// Create a custom `LspNotificationMethod` from a string literal.
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
 }
-impl From<&'static str> for LspNotificationMethods {
+impl From<&'static str> for LspNotificationMethod {
     fn from(s: &'static str) -> Self {
         match s {
             "workspace/didChangeWorkspaceFolders" => {
-                LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders
+                LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders
             }
             "window/workDoneProgress/cancel" => {
-                LspNotificationMethods::WindowWorkDoneProgressCancel
+                LspNotificationMethod::WindowWorkDoneProgressCancel
             }
-            "workspace/didCreateFiles" => LspNotificationMethods::WorkspaceDidCreateFiles,
-            "workspace/didRenameFiles" => LspNotificationMethods::WorkspaceDidRenameFiles,
-            "workspace/didDeleteFiles" => LspNotificationMethods::WorkspaceDidDeleteFiles,
-            "notebookDocument/didOpen" => LspNotificationMethods::NotebookDocumentDidOpen,
+            "workspace/didCreateFiles" => LspNotificationMethod::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => LspNotificationMethod::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => LspNotificationMethod::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => LspNotificationMethod::NotebookDocumentDidOpen,
             "notebookDocument/didChange" => {
-                LspNotificationMethods::NotebookDocumentDidChange
+                LspNotificationMethod::NotebookDocumentDidChange
             }
-            "notebookDocument/didSave" => LspNotificationMethods::NotebookDocumentDidSave,
+            "notebookDocument/didSave" => LspNotificationMethod::NotebookDocumentDidSave,
             "notebookDocument/didClose" => {
-                LspNotificationMethods::NotebookDocumentDidClose
+                LspNotificationMethod::NotebookDocumentDidClose
             }
-            "initialized" => LspNotificationMethods::Initialized,
-            "exit" => LspNotificationMethods::Exit,
+            "initialized" => LspNotificationMethod::Initialized,
+            "exit" => LspNotificationMethod::Exit,
             "workspace/didChangeConfiguration" => {
-                LspNotificationMethods::WorkspaceDidChangeConfiguration
+                LspNotificationMethod::WorkspaceDidChangeConfiguration
             }
-            "window/showMessage" => LspNotificationMethods::WindowShowMessage,
-            "window/logMessage" => LspNotificationMethods::WindowLogMessage,
-            "telemetry/event" => LspNotificationMethods::TelemetryEvent,
-            "textDocument/didOpen" => LspNotificationMethods::TextDocumentDidOpen,
-            "textDocument/didChange" => LspNotificationMethods::TextDocumentDidChange,
-            "textDocument/didClose" => LspNotificationMethods::TextDocumentDidClose,
-            "textDocument/didSave" => LspNotificationMethods::TextDocumentDidSave,
-            "textDocument/willSave" => LspNotificationMethods::TextDocumentWillSave,
+            "window/showMessage" => LspNotificationMethod::WindowShowMessage,
+            "window/logMessage" => LspNotificationMethod::WindowLogMessage,
+            "telemetry/event" => LspNotificationMethod::TelemetryEvent,
+            "textDocument/didOpen" => LspNotificationMethod::TextDocumentDidOpen,
+            "textDocument/didChange" => LspNotificationMethod::TextDocumentDidChange,
+            "textDocument/didClose" => LspNotificationMethod::TextDocumentDidClose,
+            "textDocument/didSave" => LspNotificationMethod::TextDocumentDidSave,
+            "textDocument/willSave" => LspNotificationMethod::TextDocumentWillSave,
             "workspace/didChangeWatchedFiles" => {
-                LspNotificationMethods::WorkspaceDidChangeWatchedFiles
+                LspNotificationMethod::WorkspaceDidChangeWatchedFiles
             }
             "textDocument/publishDiagnostics" => {
-                LspNotificationMethods::TextDocumentPublishDiagnostics
+                LspNotificationMethod::TextDocumentPublishDiagnostics
             }
-            "$/setTrace" => LspNotificationMethods::SetTrace,
-            "$/logTrace" => LspNotificationMethods::LogTrace,
-            "$/cancelRequest" => LspNotificationMethods::CancelRequest,
-            "$/progress" => LspNotificationMethods::Progress,
-            _ => LspNotificationMethods::Custom(Cow::Borrowed(s)),
+            "$/setTrace" => LspNotificationMethod::SetTrace,
+            "$/logTrace" => LspNotificationMethod::LogTrace,
+            "$/cancelRequest" => LspNotificationMethod::CancelRequest,
+            "$/progress" => LspNotificationMethod::Progress,
+            _ => LspNotificationMethod::Custom(Cow::Borrowed(s)),
         }
     }
 }
-impl fmt::Display for LspNotificationMethods {
+impl fmt::Display for LspNotificationMethod {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s: String = self.clone().into();
         write!(f, "{s}")
@@ -15515,7 +15485,7 @@ impl From<Vec<WorkspaceSymbol>> for WorkspaceSymbolResponse {
 #[derive(Debug)]
 pub enum ImplementationRequest {}
 impl Request for ImplementationRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentImplementation;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentImplementation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ImplementationParams;
     type Result = Option<ImplementationResponse>;
@@ -15527,7 +15497,7 @@ impl Request for ImplementationRequest {
 #[derive(Debug)]
 pub enum TypeDefinitionRequest {}
 impl Request for TypeDefinitionRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentTypeDefinition;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentTypeDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeDefinitionParams;
     type Result = Option<TypeDefinitionResponse>;
@@ -15537,7 +15507,7 @@ impl Request for TypeDefinitionRequest {
 #[derive(Debug)]
 pub enum WorkspaceFoldersRequest {}
 impl Request for WorkspaceFoldersRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWorkspaceFolders;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWorkspaceFolders;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = Option<Vec<WorkspaceFolder>>;
@@ -15553,7 +15523,7 @@ impl Request for WorkspaceFoldersRequest {
 #[derive(Debug)]
 pub enum ConfigurationRequest {}
 impl Request for ConfigurationRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceConfiguration;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceConfiguration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ConfigurationParams;
     type Result = Vec<LspAny>;
@@ -15566,7 +15536,7 @@ impl Request for ConfigurationRequest {
 #[derive(Debug)]
 pub enum DocumentColorRequest {}
 impl Request for DocumentColorRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentColor;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentColor;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentColorParams;
     type Result = Option<Vec<ColorInformation>>;
@@ -15579,7 +15549,7 @@ impl Request for DocumentColorRequest {
 #[derive(Debug)]
 pub enum ColorPresentationRequest {}
 impl Request for ColorPresentationRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentColorPresentation;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentColorPresentation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ColorPresentationParams;
     type Result = Option<Vec<ColorPresentation>>;
@@ -15592,7 +15562,7 @@ impl Request for ColorPresentationRequest {
 #[derive(Debug)]
 pub enum FoldingRangeRequest {}
 impl Request for FoldingRangeRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentFoldingRange;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentFoldingRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = FoldingRangeParams;
     type Result = Option<Vec<FoldingRange>>;
@@ -15603,7 +15573,7 @@ impl Request for FoldingRangeRequest {
 #[derive(Debug)]
 pub enum FoldingRangeRefreshRequest {}
 impl Request for FoldingRangeRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceFoldingRangeRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceFoldingRangeRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -15616,7 +15586,7 @@ impl Request for FoldingRangeRefreshRequest {
 #[derive(Debug)]
 pub enum DeclarationRequest {}
 impl Request for DeclarationRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDeclaration;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDeclaration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeclarationParams;
     type Result = Option<DeclarationResponse>;
@@ -15629,7 +15599,7 @@ impl Request for DeclarationRequest {
 #[derive(Debug)]
 pub enum SelectionRangeRequest {}
 impl Request for SelectionRangeRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSelectionRange;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSelectionRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SelectionRangeParams;
     type Result = Option<Vec<SelectionRange>>;
@@ -15640,7 +15610,7 @@ impl Request for SelectionRangeRequest {
 #[derive(Debug)]
 pub enum WorkDoneProgressCreateRequest {}
 impl Request for WorkDoneProgressCreateRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WindowWorkDoneProgressCreate;
+    const METHOD: LspRequestMethod = LspRequestMethod::WindowWorkDoneProgressCreate;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = WorkDoneProgressCreateParams;
     type Result = ();
@@ -15653,7 +15623,7 @@ impl Request for WorkDoneProgressCreateRequest {
 #[derive(Debug)]
 pub enum CallHierarchyPrepareRequest {}
 impl Request for CallHierarchyPrepareRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareCallHierarchy;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentPrepareCallHierarchy;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CallHierarchyPrepareParams;
     type Result = Option<Vec<CallHierarchyItem>>;
@@ -15665,7 +15635,7 @@ impl Request for CallHierarchyPrepareRequest {
 #[derive(Debug)]
 pub enum CallHierarchyIncomingCallsRequest {}
 impl Request for CallHierarchyIncomingCallsRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::CallHierarchyIncomingCalls;
+    const METHOD: LspRequestMethod = LspRequestMethod::CallHierarchyIncomingCalls;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CallHierarchyIncomingCallsParams;
     type Result = Option<Vec<CallHierarchyIncomingCall>>;
@@ -15677,7 +15647,7 @@ impl Request for CallHierarchyIncomingCallsRequest {
 #[derive(Debug)]
 pub enum CallHierarchyOutgoingCallsRequest {}
 impl Request for CallHierarchyOutgoingCallsRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::CallHierarchyOutgoingCalls;
+    const METHOD: LspRequestMethod = LspRequestMethod::CallHierarchyOutgoingCalls;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CallHierarchyOutgoingCallsParams;
     type Result = Option<Vec<CallHierarchyOutgoingCall>>;
@@ -15687,7 +15657,7 @@ impl Request for CallHierarchyOutgoingCallsRequest {
 #[derive(Debug)]
 pub enum SemanticTokensRequest {}
 impl Request for SemanticTokensRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFull;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSemanticTokensFull;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensParams;
     type Result = Option<SemanticTokens>;
@@ -15697,7 +15667,7 @@ impl Request for SemanticTokensRequest {
 #[derive(Debug)]
 pub enum SemanticTokensDeltaRequest {}
 impl Request for SemanticTokensDeltaRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensFullDelta;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSemanticTokensFullDelta;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensDeltaParams;
     type Result = Option<SemanticTokensDeltaResponse>;
@@ -15707,7 +15677,7 @@ impl Request for SemanticTokensDeltaRequest {
 #[derive(Debug)]
 pub enum SemanticTokensRangeRequest {}
 impl Request for SemanticTokensRangeRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSemanticTokensRange;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSemanticTokensRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensRangeParams;
     type Result = Option<SemanticTokens>;
@@ -15717,7 +15687,7 @@ impl Request for SemanticTokensRangeRequest {
 #[derive(Debug)]
 pub enum SemanticTokensRefreshRequest {}
 impl Request for SemanticTokensRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSemanticTokensRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceSemanticTokensRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -15732,7 +15702,7 @@ impl Request for SemanticTokensRefreshRequest {
 #[derive(Debug)]
 pub enum ShowDocumentRequest {}
 impl Request for ShowDocumentRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WindowShowDocument;
+    const METHOD: LspRequestMethod = LspRequestMethod::WindowShowDocument;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ShowDocumentParams;
     type Result = ShowDocumentResult;
@@ -15744,7 +15714,7 @@ impl Request for ShowDocumentRequest {
 #[derive(Debug)]
 pub enum LinkedEditingRangeRequest {}
 impl Request for LinkedEditingRangeRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentLinkedEditingRange;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentLinkedEditingRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = LinkedEditingRangeParams;
     type Result = Option<LinkedEditingRanges>;
@@ -15761,7 +15731,7 @@ impl Request for LinkedEditingRangeRequest {
 #[derive(Debug)]
 pub enum WillCreateFilesRequest {}
 impl Request for WillCreateFilesRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillCreateFiles;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWillCreateFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CreateFilesParams;
     type Result = Option<WorkspaceEdit>;
@@ -15774,7 +15744,7 @@ impl Request for WillCreateFilesRequest {
 #[derive(Debug)]
 pub enum WillRenameFilesRequest {}
 impl Request for WillRenameFilesRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillRenameFiles;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWillRenameFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = RenameFilesParams;
     type Result = Option<WorkspaceEdit>;
@@ -15787,7 +15757,7 @@ impl Request for WillRenameFilesRequest {
 #[derive(Debug)]
 pub enum WillDeleteFilesRequest {}
 impl Request for WillDeleteFilesRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceWillDeleteFiles;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWillDeleteFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeleteFilesParams;
     type Result = Option<WorkspaceEdit>;
@@ -15799,7 +15769,7 @@ impl Request for WillDeleteFilesRequest {
 #[derive(Debug)]
 pub enum MonikerRequest {}
 impl Request for MonikerRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentMoniker;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentMoniker;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = MonikerParams;
     type Result = Option<Vec<Moniker>>;
@@ -15812,7 +15782,7 @@ impl Request for MonikerRequest {
 #[derive(Debug)]
 pub enum TypeHierarchyPrepareRequest {}
 impl Request for TypeHierarchyPrepareRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareTypeHierarchy;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentPrepareTypeHierarchy;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchyPrepareParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
@@ -15824,7 +15794,7 @@ impl Request for TypeHierarchyPrepareRequest {
 #[derive(Debug)]
 pub enum TypeHierarchySupertypesRequest {}
 impl Request for TypeHierarchySupertypesRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TypeHierarchySupertypes;
+    const METHOD: LspRequestMethod = LspRequestMethod::TypeHierarchySupertypes;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchySupertypesParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
@@ -15836,7 +15806,7 @@ impl Request for TypeHierarchySupertypesRequest {
 #[derive(Debug)]
 pub enum TypeHierarchySubtypesRequest {}
 impl Request for TypeHierarchySubtypesRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TypeHierarchySubtypes;
+    const METHOD: LspRequestMethod = LspRequestMethod::TypeHierarchySubtypes;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchySubtypesParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
@@ -15850,7 +15820,7 @@ impl Request for TypeHierarchySubtypesRequest {
 #[derive(Debug)]
 pub enum InlineValueRequest {}
 impl Request for InlineValueRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineValue;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentInlineValue;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineValueParams;
     type Result = Option<Vec<InlineValue>>;
@@ -15860,7 +15830,7 @@ impl Request for InlineValueRequest {
 #[derive(Debug)]
 pub enum InlineValueRefreshRequest {}
 impl Request for InlineValueRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceInlineValueRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceInlineValueRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -15874,7 +15844,7 @@ impl Request for InlineValueRefreshRequest {
 #[derive(Debug)]
 pub enum InlayHintRequest {}
 impl Request for InlayHintRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlayHint;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentInlayHint;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlayHintParams;
     type Result = Option<Vec<InlayHint>>;
@@ -15888,7 +15858,7 @@ impl Request for InlayHintRequest {
 #[derive(Debug)]
 pub enum InlayHintResolveRequest {}
 impl Request for InlayHintResolveRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::InlayHintResolve;
+    const METHOD: LspRequestMethod = LspRequestMethod::InlayHintResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlayHint;
     type Result = InlayHint;
@@ -15898,7 +15868,7 @@ impl Request for InlayHintResolveRequest {
 #[derive(Debug)]
 pub enum InlayHintRefreshRequest {}
 impl Request for InlayHintRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceInlayHintRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceInlayHintRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -15910,7 +15880,7 @@ impl Request for InlayHintRefreshRequest {
 #[derive(Debug)]
 pub enum DocumentDiagnosticRequest {}
 impl Request for DocumentDiagnosticRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDiagnostic;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDiagnostic;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentDiagnosticParams;
     type Result = DocumentDiagnosticReport;
@@ -15922,7 +15892,7 @@ impl Request for DocumentDiagnosticRequest {
 #[derive(Debug)]
 pub enum WorkspaceDiagnosticRequest {}
 impl Request for WorkspaceDiagnosticRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceDiagnostic;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceDiagnostic;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceDiagnosticParams;
     type Result = WorkspaceDiagnosticReport;
@@ -15934,7 +15904,7 @@ impl Request for WorkspaceDiagnosticRequest {
 #[derive(Debug)]
 pub enum DiagnosticRefreshRequest {}
 impl Request for DiagnosticRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceDiagnosticRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceDiagnosticRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -15949,7 +15919,7 @@ impl Request for DiagnosticRefreshRequest {
 #[derive(Debug)]
 pub enum InlineCompletionRequest {}
 impl Request for InlineCompletionRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentInlineCompletion;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentInlineCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineCompletionParams;
     type Result = Option<InlineCompletionResponse>;
@@ -15963,7 +15933,7 @@ impl Request for InlineCompletionRequest {
 #[derive(Debug)]
 pub enum TextDocumentContentRequest {}
 impl Request for TextDocumentContentRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceTextDocumentContent;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceTextDocumentContent;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TextDocumentContentParams;
     type Result = TextDocumentContentResult;
@@ -15977,7 +15947,7 @@ impl Request for TextDocumentContentRequest {
 #[derive(Debug)]
 pub enum TextDocumentContentRefreshRequest {}
 impl Request for TextDocumentContentRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceTextDocumentContentRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceTextDocumentContentRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = TextDocumentContentRefreshParams;
     type Result = ();
@@ -15988,7 +15958,7 @@ impl Request for TextDocumentContentRefreshRequest {
 #[derive(Debug)]
 pub enum RegistrationRequest {}
 impl Request for RegistrationRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::ClientRegisterCapability;
+    const METHOD: LspRequestMethod = LspRequestMethod::ClientRegisterCapability;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = RegistrationParams;
     type Result = ();
@@ -15999,7 +15969,7 @@ impl Request for RegistrationRequest {
 #[derive(Debug)]
 pub enum UnregistrationRequest {}
 impl Request for UnregistrationRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::ClientUnregisterCapability;
+    const METHOD: LspRequestMethod = LspRequestMethod::ClientUnregisterCapability;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = UnregistrationParams;
     type Result = ();
@@ -16013,7 +15983,7 @@ impl Request for UnregistrationRequest {
 #[derive(Debug)]
 pub enum InitializeRequest {}
 impl Request for InitializeRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::Initialize;
+    const METHOD: LspRequestMethod = LspRequestMethod::Initialize;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InitializeParams;
     type Result = InitializeResult;
@@ -16026,7 +15996,7 @@ impl Request for InitializeRequest {
 #[derive(Debug)]
 pub enum ShutdownRequest {}
 impl Request for ShutdownRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::Shutdown;
+    const METHOD: LspRequestMethod = LspRequestMethod::Shutdown;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ();
     type Result = ();
@@ -16037,7 +16007,7 @@ impl Request for ShutdownRequest {
 #[derive(Debug)]
 pub enum ShowMessageRequest {}
 impl Request for ShowMessageRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WindowShowMessageRequest;
+    const METHOD: LspRequestMethod = LspRequestMethod::WindowShowMessageRequest;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ShowMessageRequestParams;
     type Result = Option<MessageActionItem>;
@@ -16052,7 +16022,7 @@ impl Request for ShowMessageRequest {
 #[derive(Debug)]
 pub enum WillSaveTextDocumentWaitUntilRequest {}
 impl Request for WillSaveTextDocumentWaitUntilRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentWillSaveWaitUntil;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentWillSaveWaitUntil;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WillSaveTextDocumentParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16070,7 +16040,7 @@ impl Request for WillSaveTextDocumentWaitUntilRequest {
 #[derive(Debug)]
 pub enum CompletionRequest {}
 impl Request for CompletionRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCompletion;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CompletionParams;
     type Result = Option<CompletionResponse>;
@@ -16082,7 +16052,7 @@ impl Request for CompletionRequest {
 #[derive(Debug)]
 pub enum CompletionResolveRequest {}
 impl Request for CompletionResolveRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::CompletionItemResolve;
+    const METHOD: LspRequestMethod = LspRequestMethod::CompletionItemResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CompletionItem;
     type Result = CompletionItem;
@@ -16094,7 +16064,7 @@ impl Request for CompletionResolveRequest {
 #[derive(Debug)]
 pub enum HoverRequest {}
 impl Request for HoverRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentHover;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentHover;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = HoverParams;
     type Result = Option<Hover>;
@@ -16103,7 +16073,7 @@ impl Request for HoverRequest {
 #[derive(Debug)]
 pub enum SignatureHelpRequest {}
 impl Request for SignatureHelpRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentSignatureHelp;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSignatureHelp;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SignatureHelpParams;
     type Result = Option<SignatureHelp>;
@@ -16116,7 +16086,7 @@ impl Request for SignatureHelpRequest {
 #[derive(Debug)]
 pub enum DefinitionRequest {}
 impl Request for DefinitionRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDefinition;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DefinitionParams;
     type Result = Option<DefinitionResponse>;
@@ -16129,7 +16099,7 @@ impl Request for DefinitionRequest {
 #[derive(Debug)]
 pub enum ReferencesRequest {}
 impl Request for ReferencesRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentReferences;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentReferences;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ReferenceParams;
     type Result = Option<Vec<Location>>;
@@ -16142,7 +16112,7 @@ impl Request for ReferencesRequest {
 #[derive(Debug)]
 pub enum DocumentHighlightRequest {}
 impl Request for DocumentHighlightRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentHighlight;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentHighlight;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentHighlightParams;
     type Result = Option<Vec<DocumentHighlight>>;
@@ -16155,7 +16125,7 @@ impl Request for DocumentHighlightRequest {
 #[derive(Debug)]
 pub enum DocumentSymbolRequest {}
 impl Request for DocumentSymbolRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentSymbol;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentSymbolParams;
     type Result = Option<DocumentSymbolResponse>;
@@ -16165,7 +16135,7 @@ impl Request for DocumentSymbolRequest {
 #[derive(Debug)]
 pub enum CodeActionRequest {}
 impl Request for CodeActionRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeAction;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentCodeAction;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeActionParams;
     type Result = Option<Vec<CodeActionResponse>>;
@@ -16177,7 +16147,7 @@ impl Request for CodeActionRequest {
 #[derive(Debug)]
 pub enum CodeActionResolveRequest {}
 impl Request for CodeActionResolveRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::CodeActionResolve;
+    const METHOD: LspRequestMethod = LspRequestMethod::CodeActionResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeAction;
     type Result = CodeAction;
@@ -16195,7 +16165,7 @@ impl Request for CodeActionResolveRequest {
 #[derive(Debug)]
 pub enum WorkspaceSymbolRequest {}
 impl Request for WorkspaceSymbolRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbol;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceSymbolParams;
     type Result = Option<WorkspaceSymbolResponse>;
@@ -16208,7 +16178,7 @@ impl Request for WorkspaceSymbolRequest {
 #[derive(Debug)]
 pub enum WorkspaceSymbolResolveRequest {}
 impl Request for WorkspaceSymbolResolveRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceSymbolResolve;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceSymbolResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceSymbol;
     type Result = WorkspaceSymbol;
@@ -16218,7 +16188,7 @@ impl Request for WorkspaceSymbolResolveRequest {
 #[derive(Debug)]
 pub enum CodeLensRequest {}
 impl Request for CodeLensRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentCodeLens;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentCodeLens;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeLensParams;
     type Result = Option<Vec<CodeLens>>;
@@ -16228,7 +16198,7 @@ impl Request for CodeLensRequest {
 #[derive(Debug)]
 pub enum CodeLensResolveRequest {}
 impl Request for CodeLensResolveRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::CodeLensResolve;
+    const METHOD: LspRequestMethod = LspRequestMethod::CodeLensResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeLens;
     type Result = CodeLens;
@@ -16240,7 +16210,7 @@ impl Request for CodeLensResolveRequest {
 #[derive(Debug)]
 pub enum CodeLensRefreshRequest {}
 impl Request for CodeLensRefreshRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceCodeLensRefresh;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceCodeLensRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16250,7 +16220,7 @@ impl Request for CodeLensRefreshRequest {
 #[derive(Debug)]
 pub enum DocumentLinkRequest {}
 impl Request for DocumentLinkRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentDocumentLink;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentLink;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentLinkParams;
     type Result = Option<Vec<DocumentLink>>;
@@ -16262,7 +16232,7 @@ impl Request for DocumentLinkRequest {
 #[derive(Debug)]
 pub enum DocumentLinkResolveRequest {}
 impl Request for DocumentLinkResolveRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::DocumentLinkResolve;
+    const METHOD: LspRequestMethod = LspRequestMethod::DocumentLinkResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentLink;
     type Result = DocumentLink;
@@ -16272,7 +16242,7 @@ impl Request for DocumentLinkResolveRequest {
 #[derive(Debug)]
 pub enum DocumentFormattingRequest {}
 impl Request for DocumentFormattingRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentFormatting;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16282,7 +16252,7 @@ impl Request for DocumentFormattingRequest {
 #[derive(Debug)]
 pub enum DocumentRangeFormattingRequest {}
 impl Request for DocumentRangeFormattingRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRangeFormatting;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentRangeFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentRangeFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16295,7 +16265,7 @@ impl Request for DocumentRangeFormattingRequest {
 #[derive(Debug)]
 pub enum DocumentRangesFormattingRequest {}
 impl Request for DocumentRangesFormattingRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRangesFormatting;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentRangesFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentRangesFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16305,7 +16275,7 @@ impl Request for DocumentRangesFormattingRequest {
 #[derive(Debug)]
 pub enum DocumentOnTypeFormattingRequest {}
 impl Request for DocumentOnTypeFormattingRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentOnTypeFormatting;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentOnTypeFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentOnTypeFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16315,7 +16285,7 @@ impl Request for DocumentOnTypeFormattingRequest {
 #[derive(Debug)]
 pub enum RenameRequest {}
 impl Request for RenameRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentRename;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentRename;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = RenameParams;
     type Result = Option<WorkspaceEdit>;
@@ -16327,7 +16297,7 @@ impl Request for RenameRequest {
 #[derive(Debug)]
 pub enum PrepareRenameRequest {}
 impl Request for PrepareRenameRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::TextDocumentPrepareRename;
+    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentPrepareRename;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = PrepareRenameParams;
     type Result = Option<PrepareRenameResult>;
@@ -16338,7 +16308,7 @@ impl Request for PrepareRenameRequest {
 #[derive(Debug)]
 pub enum ExecuteCommandRequest {}
 impl Request for ExecuteCommandRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceExecuteCommand;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceExecuteCommand;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ExecuteCommandParams;
     type Result = Option<LspAny>;
@@ -16348,7 +16318,7 @@ impl Request for ExecuteCommandRequest {
 #[derive(Debug)]
 pub enum ApplyWorkspaceEditRequest {}
 impl Request for ApplyWorkspaceEditRequest {
-    const METHOD: LspRequestMethods = LspRequestMethods::WorkspaceApplyEdit;
+    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceApplyEdit;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ApplyWorkspaceEditParams;
     type Result = ApplyWorkspaceEditResult;
@@ -16359,7 +16329,7 @@ impl Request for ApplyWorkspaceEditRequest {
 #[derive(Debug)]
 pub enum DidChangeWorkspaceFoldersNotification {}
 impl Notification for DidChangeWorkspaceFoldersNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeWorkspaceFolders;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeWorkspaceFoldersParams;
 }
@@ -16369,7 +16339,7 @@ impl Notification for DidChangeWorkspaceFoldersNotification {
 #[derive(Debug)]
 pub enum WorkDoneProgressCancelNotification {}
 impl Notification for WorkDoneProgressCancelNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WindowWorkDoneProgressCancel;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WindowWorkDoneProgressCancel;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkDoneProgressCancelParams;
 }
@@ -16381,7 +16351,7 @@ impl Notification for WorkDoneProgressCancelNotification {
 #[derive(Debug)]
 pub enum DidCreateFilesNotification {}
 impl Notification for DidCreateFilesNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidCreateFiles;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidCreateFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CreateFilesParams;
 }
@@ -16393,7 +16363,7 @@ impl Notification for DidCreateFilesNotification {
 #[derive(Debug)]
 pub enum DidRenameFilesNotification {}
 impl Notification for DidRenameFilesNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidRenameFiles;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidRenameFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = RenameFilesParams;
 }
@@ -16405,7 +16375,7 @@ impl Notification for DidRenameFilesNotification {
 #[derive(Debug)]
 pub enum DidDeleteFilesNotification {}
 impl Notification for DidDeleteFilesNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidDeleteFiles;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidDeleteFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeleteFilesParams;
 }
@@ -16416,7 +16386,7 @@ impl Notification for DidDeleteFilesNotification {
 #[derive(Debug)]
 pub enum DidOpenNotebookDocumentNotification {}
 impl Notification for DidOpenNotebookDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidOpen;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidOpen;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidOpenNotebookDocumentParams;
 }
@@ -16424,7 +16394,7 @@ impl Notification for DidOpenNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum DidChangeNotebookDocumentNotification {}
 impl Notification for DidChangeNotebookDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidChange;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidChange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeNotebookDocumentParams;
 }
@@ -16435,7 +16405,7 @@ impl Notification for DidChangeNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum DidSaveNotebookDocumentNotification {}
 impl Notification for DidSaveNotebookDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidSave;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidSaveNotebookDocumentParams;
 }
@@ -16446,7 +16416,7 @@ impl Notification for DidSaveNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum DidCloseNotebookDocumentNotification {}
 impl Notification for DidCloseNotebookDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::NotebookDocumentDidClose;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidClose;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidCloseNotebookDocumentParams;
 }
@@ -16457,7 +16427,7 @@ impl Notification for DidCloseNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum InitializedNotification {}
 impl Notification for InitializedNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::Initialized;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::Initialized;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InitializedParams;
 }
@@ -16467,7 +16437,7 @@ impl Notification for InitializedNotification {
 #[derive(Debug)]
 pub enum ExitNotification {}
 impl Notification for ExitNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::Exit;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::Exit;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ();
 }
@@ -16478,7 +16448,7 @@ impl Notification for ExitNotification {
 #[derive(Debug)]
 pub enum DidChangeConfigurationNotification {}
 impl Notification for DidChangeConfigurationNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeConfiguration;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidChangeConfiguration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeConfigurationParams;
 }
@@ -16488,7 +16458,7 @@ impl Notification for DidChangeConfigurationNotification {
 #[derive(Debug)]
 pub enum ShowMessageNotification {}
 impl Notification for ShowMessageNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WindowShowMessage;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WindowShowMessage;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ShowMessageParams;
 }
@@ -16498,7 +16468,7 @@ impl Notification for ShowMessageNotification {
 #[derive(Debug)]
 pub enum LogMessageNotification {}
 impl Notification for LogMessageNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WindowLogMessage;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WindowLogMessage;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = LogMessageParams;
 }
@@ -16508,7 +16478,7 @@ impl Notification for LogMessageNotification {
 #[derive(Debug)]
 pub enum TelemetryEventNotification {}
 impl Notification for TelemetryEventNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TelemetryEvent;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TelemetryEvent;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = LspAny;
 }
@@ -16524,7 +16494,7 @@ impl Notification for TelemetryEventNotification {
 #[derive(Debug)]
 pub enum DidOpenTextDocumentNotification {}
 impl Notification for DidOpenTextDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidOpen;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidOpen;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidOpenTextDocumentParams;
 }
@@ -16534,7 +16504,7 @@ impl Notification for DidOpenTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidChangeTextDocumentNotification {}
 impl Notification for DidChangeTextDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidChange;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidChange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeTextDocumentParams;
 }
@@ -16549,7 +16519,7 @@ impl Notification for DidChangeTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidCloseTextDocumentNotification {}
 impl Notification for DidCloseTextDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidClose;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidClose;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidCloseTextDocumentParams;
 }
@@ -16559,7 +16529,7 @@ impl Notification for DidCloseTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidSaveTextDocumentNotification {}
 impl Notification for DidSaveTextDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentDidSave;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidSaveTextDocumentParams;
 }
@@ -16569,7 +16539,7 @@ impl Notification for DidSaveTextDocumentNotification {
 #[derive(Debug)]
 pub enum WillSaveTextDocumentNotification {}
 impl Notification for WillSaveTextDocumentNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentWillSave;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentWillSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WillSaveTextDocumentParams;
 }
@@ -16579,7 +16549,7 @@ impl Notification for WillSaveTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidChangeWatchedFilesNotification {}
 impl Notification for DidChangeWatchedFilesNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::WorkspaceDidChangeWatchedFiles;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidChangeWatchedFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeWatchedFilesParams;
 }
@@ -16589,7 +16559,7 @@ impl Notification for DidChangeWatchedFilesNotification {
 #[derive(Debug)]
 pub enum PublishDiagnosticsNotification {}
 impl Notification for PublishDiagnosticsNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::TextDocumentPublishDiagnostics;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentPublishDiagnostics;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = PublishDiagnosticsParams;
 }
@@ -16597,7 +16567,7 @@ impl Notification for PublishDiagnosticsNotification {
 #[derive(Debug)]
 pub enum SetTraceNotification {}
 impl Notification for SetTraceNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::SetTrace;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::SetTrace;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SetTraceParams;
 }
@@ -16605,7 +16575,7 @@ impl Notification for SetTraceNotification {
 #[derive(Debug)]
 pub enum LogTraceNotification {}
 impl Notification for LogTraceNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::LogTrace;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::LogTrace;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = LogTraceParams;
 }
@@ -16613,7 +16583,7 @@ impl Notification for LogTraceNotification {
 #[derive(Debug)]
 pub enum CancelNotification {}
 impl Notification for CancelNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::CancelRequest;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::CancelRequest;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = CancelParams;
 }
@@ -16621,7 +16591,7 @@ impl Notification for CancelNotification {
 #[derive(Debug)]
 pub enum ProgressNotification {}
 impl Notification for ProgressNotification {
-    const METHOD: LspNotificationMethods = LspNotificationMethods::Progress;
+    const METHOD: LspNotificationMethod = LspNotificationMethod::Progress;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = ProgressParams;
 }

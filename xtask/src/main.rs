@@ -493,14 +493,14 @@ fn main() {
 
         pub trait Notification {
             type Params: DeserializeOwned + Serialize + Send + Sync;
-            const METHOD: LspNotificationMethods;
+            const METHOD: LspNotificationMethod;
             const MESSAGE_DIRECTION: MessageDirection;
         }
 
         pub trait Request {
             type Params: DeserializeOwned + Serialize + Send + Sync;
             type Result: DeserializeOwned + Serialize + Send + Sync;
-            const METHOD: LspRequestMethods;
+            const METHOD: LspRequestMethod;
             const MESSAGE_DIRECTION: MessageDirection;
         }
 
@@ -690,7 +690,7 @@ fn main() {
             Enumeration {
                 deprecated: None,
                 documentation: None,
-                name: String::from("LspRequestMethods"),
+                name: String::from("LspRequestMethod"),
                 proposed: None,
                 since: None,
                 since_tags: Vec::new(),
@@ -719,7 +719,7 @@ fn main() {
             Enumeration {
                 deprecated: None,
                 documentation: None,
-                name: String::from("LspNotificationMethods"),
+                name: String::from("LspNotificationMethod"),
                 proposed: None,
                 since: None,
                 since_tags: Vec::new(),
