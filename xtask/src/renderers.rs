@@ -374,19 +374,23 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     };
     let name_ident = format_ident!("{}", name);
 
-    let (mut sers, mut desers, mut desers_borrowed) = (
-        Vec::with_capacity(enumeration.values.len()),
-        Vec::with_capacity(enumeration.values.len()),
-        Vec::with_capacity(enumeration.values.len()),
-    );
+    let is_str_enum = matches!(enumeration.type_.name, EnumerationTypeName::String);
+    let supports_custom = enumeration.supports_custom_values == Some(true);
+
+    let mut sers =
+        Vec::with_capacity(enumeration.values.len() + if supports_custom { 1 } else { 0 });
+    let mut desers = Vec::with_capacity(enumeration.values.len() + 1);
+    let mut as_str_arms = if is_str_enum {
+        Vec::with_capacity(enumeration.values.len() + if supports_custom { 1 } else { 0 })
+    } else {
+        Vec::new()
+    };
 
     let value_type = match enumeration.type_.name {
         EnumerationTypeName::Uinteger => quote! { u32 },
         EnumerationTypeName::Integer => quote! { i32 },
         EnumerationTypeName::String => quote! { String },
     };
-
-    let supports_custom = enumeration.supports_custom_values == Some(true);
 
     let value_type_str = value_type.to_string();
     if supports_custom {
@@ -400,8 +404,6 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             #[serde(into = #value_type_str, try_from = #value_type_str)]
         }
     }
-
-    let is_str_enum = matches!(enumeration.type_.name, EnumerationTypeName::String);
 
     let mut values: Vec<TokenStream> = enumeration
         .values
@@ -426,13 +428,13 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             };
             let full_name = quote! { #name_ident::#ident };
             if supports_custom {
-                desers_borrowed.push(quote! { #value => #full_name, });
                 desers.push(quote! { #value => #full_name, });
             } else {
                 desers.push(quote! { #value => Ok(#full_name), });
             }
             if is_str_enum {
                 sers.push(quote! { #full_name => #value.to_string(), });
+                as_str_arms.push(quote! { #full_name => #value, });
             } else {
                 sers.push(quote! { #full_name => #value, });
             }
@@ -443,7 +445,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             }
         })
         .collect();
-    if supports_custom {
+    let deser_catchall = if supports_custom {
         // allow for constructing string enums in `const` contexts
         let (custom_type, custom_ser, custom_deser) = if is_str_enum {
             (
@@ -458,17 +460,20 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
                 quote! { _ => #name_ident::Custom(v), },
             )
         };
+        if is_str_enum {
+            as_str_arms.push(quote! { #name_ident::Custom(any) => any, });
+        }
         values.push(quote! {
             /// A custom value.
             #[serde(untagged)]
             Custom(#custom_type)
         });
         sers.push(custom_ser);
-        desers.push(custom_deser);
+        custom_deser
     } else {
         let fmt = format!("Invalid {name_ident}: {{v}}");
-        desers.push(quote! { _ => Err(format!(#fmt)), });
-    }
+        quote! { _ => Err(format!(#fmt)), }
+    };
 
     let enum_tokens = quote! {
         #documentation
@@ -528,8 +533,21 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             impl From<&'static str> for #name_ident {
                 fn from(s: &'static str) -> Self {
                     match s {
-                        #(#desers_borrowed)*
+                        #(#desers)*
                         _ => #name_ident::Custom(Cow::Borrowed(s)),
+                    }
+                }
+            }
+        })
+    } else {
+        None
+    };
+    let as_str_impl = if is_str_enum {
+        Some(quote! {
+            impl #name_ident {
+                pub fn as_str(&self) -> &str {
+                    match self {
+                        #(#as_str_arms)*
                     }
                 }
             }
@@ -552,6 +570,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             fn #deser_method(v: #value_type) -> #return_type {
                 match v #as_str {
                     #(#desers)*
+                    #deser_catchall
                 }
             }
         }
@@ -564,6 +583,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     quote! {
         #enum_tokens
         #traits
+        #as_str_impl
     }
 }
 
