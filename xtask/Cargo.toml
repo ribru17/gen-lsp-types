@@ -13,4 +13,3 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 syn = "2.0.117"
 typify = "0.6.1"
-ureq = "3.3.0"
