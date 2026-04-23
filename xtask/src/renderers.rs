@@ -252,7 +252,7 @@ pub fn render_request(
         pub enum #name_ident {}
 
         impl Request for #name_ident {
-            const METHOD: LspRequestMethods = LspRequestMethods::#method;
+            const METHOD: LspRequestMethod = LspRequestMethod::#method;
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
 
             type Params = #params;
@@ -296,7 +296,7 @@ pub fn render_notification(
         pub enum #name_ident {}
 
         impl Notification for #name_ident {
-            const METHOD: LspNotificationMethods = LspNotificationMethods::#method;
+            const METHOD: LspNotificationMethod = LspNotificationMethod::#method;
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
 
             type Params = #params;
