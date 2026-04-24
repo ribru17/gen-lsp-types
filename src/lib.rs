@@ -611,6 +611,7 @@ mod test {
     }
 
     #[test]
+    #[allow(clippy::similar_names)]
     fn semantic_tokens() {
         let ste = SemanticTokensEdit {
             start: 0,

@@ -57,7 +57,7 @@ fn method_to_pascal(method: &str) -> String {
     result
 }
 
-/// Converts from camelCase (or PascalCase) to snake_case.
+/// Converts from `camelCase` (or `PascalCase`) to `snake_case`.
 fn camel_to_snake(camel: &str) -> String {
     let mut snake = String::with_capacity(camel.len() + 4);
 
@@ -91,7 +91,7 @@ fn render_documentation(documentation: Option<String>) -> TokenStream {
         let doc = LINK_RE_2.replace_all(&doc, |caps: &Captures| {
             format!("[{}][`{}::{}`]", &caps[3], &caps[1], &caps[2])
         });
-        let doc = LINK_RE_3.replace_all(&doc, |caps: &Captures| format!("[{}]", &caps[1]));
+        let doc = LINK_RE_3.replace_all(&doc, |caps: &Captures| format!("[`{}`]", &caps[1]));
         let doc = LINK_RE_4.replace_all(&doc, |caps: &Captures| {
             format!("[`{}::{}`]", &caps[2], &caps[3])
         });
@@ -120,11 +120,14 @@ fn has_field_conflict(
     mixins: &[Type],
     structs_map: &HashMap<String, Structure>,
 ) -> bool {
-    let mut seen = HashSet::from_iter(properties.iter().map(|p| p.name.as_str()));
-    _has_field_conflict_impl(extends, mixins, structs_map, &mut seen)
+    let mut seen = properties
+        .iter()
+        .map(|p| p.name.as_str())
+        .collect::<HashSet<_>>();
+    has_field_conflict_impl(extends, mixins, structs_map, &mut seen)
 }
 
-fn _has_field_conflict_impl<'a: 'b, 'b>(
+fn has_field_conflict_impl<'a: 'b, 'b>(
     extends: &'b [Type],
     mixins: &'b [Type],
     structs_map: &'a HashMap<String, Structure>,
@@ -139,11 +142,10 @@ fn _has_field_conflict_impl<'a: 'b, 'b>(
                 let name = prop.name.as_str();
                 if seen.contains(name) {
                     return true;
-                } else {
-                    seen.insert(name);
                 }
+                seen.insert(name);
             }
-            if _has_field_conflict_impl(&structure.extends, &structure.mixins, structs_map, seen) {
+            if has_field_conflict_impl(&structure.extends, &structure.mixins, structs_map, seen) {
                 return true;
             }
         }
@@ -158,12 +160,16 @@ fn get_all_inner_properties(
     structs_map: &HashMap<String, Structure>,
     seen: &mut Option<HashSet<String>>,
 ) -> Vec<Property> {
-    let mut result = Vec::new();
-    if seen.is_none() {
-        let set = HashSet::from_iter(properties.iter().map(|p| p.name.clone()));
+    let mut result = if seen.is_none() {
+        let set = properties
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<HashSet<_>>();
         *seen = Some(set);
-        result = properties;
-    }
+        properties
+    } else {
+        Vec::new()
+    };
 
     mixins.append(&mut extends);
 
@@ -213,14 +219,14 @@ fn resolve_struct_properties(
             let type_ = structs_map.get(&reference_type.name);
             match type_ {
                 Some(structure) => {
-                    let (inner_sp, inner_mp) = resolve_struct_properties(
+                    let (inner_struct_props, inner_mixin_props) = resolve_struct_properties(
                         structure.properties.clone(),
                         structure.extends.clone(),
                         structure.mixins.clone(),
                         structs_map,
                     );
-                    structure_props.extend(inner_sp);
-                    mixin_props.extend(inner_mp);
+                    structure_props.extend(inner_struct_props);
+                    mixin_props.extend(inner_mixin_props);
                 }
                 _ => panic!("Could not inline type {}", reference_type.name),
             }
@@ -260,8 +266,8 @@ fn is_nullable(type_: &Type) -> bool {
 impl PartialEq for MapKeyType {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (MapKeyType::ReferenceType(a), MapKeyType::ReferenceType(b)) => a.name == b.name,
-            (MapKeyType::Object { name: a, .. }, MapKeyType::Object { name: b, .. }) => a == b,
+            (Self::ReferenceType(a), Self::ReferenceType(b)) => a.name == b.name,
+            (Self::Object { name: a, .. }, Self::Object { name: b, .. }) => a == b,
             _ => false,
         }
     }
@@ -272,8 +278,8 @@ impl Eq for MapKeyType {}
 impl std::hash::Hash for MapKeyType {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         match self {
-            MapKeyType::ReferenceType(r) => r.name.hash(state),
-            MapKeyType::Object { kind: _, name } => name.hash(state),
+            Self::ReferenceType(r) => r.name.hash(state),
+            Self::Object { kind: _, name } => name.hash(state),
         }
     }
 }
@@ -287,17 +293,17 @@ impl PartialEq for OrType {
 impl PartialEq for Type {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Type::BaseType(a), Type::BaseType(b)) => a.name == b.name,
-            (Type::ReferenceType(a), Type::ReferenceType(b)) => a.name == b.name,
-            (Type::MapType(a), Type::MapType(b)) => a.key == b.key && a.value == b.value,
-            (Type::OrType(a), Type::OrType(b)) => a == b,
-            (Type::AndType(a), Type::AndType(b)) => a.items == b.items,
-            (Type::TupleType(a), Type::TupleType(b)) => a.items == b.items,
-            (Type::ArrayType(a), Type::ArrayType(b)) => a.element == b.element,
-            (Type::IntegerLiteralType(a), Type::IntegerLiteralType(b)) => a.value == b.value,
-            (Type::BooleanLiteralType(a), Type::BooleanLiteralType(b)) => a.value == b.value,
-            (Type::StringLiteralType(a), Type::StringLiteralType(b)) => a.value == b.value,
-            (Type::StructureLiteralType(a), Type::StructureLiteralType(b)) => {
+            (Self::BaseType(a), Self::BaseType(b)) => a.name == b.name,
+            (Self::ReferenceType(a), Self::ReferenceType(b)) => a.name == b.name,
+            (Self::MapType(a), Self::MapType(b)) => a.key == b.key && a.value == b.value,
+            (Self::OrType(a), Self::OrType(b)) => a == b,
+            (Self::AndType(a), Self::AndType(b)) => a.items == b.items,
+            (Self::TupleType(a), Self::TupleType(b)) => a.items == b.items,
+            (Self::ArrayType(a), Self::ArrayType(b)) => a.element == b.element,
+            (Self::IntegerLiteralType(a), Self::IntegerLiteralType(b)) => a.value == b.value,
+            (Self::BooleanLiteralType(a), Self::BooleanLiteralType(b)) => a.value == b.value,
+            (Self::StringLiteralType(a), Self::StringLiteralType(b)) => a.value == b.value,
+            (Self::StructureLiteralType(a), Self::StructureLiteralType(b)) => {
                 assert!(a.value.properties.is_empty());
                 assert!(b.value.properties.is_empty());
                 true
@@ -312,20 +318,20 @@ impl Eq for Type {}
 impl std::hash::Hash for Type {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         match self {
-            Type::BaseType(b) => b.name.hash(state),
-            Type::ReferenceType(b) => b.name.hash(state),
-            Type::MapType(b) => {
+            Self::BaseType(b) => b.name.hash(state),
+            Self::ReferenceType(b) => b.name.hash(state),
+            Self::MapType(b) => {
                 b.key.hash(state);
                 b.value.hash(state);
             }
-            Type::OrType(b) => b.items.hash(state),
-            Type::AndType(b) => b.items.hash(state),
-            Type::TupleType(b) => b.items.hash(state),
-            Type::ArrayType(b) => b.element.hash(state),
-            Type::IntegerLiteralType(b) => (b.value as i128).hash(state),
-            Type::BooleanLiteralType(b) => b.value.hash(state),
-            Type::StringLiteralType(b) => b.value.hash(state),
-            Type::StructureLiteralType(b) => {
+            Self::OrType(b) => b.items.hash(state),
+            Self::AndType(b) => b.items.hash(state),
+            Self::TupleType(b) => b.items.hash(state),
+            Self::ArrayType(b) => b.element.hash(state),
+            Self::IntegerLiteralType(b) => (b.value as i128).hash(state),
+            Self::BooleanLiteralType(b) => b.value.hash(state),
+            Self::StringLiteralType(b) => b.value.hash(state),
+            Self::StructureLiteralType(b) => {
                 assert!(b.value.properties.is_empty());
                 // Do nothing; consider all structures equal.
             }
@@ -342,13 +348,13 @@ fn fix_serde_stupidity(type_: &mut Type) {
                 *type_ = Type::TupleType(TupleType {
                     items: t.items.clone(),
                     kind: t.kind.clone(),
-                })
+                });
             }
             "or" => {
                 *type_ = Type::OrType(OrType {
                     items: t.items.clone(),
                     kind: t.kind.clone(),
-                })
+                });
             }
             _ => {}
         }
@@ -464,6 +470,14 @@ fn main() {
             unreachable_patterns,
             clippy::large_enum_variant,
             clippy::too_many_arguments,
+            clippy::too_long_first_doc_paragraph,
+            clippy::doc_markdown,
+            clippy::match_same_arms,
+            clippy::missing_const_for_fn,
+            clippy::doc_link_with_quotes,
+            clippy::manual_string_new,
+            clippy::use_self,
+            clippy::ref_option,
             rustdoc::invalid_codeblock_attributes
         )]
         #![cfg_attr(any(), rustfmt::skip)]
@@ -591,7 +605,7 @@ fn main() {
 
                 Result::Ok(
                     chunks
-                        .map(|chunk| SemanticToken {
+                        .map(|chunk| Self {
                             delta_line: chunk[0],
                             delta_start: chunk[1],
                             length: chunk[2],
@@ -607,7 +621,7 @@ fn main() {
                 S: serde::Serializer,
             {
                 let mut seq = serializer.serialize_seq(Some(tokens.len() * 5))?;
-                for token in tokens.iter() {
+                for token in tokens {
                     seq.serialize_element(&token.delta_line)?;
                     seq.serialize_element(&token.delta_start)?;
                     seq.serialize_element(&token.length)?;
@@ -647,7 +661,7 @@ fn main() {
                     tokens: Vec<SemanticToken>,
                 }
 
-                let opt = data.as_ref().map(|t| Wrapper { tokens: t.to_vec() });
+                let opt = data.as_ref().map(|t| Wrapper { tokens: t.clone() });
 
                 opt.serialize(serializer)
             }
@@ -659,7 +673,7 @@ fn main() {
     let structures = model
         .structures
         .into_iter()
-        .flat_map(|structure| {
+        .filter_map(|structure| {
             render_structure(
                 structure,
                 &structs_map,
@@ -684,7 +698,7 @@ fn main() {
                     proposed: None,
                     since: None,
                     since_tags: Vec::new(),
-                    value: EnumerationEntryValue::String(req.method.to_string()),
+                    value: EnumerationEntryValue::String(req.method.clone()),
                 })
                 .collect();
             Enumeration {
@@ -713,7 +727,7 @@ fn main() {
                     proposed: None,
                     since: None,
                     since_tags: Vec::new(),
-                    value: EnumerationEntryValue::String(noti.method.to_string()),
+                    value: EnumerationEntryValue::String(noti.method.clone()),
                 })
                 .collect();
             Enumeration {
@@ -736,7 +750,7 @@ fn main() {
     let type_aliases = model
         .type_aliases
         .into_iter()
-        .flat_map(|ta| render_type_alias(ta, &mut enum_or_types))
+        .filter_map(|ta| render_type_alias(ta, &mut enum_or_types))
         .collect::<Vec<_>>();
 
     let request_macro = render_request_macro(&model.requests);

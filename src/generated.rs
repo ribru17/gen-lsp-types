@@ -5,6 +5,14 @@
     unreachable_patterns,
     clippy::large_enum_variant,
     clippy::too_many_arguments,
+    clippy::too_long_first_doc_paragraph,
+    clippy::doc_markdown,
+    clippy::match_same_arms,
+    clippy::missing_const_for_fn,
+    clippy::doc_link_with_quotes,
+    clippy::manual_string_new,
+    clippy::use_self,
+    clippy::ref_option,
     rustdoc::invalid_codeblock_attributes
 )]
 #![cfg_attr(any(), rustfmt::skip)]
@@ -117,7 +125,7 @@ impl SemanticToken {
         }
         Result::Ok(
             chunks
-                .map(|chunk| SemanticToken {
+                .map(|chunk| Self {
                     delta_line: chunk[0],
                     delta_start: chunk[1],
                     length: chunk[2],
@@ -135,7 +143,7 @@ impl SemanticToken {
         S: serde::Serializer,
     {
         let mut seq = serializer.serialize_seq(Some(tokens.len() * 5))?;
-        for token in tokens.iter() {
+        for token in tokens {
             seq.serialize_element(&token.delta_line)?;
             seq.serialize_element(&token.delta_start)?;
             seq.serialize_element(&token.length)?;
@@ -171,7 +179,7 @@ impl SemanticToken {
             #[serde(serialize_with = "SemanticToken::serialize_tokens")]
             tokens: Vec<SemanticToken>,
         }
-        let opt = data.as_ref().map(|t| Wrapper { tokens: t.to_vec() });
+        let opt = data.as_ref().map(|t| Wrapper { tokens: t.clone() });
         opt.serialize(serializer)
     }
 }
@@ -187,6 +195,7 @@ pub struct ImplementationParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl ImplementationParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         partial_result_params: PartialResultParams,
@@ -209,6 +218,7 @@ pub struct Location {
     pub range: Range,
 }
 impl Location {
+    #[must_use]
     pub const fn new(uri: Uri, range: Range) -> Self {
         Self { uri, range }
     }
@@ -225,6 +235,7 @@ pub struct ImplementationRegistrationOptions {
     pub implementation_options: ImplementationOptions,
 }
 impl ImplementationRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -249,6 +260,7 @@ pub struct TypeDefinitionParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl TypeDefinitionParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         partial_result_params: PartialResultParams,
@@ -273,6 +285,7 @@ pub struct TypeDefinitionRegistrationOptions {
     pub type_definition_options: TypeDefinitionOptions,
 }
 impl TypeDefinitionRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -297,6 +310,7 @@ pub struct WorkspaceFolder {
     pub name: String,
 }
 impl WorkspaceFolder {
+    #[must_use]
     pub const fn new(uri: Uri, name: String) -> Self {
         Self { uri, name }
     }
@@ -310,6 +324,7 @@ pub struct DidChangeWorkspaceFoldersParams {
     pub event: WorkspaceFoldersChangeEvent,
 }
 impl DidChangeWorkspaceFoldersParams {
+    #[must_use]
     pub const fn new(event: WorkspaceFoldersChangeEvent) -> Self {
         Self { event }
     }
@@ -322,12 +337,13 @@ pub struct ConfigurationParams {
     pub items: Vec<ConfigurationItem>,
 }
 impl ConfigurationParams {
+    #[must_use]
     pub const fn new(items: Vec<ConfigurationItem>) -> Self {
         Self { items }
     }
 }
 
-/// Parameters for a [DocumentColorRequest].
+/// Parameters for a [`DocumentColorRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentColorParams {
@@ -339,6 +355,7 @@ pub struct DocumentColorParams {
     pub partial_result_params: PartialResultParams,
 }
 impl DocumentColorParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         work_done_progress_params: WorkDoneProgressParams,
@@ -362,6 +379,7 @@ pub struct ColorInformation {
     pub color: Color,
 }
 impl ColorInformation {
+    #[must_use]
     pub const fn new(range: Range, color: Color) -> Self {
         Self { range, color }
     }
@@ -378,6 +396,7 @@ pub struct DocumentColorRegistrationOptions {
     pub document_color_options: DocumentColorOptions,
 }
 impl DocumentColorRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -391,7 +410,7 @@ impl DocumentColorRegistrationOptions {
     }
 }
 
-/// Parameters for a [ColorPresentationRequest].
+/// Parameters for a [`ColorPresentationRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ColorPresentationParams {
@@ -407,6 +426,7 @@ pub struct ColorPresentationParams {
     pub partial_result_params: PartialResultParams,
 }
 impl ColorPresentationParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         color: Color,
@@ -442,6 +462,7 @@ pub struct ColorPresentation {
     pub additional_text_edits: Option<Vec<TextEdit>>,
 }
 impl ColorPresentation {
+    #[must_use]
     pub const fn new(
         label: String,
         text_edit: Option<TextEdit>,
@@ -462,6 +483,7 @@ pub struct WorkDoneProgressOptions {
     pub work_done_progress: Option<bool>,
 }
 impl WorkDoneProgressOptions {
+    #[must_use]
     pub const fn new(work_done_progress: Option<bool>) -> Self {
         Self { work_done_progress }
     }
@@ -476,12 +498,13 @@ pub struct TextDocumentRegistrationOptions {
     pub document_selector: Option<DocumentSelector>,
 }
 impl TextDocumentRegistrationOptions {
+    #[must_use]
     pub const fn new(document_selector: Option<DocumentSelector>) -> Self {
         Self { document_selector }
     }
 }
 
-/// Parameters for a [FoldingRangeRequest].
+/// Parameters for a [`FoldingRangeRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeParams {
@@ -493,6 +516,7 @@ pub struct FoldingRangeParams {
     pub partial_result_params: PartialResultParams,
 }
 impl FoldingRangeParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         work_done_progress_params: WorkDoneProgressParams,
@@ -525,7 +549,7 @@ pub struct FoldingRange {
     pub end_character: Option<u32>,
     /// Describes the kind of the folding range such as 'comment' or 'region'. The kind
     /// is used to categorize folding ranges and used by commands like 'Fold all comments'.
-    /// See [FoldingRangeKind] for an enumeration of standardized kinds.
+    /// See [`FoldingRangeKind`] for an enumeration of standardized kinds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<FoldingRangeKind>,
     /// The text that the client should show when the specified range is
@@ -537,6 +561,7 @@ pub struct FoldingRange {
     pub collapsed_text: Option<String>,
 }
 impl FoldingRange {
+    #[must_use]
     pub const fn new(
         start_line: u32,
         start_character: Option<u32>,
@@ -567,6 +592,7 @@ pub struct FoldingRangeRegistrationOptions {
     pub folding_range_options: FoldingRangeOptions,
 }
 impl FoldingRangeRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -591,6 +617,7 @@ pub struct DeclarationParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl DeclarationParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         partial_result_params: PartialResultParams,
@@ -615,6 +642,7 @@ pub struct DeclarationRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 impl DeclarationRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         declaration_options: DeclarationOptions,
@@ -642,6 +670,7 @@ pub struct SelectionRangeParams {
     pub partial_result_params: PartialResultParams,
 }
 impl SelectionRangeParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         positions: Vec<Position>,
@@ -669,6 +698,7 @@ pub struct SelectionRange {
     pub parent: Option<Box<SelectionRange>>,
 }
 impl SelectionRange {
+    #[must_use]
     pub const fn new(range: Range, parent: Option<Box<SelectionRange>>) -> Self {
         Self { range, parent }
     }
@@ -685,6 +715,7 @@ pub struct SelectionRangeRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 impl SelectionRangeRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         selection_range_options: SelectionRangeOptions,
@@ -705,6 +736,7 @@ pub struct WorkDoneProgressCreateParams {
     pub token: ProgressToken,
 }
 impl WorkDoneProgressCreateParams {
+    #[must_use]
     pub const fn new(token: ProgressToken) -> Self {
         Self { token }
     }
@@ -717,6 +749,7 @@ pub struct WorkDoneProgressCancelParams {
     pub token: ProgressToken,
 }
 impl WorkDoneProgressCancelParams {
+    #[must_use]
     pub const fn new(token: ProgressToken) -> Self {
         Self { token }
     }
@@ -734,6 +767,7 @@ pub struct CallHierarchyPrepareParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl CallHierarchyPrepareParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         text_document_position_params: TextDocumentPositionParams,
@@ -775,6 +809,7 @@ pub struct CallHierarchyItem {
     pub data: Option<LspAny>,
 }
 impl CallHierarchyItem {
+    #[must_use]
     pub const fn new(
         name: String,
         kind: SymbolKind,
@@ -812,6 +847,7 @@ pub struct CallHierarchyRegistrationOptions {
     pub call_hierarchy_options: CallHierarchyOptions,
 }
 impl CallHierarchyRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -838,6 +874,7 @@ pub struct CallHierarchyIncomingCallsParams {
     pub partial_result_params: PartialResultParams,
 }
 impl CallHierarchyIncomingCallsParams {
+    #[must_use]
     pub const fn new(
         item: CallHierarchyItem,
         work_done_progress_params: WorkDoneProgressParams,
@@ -864,6 +901,7 @@ pub struct CallHierarchyIncomingCall {
     pub from_ranges: Vec<Range>,
 }
 impl CallHierarchyIncomingCall {
+    #[must_use]
     pub const fn new(from: CallHierarchyItem, from_ranges: Vec<Range>) -> Self {
         Self { from, from_ranges }
     }
@@ -882,6 +920,7 @@ pub struct CallHierarchyOutgoingCallsParams {
     pub partial_result_params: PartialResultParams,
 }
 impl CallHierarchyOutgoingCallsParams {
+    #[must_use]
     pub const fn new(
         item: CallHierarchyItem,
         work_done_progress_params: WorkDoneProgressParams,
@@ -909,6 +948,7 @@ pub struct CallHierarchyOutgoingCall {
     pub from_ranges: Vec<Range>,
 }
 impl CallHierarchyOutgoingCall {
+    #[must_use]
     pub const fn new(to: CallHierarchyItem, from_ranges: Vec<Range>) -> Self {
         Self { to, from_ranges }
     }
@@ -926,6 +966,7 @@ pub struct SemanticTokensParams {
     pub partial_result_params: PartialResultParams,
 }
 impl SemanticTokensParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         work_done_progress_params: WorkDoneProgressParams,
@@ -957,6 +998,7 @@ pub struct SemanticTokens {
     pub data: Vec<SemanticToken>,
 }
 impl SemanticTokens {
+    #[must_use]
     pub const fn new(result_id: Option<String>, data: Vec<SemanticToken>) -> Self {
         Self { result_id, data }
     }
@@ -973,6 +1015,7 @@ pub struct SemanticTokensPartialResult {
     pub data: Vec<SemanticToken>,
 }
 impl SemanticTokensPartialResult {
+    #[must_use]
     pub const fn new(data: Vec<SemanticToken>) -> Self {
         Self { data }
     }
@@ -990,6 +1033,7 @@ pub struct SemanticTokensRegistrationOptions {
     pub semantic_tokens_options: SemanticTokensOptions,
 }
 impl SemanticTokensRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -1018,6 +1062,7 @@ pub struct SemanticTokensDeltaParams {
     pub partial_result_params: PartialResultParams,
 }
 impl SemanticTokensDeltaParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         previous_result_id: String,
@@ -1043,6 +1088,7 @@ pub struct SemanticTokensDelta {
     pub edits: Vec<SemanticTokensEdit>,
 }
 impl SemanticTokensDelta {
+    #[must_use]
     pub const fn new(result_id: Option<String>, edits: Vec<SemanticTokensEdit>) -> Self {
         Self { result_id, edits }
     }
@@ -1055,6 +1101,7 @@ pub struct SemanticTokensDeltaPartialResult {
     pub edits: Vec<SemanticTokensEdit>,
 }
 impl SemanticTokensDeltaPartialResult {
+    #[must_use]
     pub const fn new(edits: Vec<SemanticTokensEdit>) -> Self {
         Self { edits }
     }
@@ -1074,6 +1121,7 @@ pub struct SemanticTokensRangeParams {
     pub partial_result_params: PartialResultParams,
 }
 impl SemanticTokensRangeParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         range: Range,
@@ -1116,6 +1164,7 @@ pub struct ShowDocumentParams {
     pub selection: Option<Range>,
 }
 impl ShowDocumentParams {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         external: Option<bool>,
@@ -1141,6 +1190,7 @@ pub struct ShowDocumentResult {
     pub success: bool,
 }
 impl ShowDocumentResult {
+    #[must_use]
     pub const fn new(success: bool) -> Self {
         Self { success }
     }
@@ -1155,6 +1205,7 @@ pub struct LinkedEditingRangeParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl LinkedEditingRangeParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         text_document_position_params: TextDocumentPositionParams,
@@ -1182,6 +1233,7 @@ pub struct LinkedEditingRanges {
     pub word_pattern: Option<String>,
 }
 impl LinkedEditingRanges {
+    #[must_use]
     pub const fn new(ranges: Vec<Range>, word_pattern: Option<String>) -> Self {
         Self { ranges, word_pattern }
     }
@@ -1198,6 +1250,7 @@ pub struct LinkedEditingRangeRegistrationOptions {
     pub linked_editing_range_options: LinkedEditingRangeOptions,
 }
 impl LinkedEditingRangeRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -1222,6 +1275,7 @@ pub struct CreateFilesParams {
     pub files: Vec<FileCreate>,
 }
 impl CreateFilesParams {
+    #[must_use]
     pub const fn new(files: Vec<FileCreate>) -> Self {
         Self { files }
     }
@@ -1269,6 +1323,7 @@ pub struct WorkspaceEdit {
     >,
 }
 impl WorkspaceEdit {
+    #[must_use]
     pub const fn new(
         changes: Option<HashMap<Uri, Vec<TextEdit>>>,
         document_changes: Option<Vec<DocumentChange>>,
@@ -1292,6 +1347,7 @@ pub struct FileOperationRegistrationOptions {
     pub filters: Vec<FileOperationFilter>,
 }
 impl FileOperationRegistrationOptions {
+    #[must_use]
     pub const fn new(filters: Vec<FileOperationFilter>) -> Self {
         Self { filters }
     }
@@ -1309,6 +1365,7 @@ pub struct RenameFilesParams {
     pub files: Vec<FileRename>,
 }
 impl RenameFilesParams {
+    #[must_use]
     pub const fn new(files: Vec<FileRename>) -> Self {
         Self { files }
     }
@@ -1325,6 +1382,7 @@ pub struct DeleteFilesParams {
     pub files: Vec<FileDelete>,
 }
 impl DeleteFilesParams {
+    #[must_use]
     pub const fn new(files: Vec<FileDelete>) -> Self {
         Self { files }
     }
@@ -1341,6 +1399,7 @@ pub struct MonikerParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl MonikerParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         partial_result_params: PartialResultParams,
@@ -1372,6 +1431,7 @@ pub struct Moniker {
     pub kind: Option<MonikerKind>,
 }
 impl Moniker {
+    #[must_use]
     pub const fn new(
         scheme: String,
         identifier: String,
@@ -1396,6 +1456,7 @@ pub struct MonikerRegistrationOptions {
     pub moniker_options: MonikerOptions,
 }
 impl MonikerRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         moniker_options: MonikerOptions,
@@ -1419,6 +1480,7 @@ pub struct TypeHierarchyPrepareParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl TypeHierarchyPrepareParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         text_document_position_params: TextDocumentPositionParams,
@@ -1461,6 +1523,7 @@ pub struct TypeHierarchyItem {
     pub data: Option<LspAny>,
 }
 impl TypeHierarchyItem {
+    #[must_use]
     pub const fn new(
         name: String,
         kind: SymbolKind,
@@ -1498,6 +1561,7 @@ pub struct TypeHierarchyRegistrationOptions {
     pub type_hierarchy_options: TypeHierarchyOptions,
 }
 impl TypeHierarchyRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -1524,6 +1588,7 @@ pub struct TypeHierarchySupertypesParams {
     pub partial_result_params: PartialResultParams,
 }
 impl TypeHierarchySupertypesParams {
+    #[must_use]
     pub const fn new(
         item: TypeHierarchyItem,
         work_done_progress_params: WorkDoneProgressParams,
@@ -1550,6 +1615,7 @@ pub struct TypeHierarchySubtypesParams {
     pub partial_result_params: PartialResultParams,
 }
 impl TypeHierarchySubtypesParams {
+    #[must_use]
     pub const fn new(
         item: TypeHierarchyItem,
         work_done_progress_params: WorkDoneProgressParams,
@@ -1580,6 +1646,7 @@ pub struct InlineValueParams {
     pub work_done_progress_params: WorkDoneProgressParams,
 }
 impl InlineValueParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         range: Range,
@@ -1609,6 +1676,7 @@ pub struct InlineValueRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 impl InlineValueRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         inline_value_options: InlineValueOptions,
@@ -1636,6 +1704,7 @@ pub struct InlayHintParams {
     pub work_done_progress_params: WorkDoneProgressParams,
 }
 impl InlayHintParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         range: Range,
@@ -1699,6 +1768,7 @@ pub struct InlayHint {
     pub data: Option<LspAny>,
 }
 impl InlayHint {
+    #[must_use]
     pub const fn new(
         position: Position,
         label: Label,
@@ -1736,6 +1806,7 @@ pub struct InlayHintRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 impl InlayHintRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         inlay_hint_options: InlayHintOptions,
@@ -1769,6 +1840,7 @@ pub struct DocumentDiagnosticParams {
     pub partial_result_params: PartialResultParams,
 }
 impl DocumentDiagnosticParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         identifier: Option<String>,
@@ -1795,6 +1867,7 @@ pub struct DocumentDiagnosticReportPartialResult {
     pub related_documents: HashMap<Uri, RelatedDocument>,
 }
 impl DocumentDiagnosticReportPartialResult {
+    #[must_use]
     pub const fn new(related_documents: HashMap<Uri, RelatedDocument>) -> Self {
         Self { related_documents }
     }
@@ -1809,6 +1882,7 @@ pub struct DiagnosticServerCancellationData {
     pub retrigger_request: bool,
 }
 impl DiagnosticServerCancellationData {
+    #[must_use]
     pub const fn new(retrigger_request: bool) -> Self {
         Self { retrigger_request }
     }
@@ -1828,6 +1902,7 @@ pub struct DiagnosticRegistrationOptions {
     pub diagnostic_options: DiagnosticOptions,
 }
 impl DiagnosticRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -1859,6 +1934,7 @@ pub struct WorkspaceDiagnosticParams {
     pub partial_result_params: PartialResultParams,
 }
 impl WorkspaceDiagnosticParams {
+    #[must_use]
     pub const fn new(
         identifier: Option<String>,
         previous_result_ids: Vec<PreviousResultId>,
@@ -1883,6 +1959,7 @@ pub struct WorkspaceDiagnosticReport {
     pub items: Vec<WorkspaceDocumentDiagnosticReport>,
 }
 impl WorkspaceDiagnosticReport {
+    #[must_use]
     pub const fn new(items: Vec<WorkspaceDocumentDiagnosticReport>) -> Self {
         Self { items }
     }
@@ -1897,6 +1974,7 @@ pub struct WorkspaceDiagnosticReportPartialResult {
     pub items: Vec<WorkspaceDocumentDiagnosticReport>,
 }
 impl WorkspaceDiagnosticReportPartialResult {
+    #[must_use]
     pub const fn new(items: Vec<WorkspaceDocumentDiagnosticReport>) -> Self {
         Self { items }
     }
@@ -1915,6 +1993,7 @@ pub struct DidOpenNotebookDocumentParams {
     pub cell_text_documents: Vec<TextDocumentItem>,
 }
 impl DidOpenNotebookDocumentParams {
+    #[must_use]
     pub const fn new(
         notebook_document: NotebookDocument,
         cell_text_documents: Vec<TextDocumentItem>,
@@ -1938,6 +2017,7 @@ pub struct NotebookDocumentSyncRegistrationOptions {
     pub notebook_document_sync_options: NotebookDocumentSyncOptions,
 }
 impl NotebookDocumentSyncRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         notebook_document_sync_options: NotebookDocumentSyncOptions,
@@ -1976,6 +2056,7 @@ pub struct DidChangeNotebookDocumentParams {
     pub change: NotebookDocumentChangeEvent,
 }
 impl DidChangeNotebookDocumentParams {
+    #[must_use]
     pub const fn new(
         notebook_document: VersionedNotebookDocumentIdentifier,
         change: NotebookDocumentChangeEvent,
@@ -1994,6 +2075,7 @@ pub struct DidSaveNotebookDocumentParams {
     pub notebook_document: NotebookDocumentIdentifier,
 }
 impl DidSaveNotebookDocumentParams {
+    #[must_use]
     pub const fn new(notebook_document: NotebookDocumentIdentifier) -> Self {
         Self { notebook_document }
     }
@@ -2012,6 +2094,7 @@ pub struct DidCloseNotebookDocumentParams {
     pub cell_text_documents: Vec<TextDocumentIdentifier>,
 }
 impl DidCloseNotebookDocumentParams {
+    #[must_use]
     pub const fn new(
         notebook_document: NotebookDocumentIdentifier,
         cell_text_documents: Vec<TextDocumentIdentifier>,
@@ -2039,6 +2122,7 @@ pub struct InlineCompletionParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl InlineCompletionParams {
+    #[must_use]
     pub const fn new(
         context: InlineCompletionContext,
         work_done_progress_params: WorkDoneProgressParams,
@@ -2063,6 +2147,7 @@ pub struct InlineCompletionList {
     pub items: Vec<InlineCompletionItem>,
 }
 impl InlineCompletionList {
+    #[must_use]
     pub const fn new(items: Vec<InlineCompletionItem>) -> Self {
         Self { items }
     }
@@ -2083,11 +2168,12 @@ pub struct InlineCompletionItem {
     /// The range to replace. Must begin and end on the same line.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub range: Option<Range>,
-    /// An optional [Command] that is executed *after* inserting this completion.
+    /// An optional [`Command`] that is executed *after* inserting this completion.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub command: Option<Command>,
 }
 impl InlineCompletionItem {
+    #[must_use]
     pub const fn new(
         insert_text: InsertText,
         filter_text: Option<String>,
@@ -2118,6 +2204,7 @@ pub struct InlineCompletionRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 impl InlineCompletionRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         inline_completion_options: InlineCompletionOptions,
@@ -2142,6 +2229,7 @@ pub struct TextDocumentContentParams {
     pub uri: Uri,
 }
 impl TextDocumentContentParams {
+    #[must_use]
     pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
@@ -2161,6 +2249,7 @@ pub struct TextDocumentContentResult {
     pub text: String,
 }
 impl TextDocumentContentResult {
+    #[must_use]
     pub const fn new(text: String) -> Self {
         Self { text }
     }
@@ -2179,6 +2268,7 @@ pub struct TextDocumentContentRegistrationOptions {
     pub text_document_content_options: TextDocumentContentOptions,
 }
 impl TextDocumentContentRegistrationOptions {
+    #[must_use]
     pub const fn new(
         static_registration_options: StaticRegistrationOptions,
         text_document_content_options: TextDocumentContentOptions,
@@ -2201,6 +2291,7 @@ pub struct TextDocumentContentRefreshParams {
     pub uri: Uri,
 }
 impl TextDocumentContentRefreshParams {
+    #[must_use]
     pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
@@ -2212,6 +2303,7 @@ pub struct RegistrationParams {
     pub registrations: Vec<Registration>,
 }
 impl RegistrationParams {
+    #[must_use]
     pub const fn new(registrations: Vec<Registration>) -> Self {
         Self { registrations }
     }
@@ -2223,6 +2315,7 @@ pub struct UnregistrationParams {
     pub unregisterations: Vec<Unregistration>,
 }
 impl UnregistrationParams {
+    #[must_use]
     pub const fn new(unregisterations: Vec<Unregistration>) -> Self {
         Self { unregisterations }
     }
@@ -2281,6 +2374,7 @@ pub struct InitializeParams {
     pub workspace_folders_initialize_params: WorkspaceFoldersInitializeParams,
 }
 impl InitializeParams {
+    #[must_use]
     pub const fn new(
         process_id: Option<i32>,
         client_info: Option<ClientInfo>,
@@ -2321,6 +2415,7 @@ pub struct InitializeResult {
     pub server_info: Option<ServerInfo>,
 }
 impl InitializeResult {
+    #[must_use]
     pub const fn new(
         capabilities: ServerCapabilities,
         server_info: Option<ServerInfo>,
@@ -2341,6 +2436,7 @@ pub struct InitializeError {
     pub retry: bool,
 }
 impl InitializeError {
+    #[must_use]
     pub const fn new(retry: bool) -> Self {
         Self { retry }
     }
@@ -2350,6 +2446,7 @@ impl InitializeError {
 #[serde(rename_all = "camelCase")]
 pub struct InitializedParams {}
 impl InitializedParams {
+    #[must_use]
     pub const fn new() -> Self {
         Self {}
     }
@@ -2363,6 +2460,7 @@ pub struct DidChangeConfigurationParams {
     pub settings: LspAny,
 }
 impl DidChangeConfigurationParams {
+    #[must_use]
     pub const fn new(settings: LspAny) -> Self {
         Self { settings }
     }
@@ -2375,6 +2473,7 @@ pub struct DidChangeConfigurationRegistrationOptions {
     pub section: Option<Section>,
 }
 impl DidChangeConfigurationRegistrationOptions {
+    #[must_use]
     pub const fn new(section: Option<Section>) -> Self {
         Self { section }
     }
@@ -2384,13 +2483,14 @@ impl DidChangeConfigurationRegistrationOptions {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct ShowMessageParams {
-    /// The message type. See [MessageType]
+    /// The message type. See [`MessageType`]
     #[serde(rename = "type")]
     pub kind: MessageType,
     /// The actual message.
     pub message: String,
 }
 impl ShowMessageParams {
+    #[must_use]
     pub const fn new(kind: MessageType, message: String) -> Self {
         Self { kind, message }
     }
@@ -2399,7 +2499,7 @@ impl ShowMessageParams {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct ShowMessageRequestParams {
-    /// The message type. See [MessageType]
+    /// The message type. See [`MessageType`]
     #[serde(rename = "type")]
     pub kind: MessageType,
     /// The actual message.
@@ -2409,6 +2509,7 @@ pub struct ShowMessageRequestParams {
     pub actions: Option<Vec<MessageActionItem>>,
 }
 impl ShowMessageRequestParams {
+    #[must_use]
     pub const fn new(
         kind: MessageType,
         message: String,
@@ -2425,6 +2526,7 @@ pub struct MessageActionItem {
     pub title: String,
 }
 impl MessageActionItem {
+    #[must_use]
     pub const fn new(title: String) -> Self {
         Self { title }
     }
@@ -2434,13 +2536,14 @@ impl MessageActionItem {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct LogMessageParams {
-    /// The message type. See [MessageType]
+    /// The message type. See [`MessageType`]
     #[serde(rename = "type")]
     pub kind: MessageType,
     /// The actual message.
     pub message: String,
 }
 impl LogMessageParams {
+    #[must_use]
     pub const fn new(kind: MessageType, message: String) -> Self {
         Self { kind, message }
     }
@@ -2454,6 +2557,7 @@ pub struct DidOpenTextDocumentParams {
     pub text_document: TextDocumentItem,
 }
 impl DidOpenTextDocumentParams {
+    #[must_use]
     pub const fn new(text_document: TextDocumentItem) -> Self {
         Self { text_document }
     }
@@ -2481,6 +2585,7 @@ pub struct DidChangeTextDocumentParams {
     pub content_changes: Vec<TextDocumentContentChangeEvent>,
 }
 impl DidChangeTextDocumentParams {
+    #[must_use]
     pub const fn new(
         text_document: VersionedTextDocumentIdentifier,
         content_changes: Vec<TextDocumentContentChangeEvent>,
@@ -2502,6 +2607,7 @@ pub struct TextDocumentChangeRegistrationOptions {
     pub text_document_registration_options: TextDocumentRegistrationOptions,
 }
 impl TextDocumentChangeRegistrationOptions {
+    #[must_use]
     pub const fn new(
         sync_kind: TextDocumentSyncKind,
         text_document_registration_options: TextDocumentRegistrationOptions,
@@ -2521,6 +2627,7 @@ pub struct DidCloseTextDocumentParams {
     pub text_document: TextDocumentIdentifier,
 }
 impl DidCloseTextDocumentParams {
+    #[must_use]
     pub const fn new(text_document: TextDocumentIdentifier) -> Self {
         Self { text_document }
     }
@@ -2538,6 +2645,7 @@ pub struct DidSaveTextDocumentParams {
     pub text: Option<String>,
 }
 impl DidSaveTextDocumentParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         text: Option<String>,
@@ -2556,6 +2664,7 @@ pub struct TextDocumentSaveRegistrationOptions {
     pub save_options: SaveOptions,
 }
 impl TextDocumentSaveRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         save_options: SaveOptions,
@@ -2577,6 +2686,7 @@ pub struct WillSaveTextDocumentParams {
     pub reason: TextDocumentSaveReason,
 }
 impl WillSaveTextDocumentParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         reason: TextDocumentSaveReason,
@@ -2597,6 +2707,7 @@ pub struct TextEdit {
     pub new_text: String,
 }
 impl TextEdit {
+    #[must_use]
     pub const fn new(range: Range, new_text: String) -> Self {
         Self { range, new_text }
     }
@@ -2610,6 +2721,7 @@ pub struct DidChangeWatchedFilesParams {
     pub changes: Vec<FileEvent>,
 }
 impl DidChangeWatchedFilesParams {
+    #[must_use]
     pub const fn new(changes: Vec<FileEvent>) -> Self {
         Self { changes }
     }
@@ -2623,6 +2735,7 @@ pub struct DidChangeWatchedFilesRegistrationOptions {
     pub watchers: Vec<FileSystemWatcher>,
 }
 impl DidChangeWatchedFilesRegistrationOptions {
+    #[must_use]
     pub const fn new(watchers: Vec<FileSystemWatcher>) -> Self {
         Self { watchers }
     }
@@ -2643,6 +2756,7 @@ pub struct PublishDiagnosticsParams {
     pub diagnostics: Vec<Diagnostic>,
 }
 impl PublishDiagnosticsParams {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         version: Option<i32>,
@@ -2668,6 +2782,7 @@ pub struct CompletionParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl CompletionParams {
+    #[must_use]
     pub const fn new(
         context: Option<CompletionContext>,
         work_done_progress_params: WorkDoneProgressParams,
@@ -2821,11 +2936,12 @@ pub struct CompletionItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub command: Option<Command>,
     /// A data entry field that is preserved on a completion item between a
-    /// [CompletionRequest] and a [CompletionResolveRequest].
+    /// [`CompletionRequest`] and a [`CompletionResolveRequest`].
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<LspAny>,
 }
 impl CompletionItem {
+    #[must_use]
     pub const fn new(
         label: String,
         label_details: Option<CompletionItemLabelDetails>,
@@ -2921,6 +3037,7 @@ pub struct CompletionList {
     pub items: Vec<CompletionItem>,
 }
 impl CompletionList {
+    #[must_use]
     pub const fn new(
         is_incomplete: bool,
         item_defaults: Option<CompletionItemDefaults>,
@@ -2936,7 +3053,7 @@ impl CompletionList {
     }
 }
 
-/// Registration options for a [CompletionRequest].
+/// Registration options for a [`CompletionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CompletionRegistrationOptions {
@@ -2946,6 +3063,7 @@ pub struct CompletionRegistrationOptions {
     pub completion_options: CompletionOptions,
 }
 impl CompletionRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         completion_options: CompletionOptions,
@@ -2957,7 +3075,7 @@ impl CompletionRegistrationOptions {
     }
 }
 
-/// Parameters for a [HoverRequest].
+/// Parameters for a [`HoverRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct HoverParams {
@@ -2967,6 +3085,7 @@ pub struct HoverParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl HoverParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         text_document_position_params: TextDocumentPositionParams,
@@ -2990,12 +3109,13 @@ pub struct Hover {
     pub range: Option<Range>,
 }
 impl Hover {
+    #[must_use]
     pub const fn new(contents: Contents, range: Option<Range>) -> Self {
         Self { contents, range }
     }
 }
 
-/// Registration options for a [HoverRequest].
+/// Registration options for a [`HoverRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct HoverRegistrationOptions {
@@ -3005,6 +3125,7 @@ pub struct HoverRegistrationOptions {
     pub hover_options: HoverOptions,
 }
 impl HoverRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         hover_options: HoverOptions,
@@ -3016,7 +3137,7 @@ impl HoverRegistrationOptions {
     }
 }
 
-/// Parameters for a [SignatureHelpRequest].
+/// Parameters for a [`SignatureHelpRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpParams {
@@ -3032,6 +3153,7 @@ pub struct SignatureHelpParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl SignatureHelpParams {
+    #[must_use]
     pub const fn new(
         context: Option<SignatureHelpContext>,
         work_done_progress_params: WorkDoneProgressParams,
@@ -3085,6 +3207,7 @@ pub struct SignatureHelp {
     pub active_parameter: Option<ActiveParameter>,
 }
 impl SignatureHelp {
+    #[must_use]
     pub const fn new(
         signatures: Vec<SignatureInformation>,
         active_signature: Option<u32>,
@@ -3098,7 +3221,7 @@ impl SignatureHelp {
     }
 }
 
-/// Registration options for a [SignatureHelpRequest].
+/// Registration options for a [`SignatureHelpRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpRegistrationOptions {
@@ -3108,6 +3231,7 @@ pub struct SignatureHelpRegistrationOptions {
     pub signature_help_options: SignatureHelpOptions,
 }
 impl SignatureHelpRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         signature_help_options: SignatureHelpOptions,
@@ -3119,7 +3243,7 @@ impl SignatureHelpRegistrationOptions {
     }
 }
 
-/// Parameters for a [DefinitionRequest].
+/// Parameters for a [`DefinitionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionParams {
@@ -3131,6 +3255,7 @@ pub struct DefinitionParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl DefinitionParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         partial_result_params: PartialResultParams,
@@ -3144,7 +3269,7 @@ impl DefinitionParams {
     }
 }
 
-/// Registration options for a [DefinitionRequest].
+/// Registration options for a [`DefinitionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionRegistrationOptions {
@@ -3154,6 +3279,7 @@ pub struct DefinitionRegistrationOptions {
     pub definition_options: DefinitionOptions,
 }
 impl DefinitionRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         definition_options: DefinitionOptions,
@@ -3165,7 +3291,7 @@ impl DefinitionRegistrationOptions {
     }
 }
 
-/// Parameters for a [ReferencesRequest].
+/// Parameters for a [`ReferencesRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceParams {
@@ -3178,6 +3304,7 @@ pub struct ReferenceParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl ReferenceParams {
+    #[must_use]
     pub const fn new(
         context: ReferenceContext,
         work_done_progress_params: WorkDoneProgressParams,
@@ -3193,7 +3320,7 @@ impl ReferenceParams {
     }
 }
 
-/// Registration options for a [ReferencesRequest].
+/// Registration options for a [`ReferencesRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceRegistrationOptions {
@@ -3203,6 +3330,7 @@ pub struct ReferenceRegistrationOptions {
     pub reference_options: ReferenceOptions,
 }
 impl ReferenceRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         reference_options: ReferenceOptions,
@@ -3214,7 +3342,7 @@ impl ReferenceRegistrationOptions {
     }
 }
 
-/// Parameters for a [DocumentHighlightRequest].
+/// Parameters for a [`DocumentHighlightRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightParams {
@@ -3226,6 +3354,7 @@ pub struct DocumentHighlightParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl DocumentHighlightParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         partial_result_params: PartialResultParams,
@@ -3252,12 +3381,13 @@ pub struct DocumentHighlight {
     pub kind: Option<DocumentHighlightKind>,
 }
 impl DocumentHighlight {
+    #[must_use]
     pub const fn new(range: Range, kind: Option<DocumentHighlightKind>) -> Self {
         Self { range, kind }
     }
 }
 
-/// Registration options for a [DocumentHighlightRequest].
+/// Registration options for a [`DocumentHighlightRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightRegistrationOptions {
@@ -3267,6 +3397,7 @@ pub struct DocumentHighlightRegistrationOptions {
     pub document_highlight_options: DocumentHighlightOptions,
 }
 impl DocumentHighlightRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         document_highlight_options: DocumentHighlightOptions,
@@ -3278,7 +3409,7 @@ impl DocumentHighlightRegistrationOptions {
     }
 }
 
-/// Parameters for a [DocumentSymbolRequest].
+/// Parameters for a [`DocumentSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolParams {
@@ -3290,6 +3421,7 @@ pub struct DocumentSymbolParams {
     pub partial_result_params: PartialResultParams,
 }
 impl DocumentSymbolParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         work_done_progress_params: WorkDoneProgressParams,
@@ -3328,6 +3460,7 @@ pub struct SymbolInformation {
     pub base_symbol_information: BaseSymbolInformation,
 }
 impl SymbolInformation {
+    #[must_use]
     pub const fn new(
         deprecated: Option<bool>,
         location: Location,
@@ -3379,6 +3512,7 @@ pub struct DocumentSymbol {
     pub children: Option<Vec<DocumentSymbol>>,
 }
 impl DocumentSymbol {
+    #[must_use]
     pub const fn new(
         name: String,
         detail: Option<String>,
@@ -3402,7 +3536,7 @@ impl DocumentSymbol {
     }
 }
 
-/// Registration options for a [DocumentSymbolRequest].
+/// Registration options for a [`DocumentSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolRegistrationOptions {
@@ -3412,6 +3546,7 @@ pub struct DocumentSymbolRegistrationOptions {
     pub document_symbol_options: DocumentSymbolOptions,
 }
 impl DocumentSymbolRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         document_symbol_options: DocumentSymbolOptions,
@@ -3423,7 +3558,7 @@ impl DocumentSymbolRegistrationOptions {
     }
 }
 
-/// The parameters of a [CodeActionRequest].
+/// The parameters of a [`CodeActionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionParams {
@@ -3439,6 +3574,7 @@ pub struct CodeActionParams {
     pub partial_result_params: PartialResultParams,
 }
 impl CodeActionParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         range: Range,
@@ -3479,6 +3615,7 @@ pub struct Command {
     pub arguments: Option<Vec<LspAny>>,
 }
 impl Command {
+    #[must_use]
     pub const fn new(
         title: String,
         tooltip: Option<String>,
@@ -3558,6 +3695,7 @@ pub struct CodeAction {
     pub tags: Option<Vec<CodeActionTag>>,
 }
 impl CodeAction {
+    #[must_use]
     pub const fn new(
         title: String,
         kind: Option<CodeActionKind>,
@@ -3583,7 +3721,7 @@ impl CodeAction {
     }
 }
 
-/// Registration options for a [CodeActionRequest].
+/// Registration options for a [`CodeActionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionRegistrationOptions {
@@ -3593,6 +3731,7 @@ pub struct CodeActionRegistrationOptions {
     pub code_action_options: CodeActionOptions,
 }
 impl CodeActionRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         code_action_options: CodeActionOptions,
@@ -3604,7 +3743,7 @@ impl CodeActionRegistrationOptions {
     }
 }
 
-/// The parameters of a [WorkspaceSymbolRequest].
+/// The parameters of a [`WorkspaceSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolParams {
@@ -3623,6 +3762,7 @@ pub struct WorkspaceSymbolParams {
     pub partial_result_params: PartialResultParams,
 }
 impl WorkspaceSymbolParams {
+    #[must_use]
     pub const fn new(
         query: String,
         work_done_progress_params: WorkDoneProgressParams,
@@ -3658,6 +3798,7 @@ pub struct WorkspaceSymbol {
     pub base_symbol_information: BaseSymbolInformation,
 }
 impl WorkspaceSymbol {
+    #[must_use]
     pub const fn new(
         location: WorkspaceSymbolLocation,
         data: Option<LspAny>,
@@ -3671,7 +3812,7 @@ impl WorkspaceSymbol {
     }
 }
 
-/// Registration options for a [WorkspaceSymbolRequest].
+/// Registration options for a [`WorkspaceSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolRegistrationOptions {
@@ -3679,12 +3820,13 @@ pub struct WorkspaceSymbolRegistrationOptions {
     pub workspace_symbol_options: WorkspaceSymbolOptions,
 }
 impl WorkspaceSymbolRegistrationOptions {
+    #[must_use]
     pub const fn new(workspace_symbol_options: WorkspaceSymbolOptions) -> Self {
         Self { workspace_symbol_options }
     }
 }
 
-/// The parameters of a [CodeLensRequest].
+/// The parameters of a [`CodeLensRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensParams {
@@ -3696,6 +3838,7 @@ pub struct CodeLensParams {
     pub partial_result_params: PartialResultParams,
 }
 impl CodeLensParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         work_done_progress_params: WorkDoneProgressParams,
@@ -3723,11 +3866,12 @@ pub struct CodeLens {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub command: Option<Command>,
     /// A data entry field that is preserved on a code lens item between
-    /// a [CodeLensRequest] and a [CodeLensResolveRequest]
+    /// a [`CodeLensRequest`] and a [`CodeLensResolveRequest`]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub data: Option<LspAny>,
 }
 impl CodeLens {
+    #[must_use]
     pub const fn new(
         range: Range,
         command: Option<Command>,
@@ -3737,7 +3881,7 @@ impl CodeLens {
     }
 }
 
-/// Registration options for a [CodeLensRequest].
+/// Registration options for a [`CodeLensRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensRegistrationOptions {
@@ -3747,6 +3891,7 @@ pub struct CodeLensRegistrationOptions {
     pub code_lens_options: CodeLensOptions,
 }
 impl CodeLensRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         code_lens_options: CodeLensOptions,
@@ -3758,7 +3903,7 @@ impl CodeLensRegistrationOptions {
     }
 }
 
-/// The parameters of a [DocumentLinkRequest].
+/// The parameters of a [`DocumentLinkRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkParams {
@@ -3770,6 +3915,7 @@ pub struct DocumentLinkParams {
     pub partial_result_params: PartialResultParams,
 }
 impl DocumentLinkParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         work_done_progress_params: WorkDoneProgressParams,
@@ -3808,6 +3954,7 @@ pub struct DocumentLink {
     pub data: Option<LspAny>,
 }
 impl DocumentLink {
+    #[must_use]
     pub const fn new(
         range: Range,
         target: Option<Uri>,
@@ -3823,7 +3970,7 @@ impl DocumentLink {
     }
 }
 
-/// Registration options for a [DocumentLinkRequest].
+/// Registration options for a [`DocumentLinkRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkRegistrationOptions {
@@ -3833,6 +3980,7 @@ pub struct DocumentLinkRegistrationOptions {
     pub document_link_options: DocumentLinkOptions,
 }
 impl DocumentLinkRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         document_link_options: DocumentLinkOptions,
@@ -3844,7 +3992,7 @@ impl DocumentLinkRegistrationOptions {
     }
 }
 
-/// The parameters of a [DocumentFormattingRequest].
+/// The parameters of a [`DocumentFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingParams {
@@ -3856,6 +4004,7 @@ pub struct DocumentFormattingParams {
     pub work_done_progress_params: WorkDoneProgressParams,
 }
 impl DocumentFormattingParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         options: FormattingOptions,
@@ -3869,7 +4018,7 @@ impl DocumentFormattingParams {
     }
 }
 
-/// Registration options for a [DocumentFormattingRequest].
+/// Registration options for a [`DocumentFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingRegistrationOptions {
@@ -3879,6 +4028,7 @@ pub struct DocumentFormattingRegistrationOptions {
     pub document_formatting_options: DocumentFormattingOptions,
 }
 impl DocumentFormattingRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         document_formatting_options: DocumentFormattingOptions,
@@ -3890,7 +4040,7 @@ impl DocumentFormattingRegistrationOptions {
     }
 }
 
-/// The parameters of a [DocumentRangeFormattingRequest].
+/// The parameters of a [`DocumentRangeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingParams {
@@ -3904,6 +4054,7 @@ pub struct DocumentRangeFormattingParams {
     pub work_done_progress_params: WorkDoneProgressParams,
 }
 impl DocumentRangeFormattingParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         range: Range,
@@ -3919,7 +4070,7 @@ impl DocumentRangeFormattingParams {
     }
 }
 
-/// Registration options for a [DocumentRangeFormattingRequest].
+/// Registration options for a [`DocumentRangeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingRegistrationOptions {
@@ -3929,6 +4080,7 @@ pub struct DocumentRangeFormattingRegistrationOptions {
     pub document_range_formatting_options: DocumentRangeFormattingOptions,
 }
 impl DocumentRangeFormattingRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         document_range_formatting_options: DocumentRangeFormattingOptions,
@@ -3940,7 +4092,7 @@ impl DocumentRangeFormattingRegistrationOptions {
     }
 }
 
-/// The parameters of a [DocumentRangesFormattingRequest].
+/// The parameters of a [`DocumentRangesFormattingRequest`].
 ///
 /// @since 3.18.0
 /// @proposed
@@ -3957,6 +4109,7 @@ pub struct DocumentRangesFormattingParams {
     pub work_done_progress_params: WorkDoneProgressParams,
 }
 impl DocumentRangesFormattingParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         ranges: Vec<Range>,
@@ -3972,7 +4125,7 @@ impl DocumentRangesFormattingParams {
     }
 }
 
-/// The parameters of a [DocumentOnTypeFormattingRequest].
+/// The parameters of a [`DocumentOnTypeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingParams {
@@ -3991,6 +4144,7 @@ pub struct DocumentOnTypeFormattingParams {
     pub options: FormattingOptions,
 }
 impl DocumentOnTypeFormattingParams {
+    #[must_use]
     pub const fn new(
         text_document: TextDocumentIdentifier,
         position: Position,
@@ -4006,7 +4160,7 @@ impl DocumentOnTypeFormattingParams {
     }
 }
 
-/// Registration options for a [DocumentOnTypeFormattingRequest].
+/// Registration options for a [`DocumentOnTypeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingRegistrationOptions {
@@ -4016,6 +4170,7 @@ pub struct DocumentOnTypeFormattingRegistrationOptions {
     pub document_on_type_formatting_options: DocumentOnTypeFormattingOptions,
 }
 impl DocumentOnTypeFormattingRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         document_on_type_formatting_options: DocumentOnTypeFormattingOptions,
@@ -4027,12 +4182,12 @@ impl DocumentOnTypeFormattingRegistrationOptions {
     }
 }
 
-/// The parameters of a [RenameRequest].
+/// The parameters of a [`RenameRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct RenameParams {
     /// The new name of the symbol. If the given name is not valid the
-    /// request must return a [ResponseError] with an
+    /// request must return a [`ResponseError`] with an
     /// appropriate message set.
     pub new_name: String,
     #[serde(flatten)]
@@ -4041,6 +4196,7 @@ pub struct RenameParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl RenameParams {
+    #[must_use]
     pub const fn new(
         new_name: String,
         work_done_progress_params: WorkDoneProgressParams,
@@ -4054,7 +4210,7 @@ impl RenameParams {
     }
 }
 
-/// Registration options for a [RenameRequest].
+/// Registration options for a [`RenameRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct RenameRegistrationOptions {
@@ -4064,6 +4220,7 @@ pub struct RenameRegistrationOptions {
     pub rename_options: RenameOptions,
 }
 impl RenameRegistrationOptions {
+    #[must_use]
     pub const fn new(
         text_document_registration_options: TextDocumentRegistrationOptions,
         rename_options: RenameOptions,
@@ -4084,6 +4241,7 @@ pub struct PrepareRenameParams {
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl PrepareRenameParams {
+    #[must_use]
     pub const fn new(
         work_done_progress_params: WorkDoneProgressParams,
         text_document_position_params: TextDocumentPositionParams,
@@ -4095,7 +4253,7 @@ impl PrepareRenameParams {
     }
 }
 
-/// The parameters of a [ExecuteCommandRequest].
+/// The parameters of a [`ExecuteCommandRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandParams {
@@ -4108,6 +4266,7 @@ pub struct ExecuteCommandParams {
     pub work_done_progress_params: WorkDoneProgressParams,
 }
 impl ExecuteCommandParams {
+    #[must_use]
     pub const fn new(
         command: String,
         arguments: Option<Vec<LspAny>>,
@@ -4121,7 +4280,7 @@ impl ExecuteCommandParams {
     }
 }
 
-/// Registration options for a [ExecuteCommandRequest].
+/// Registration options for a [`ExecuteCommandRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandRegistrationOptions {
@@ -4129,6 +4288,7 @@ pub struct ExecuteCommandRegistrationOptions {
     pub execute_command_options: ExecuteCommandOptions,
 }
 impl ExecuteCommandRegistrationOptions {
+    #[must_use]
     pub const fn new(execute_command_options: ExecuteCommandOptions) -> Self {
         Self { execute_command_options }
     }
@@ -4153,6 +4313,7 @@ pub struct ApplyWorkspaceEditParams {
     pub metadata: Option<WorkspaceEditMetadata>,
 }
 impl ApplyWorkspaceEditParams {
+    #[must_use]
     pub const fn new(
         label: Option<String>,
         edit: WorkspaceEdit,
@@ -4182,6 +4343,7 @@ pub struct ApplyWorkspaceEditResult {
     pub failed_change: Option<u32>,
 }
 impl ApplyWorkspaceEditResult {
+    #[must_use]
     pub const fn new(
         applied: bool,
         failure_reason: Option<String>,
@@ -4261,7 +4423,7 @@ impl TryFrom<ShadowWorkDoneProgressBegin> for WorkDoneProgressBegin {
         if shadow.kind != "begin" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(WorkDoneProgressBegin {
+        Ok(Self {
             title: shadow.title,
             cancellable: shadow.cancellable,
             message: shadow.message,
@@ -4271,7 +4433,7 @@ impl TryFrom<ShadowWorkDoneProgressBegin> for WorkDoneProgressBegin {
 }
 impl From<WorkDoneProgressBegin> for ShadowWorkDoneProgressBegin {
     fn from(original: WorkDoneProgressBegin) -> Self {
-        ShadowWorkDoneProgressBegin {
+        Self {
             title: original.title,
             cancellable: original.cancellable,
             message: original.message,
@@ -4281,6 +4443,7 @@ impl From<WorkDoneProgressBegin> for ShadowWorkDoneProgressBegin {
     }
 }
 impl WorkDoneProgressBegin {
+    #[must_use]
     pub const fn new(
         title: String,
         cancellable: Option<bool>,
@@ -4357,7 +4520,7 @@ impl TryFrom<ShadowWorkDoneProgressReport> for WorkDoneProgressReport {
         if shadow.kind != "report" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(WorkDoneProgressReport {
+        Ok(Self {
             cancellable: shadow.cancellable,
             message: shadow.message,
             percentage: shadow.percentage,
@@ -4366,7 +4529,7 @@ impl TryFrom<ShadowWorkDoneProgressReport> for WorkDoneProgressReport {
 }
 impl From<WorkDoneProgressReport> for ShadowWorkDoneProgressReport {
     fn from(original: WorkDoneProgressReport) -> Self {
-        ShadowWorkDoneProgressReport {
+        Self {
             cancellable: original.cancellable,
             message: original.message,
             percentage: original.percentage,
@@ -4375,6 +4538,7 @@ impl From<WorkDoneProgressReport> for ShadowWorkDoneProgressReport {
     }
 }
 impl WorkDoneProgressReport {
+    #[must_use]
     pub const fn new(
         cancellable: Option<bool>,
         message: Option<String>,
@@ -4412,20 +4576,19 @@ impl TryFrom<ShadowWorkDoneProgressEnd> for WorkDoneProgressEnd {
         if shadow.kind != "end" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(WorkDoneProgressEnd {
-            message: shadow.message,
-        })
+        Ok(Self { message: shadow.message })
     }
 }
 impl From<WorkDoneProgressEnd> for ShadowWorkDoneProgressEnd {
     fn from(original: WorkDoneProgressEnd) -> Self {
-        ShadowWorkDoneProgressEnd {
+        Self {
             message: original.message,
             kind: "end".to_string(),
         }
     }
 }
 impl WorkDoneProgressEnd {
+    #[must_use]
     pub const fn new(message: Option<String>) -> Self {
         Self { message }
     }
@@ -4437,6 +4600,7 @@ pub struct SetTraceParams {
     pub value: TraceValue,
 }
 impl SetTraceParams {
+    #[must_use]
     pub const fn new(value: TraceValue) -> Self {
         Self { value }
     }
@@ -4450,6 +4614,7 @@ pub struct LogTraceParams {
     pub verbose: Option<String>,
 }
 impl LogTraceParams {
+    #[must_use]
     pub const fn new(message: String, verbose: Option<String>) -> Self {
         Self { message, verbose }
     }
@@ -4462,6 +4627,7 @@ pub struct CancelParams {
     pub id: Id,
 }
 impl CancelParams {
+    #[must_use]
     pub const fn new(id: Id) -> Self {
         Self { id }
     }
@@ -4476,6 +4642,7 @@ pub struct ProgressParams {
     pub value: LspAny,
 }
 impl ProgressParams {
+    #[must_use]
     pub const fn new(token: ProgressToken, value: LspAny) -> Self {
         Self { token, value }
     }
@@ -4492,6 +4659,7 @@ pub struct TextDocumentPositionParams {
     pub position: Position,
 }
 impl TextDocumentPositionParams {
+    #[must_use]
     pub const fn new(text_document: TextDocumentIdentifier, position: Position) -> Self {
         Self { text_document, position }
     }
@@ -4505,6 +4673,7 @@ pub struct WorkDoneProgressParams {
     pub work_done_token: Option<ProgressToken>,
 }
 impl WorkDoneProgressParams {
+    #[must_use]
     pub const fn new(work_done_token: Option<ProgressToken>) -> Self {
         Self { work_done_token }
     }
@@ -4519,6 +4688,7 @@ pub struct PartialResultParams {
     pub partial_result_token: Option<ProgressToken>,
 }
 impl PartialResultParams {
+    #[must_use]
     pub const fn new(partial_result_token: Option<ProgressToken>) -> Self {
         Self { partial_result_token }
     }
@@ -4546,6 +4716,7 @@ pub struct LocationLink {
     pub target_selection_range: Range,
 }
 impl LocationLink {
+    #[must_use]
     pub const fn new(
         origin_selection_range: Option<Range>,
         target_uri: Uri,
@@ -4593,6 +4764,7 @@ pub struct Range {
     pub end: Position,
 }
 impl Range {
+    #[must_use]
     pub const fn new(start: Position, end: Position) -> Self {
         Self { start, end }
     }
@@ -4605,6 +4777,7 @@ pub struct ImplementationOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl ImplementationOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4621,6 +4794,7 @@ pub struct StaticRegistrationOptions {
     pub id: Option<String>,
 }
 impl StaticRegistrationOptions {
+    #[must_use]
     pub const fn new(id: Option<String>) -> Self {
         Self { id }
     }
@@ -4633,6 +4807,7 @@ pub struct TypeDefinitionOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl TypeDefinitionOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4648,6 +4823,7 @@ pub struct WorkspaceFoldersChangeEvent {
     pub removed: Vec<WorkspaceFolder>,
 }
 impl WorkspaceFoldersChangeEvent {
+    #[must_use]
     pub const fn new(
         added: Vec<WorkspaceFolder>,
         removed: Vec<WorkspaceFolder>,
@@ -4667,6 +4843,7 @@ pub struct ConfigurationItem {
     pub section: Option<String>,
 }
 impl ConfigurationItem {
+    #[must_use]
     pub const fn new(scope_uri: Option<Uri>, section: Option<String>) -> Self {
         Self { scope_uri, section }
     }
@@ -4680,6 +4857,7 @@ pub struct TextDocumentIdentifier {
     pub uri: Uri,
 }
 impl TextDocumentIdentifier {
+    #[must_use]
     pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
@@ -4699,6 +4877,7 @@ pub struct Color {
     pub alpha: f32,
 }
 impl Color {
+    #[must_use]
     pub const fn new(red: f32, green: f32, blue: f32, alpha: f32) -> Self {
         Self { red, green, blue, alpha }
     }
@@ -4711,6 +4890,7 @@ pub struct DocumentColorOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DocumentColorOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4723,6 +4903,7 @@ pub struct FoldingRangeOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl FoldingRangeOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4735,6 +4916,7 @@ pub struct DeclarationOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DeclarationOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4791,6 +4973,7 @@ pub struct Position {
     pub character: u32,
 }
 impl Position {
+    #[must_use]
     pub const fn new(line: u32, character: u32) -> Self {
         Self { line, character }
     }
@@ -4803,6 +4986,7 @@ pub struct SelectionRangeOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl SelectionRangeOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4818,6 +5002,7 @@ pub struct CallHierarchyOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl CallHierarchyOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4840,6 +5025,7 @@ pub struct SemanticTokensOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl SemanticTokensOptions {
+    #[must_use]
     pub const fn new(
         legend: SemanticTokensLegend,
         range: Option<SemanticTokensOptionsRange>,
@@ -4873,6 +5059,7 @@ pub struct SemanticTokensEdit {
     pub data: Option<Vec<SemanticToken>>,
 }
 impl SemanticTokensEdit {
+    #[must_use]
     pub const fn new(
         start: u32,
         delete_count: u32,
@@ -4889,6 +5076,7 @@ pub struct LinkedEditingRangeOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl LinkedEditingRangeOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -4904,6 +5092,7 @@ pub struct FileCreate {
     pub uri: String,
 }
 impl FileCreate {
+    #[must_use]
     pub const fn new(uri: String) -> Self {
         Self { uri }
     }
@@ -4928,6 +5117,7 @@ pub struct TextDocumentEdit {
     pub edits: Vec<Edit>,
 }
 impl TextDocumentEdit {
+    #[must_use]
     pub const fn new(
         text_document: OptionalVersionedTextDocumentIdentifier,
         edits: Vec<Edit>,
@@ -4973,7 +5163,7 @@ impl TryFrom<ShadowCreateFile> for CreateFile {
         if shadow.kind != "create" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(CreateFile {
+        Ok(Self {
             uri: shadow.uri,
             options: shadow.options,
             annotation_id: shadow.annotation_id,
@@ -4982,7 +5172,7 @@ impl TryFrom<ShadowCreateFile> for CreateFile {
 }
 impl From<CreateFile> for ShadowCreateFile {
     fn from(original: CreateFile) -> Self {
-        ShadowCreateFile {
+        Self {
             uri: original.uri,
             options: original.options,
             annotation_id: original.annotation_id,
@@ -4991,6 +5181,7 @@ impl From<CreateFile> for ShadowCreateFile {
     }
 }
 impl CreateFile {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         options: Option<CreateFileOptions>,
@@ -5045,7 +5236,7 @@ impl TryFrom<ShadowRenameFile> for RenameFile {
         if shadow.kind != "rename" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(RenameFile {
+        Ok(Self {
             old_uri: shadow.old_uri,
             new_uri: shadow.new_uri,
             options: shadow.options,
@@ -5055,7 +5246,7 @@ impl TryFrom<ShadowRenameFile> for RenameFile {
 }
 impl From<RenameFile> for ShadowRenameFile {
     fn from(original: RenameFile) -> Self {
-        ShadowRenameFile {
+        Self {
             old_uri: original.old_uri,
             new_uri: original.new_uri,
             options: original.options,
@@ -5065,6 +5256,7 @@ impl From<RenameFile> for ShadowRenameFile {
     }
 }
 impl RenameFile {
+    #[must_use]
     pub const fn new(
         old_uri: Uri,
         new_uri: Uri,
@@ -5117,7 +5309,7 @@ impl TryFrom<ShadowDeleteFile> for DeleteFile {
         if shadow.kind != "delete" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(DeleteFile {
+        Ok(Self {
             uri: shadow.uri,
             options: shadow.options,
             annotation_id: shadow.annotation_id,
@@ -5126,7 +5318,7 @@ impl TryFrom<ShadowDeleteFile> for DeleteFile {
 }
 impl From<DeleteFile> for ShadowDeleteFile {
     fn from(original: DeleteFile) -> Self {
-        ShadowDeleteFile {
+        Self {
             uri: original.uri,
             options: original.options,
             annotation_id: original.annotation_id,
@@ -5135,6 +5327,7 @@ impl From<DeleteFile> for ShadowDeleteFile {
     }
 }
 impl DeleteFile {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         options: Option<DeleteFileOptions>,
@@ -5167,6 +5360,7 @@ pub struct ChangeAnnotation {
     pub description: Option<String>,
 }
 impl ChangeAnnotation {
+    #[must_use]
     pub const fn new(
         label: String,
         needs_confirmation: Option<bool>,
@@ -5194,6 +5388,7 @@ pub struct FileOperationFilter {
     pub pattern: FileOperationPattern,
 }
 impl FileOperationFilter {
+    #[must_use]
     pub const fn new(scheme: Option<String>, pattern: FileOperationPattern) -> Self {
         Self { scheme, pattern }
     }
@@ -5211,6 +5406,7 @@ pub struct FileRename {
     pub new_uri: String,
 }
 impl FileRename {
+    #[must_use]
     pub const fn new(old_uri: String, new_uri: String) -> Self {
         Self { old_uri, new_uri }
     }
@@ -5226,6 +5422,7 @@ pub struct FileDelete {
     pub uri: String,
 }
 impl FileDelete {
+    #[must_use]
     pub const fn new(uri: String) -> Self {
         Self { uri }
     }
@@ -5238,6 +5435,7 @@ pub struct MonikerOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl MonikerOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -5253,6 +5451,7 @@ pub struct TypeHierarchyOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl TypeHierarchyOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -5269,6 +5468,7 @@ pub struct InlineValueContext {
     pub stopped_location: Range,
 }
 impl InlineValueContext {
+    #[must_use]
     pub const fn new(frame_id: i32, stopped_location: Range) -> Self {
         Self { frame_id, stopped_location }
     }
@@ -5286,6 +5486,7 @@ pub struct InlineValueText {
     pub text: String,
 }
 impl InlineValueText {
+    #[must_use]
     pub const fn new(range: Range, text: String) -> Self {
         Self { range, text }
     }
@@ -5309,6 +5510,7 @@ pub struct InlineValueVariableLookup {
     pub case_sensitive_lookup: bool,
 }
 impl InlineValueVariableLookup {
+    #[must_use]
     pub const fn new(
         range: Range,
         variable_name: Option<String>,
@@ -5338,6 +5540,7 @@ pub struct InlineValueEvaluatableExpression {
     pub expression: Option<String>,
 }
 impl InlineValueEvaluatableExpression {
+    #[must_use]
     pub const fn new(range: Range, expression: Option<String>) -> Self {
         Self { range, expression }
     }
@@ -5353,6 +5556,7 @@ pub struct InlineValueOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl InlineValueOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -5393,6 +5597,7 @@ pub struct InlayHintLabelPart {
     pub command: Option<Command>,
 }
 impl InlayHintLabelPart {
+    #[must_use]
     pub const fn new(
         value: String,
         tooltip: Option<Tooltip>,
@@ -5439,6 +5644,7 @@ pub struct MarkupContent {
     pub value: String,
 }
 impl MarkupContent {
+    #[must_use]
     pub const fn new(kind: MarkupKind, value: String) -> Self {
         Self { kind, value }
     }
@@ -5458,6 +5664,7 @@ pub struct InlayHintOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl InlayHintOptions {
+    #[must_use]
     pub const fn new(
         resolve_provider: Option<bool>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -5488,6 +5695,7 @@ pub struct RelatedFullDocumentDiagnosticReport {
     pub full_document_diagnostic_report: FullDocumentDiagnosticReport,
 }
 impl RelatedFullDocumentDiagnosticReport {
+    #[must_use]
     pub const fn new(
         related_documents: Option<HashMap<Uri, RelatedDocument>>,
         full_document_diagnostic_report: FullDocumentDiagnosticReport,
@@ -5518,6 +5726,7 @@ pub struct RelatedUnchangedDocumentDiagnosticReport {
     pub unchanged_document_diagnostic_report: UnchangedDocumentDiagnosticReport,
 }
 impl RelatedUnchangedDocumentDiagnosticReport {
+    #[must_use]
     pub const fn new(
         related_documents: Option<HashMap<Uri, RelatedDocument>>,
         unchanged_document_diagnostic_report: UnchangedDocumentDiagnosticReport,
@@ -5567,7 +5776,7 @@ impl TryFrom<ShadowFullDocumentDiagnosticReport> for FullDocumentDiagnosticRepor
         if shadow.kind != "full" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(FullDocumentDiagnosticReport {
+        Ok(Self {
             result_id: shadow.result_id,
             items: shadow.items,
         })
@@ -5575,7 +5784,7 @@ impl TryFrom<ShadowFullDocumentDiagnosticReport> for FullDocumentDiagnosticRepor
 }
 impl From<FullDocumentDiagnosticReport> for ShadowFullDocumentDiagnosticReport {
     fn from(original: FullDocumentDiagnosticReport) -> Self {
-        ShadowFullDocumentDiagnosticReport {
+        Self {
             result_id: original.result_id,
             items: original.items,
             kind: "full".to_string(),
@@ -5583,6 +5792,7 @@ impl From<FullDocumentDiagnosticReport> for ShadowFullDocumentDiagnosticReport {
     }
 }
 impl FullDocumentDiagnosticReport {
+    #[must_use]
     pub const fn new(result_id: Option<String>, items: Vec<Diagnostic>) -> Self {
         Self { result_id, items }
     }
@@ -5620,7 +5830,7 @@ for UnchangedDocumentDiagnosticReport {
         if shadow.kind != "unchanged" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(UnchangedDocumentDiagnosticReport {
+        Ok(Self {
             result_id: shadow.result_id,
         })
     }
@@ -5628,13 +5838,14 @@ for UnchangedDocumentDiagnosticReport {
 impl From<UnchangedDocumentDiagnosticReport>
 for ShadowUnchangedDocumentDiagnosticReport {
     fn from(original: UnchangedDocumentDiagnosticReport) -> Self {
-        ShadowUnchangedDocumentDiagnosticReport {
+        Self {
             result_id: original.result_id,
             kind: "unchanged".to_string(),
         }
     }
 }
 impl UnchangedDocumentDiagnosticReport {
+    #[must_use]
     pub const fn new(result_id: String) -> Self {
         Self { result_id }
     }
@@ -5661,6 +5872,7 @@ pub struct DiagnosticOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DiagnosticOptions {
+    #[must_use]
     pub const fn new(
         identifier: Option<String>,
         inter_file_dependencies: bool,
@@ -5689,6 +5901,7 @@ pub struct PreviousResultId {
     pub value: String,
 }
 impl PreviousResultId {
+    #[must_use]
     pub const fn new(uri: Uri, value: String) -> Self {
         Self { uri, value }
     }
@@ -5717,6 +5930,7 @@ pub struct NotebookDocument {
     pub cells: Vec<NotebookCell>,
 }
 impl NotebookDocument {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         notebook_type: String,
@@ -5750,6 +5964,7 @@ pub struct TextDocumentItem {
     pub text: String,
 }
 impl TextDocumentItem {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         language_id: LanguageKind,
@@ -5789,6 +6004,7 @@ pub struct NotebookDocumentSyncOptions {
     pub save: Option<bool>,
 }
 impl NotebookDocumentSyncOptions {
+    #[must_use]
     pub const fn new(
         notebook_selector: Vec<NotebookSelector>,
         save: Option<bool>,
@@ -5809,6 +6025,7 @@ pub struct VersionedNotebookDocumentIdentifier {
     pub uri: Uri,
 }
 impl VersionedNotebookDocumentIdentifier {
+    #[must_use]
     pub const fn new(version: i32, uri: Uri) -> Self {
         Self { version, uri }
     }
@@ -5830,6 +6047,7 @@ pub struct NotebookDocumentChangeEvent {
     pub cells: Option<NotebookDocumentCellChanges>,
 }
 impl NotebookDocumentChangeEvent {
+    #[must_use]
     pub const fn new(
         metadata: Option<LspObject>,
         cells: Option<NotebookDocumentCellChanges>,
@@ -5848,6 +6066,7 @@ pub struct NotebookDocumentIdentifier {
     pub uri: Uri,
 }
 impl NotebookDocumentIdentifier {
+    #[must_use]
     pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
@@ -5867,6 +6086,7 @@ pub struct InlineCompletionContext {
     pub selected_completion_info: Option<SelectedCompletionInfo>,
 }
 impl InlineCompletionContext {
+    #[must_use]
     pub const fn new(
         trigger_kind: InlineCompletionTriggerKind,
         selected_completion_info: Option<SelectedCompletionInfo>,
@@ -5908,18 +6128,19 @@ impl TryFrom<ShadowStringValue> for StringValue {
         if shadow.kind != "snippet" {
             return Err(format!("Invalid value for prop kind: {}", shadow.kind));
         }
-        Ok(StringValue { value: shadow.value })
+        Ok(Self { value: shadow.value })
     }
 }
 impl From<StringValue> for ShadowStringValue {
     fn from(original: StringValue) -> Self {
-        ShadowStringValue {
+        Self {
             value: original.value,
             kind: "snippet".to_string(),
         }
     }
 }
 impl StringValue {
+    #[must_use]
     pub const fn new(value: String) -> Self {
         Self { value }
     }
@@ -5936,6 +6157,7 @@ pub struct InlineCompletionOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl InlineCompletionOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -5952,6 +6174,7 @@ pub struct TextDocumentContentOptions {
     pub schemes: Vec<String>,
 }
 impl TextDocumentContentOptions {
+    #[must_use]
     pub const fn new(schemes: Vec<String>) -> Self {
         Self { schemes }
     }
@@ -5971,6 +6194,7 @@ pub struct Registration {
     pub register_options: Option<LspAny>,
 }
 impl Registration {
+    #[must_use]
     pub const fn new(
         id: String,
         method: String,
@@ -5995,6 +6219,7 @@ pub struct Unregistration {
     pub method: String,
 }
 impl Unregistration {
+    #[must_use]
     pub const fn new(id: String, method: String) -> Self {
         Self { id, method }
     }
@@ -6015,6 +6240,7 @@ pub struct WorkspaceFoldersInitializeParams {
     pub workspace_folders: Option<WorkspaceFolders>,
 }
 impl WorkspaceFoldersInitializeParams {
+    #[must_use]
     pub const fn new(workspace_folders: Option<WorkspaceFolders>) -> Self {
         Self { workspace_folders }
     }
@@ -6170,6 +6396,7 @@ pub struct ServerCapabilities {
     pub experimental: Option<LspAny>,
 }
 impl ServerCapabilities {
+    #[must_use]
     pub const fn new(
         position_encoding: Option<PositionEncodingKind>,
         text_document_sync: Option<TextDocumentSync>,
@@ -6263,6 +6490,7 @@ pub struct ServerInfo {
     pub version: Option<String>,
 }
 impl ServerInfo {
+    #[must_use]
     pub const fn new(name: String, version: Option<String>) -> Self {
         Self { name, version }
     }
@@ -6278,6 +6506,7 @@ pub struct VersionedTextDocumentIdentifier {
     pub text_document_identifier: TextDocumentIdentifier,
 }
 impl VersionedTextDocumentIdentifier {
+    #[must_use]
     pub const fn new(
         version: i32,
         text_document_identifier: TextDocumentIdentifier,
@@ -6298,6 +6527,7 @@ pub struct SaveOptions {
     pub include_text: Option<bool>,
 }
 impl SaveOptions {
+    #[must_use]
     pub const fn new(include_text: Option<bool>) -> Self {
         Self { include_text }
     }
@@ -6314,6 +6544,7 @@ pub struct FileEvent {
     pub kind: FileChangeType,
 }
 impl FileEvent {
+    #[must_use]
     pub const fn new(uri: Uri, kind: FileChangeType) -> Self {
         Self { uri, kind }
     }
@@ -6333,6 +6564,7 @@ pub struct FileSystemWatcher {
     pub kind: Option<WatchKind>,
 }
 impl FileSystemWatcher {
+    #[must_use]
     pub const fn new(glob_pattern: GlobPattern, kind: Option<WatchKind>) -> Self {
         Self { glob_pattern, kind }
     }
@@ -6383,6 +6615,7 @@ pub struct Diagnostic {
     pub data: Option<LspAny>,
 }
 impl Diagnostic {
+    #[must_use]
     pub const fn new(
         range: Range,
         severity: Option<DiagnosticSeverity>,
@@ -6420,6 +6653,7 @@ pub struct CompletionContext {
     pub trigger_character: Option<String>,
 }
 impl CompletionContext {
+    #[must_use]
     pub const fn new(
         trigger_kind: CompletionTriggerKind,
         trigger_character: Option<String>,
@@ -6447,6 +6681,7 @@ pub struct CompletionItemLabelDetails {
     pub description: Option<String>,
 }
 impl CompletionItemLabelDetails {
+    #[must_use]
     pub const fn new(detail: Option<String>, description: Option<String>) -> Self {
         Self { detail, description }
     }
@@ -6466,6 +6701,7 @@ pub struct InsertReplaceEdit {
     pub replace: Range,
 }
 impl InsertReplaceEdit {
+    #[must_use]
     pub const fn new(new_text: String, insert: Range, replace: Range) -> Self {
         Self { new_text, insert, replace }
     }
@@ -6516,6 +6752,7 @@ pub struct CompletionItemDefaults {
     pub data: Option<LspAny>,
 }
 impl CompletionItemDefaults {
+    #[must_use]
     pub const fn new(
         commit_characters: Option<Vec<String>>,
         edit_range: Option<EditRange>,
@@ -6596,6 +6833,7 @@ pub struct CompletionItemApplyKinds {
     pub data: Option<ApplyKind>,
 }
 impl CompletionItemApplyKinds {
+    #[must_use]
     pub const fn new(
         commit_characters: Option<ApplyKind>,
         data: Option<ApplyKind>,
@@ -6642,6 +6880,7 @@ pub struct CompletionOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl CompletionOptions {
+    #[must_use]
     pub const fn new(
         trigger_characters: Option<Vec<String>>,
         all_commit_characters: Option<Vec<String>>,
@@ -6667,6 +6906,7 @@ pub struct HoverOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl HoverOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -6698,6 +6938,7 @@ pub struct SignatureHelpContext {
     pub active_signature_help: Option<SignatureHelp>,
 }
 impl SignatureHelpContext {
+    #[must_use]
     pub const fn new(
         trigger_kind: SignatureHelpTriggerKind,
         trigger_character: Option<String>,
@@ -6745,6 +6986,7 @@ pub struct SignatureInformation {
     pub active_parameter: Option<ActiveParameter>,
 }
 impl SignatureInformation {
+    #[must_use]
     pub const fn new(
         label: String,
         documentation: Option<Documentation>,
@@ -6760,7 +7002,7 @@ impl SignatureInformation {
     }
 }
 
-/// Server Capabilities for a [SignatureHelpRequest].
+/// Server Capabilities for a [`SignatureHelpRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpOptions {
@@ -6779,6 +7021,7 @@ pub struct SignatureHelpOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl SignatureHelpOptions {
+    #[must_use]
     pub const fn new(
         trigger_characters: Option<Vec<String>>,
         retrigger_characters: Option<Vec<String>>,
@@ -6792,7 +7035,7 @@ impl SignatureHelpOptions {
     }
 }
 
-/// Server Capabilities for a [DefinitionRequest].
+/// Server Capabilities for a [`DefinitionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionOptions {
@@ -6800,6 +7043,7 @@ pub struct DefinitionOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DefinitionOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -6814,6 +7058,7 @@ pub struct ReferenceContext {
     pub include_declaration: bool,
 }
 impl ReferenceContext {
+    #[must_use]
     pub const fn new(include_declaration: bool) -> Self {
         Self { include_declaration }
     }
@@ -6827,12 +7072,13 @@ pub struct ReferenceOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl ReferenceOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
 }
 
-/// Provider options for a [DocumentHighlightRequest].
+/// Provider options for a [`DocumentHighlightRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightOptions {
@@ -6840,6 +7086,7 @@ pub struct DocumentHighlightOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DocumentHighlightOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
@@ -6866,6 +7113,7 @@ pub struct BaseSymbolInformation {
     pub container_name: Option<String>,
 }
 impl BaseSymbolInformation {
+    #[must_use]
     pub const fn new(
         name: String,
         kind: SymbolKind,
@@ -6881,7 +7129,7 @@ impl BaseSymbolInformation {
     }
 }
 
-/// Provider options for a [DocumentSymbolRequest].
+/// Provider options for a [`DocumentSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolOptions {
@@ -6895,6 +7143,7 @@ pub struct DocumentSymbolOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DocumentSymbolOptions {
+    #[must_use]
     pub const fn new(
         label: Option<String>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -6930,6 +7179,7 @@ pub struct CodeActionContext {
     pub trigger_kind: Option<CodeActionTriggerKind>,
 }
 impl CodeActionContext {
+    #[must_use]
     pub const fn new(
         diagnostics: Vec<Diagnostic>,
         only: Option<Vec<CodeActionKind>>,
@@ -6955,12 +7205,13 @@ pub struct CodeActionDisabled {
     pub reason: String,
 }
 impl CodeActionDisabled {
+    #[must_use]
     pub const fn new(reason: String) -> Self {
         Self { reason }
     }
 }
 
-/// Provider options for a [CodeActionRequest].
+/// Provider options for a [`CodeActionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionOptions {
@@ -6997,6 +7248,7 @@ pub struct CodeActionOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl CodeActionOptions {
+    #[must_use]
     pub const fn new(
         code_action_kinds: Option<Vec<CodeActionKind>>,
         documentation: Option<Vec<CodeActionKindDocumentation>>,
@@ -7021,12 +7273,13 @@ pub struct LocationUriOnly {
     pub uri: Uri,
 }
 impl LocationUriOnly {
+    #[must_use]
     pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
 }
 
-/// Server capabilities for a [WorkspaceSymbolRequest].
+/// Server capabilities for a [`WorkspaceSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolOptions {
@@ -7040,6 +7293,7 @@ pub struct WorkspaceSymbolOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl WorkspaceSymbolOptions {
+    #[must_use]
     pub const fn new(
         resolve_provider: Option<bool>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -7051,7 +7305,7 @@ impl WorkspaceSymbolOptions {
     }
 }
 
-/// Code Lens provider options of a [CodeLensRequest].
+/// Code Lens provider options of a [`CodeLensRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensOptions {
@@ -7062,6 +7316,7 @@ pub struct CodeLensOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl CodeLensOptions {
+    #[must_use]
     pub const fn new(
         resolve_provider: Option<bool>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -7073,7 +7328,7 @@ impl CodeLensOptions {
     }
 }
 
-/// Provider options for a [DocumentLinkRequest].
+/// Provider options for a [`DocumentLinkRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkOptions {
@@ -7084,6 +7339,7 @@ pub struct DocumentLinkOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DocumentLinkOptions {
+    #[must_use]
     pub const fn new(
         resolve_provider: Option<bool>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -7120,6 +7376,7 @@ pub struct FormattingOptions {
     pub trim_final_newlines: Option<bool>,
 }
 impl FormattingOptions {
+    #[must_use]
     pub const fn new(
         tab_size: u32,
         insert_spaces: bool,
@@ -7137,7 +7394,7 @@ impl FormattingOptions {
     }
 }
 
-/// Provider options for a [DocumentFormattingRequest].
+/// Provider options for a [`DocumentFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingOptions {
@@ -7145,12 +7402,13 @@ pub struct DocumentFormattingOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DocumentFormattingOptions {
+    #[must_use]
     pub const fn new(work_done_progress_options: WorkDoneProgressOptions) -> Self {
         Self { work_done_progress_options }
     }
 }
 
-/// Provider options for a [DocumentRangeFormattingRequest].
+/// Provider options for a [`DocumentRangeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingOptions {
@@ -7164,6 +7422,7 @@ pub struct DocumentRangeFormattingOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl DocumentRangeFormattingOptions {
+    #[must_use]
     pub const fn new(
         ranges_support: Option<bool>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -7175,7 +7434,7 @@ impl DocumentRangeFormattingOptions {
     }
 }
 
-/// Provider options for a [DocumentOnTypeFormattingRequest].
+/// Provider options for a [`DocumentOnTypeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingOptions {
@@ -7186,6 +7445,7 @@ pub struct DocumentOnTypeFormattingOptions {
     pub more_trigger_character: Option<Vec<String>>,
 }
 impl DocumentOnTypeFormattingOptions {
+    #[must_use]
     pub const fn new(
         first_trigger_character: String,
         more_trigger_character: Option<Vec<String>>,
@@ -7197,7 +7457,7 @@ impl DocumentOnTypeFormattingOptions {
     }
 }
 
-/// Provider options for a [RenameRequest].
+/// Provider options for a [`RenameRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct RenameOptions {
@@ -7210,6 +7470,7 @@ pub struct RenameOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl RenameOptions {
+    #[must_use]
     pub const fn new(
         prepare_provider: Option<bool>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -7229,6 +7490,7 @@ pub struct PrepareRenamePlaceholder {
     pub placeholder: String,
 }
 impl PrepareRenamePlaceholder {
+    #[must_use]
     pub const fn new(range: Range, placeholder: String) -> Self {
         Self { range, placeholder }
     }
@@ -7241,12 +7503,13 @@ pub struct PrepareRenameDefaultBehavior {
     pub default_behavior: bool,
 }
 impl PrepareRenameDefaultBehavior {
+    #[must_use]
     pub const fn new(default_behavior: bool) -> Self {
         Self { default_behavior }
     }
 }
 
-/// The server capabilities of a [ExecuteCommandRequest].
+/// The server capabilities of a [`ExecuteCommandRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandOptions {
@@ -7256,6 +7519,7 @@ pub struct ExecuteCommandOptions {
     pub work_done_progress_options: WorkDoneProgressOptions,
 }
 impl ExecuteCommandOptions {
+    #[must_use]
     pub const fn new(
         commands: Vec<String>,
         work_done_progress_options: WorkDoneProgressOptions,
@@ -7279,6 +7543,7 @@ pub struct WorkspaceEditMetadata {
     pub is_refactoring: Option<bool>,
 }
 impl WorkspaceEditMetadata {
+    #[must_use]
     pub const fn new(is_refactoring: Option<bool>) -> Self {
         Self { is_refactoring }
     }
@@ -7294,6 +7559,7 @@ pub struct SemanticTokensLegend {
     pub token_modifiers: Vec<String>,
 }
 impl SemanticTokensLegend {
+    #[must_use]
     pub const fn new(token_types: Vec<String>, token_modifiers: Vec<String>) -> Self {
         Self {
             token_types,
@@ -7313,6 +7579,7 @@ pub struct SemanticTokensFullDelta {
     pub delta: Option<bool>,
 }
 impl SemanticTokensFullDelta {
+    #[must_use]
     pub const fn new(delta: Option<bool>) -> Self {
         Self { delta }
     }
@@ -7332,6 +7599,7 @@ pub struct OptionalVersionedTextDocumentIdentifier {
     pub text_document_identifier: TextDocumentIdentifier,
 }
 impl OptionalVersionedTextDocumentIdentifier {
+    #[must_use]
     pub const fn new(
         version: Option<i32>,
         text_document_identifier: TextDocumentIdentifier,
@@ -7355,6 +7623,7 @@ pub struct AnnotatedTextEdit {
     pub text_edit: TextEdit,
 }
 impl AnnotatedTextEdit {
+    #[must_use]
     pub const fn new(
         annotation_id: ChangeAnnotationIdentifier,
         text_edit: TextEdit,
@@ -7379,6 +7648,7 @@ pub struct SnippetTextEdit {
     pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
 impl SnippetTextEdit {
+    #[must_use]
     pub const fn new(
         range: Range,
         snippet: StringValue,
@@ -7405,6 +7675,7 @@ pub struct ResourceOperation {
     pub annotation_id: Option<ChangeAnnotationIdentifier>,
 }
 impl ResourceOperation {
+    #[must_use]
     pub const fn new(
         kind: String,
         annotation_id: Option<ChangeAnnotationIdentifier>,
@@ -7425,6 +7696,7 @@ pub struct CreateFileOptions {
     pub ignore_if_exists: Option<bool>,
 }
 impl CreateFileOptions {
+    #[must_use]
     pub const fn new(overwrite: Option<bool>, ignore_if_exists: Option<bool>) -> Self {
         Self {
             overwrite,
@@ -7445,6 +7717,7 @@ pub struct RenameFileOptions {
     pub ignore_if_exists: Option<bool>,
 }
 impl RenameFileOptions {
+    #[must_use]
     pub const fn new(overwrite: Option<bool>, ignore_if_exists: Option<bool>) -> Self {
         Self {
             overwrite,
@@ -7465,6 +7738,7 @@ pub struct DeleteFileOptions {
     pub ignore_if_not_exists: Option<bool>,
 }
 impl DeleteFileOptions {
+    #[must_use]
     pub const fn new(
         recursive: Option<bool>,
         ignore_if_not_exists: Option<bool>,
@@ -7501,6 +7775,7 @@ pub struct FileOperationPattern {
     pub options: Option<FileOperationPatternOptions>,
 }
 impl FileOperationPattern {
+    #[must_use]
     pub const fn new(
         glob: String,
         matches: Option<FileOperationPatternKind>,
@@ -7525,6 +7800,7 @@ pub struct WorkspaceFullDocumentDiagnosticReport {
     pub full_document_diagnostic_report: FullDocumentDiagnosticReport,
 }
 impl WorkspaceFullDocumentDiagnosticReport {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         version: Option<i32>,
@@ -7553,6 +7829,7 @@ pub struct WorkspaceUnchangedDocumentDiagnosticReport {
     pub unchanged_document_diagnostic_report: UnchangedDocumentDiagnosticReport,
 }
 impl WorkspaceUnchangedDocumentDiagnosticReport {
+    #[must_use]
     pub const fn new(
         uri: Uri,
         version: Option<i32>,
@@ -7592,6 +7869,7 @@ pub struct NotebookCell {
     pub execution_summary: Option<ExecutionSummary>,
 }
 impl NotebookCell {
+    #[must_use]
     pub const fn new(
         kind: NotebookCellKind,
         document: Uri,
@@ -7620,6 +7898,7 @@ pub struct NotebookDocumentFilterWithNotebook {
     pub cells: Option<Vec<NotebookCellLanguage>>,
 }
 impl NotebookDocumentFilterWithNotebook {
+    #[must_use]
     pub const fn new(
         notebook: Notebook,
         cells: Option<Vec<NotebookCellLanguage>>,
@@ -7641,6 +7920,7 @@ pub struct NotebookDocumentFilterWithCells {
     pub cells: Vec<NotebookCellLanguage>,
 }
 impl NotebookDocumentFilterWithCells {
+    #[must_use]
     pub const fn new(
         notebook: Option<Notebook>,
         cells: Vec<NotebookCellLanguage>,
@@ -7668,6 +7948,7 @@ pub struct NotebookDocumentCellChanges {
     pub text_content: Option<Vec<NotebookDocumentCellContentChanges>>,
 }
 impl NotebookDocumentCellChanges {
+    #[must_use]
     pub const fn new(
         structure: Option<NotebookDocumentCellChangeStructure>,
         data: Option<Vec<NotebookCell>>,
@@ -7694,6 +7975,7 @@ pub struct SelectedCompletionInfo {
     pub text: String,
 }
 impl SelectedCompletionInfo {
+    #[must_use]
     pub const fn new(range: Range, text: String) -> Self {
         Self { range, text }
     }
@@ -7713,6 +7995,7 @@ pub struct ClientInfo {
     pub version: Option<String>,
 }
 impl ClientInfo {
+    #[must_use]
     pub const fn new(name: String, version: Option<String>) -> Self {
         Self { name, version }
     }
@@ -7746,6 +8029,7 @@ pub struct ClientCapabilities {
     pub experimental: Option<LspAny>,
 }
 impl ClientCapabilities {
+    #[must_use]
     pub const fn new(
         workspace: Option<WorkspaceClientCapabilities>,
         text_document: Option<TextDocumentClientCapabilities>,
@@ -7790,6 +8074,7 @@ pub struct TextDocumentSyncOptions {
     pub save: Option<Save>,
 }
 impl TextDocumentSyncOptions {
+    #[must_use]
     pub const fn new(
         open_close: Option<bool>,
         change: Option<TextDocumentSyncKind>,
@@ -7831,6 +8116,7 @@ pub struct WorkspaceOptions {
     pub text_document_content: Option<TextDocumentContent>,
 }
 impl WorkspaceOptions {
+    #[must_use]
     pub const fn new(
         workspace_folders: Option<WorkspaceFoldersServerCapabilities>,
         file_operations: Option<FileOperationOptions>,
@@ -7860,6 +8146,7 @@ pub struct TextDocumentContentChangePartial {
     pub text: String,
 }
 impl TextDocumentContentChangePartial {
+    #[must_use]
     pub const fn new(range: Range, range_length: Option<u32>, text: String) -> Self {
         Self { range, range_length, text }
     }
@@ -7873,6 +8160,7 @@ pub struct TextDocumentContentChangeWholeDocument {
     pub text: String,
 }
 impl TextDocumentContentChangeWholeDocument {
+    #[must_use]
     pub const fn new(text: String) -> Self {
         Self { text }
     }
@@ -7888,6 +8176,7 @@ pub struct CodeDescription {
     pub href: Uri,
 }
 impl CodeDescription {
+    #[must_use]
     pub const fn new(href: Uri) -> Self {
         Self { href }
     }
@@ -7905,6 +8194,7 @@ pub struct DiagnosticRelatedInformation {
     pub message: String,
 }
 impl DiagnosticRelatedInformation {
+    #[must_use]
     pub const fn new(location: Location, message: String) -> Self {
         Self { location, message }
     }
@@ -7920,6 +8210,7 @@ pub struct EditRangeWithInsertReplace {
     pub replace: Range,
 }
 impl EditRangeWithInsertReplace {
+    #[must_use]
     pub const fn new(insert: Range, replace: Range) -> Self {
         Self { insert, replace }
     }
@@ -7938,6 +8229,7 @@ pub struct ServerCompletionItemOptions {
     pub label_details_support: Option<bool>,
 }
 impl ServerCompletionItemOptions {
+    #[must_use]
     pub const fn new(label_details_support: Option<bool>) -> Self {
         Self { label_details_support }
     }
@@ -7953,6 +8245,7 @@ pub struct MarkedStringWithLanguage {
     pub value: String,
 }
 impl MarkedStringWithLanguage {
+    #[must_use]
     pub const fn new(language: String, value: String) -> Self {
         Self { language, value }
     }
@@ -7982,6 +8275,7 @@ pub struct ParameterInformation {
     pub documentation: Option<Documentation>,
 }
 impl ParameterInformation {
+    #[must_use]
     pub const fn new(
         label: ParameterInformationLabel,
         documentation: Option<Documentation>,
@@ -8009,6 +8303,7 @@ pub struct CodeActionKindDocumentation {
     pub command: Command,
 }
 impl CodeActionKindDocumentation {
+    #[must_use]
     pub const fn new(kind: CodeActionKind, command: Command) -> Self {
         Self { kind, command }
     }
@@ -8034,6 +8329,7 @@ pub struct NotebookCellTextDocumentFilter {
     pub language: Option<String>,
 }
 impl NotebookCellTextDocumentFilter {
+    #[must_use]
     pub const fn new(notebook: Notebook, language: Option<String>) -> Self {
         Self { notebook, language }
     }
@@ -8050,6 +8346,7 @@ pub struct FileOperationPatternOptions {
     pub ignore_case: Option<bool>,
 }
 impl FileOperationPatternOptions {
+    #[must_use]
     pub const fn new(ignore_case: Option<bool>) -> Self {
         Self { ignore_case }
     }
@@ -8068,6 +8365,7 @@ pub struct ExecutionSummary {
     pub success: Option<bool>,
 }
 impl ExecutionSummary {
+    #[must_use]
     pub const fn new(execution_order: u32, success: Option<bool>) -> Self {
         Self { execution_order, success }
     }
@@ -8080,6 +8378,7 @@ pub struct NotebookCellLanguage {
     pub language: String,
 }
 impl NotebookCellLanguage {
+    #[must_use]
     pub const fn new(language: String) -> Self {
         Self { language }
     }
@@ -8101,6 +8400,7 @@ pub struct NotebookDocumentCellChangeStructure {
     pub did_close: Option<Vec<TextDocumentIdentifier>>,
 }
 impl NotebookDocumentCellChangeStructure {
+    #[must_use]
     pub const fn new(
         array: NotebookCellArrayChange,
         did_open: Option<Vec<TextDocumentItem>>,
@@ -8120,6 +8420,7 @@ pub struct NotebookDocumentCellContentChanges {
     pub changes: Vec<TextDocumentContentChangeEvent>,
 }
 impl NotebookDocumentCellContentChanges {
+    #[must_use]
     pub const fn new(
         document: VersionedTextDocumentIdentifier,
         changes: Vec<TextDocumentContentChangeEvent>,
@@ -8211,6 +8512,7 @@ pub struct WorkspaceClientCapabilities {
     pub text_document_content: Option<TextDocumentContentClientCapabilities>,
 }
 impl WorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(
         apply_edit: Option<bool>,
         workspace_edit: Option<WorkspaceEditClientCapabilities>,
@@ -8386,6 +8688,7 @@ pub struct TextDocumentClientCapabilities {
     pub inline_completion: Option<InlineCompletionClientCapabilities>,
 }
 impl TextDocumentClientCapabilities {
+    #[must_use]
     pub const fn new(
         synchronization: Option<TextDocumentSyncClientCapabilities>,
         filters: Option<TextDocumentFilterClientCapabilities>,
@@ -8469,6 +8772,7 @@ pub struct NotebookDocumentClientCapabilities {
     pub synchronization: NotebookDocumentSyncClientCapabilities,
 }
 impl NotebookDocumentClientCapabilities {
+    #[must_use]
     pub const fn new(synchronization: NotebookDocumentSyncClientCapabilities) -> Self {
         Self { synchronization }
     }
@@ -8500,6 +8804,7 @@ pub struct WindowClientCapabilities {
     pub show_document: Option<ShowDocumentClientCapabilities>,
 }
 impl WindowClientCapabilities {
+    #[must_use]
     pub const fn new(
         work_done_progress: Option<bool>,
         show_message: Option<ShowMessageRequestClientCapabilities>,
@@ -8559,6 +8864,7 @@ pub struct GeneralClientCapabilities {
     pub position_encodings: Option<Vec<PositionEncodingKind>>,
 }
 impl GeneralClientCapabilities {
+    #[must_use]
     pub const fn new(
         stale_request_support: Option<StaleRequestSupportOptions>,
         regular_expressions: Option<RegularExpressionsClientCapabilities>,
@@ -8591,6 +8897,7 @@ pub struct WorkspaceFoldersServerCapabilities {
     pub change_notifications: Option<ChangeNotifications>,
 }
 impl WorkspaceFoldersServerCapabilities {
+    #[must_use]
     pub const fn new(
         supported: Option<bool>,
         change_notifications: Option<ChangeNotifications>,
@@ -8628,6 +8935,7 @@ pub struct FileOperationOptions {
     pub will_delete: Option<FileOperationRegistrationOptions>,
 }
 impl FileOperationOptions {
+    #[must_use]
     pub const fn new(
         did_create: Option<FileOperationRegistrationOptions>,
         will_create: Option<FileOperationRegistrationOptions>,
@@ -8662,6 +8970,7 @@ pub struct RelativePattern {
     pub pattern: Pattern,
 }
 impl RelativePattern {
+    #[must_use]
     pub const fn new(base_uri: BaseUri, pattern: Pattern) -> Self {
         Self { base_uri, pattern }
     }
@@ -8687,6 +8996,7 @@ pub struct TextDocumentFilterLanguage {
     pub pattern: Option<GlobPattern>,
 }
 impl TextDocumentFilterLanguage {
+    #[must_use]
     pub const fn new(
         language: String,
         scheme: Option<String>,
@@ -8716,6 +9026,7 @@ pub struct TextDocumentFilterScheme {
     pub pattern: Option<GlobPattern>,
 }
 impl TextDocumentFilterScheme {
+    #[must_use]
     pub const fn new(
         language: Option<String>,
         scheme: String,
@@ -8745,6 +9056,7 @@ pub struct TextDocumentFilterPattern {
     pub pattern: GlobPattern,
 }
 impl TextDocumentFilterPattern {
+    #[must_use]
     pub const fn new(
         language: Option<String>,
         scheme: Option<String>,
@@ -8770,6 +9082,7 @@ pub struct NotebookDocumentFilterNotebookType {
     pub pattern: Option<GlobPattern>,
 }
 impl NotebookDocumentFilterNotebookType {
+    #[must_use]
     pub const fn new(
         notebook_type: String,
         scheme: Option<String>,
@@ -8799,6 +9112,7 @@ pub struct NotebookDocumentFilterScheme {
     pub pattern: Option<GlobPattern>,
 }
 impl NotebookDocumentFilterScheme {
+    #[must_use]
     pub const fn new(
         notebook_type: Option<String>,
         scheme: String,
@@ -8828,6 +9142,7 @@ pub struct NotebookDocumentFilterPattern {
     pub pattern: GlobPattern,
 }
 impl NotebookDocumentFilterPattern {
+    #[must_use]
     pub const fn new(
         notebook_type: Option<String>,
         scheme: Option<String>,
@@ -8857,6 +9172,7 @@ pub struct NotebookCellArrayChange {
     pub cells: Option<Vec<NotebookCell>>,
 }
 impl NotebookCellArrayChange {
+    #[must_use]
     pub const fn new(
         start: u32,
         delete_count: u32,
@@ -8913,6 +9229,7 @@ pub struct WorkspaceEditClientCapabilities {
     pub snippet_edit_support: Option<bool>,
 }
 impl WorkspaceEditClientCapabilities {
+    #[must_use]
     pub const fn new(
         document_changes: Option<bool>,
         resource_operations: Option<Vec<ResourceOperationKind>>,
@@ -8942,6 +9259,7 @@ pub struct DidChangeConfigurationClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl DidChangeConfigurationClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -8963,6 +9281,7 @@ pub struct DidChangeWatchedFilesClientCapabilities {
     pub relative_pattern_support: Option<bool>,
 }
 impl DidChangeWatchedFilesClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         relative_pattern_support: Option<bool>,
@@ -8974,7 +9293,7 @@ impl DidChangeWatchedFilesClientCapabilities {
     }
 }
 
-/// Client capabilities for a [WorkspaceSymbolRequest].
+/// Client capabilities for a [`WorkspaceSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceSymbolClientCapabilities {
@@ -8999,6 +9318,7 @@ pub struct WorkspaceSymbolClientCapabilities {
     pub resolve_support: Option<ClientSymbolResolveOptions>,
 }
 impl WorkspaceSymbolClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         symbol_kind: Option<ClientSymbolKindOptions>,
@@ -9014,7 +9334,7 @@ impl WorkspaceSymbolClientCapabilities {
     }
 }
 
-/// The client capabilities of a [ExecuteCommandRequest].
+/// The client capabilities of a [`ExecuteCommandRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct ExecuteCommandClientCapabilities {
@@ -9023,6 +9343,7 @@ pub struct ExecuteCommandClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl ExecuteCommandClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -9043,6 +9364,7 @@ pub struct SemanticTokensWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 impl SemanticTokensWorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(refresh_support: Option<bool>) -> Self {
         Self { refresh_support }
     }
@@ -9063,6 +9385,7 @@ pub struct CodeLensWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 impl CodeLensWorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(refresh_support: Option<bool>) -> Self {
         Self { refresh_support }
     }
@@ -9100,6 +9423,7 @@ pub struct FileOperationClientCapabilities {
     pub will_delete: Option<bool>,
 }
 impl FileOperationClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         did_create: Option<bool>,
@@ -9138,6 +9462,7 @@ pub struct InlineValueWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 impl InlineValueWorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(refresh_support: Option<bool>) -> Self {
         Self { refresh_support }
     }
@@ -9160,6 +9485,7 @@ pub struct InlayHintWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 impl InlayHintWorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(refresh_support: Option<bool>) -> Self {
         Self { refresh_support }
     }
@@ -9182,6 +9508,7 @@ pub struct DiagnosticWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 impl DiagnosticWorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(refresh_support: Option<bool>) -> Self {
         Self { refresh_support }
     }
@@ -9208,6 +9535,7 @@ pub struct FoldingRangeWorkspaceClientCapabilities {
     pub refresh_support: Option<bool>,
 }
 impl FoldingRangeWorkspaceClientCapabilities {
+    #[must_use]
     pub const fn new(refresh_support: Option<bool>) -> Self {
         Self { refresh_support }
     }
@@ -9225,6 +9553,7 @@ pub struct TextDocumentContentClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl TextDocumentContentClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -9249,6 +9578,7 @@ pub struct TextDocumentSyncClientCapabilities {
     pub did_save: Option<bool>,
 }
 impl TextDocumentSyncClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         will_save: Option<bool>,
@@ -9274,6 +9604,7 @@ pub struct TextDocumentFilterClientCapabilities {
     pub relative_pattern_support: Option<bool>,
 }
 impl TextDocumentFilterClientCapabilities {
+    #[must_use]
     pub const fn new(relative_pattern_support: Option<bool>) -> Self {
         Self { relative_pattern_support }
     }
@@ -9311,6 +9642,7 @@ pub struct CompletionClientCapabilities {
     pub completion_list: Option<CompletionListCapabilities>,
 }
 impl CompletionClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         completion_item: Option<ClientCompletionItemOptions>,
@@ -9342,6 +9674,7 @@ pub struct HoverClientCapabilities {
     pub content_format: Option<Vec<MarkupKind>>,
 }
 impl HoverClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         content_format: Option<Vec<MarkupKind>>,
@@ -9353,7 +9686,7 @@ impl HoverClientCapabilities {
     }
 }
 
-/// Client Capabilities for a [SignatureHelpRequest].
+/// Client Capabilities for a [`SignatureHelpRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SignatureHelpClientCapabilities {
@@ -9374,6 +9707,7 @@ pub struct SignatureHelpClientCapabilities {
     pub context_support: Option<bool>,
 }
 impl SignatureHelpClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         signature_information: Option<ClientSignatureInformationOptions>,
@@ -9401,6 +9735,7 @@ pub struct DeclarationClientCapabilities {
     pub link_support: Option<bool>,
 }
 impl DeclarationClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         link_support: Option<bool>,
@@ -9412,7 +9747,7 @@ impl DeclarationClientCapabilities {
     }
 }
 
-/// Client Capabilities for a [DefinitionRequest].
+/// Client Capabilities for a [`DefinitionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionClientCapabilities {
@@ -9426,6 +9761,7 @@ pub struct DefinitionClientCapabilities {
     pub link_support: Option<bool>,
 }
 impl DefinitionClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         link_support: Option<bool>,
@@ -9453,6 +9789,7 @@ pub struct TypeDefinitionClientCapabilities {
     pub link_support: Option<bool>,
 }
 impl TypeDefinitionClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         link_support: Option<bool>,
@@ -9480,6 +9817,7 @@ pub struct ImplementationClientCapabilities {
     pub link_support: Option<bool>,
 }
 impl ImplementationClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         link_support: Option<bool>,
@@ -9491,7 +9829,7 @@ impl ImplementationClientCapabilities {
     }
 }
 
-/// Client Capabilities for a [ReferencesRequest].
+/// Client Capabilities for a [`ReferencesRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceClientCapabilities {
@@ -9500,12 +9838,13 @@ pub struct ReferenceClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl ReferenceClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
 }
 
-/// Client Capabilities for a [DocumentHighlightRequest].
+/// Client Capabilities for a [`DocumentHighlightRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentHighlightClientCapabilities {
@@ -9514,12 +9853,13 @@ pub struct DocumentHighlightClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl DocumentHighlightClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
 }
 
-/// Client Capabilities for a [DocumentSymbolRequest].
+/// Client Capabilities for a [`DocumentSymbolRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentSymbolClientCapabilities {
@@ -9548,6 +9888,7 @@ pub struct DocumentSymbolClientCapabilities {
     pub label_support: Option<bool>,
 }
 impl DocumentSymbolClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         symbol_kind: Option<ClientSymbolKindOptions>,
@@ -9565,7 +9906,7 @@ impl DocumentSymbolClientCapabilities {
     }
 }
 
-/// The Client Capabilities of a [CodeActionRequest].
+/// The Client Capabilities of a [`CodeActionRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionClientCapabilities {
@@ -9626,6 +9967,7 @@ pub struct CodeActionClientCapabilities {
     pub tag_support: Option<CodeActionTagOptions>,
 }
 impl CodeActionClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         code_action_literal_support: Option<ClientCodeActionLiteralOptions>,
@@ -9651,7 +9993,7 @@ impl CodeActionClientCapabilities {
     }
 }
 
-/// The client capabilities  of a [CodeLensRequest].
+/// The client capabilities  of a [`CodeLensRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeLensClientCapabilities {
@@ -9666,6 +10008,7 @@ pub struct CodeLensClientCapabilities {
     pub resolve_support: Option<ClientCodeLensResolveOptions>,
 }
 impl CodeLensClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         resolve_support: Option<ClientCodeLensResolveOptions>,
@@ -9677,7 +10020,7 @@ impl CodeLensClientCapabilities {
     }
 }
 
-/// The client capabilities of a [DocumentLinkRequest].
+/// The client capabilities of a [`DocumentLinkRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentLinkClientCapabilities {
@@ -9691,6 +10034,7 @@ pub struct DocumentLinkClientCapabilities {
     pub tooltip_support: Option<bool>,
 }
 impl DocumentLinkClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         tooltip_support: Option<bool>,
@@ -9712,12 +10056,13 @@ pub struct DocumentColorClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl DocumentColorClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
 }
 
-/// Client capabilities of a [DocumentFormattingRequest].
+/// Client capabilities of a [`DocumentFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFormattingClientCapabilities {
@@ -9726,12 +10071,13 @@ pub struct DocumentFormattingClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl DocumentFormattingClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
 }
 
-/// Client capabilities of a [DocumentRangeFormattingRequest].
+/// Client capabilities of a [`DocumentRangeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangeFormattingClientCapabilities {
@@ -9746,6 +10092,7 @@ pub struct DocumentRangeFormattingClientCapabilities {
     pub ranges_support: Option<bool>,
 }
 impl DocumentRangeFormattingClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         ranges_support: Option<bool>,
@@ -9757,7 +10104,7 @@ impl DocumentRangeFormattingClientCapabilities {
     }
 }
 
-/// Client capabilities of a [DocumentOnTypeFormattingRequest].
+/// Client capabilities of a [`DocumentOnTypeFormattingRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentOnTypeFormattingClientCapabilities {
@@ -9766,6 +10113,7 @@ pub struct DocumentOnTypeFormattingClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl DocumentOnTypeFormattingClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -9802,6 +10150,7 @@ pub struct RenameClientCapabilities {
     pub honors_change_annotations: Option<bool>,
 }
 impl RenameClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         prepare_support: Option<bool>,
@@ -9848,6 +10197,7 @@ pub struct FoldingRangeClientCapabilities {
     pub folding_range: Option<ClientFoldingRangeOptions>,
 }
 impl FoldingRangeClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         range_limit: Option<u32>,
@@ -9875,6 +10225,7 @@ pub struct SelectionRangeClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl SelectionRangeClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -9894,6 +10245,7 @@ pub struct PublishDiagnosticsClientCapabilities {
     pub diagnostics_capabilities: DiagnosticsCapabilities,
 }
 impl PublishDiagnosticsClientCapabilities {
+    #[must_use]
     pub const fn new(
         version_support: Option<bool>,
         diagnostics_capabilities: DiagnosticsCapabilities,
@@ -9916,6 +10268,7 @@ pub struct CallHierarchyClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl CallHierarchyClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -9973,6 +10326,7 @@ pub struct SemanticTokensClientCapabilities {
     pub augments_syntax_tokens: Option<bool>,
 }
 impl SemanticTokensClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         requests: ClientSemanticTokensRequestOptions,
@@ -10011,6 +10365,7 @@ pub struct LinkedEditingRangeClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl LinkedEditingRangeClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -10029,6 +10384,7 @@ pub struct MonikerClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl MonikerClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -10045,6 +10401,7 @@ pub struct TypeHierarchyClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl TypeHierarchyClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -10061,6 +10418,7 @@ pub struct InlineValueClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl InlineValueClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -10081,6 +10439,7 @@ pub struct InlayHintClientCapabilities {
     pub resolve_support: Option<ClientInlayHintResolveOptions>,
 }
 impl InlayHintClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         resolve_support: Option<ClientInlayHintResolveOptions>,
@@ -10110,6 +10469,7 @@ pub struct DiagnosticClientCapabilities {
     pub diagnostics_capabilities: DiagnosticsCapabilities,
 }
 impl DiagnosticClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         related_document_support: Option<bool>,
@@ -10135,6 +10495,7 @@ pub struct InlineCompletionClientCapabilities {
     pub dynamic_registration: Option<bool>,
 }
 impl InlineCompletionClientCapabilities {
+    #[must_use]
     pub const fn new(dynamic_registration: Option<bool>) -> Self {
         Self { dynamic_registration }
     }
@@ -10157,6 +10518,7 @@ pub struct NotebookDocumentSyncClientCapabilities {
     pub execution_summary_support: Option<bool>,
 }
 impl NotebookDocumentSyncClientCapabilities {
+    #[must_use]
     pub const fn new(
         dynamic_registration: Option<bool>,
         execution_summary_support: Option<bool>,
@@ -10177,6 +10539,7 @@ pub struct ShowMessageRequestClientCapabilities {
     pub message_action_item: Option<ClientShowMessageActionItemOptions>,
 }
 impl ShowMessageRequestClientCapabilities {
+    #[must_use]
     pub const fn new(
         message_action_item: Option<ClientShowMessageActionItemOptions>,
     ) -> Self {
@@ -10195,6 +10558,7 @@ pub struct ShowDocumentClientCapabilities {
     pub support: bool,
 }
 impl ShowDocumentClientCapabilities {
+    #[must_use]
     pub const fn new(support: bool) -> Self {
         Self { support }
     }
@@ -10212,6 +10576,7 @@ pub struct StaleRequestSupportOptions {
     pub retry_on_content_modified: Vec<String>,
 }
 impl StaleRequestSupportOptions {
+    #[must_use]
     pub const fn new(cancel: bool, retry_on_content_modified: Vec<String>) -> Self {
         Self {
             cancel,
@@ -10233,6 +10598,7 @@ pub struct RegularExpressionsClientCapabilities {
     pub version: Option<String>,
 }
 impl RegularExpressionsClientCapabilities {
+    #[must_use]
     pub const fn new(
         engine: RegularExpressionEngineKind,
         version: Option<String>,
@@ -10260,6 +10626,7 @@ pub struct MarkdownClientCapabilities {
     pub allowed_tags: Option<Vec<String>>,
 }
 impl MarkdownClientCapabilities {
+    #[must_use]
     pub const fn new(
         parser: String,
         version: Option<String>,
@@ -10284,6 +10651,7 @@ pub struct ChangeAnnotationsSupportOptions {
     pub groups_on_label: Option<bool>,
 }
 impl ChangeAnnotationsSupportOptions {
+    #[must_use]
     pub const fn new(groups_on_label: Option<bool>) -> Self {
         Self { groups_on_label }
     }
@@ -10305,6 +10673,7 @@ pub struct ClientSymbolKindOptions {
     pub value_set: Option<Vec<SymbolKind>>,
 }
 impl ClientSymbolKindOptions {
+    #[must_use]
     pub const fn new(value_set: Option<Vec<SymbolKind>>) -> Self {
         Self { value_set }
     }
@@ -10318,6 +10687,7 @@ pub struct ClientSymbolTagOptions {
     pub value_set: Vec<SymbolTag>,
 }
 impl ClientSymbolTagOptions {
+    #[must_use]
     pub const fn new(value_set: Vec<SymbolTag>) -> Self {
         Self { value_set }
     }
@@ -10332,6 +10702,7 @@ pub struct ClientSymbolResolveOptions {
     pub properties: Vec<String>,
 }
 impl ClientSymbolResolveOptions {
+    #[must_use]
     pub const fn new(properties: Vec<String>) -> Self {
         Self { properties }
     }
@@ -10398,6 +10769,7 @@ pub struct ClientCompletionItemOptions {
     pub label_details_support: Option<bool>,
 }
 impl ClientCompletionItemOptions {
+    #[must_use]
     pub const fn new(
         snippet_support: Option<bool>,
         commit_characters_support: Option<bool>,
@@ -10441,6 +10813,7 @@ pub struct ClientCompletionItemOptionsKind {
     pub value_set: Option<Vec<CompletionItemKind>>,
 }
 impl ClientCompletionItemOptionsKind {
+    #[must_use]
     pub const fn new(value_set: Option<Vec<CompletionItemKind>>) -> Self {
         Self { value_set }
     }
@@ -10478,6 +10851,7 @@ pub struct CompletionListCapabilities {
     pub apply_kind_support: Option<bool>,
 }
 impl CompletionListCapabilities {
+    #[must_use]
     pub const fn new(
         item_defaults: Option<Vec<String>>,
         apply_kind_support: Option<bool>,
@@ -10516,6 +10890,7 @@ pub struct ClientSignatureInformationOptions {
     pub no_active_parameter_support: Option<bool>,
 }
 impl ClientSignatureInformationOptions {
+    #[must_use]
     pub const fn new(
         documentation_format: Option<Vec<MarkupKind>>,
         parameter_information: Option<ClientSignatureParameterInformationOptions>,
@@ -10540,6 +10915,7 @@ pub struct ClientCodeActionLiteralOptions {
     pub code_action_kind: ClientCodeActionKindOptions,
 }
 impl ClientCodeActionLiteralOptions {
+    #[must_use]
     pub const fn new(code_action_kind: ClientCodeActionKindOptions) -> Self {
         Self { code_action_kind }
     }
@@ -10553,6 +10929,7 @@ pub struct ClientCodeActionResolveOptions {
     pub properties: Vec<String>,
 }
 impl ClientCodeActionResolveOptions {
+    #[must_use]
     pub const fn new(properties: Vec<String>) -> Self {
         Self { properties }
     }
@@ -10566,6 +10943,7 @@ pub struct CodeActionTagOptions {
     pub value_set: Vec<CodeActionTag>,
 }
 impl CodeActionTagOptions {
+    #[must_use]
     pub const fn new(value_set: Vec<CodeActionTag>) -> Self {
         Self { value_set }
     }
@@ -10579,6 +10957,7 @@ pub struct ClientCodeLensResolveOptions {
     pub properties: Vec<String>,
 }
 impl ClientCodeLensResolveOptions {
+    #[must_use]
     pub const fn new(properties: Vec<String>) -> Self {
         Self { properties }
     }
@@ -10596,6 +10975,7 @@ pub struct ClientFoldingRangeKindOptions {
     pub value_set: Option<Vec<FoldingRangeKind>>,
 }
 impl ClientFoldingRangeKindOptions {
+    #[must_use]
     pub const fn new(value_set: Option<Vec<FoldingRangeKind>>) -> Self {
         Self { value_set }
     }
@@ -10613,6 +10993,7 @@ pub struct ClientFoldingRangeOptions {
     pub collapsed_text: Option<bool>,
 }
 impl ClientFoldingRangeOptions {
+    #[must_use]
     pub const fn new(collapsed_text: Option<bool>) -> Self {
         Self { collapsed_text }
     }
@@ -10645,6 +11026,7 @@ pub struct DiagnosticsCapabilities {
     pub data_support: Option<bool>,
 }
 impl DiagnosticsCapabilities {
+    #[must_use]
     pub const fn new(
         related_information: Option<bool>,
         tag_support: Option<ClientDiagnosticsTagOptions>,
@@ -10674,6 +11056,7 @@ pub struct ClientSemanticTokensRequestOptions {
     pub full: Option<ClientSemanticTokensRequestOptionsFull>,
 }
 impl ClientSemanticTokensRequestOptions {
+    #[must_use]
     pub const fn new(
         range: Option<ClientSemanticTokensRequestOptionsRange>,
         full: Option<ClientSemanticTokensRequestOptionsFull>,
@@ -10690,6 +11073,7 @@ pub struct ClientInlayHintResolveOptions {
     pub properties: Vec<String>,
 }
 impl ClientInlayHintResolveOptions {
+    #[must_use]
     pub const fn new(properties: Vec<String>) -> Self {
         Self { properties }
     }
@@ -10706,6 +11090,7 @@ pub struct ClientShowMessageActionItemOptions {
     pub additional_properties_support: Option<bool>,
 }
 impl ClientShowMessageActionItemOptions {
+    #[must_use]
     pub const fn new(additional_properties_support: Option<bool>) -> Self {
         Self {
             additional_properties_support,
@@ -10721,6 +11106,7 @@ pub struct CompletionItemTagOptions {
     pub value_set: Vec<CompletionItemTag>,
 }
 impl CompletionItemTagOptions {
+    #[must_use]
     pub const fn new(value_set: Vec<CompletionItemTag>) -> Self {
         Self { value_set }
     }
@@ -10734,6 +11120,7 @@ pub struct ClientCompletionItemResolveOptions {
     pub properties: Vec<String>,
 }
 impl ClientCompletionItemResolveOptions {
+    #[must_use]
     pub const fn new(properties: Vec<String>) -> Self {
         Self { properties }
     }
@@ -10746,6 +11133,7 @@ pub struct ClientCompletionItemInsertTextModeOptions {
     pub value_set: Vec<InsertTextMode>,
 }
 impl ClientCompletionItemInsertTextModeOptions {
+    #[must_use]
     pub const fn new(value_set: Vec<InsertTextMode>) -> Self {
         Self { value_set }
     }
@@ -10763,6 +11151,7 @@ pub struct ClientSignatureParameterInformationOptions {
     pub label_offset_support: Option<bool>,
 }
 impl ClientSignatureParameterInformationOptions {
+    #[must_use]
     pub const fn new(label_offset_support: Option<bool>) -> Self {
         Self { label_offset_support }
     }
@@ -10779,6 +11168,7 @@ pub struct ClientCodeActionKindOptions {
     pub value_set: Vec<CodeActionKind>,
 }
 impl ClientCodeActionKindOptions {
+    #[must_use]
     pub const fn new(value_set: Vec<CodeActionKind>) -> Self {
         Self { value_set }
     }
@@ -10792,6 +11182,7 @@ pub struct ClientDiagnosticsTagOptions {
     pub value_set: Vec<DiagnosticTag>,
 }
 impl ClientDiagnosticsTagOptions {
+    #[must_use]
     pub const fn new(value_set: Vec<DiagnosticTag>) -> Self {
         Self { value_set }
     }
@@ -10807,6 +11198,7 @@ pub struct ClientSemanticTokensRequestFullDelta {
     pub delta: Option<bool>,
 }
 impl ClientSemanticTokensRequestFullDelta {
+    #[must_use]
     pub const fn new(delta: Option<bool>) -> Self {
         Self { delta }
     }
@@ -10886,36 +11278,37 @@ impl From<SemanticTokenTypes> for String {
 impl From<String> for SemanticTokenTypes {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "namespace" => SemanticTokenTypes::Namespace,
-            "type" => SemanticTokenTypes::Type,
-            "class" => SemanticTokenTypes::Class,
-            "enum" => SemanticTokenTypes::Enum,
-            "interface" => SemanticTokenTypes::Interface,
-            "struct" => SemanticTokenTypes::Struct,
-            "typeParameter" => SemanticTokenTypes::TypeParameter,
-            "parameter" => SemanticTokenTypes::Parameter,
-            "variable" => SemanticTokenTypes::Variable,
-            "property" => SemanticTokenTypes::Property,
-            "enumMember" => SemanticTokenTypes::EnumMember,
-            "event" => SemanticTokenTypes::Event,
-            "function" => SemanticTokenTypes::Function,
-            "method" => SemanticTokenTypes::Method,
-            "macro" => SemanticTokenTypes::Macro,
-            "keyword" => SemanticTokenTypes::Keyword,
-            "modifier" => SemanticTokenTypes::Modifier,
-            "comment" => SemanticTokenTypes::Comment,
-            "string" => SemanticTokenTypes::String,
-            "number" => SemanticTokenTypes::Number,
-            "regexp" => SemanticTokenTypes::Regexp,
-            "operator" => SemanticTokenTypes::Operator,
-            "decorator" => SemanticTokenTypes::Decorator,
-            "label" => SemanticTokenTypes::Label,
-            _ => SemanticTokenTypes::Custom(Cow::Owned(v)),
+            "namespace" => Self::Namespace,
+            "type" => Self::Type,
+            "class" => Self::Class,
+            "enum" => Self::Enum,
+            "interface" => Self::Interface,
+            "struct" => Self::Struct,
+            "typeParameter" => Self::TypeParameter,
+            "parameter" => Self::Parameter,
+            "variable" => Self::Variable,
+            "property" => Self::Property,
+            "enumMember" => Self::EnumMember,
+            "event" => Self::Event,
+            "function" => Self::Function,
+            "method" => Self::Method,
+            "macro" => Self::Macro,
+            "keyword" => Self::Keyword,
+            "modifier" => Self::Modifier,
+            "comment" => Self::Comment,
+            "string" => Self::String,
+            "number" => Self::Number,
+            "regexp" => Self::Regexp,
+            "operator" => Self::Operator,
+            "decorator" => Self::Decorator,
+            "label" => Self::Label,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl SemanticTokenTypes {
     /// Create a custom `SemanticTokenTypes` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -10923,31 +11316,31 @@ impl SemanticTokenTypes {
 impl From<&'static str> for SemanticTokenTypes {
     fn from(s: &'static str) -> Self {
         match s {
-            "namespace" => SemanticTokenTypes::Namespace,
-            "type" => SemanticTokenTypes::Type,
-            "class" => SemanticTokenTypes::Class,
-            "enum" => SemanticTokenTypes::Enum,
-            "interface" => SemanticTokenTypes::Interface,
-            "struct" => SemanticTokenTypes::Struct,
-            "typeParameter" => SemanticTokenTypes::TypeParameter,
-            "parameter" => SemanticTokenTypes::Parameter,
-            "variable" => SemanticTokenTypes::Variable,
-            "property" => SemanticTokenTypes::Property,
-            "enumMember" => SemanticTokenTypes::EnumMember,
-            "event" => SemanticTokenTypes::Event,
-            "function" => SemanticTokenTypes::Function,
-            "method" => SemanticTokenTypes::Method,
-            "macro" => SemanticTokenTypes::Macro,
-            "keyword" => SemanticTokenTypes::Keyword,
-            "modifier" => SemanticTokenTypes::Modifier,
-            "comment" => SemanticTokenTypes::Comment,
-            "string" => SemanticTokenTypes::String,
-            "number" => SemanticTokenTypes::Number,
-            "regexp" => SemanticTokenTypes::Regexp,
-            "operator" => SemanticTokenTypes::Operator,
-            "decorator" => SemanticTokenTypes::Decorator,
-            "label" => SemanticTokenTypes::Label,
-            _ => SemanticTokenTypes::Custom(Cow::Borrowed(s)),
+            "namespace" => Self::Namespace,
+            "type" => Self::Type,
+            "class" => Self::Class,
+            "enum" => Self::Enum,
+            "interface" => Self::Interface,
+            "struct" => Self::Struct,
+            "typeParameter" => Self::TypeParameter,
+            "parameter" => Self::Parameter,
+            "variable" => Self::Variable,
+            "property" => Self::Property,
+            "enumMember" => Self::EnumMember,
+            "event" => Self::Event,
+            "function" => Self::Function,
+            "method" => Self::Method,
+            "macro" => Self::Macro,
+            "keyword" => Self::Keyword,
+            "modifier" => Self::Modifier,
+            "comment" => Self::Comment,
+            "string" => Self::String,
+            "number" => Self::Number,
+            "regexp" => Self::Regexp,
+            "operator" => Self::Operator,
+            "decorator" => Self::Decorator,
+            "label" => Self::Label,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -10958,33 +11351,34 @@ impl fmt::Display for SemanticTokenTypes {
     }
 }
 impl SemanticTokenTypes {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            SemanticTokenTypes::Namespace => "namespace",
-            SemanticTokenTypes::Type => "type",
-            SemanticTokenTypes::Class => "class",
-            SemanticTokenTypes::Enum => "enum",
-            SemanticTokenTypes::Interface => "interface",
-            SemanticTokenTypes::Struct => "struct",
-            SemanticTokenTypes::TypeParameter => "typeParameter",
-            SemanticTokenTypes::Parameter => "parameter",
-            SemanticTokenTypes::Variable => "variable",
-            SemanticTokenTypes::Property => "property",
-            SemanticTokenTypes::EnumMember => "enumMember",
-            SemanticTokenTypes::Event => "event",
-            SemanticTokenTypes::Function => "function",
-            SemanticTokenTypes::Method => "method",
-            SemanticTokenTypes::Macro => "macro",
-            SemanticTokenTypes::Keyword => "keyword",
-            SemanticTokenTypes::Modifier => "modifier",
-            SemanticTokenTypes::Comment => "comment",
-            SemanticTokenTypes::String => "string",
-            SemanticTokenTypes::Number => "number",
-            SemanticTokenTypes::Regexp => "regexp",
-            SemanticTokenTypes::Operator => "operator",
-            SemanticTokenTypes::Decorator => "decorator",
-            SemanticTokenTypes::Label => "label",
-            SemanticTokenTypes::Custom(any) => any,
+            Self::Namespace => "namespace",
+            Self::Type => "type",
+            Self::Class => "class",
+            Self::Enum => "enum",
+            Self::Interface => "interface",
+            Self::Struct => "struct",
+            Self::TypeParameter => "typeParameter",
+            Self::Parameter => "parameter",
+            Self::Variable => "variable",
+            Self::Property => "property",
+            Self::EnumMember => "enumMember",
+            Self::Event => "event",
+            Self::Function => "function",
+            Self::Method => "method",
+            Self::Macro => "macro",
+            Self::Keyword => "keyword",
+            Self::Modifier => "modifier",
+            Self::Comment => "comment",
+            Self::String => "string",
+            Self::Number => "number",
+            Self::Regexp => "regexp",
+            Self::Operator => "operator",
+            Self::Decorator => "decorator",
+            Self::Label => "label",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -11031,22 +11425,23 @@ impl From<SemanticTokenModifiers> for String {
 impl From<String> for SemanticTokenModifiers {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "declaration" => SemanticTokenModifiers::Declaration,
-            "definition" => SemanticTokenModifiers::Definition,
-            "readonly" => SemanticTokenModifiers::Readonly,
-            "static" => SemanticTokenModifiers::Static,
-            "deprecated" => SemanticTokenModifiers::Deprecated,
-            "abstract" => SemanticTokenModifiers::Abstract,
-            "async" => SemanticTokenModifiers::Async,
-            "modification" => SemanticTokenModifiers::Modification,
-            "documentation" => SemanticTokenModifiers::Documentation,
-            "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
-            _ => SemanticTokenModifiers::Custom(Cow::Owned(v)),
+            "declaration" => Self::Declaration,
+            "definition" => Self::Definition,
+            "readonly" => Self::Readonly,
+            "static" => Self::Static,
+            "deprecated" => Self::Deprecated,
+            "abstract" => Self::Abstract,
+            "async" => Self::Async,
+            "modification" => Self::Modification,
+            "documentation" => Self::Documentation,
+            "defaultLibrary" => Self::DefaultLibrary,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl SemanticTokenModifiers {
     /// Create a custom `SemanticTokenModifiers` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -11054,17 +11449,17 @@ impl SemanticTokenModifiers {
 impl From<&'static str> for SemanticTokenModifiers {
     fn from(s: &'static str) -> Self {
         match s {
-            "declaration" => SemanticTokenModifiers::Declaration,
-            "definition" => SemanticTokenModifiers::Definition,
-            "readonly" => SemanticTokenModifiers::Readonly,
-            "static" => SemanticTokenModifiers::Static,
-            "deprecated" => SemanticTokenModifiers::Deprecated,
-            "abstract" => SemanticTokenModifiers::Abstract,
-            "async" => SemanticTokenModifiers::Async,
-            "modification" => SemanticTokenModifiers::Modification,
-            "documentation" => SemanticTokenModifiers::Documentation,
-            "defaultLibrary" => SemanticTokenModifiers::DefaultLibrary,
-            _ => SemanticTokenModifiers::Custom(Cow::Borrowed(s)),
+            "declaration" => Self::Declaration,
+            "definition" => Self::Definition,
+            "readonly" => Self::Readonly,
+            "static" => Self::Static,
+            "deprecated" => Self::Deprecated,
+            "abstract" => Self::Abstract,
+            "async" => Self::Async,
+            "modification" => Self::Modification,
+            "documentation" => Self::Documentation,
+            "defaultLibrary" => Self::DefaultLibrary,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -11075,19 +11470,20 @@ impl fmt::Display for SemanticTokenModifiers {
     }
 }
 impl SemanticTokenModifiers {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            SemanticTokenModifiers::Declaration => "declaration",
-            SemanticTokenModifiers::Definition => "definition",
-            SemanticTokenModifiers::Readonly => "readonly",
-            SemanticTokenModifiers::Static => "static",
-            SemanticTokenModifiers::Deprecated => "deprecated",
-            SemanticTokenModifiers::Abstract => "abstract",
-            SemanticTokenModifiers::Async => "async",
-            SemanticTokenModifiers::Modification => "modification",
-            SemanticTokenModifiers::Documentation => "documentation",
-            SemanticTokenModifiers::DefaultLibrary => "defaultLibrary",
-            SemanticTokenModifiers::Custom(any) => any,
+            Self::Declaration => "declaration",
+            Self::Definition => "definition",
+            Self::Readonly => "readonly",
+            Self::Static => "static",
+            Self::Deprecated => "deprecated",
+            Self::Abstract => "abstract",
+            Self::Async => "async",
+            Self::Modification => "modification",
+            Self::Documentation => "documentation",
+            Self::DefaultLibrary => "defaultLibrary",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -11117,8 +11513,8 @@ impl TryFrom<String> for DocumentDiagnosticReportKind {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "full" => Ok(DocumentDiagnosticReportKind::Full),
-            "unchanged" => Ok(DocumentDiagnosticReportKind::Unchanged),
+            "full" => Ok(Self::Full),
+            "unchanged" => Ok(Self::Unchanged),
             _ => Err(format!("Invalid DocumentDiagnosticReportKind: {v}")),
         }
     }
@@ -11130,10 +11526,11 @@ impl fmt::Display for DocumentDiagnosticReportKind {
     }
 }
 impl DocumentDiagnosticReportKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            DocumentDiagnosticReportKind::Full => "full",
-            DocumentDiagnosticReportKind::Unchanged => "unchanged",
+            Self::Full => "full",
+            Self::Unchanged => "unchanged",
         }
     }
 }
@@ -11172,14 +11569,14 @@ impl From<ErrorCodes> for i32 {
 impl From<i32> for ErrorCodes {
     fn from(v: i32) -> Self {
         match v {
-            -32700i32 => ErrorCodes::ParseError,
-            -32600i32 => ErrorCodes::InvalidRequest,
-            -32601i32 => ErrorCodes::MethodNotFound,
-            -32602i32 => ErrorCodes::InvalidParams,
-            -32603i32 => ErrorCodes::InternalError,
-            -32002i32 => ErrorCodes::ServerNotInitialized,
-            -32001i32 => ErrorCodes::UnknownErrorCode,
-            _ => ErrorCodes::Custom(v),
+            -32700i32 => Self::ParseError,
+            -32600i32 => Self::InvalidRequest,
+            -32601i32 => Self::MethodNotFound,
+            -32602i32 => Self::InvalidParams,
+            -32603i32 => Self::InternalError,
+            -32002i32 => Self::ServerNotInitialized,
+            -32001i32 => Self::UnknownErrorCode,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -11230,11 +11627,11 @@ impl From<LspErrorCodes> for i32 {
 impl From<i32> for LspErrorCodes {
     fn from(v: i32) -> Self {
         match v {
-            -32803i32 => LspErrorCodes::RequestFailed,
-            -32802i32 => LspErrorCodes::ServerCancelled,
-            -32801i32 => LspErrorCodes::ContentModified,
-            -32800i32 => LspErrorCodes::RequestCancelled,
-            _ => LspErrorCodes::Custom(v),
+            -32803i32 => Self::RequestFailed,
+            -32802i32 => Self::ServerCancelled,
+            -32801i32 => Self::ContentModified,
+            -32800i32 => Self::RequestCancelled,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -11266,15 +11663,16 @@ impl From<FoldingRangeKind> for String {
 impl From<String> for FoldingRangeKind {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "comment" => FoldingRangeKind::Comment,
-            "imports" => FoldingRangeKind::Imports,
-            "region" => FoldingRangeKind::Region,
-            _ => FoldingRangeKind::Custom(Cow::Owned(v)),
+            "comment" => Self::Comment,
+            "imports" => Self::Imports,
+            "region" => Self::Region,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl FoldingRangeKind {
     /// Create a custom `FoldingRangeKind` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -11282,10 +11680,10 @@ impl FoldingRangeKind {
 impl From<&'static str> for FoldingRangeKind {
     fn from(s: &'static str) -> Self {
         match s {
-            "comment" => FoldingRangeKind::Comment,
-            "imports" => FoldingRangeKind::Imports,
-            "region" => FoldingRangeKind::Region,
-            _ => FoldingRangeKind::Custom(Cow::Borrowed(s)),
+            "comment" => Self::Comment,
+            "imports" => Self::Imports,
+            "region" => Self::Region,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -11296,12 +11694,13 @@ impl fmt::Display for FoldingRangeKind {
     }
 }
 impl FoldingRangeKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            FoldingRangeKind::Comment => "comment",
-            FoldingRangeKind::Imports => "imports",
-            FoldingRangeKind::Region => "region",
-            FoldingRangeKind::Custom(any) => any,
+            Self::Comment => "comment",
+            Self::Imports => "imports",
+            Self::Region => "region",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -11373,32 +11772,32 @@ impl TryFrom<u32> for SymbolKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(SymbolKind::File),
-            2u32 => Ok(SymbolKind::Module),
-            3u32 => Ok(SymbolKind::Namespace),
-            4u32 => Ok(SymbolKind::Package),
-            5u32 => Ok(SymbolKind::Class),
-            6u32 => Ok(SymbolKind::Method),
-            7u32 => Ok(SymbolKind::Property),
-            8u32 => Ok(SymbolKind::Field),
-            9u32 => Ok(SymbolKind::Constructor),
-            10u32 => Ok(SymbolKind::Enum),
-            11u32 => Ok(SymbolKind::Interface),
-            12u32 => Ok(SymbolKind::Function),
-            13u32 => Ok(SymbolKind::Variable),
-            14u32 => Ok(SymbolKind::Constant),
-            15u32 => Ok(SymbolKind::String),
-            16u32 => Ok(SymbolKind::Number),
-            17u32 => Ok(SymbolKind::Boolean),
-            18u32 => Ok(SymbolKind::Array),
-            19u32 => Ok(SymbolKind::Object),
-            20u32 => Ok(SymbolKind::Key),
-            21u32 => Ok(SymbolKind::Null),
-            22u32 => Ok(SymbolKind::EnumMember),
-            23u32 => Ok(SymbolKind::Struct),
-            24u32 => Ok(SymbolKind::Event),
-            25u32 => Ok(SymbolKind::Operator),
-            26u32 => Ok(SymbolKind::TypeParameter),
+            1u32 => Ok(Self::File),
+            2u32 => Ok(Self::Module),
+            3u32 => Ok(Self::Namespace),
+            4u32 => Ok(Self::Package),
+            5u32 => Ok(Self::Class),
+            6u32 => Ok(Self::Method),
+            7u32 => Ok(Self::Property),
+            8u32 => Ok(Self::Field),
+            9u32 => Ok(Self::Constructor),
+            10u32 => Ok(Self::Enum),
+            11u32 => Ok(Self::Interface),
+            12u32 => Ok(Self::Function),
+            13u32 => Ok(Self::Variable),
+            14u32 => Ok(Self::Constant),
+            15u32 => Ok(Self::String),
+            16u32 => Ok(Self::Number),
+            17u32 => Ok(Self::Boolean),
+            18u32 => Ok(Self::Array),
+            19u32 => Ok(Self::Object),
+            20u32 => Ok(Self::Key),
+            21u32 => Ok(Self::Null),
+            22u32 => Ok(Self::EnumMember),
+            23u32 => Ok(Self::Struct),
+            24u32 => Ok(Self::Event),
+            25u32 => Ok(Self::Operator),
+            26u32 => Ok(Self::TypeParameter),
             _ => Err(format!("Invalid SymbolKind: {v}")),
         }
     }
@@ -11424,7 +11823,7 @@ impl TryFrom<u32> for SymbolTag {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(SymbolTag::Deprecated),
+            1u32 => Ok(Self::Deprecated),
             _ => Err(format!("Invalid SymbolTag: {v}")),
         }
     }
@@ -11462,11 +11861,11 @@ impl TryFrom<String> for UniquenessLevel {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "document" => Ok(UniquenessLevel::Document),
-            "project" => Ok(UniquenessLevel::Project),
-            "group" => Ok(UniquenessLevel::Group),
-            "scheme" => Ok(UniquenessLevel::Scheme),
-            "global" => Ok(UniquenessLevel::Global),
+            "document" => Ok(Self::Document),
+            "project" => Ok(Self::Project),
+            "group" => Ok(Self::Group),
+            "scheme" => Ok(Self::Scheme),
+            "global" => Ok(Self::Global),
             _ => Err(format!("Invalid UniquenessLevel: {v}")),
         }
     }
@@ -11478,13 +11877,14 @@ impl fmt::Display for UniquenessLevel {
     }
 }
 impl UniquenessLevel {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            UniquenessLevel::Document => "document",
-            UniquenessLevel::Project => "project",
-            UniquenessLevel::Group => "group",
-            UniquenessLevel::Scheme => "scheme",
-            UniquenessLevel::Global => "global",
+            Self::Document => "document",
+            Self::Project => "project",
+            Self::Group => "group",
+            Self::Scheme => "scheme",
+            Self::Global => "global",
         }
     }
 }
@@ -11516,9 +11916,9 @@ impl TryFrom<String> for MonikerKind {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "import" => Ok(MonikerKind::Import),
-            "export" => Ok(MonikerKind::Export),
-            "local" => Ok(MonikerKind::Local),
+            "import" => Ok(Self::Import),
+            "export" => Ok(Self::Export),
+            "local" => Ok(Self::Local),
             _ => Err(format!("Invalid MonikerKind: {v}")),
         }
     }
@@ -11530,11 +11930,12 @@ impl fmt::Display for MonikerKind {
     }
 }
 impl MonikerKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            MonikerKind::Import => "import",
-            MonikerKind::Export => "export",
-            MonikerKind::Local => "local",
+            Self::Import => "import",
+            Self::Export => "export",
+            Self::Local => "local",
         }
     }
 }
@@ -11562,8 +11963,8 @@ impl TryFrom<u32> for InlayHintKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(InlayHintKind::Type),
-            2u32 => Ok(InlayHintKind::Parameter),
+            1u32 => Ok(Self::Type),
+            2u32 => Ok(Self::Parameter),
             _ => Err(format!("Invalid InlayHintKind: {v}")),
         }
     }
@@ -11602,11 +12003,11 @@ impl TryFrom<u32> for MessageType {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(MessageType::Error),
-            2u32 => Ok(MessageType::Warning),
-            3u32 => Ok(MessageType::Info),
-            4u32 => Ok(MessageType::Log),
-            5u32 => Ok(MessageType::Debug),
+            1u32 => Ok(Self::Error),
+            2u32 => Ok(Self::Warning),
+            3u32 => Ok(Self::Info),
+            4u32 => Ok(Self::Log),
+            5u32 => Ok(Self::Debug),
             _ => Err(format!("Invalid MessageType: {v}")),
         }
     }
@@ -11640,9 +12041,9 @@ impl TryFrom<u32> for TextDocumentSyncKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            0u32 => Ok(TextDocumentSyncKind::None),
-            1u32 => Ok(TextDocumentSyncKind::Full),
-            2u32 => Ok(TextDocumentSyncKind::Incremental),
+            0u32 => Ok(Self::None),
+            1u32 => Ok(Self::Full),
+            2u32 => Ok(Self::Incremental),
             _ => Err(format!("Invalid TextDocumentSyncKind: {v}")),
         }
     }
@@ -11673,9 +12074,9 @@ impl TryFrom<u32> for TextDocumentSaveReason {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(TextDocumentSaveReason::Manual),
-            2u32 => Ok(TextDocumentSaveReason::AfterDelay),
-            3u32 => Ok(TextDocumentSaveReason::FocusOut),
+            1u32 => Ok(Self::Manual),
+            2u32 => Ok(Self::AfterDelay),
+            3u32 => Ok(Self::FocusOut),
             _ => Err(format!("Invalid TextDocumentSaveReason: {v}")),
         }
     }
@@ -11746,31 +12147,31 @@ impl TryFrom<u32> for CompletionItemKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(CompletionItemKind::Text),
-            2u32 => Ok(CompletionItemKind::Method),
-            3u32 => Ok(CompletionItemKind::Function),
-            4u32 => Ok(CompletionItemKind::Constructor),
-            5u32 => Ok(CompletionItemKind::Field),
-            6u32 => Ok(CompletionItemKind::Variable),
-            7u32 => Ok(CompletionItemKind::Class),
-            8u32 => Ok(CompletionItemKind::Interface),
-            9u32 => Ok(CompletionItemKind::Module),
-            10u32 => Ok(CompletionItemKind::Property),
-            11u32 => Ok(CompletionItemKind::Unit),
-            12u32 => Ok(CompletionItemKind::Value),
-            13u32 => Ok(CompletionItemKind::Enum),
-            14u32 => Ok(CompletionItemKind::Keyword),
-            15u32 => Ok(CompletionItemKind::Snippet),
-            16u32 => Ok(CompletionItemKind::Color),
-            17u32 => Ok(CompletionItemKind::File),
-            18u32 => Ok(CompletionItemKind::Reference),
-            19u32 => Ok(CompletionItemKind::Folder),
-            20u32 => Ok(CompletionItemKind::EnumMember),
-            21u32 => Ok(CompletionItemKind::Constant),
-            22u32 => Ok(CompletionItemKind::Struct),
-            23u32 => Ok(CompletionItemKind::Event),
-            24u32 => Ok(CompletionItemKind::Operator),
-            25u32 => Ok(CompletionItemKind::TypeParameter),
+            1u32 => Ok(Self::Text),
+            2u32 => Ok(Self::Method),
+            3u32 => Ok(Self::Function),
+            4u32 => Ok(Self::Constructor),
+            5u32 => Ok(Self::Field),
+            6u32 => Ok(Self::Variable),
+            7u32 => Ok(Self::Class),
+            8u32 => Ok(Self::Interface),
+            9u32 => Ok(Self::Module),
+            10u32 => Ok(Self::Property),
+            11u32 => Ok(Self::Unit),
+            12u32 => Ok(Self::Value),
+            13u32 => Ok(Self::Enum),
+            14u32 => Ok(Self::Keyword),
+            15u32 => Ok(Self::Snippet),
+            16u32 => Ok(Self::Color),
+            17u32 => Ok(Self::File),
+            18u32 => Ok(Self::Reference),
+            19u32 => Ok(Self::Folder),
+            20u32 => Ok(Self::EnumMember),
+            21u32 => Ok(Self::Constant),
+            22u32 => Ok(Self::Struct),
+            23u32 => Ok(Self::Event),
+            24u32 => Ok(Self::Operator),
+            25u32 => Ok(Self::TypeParameter),
             _ => Err(format!("Invalid CompletionItemKind: {v}")),
         }
     }
@@ -11797,7 +12198,7 @@ impl TryFrom<u32> for CompletionItemTag {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(CompletionItemTag::Deprecated),
+            1u32 => Ok(Self::Deprecated),
             _ => Err(format!("Invalid CompletionItemTag: {v}")),
         }
     }
@@ -11832,8 +12233,8 @@ impl TryFrom<u32> for InsertTextFormat {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(InsertTextFormat::PlainText),
-            2u32 => Ok(InsertTextFormat::Snippet),
+            1u32 => Ok(Self::PlainText),
+            2u32 => Ok(Self::Snippet),
             _ => Err(format!("Invalid InsertTextFormat: {v}")),
         }
     }
@@ -11873,8 +12274,8 @@ impl TryFrom<u32> for InsertTextMode {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(InsertTextMode::AsIs),
-            2u32 => Ok(InsertTextMode::AdjustIndentation),
+            1u32 => Ok(Self::AsIs),
+            2u32 => Ok(Self::AdjustIndentation),
             _ => Err(format!("Invalid InsertTextMode: {v}")),
         }
     }
@@ -11904,9 +12305,9 @@ impl TryFrom<u32> for DocumentHighlightKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(DocumentHighlightKind::Text),
-            2u32 => Ok(DocumentHighlightKind::Read),
-            3u32 => Ok(DocumentHighlightKind::Write),
+            1u32 => Ok(Self::Text),
+            2u32 => Ok(Self::Read),
+            3u32 => Ok(Self::Write),
             _ => Err(format!("Invalid DocumentHighlightKind: {v}")),
         }
     }
@@ -12007,23 +12408,24 @@ impl From<CodeActionKind> for String {
 impl From<String> for CodeActionKind {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "" => CodeActionKind::Empty,
-            "quickfix" => CodeActionKind::QuickFix,
-            "refactor" => CodeActionKind::Refactor,
-            "refactor.extract" => CodeActionKind::RefactorExtract,
-            "refactor.inline" => CodeActionKind::RefactorInline,
-            "refactor.move" => CodeActionKind::RefactorMove,
-            "refactor.rewrite" => CodeActionKind::RefactorRewrite,
-            "source" => CodeActionKind::Source,
-            "source.organizeImports" => CodeActionKind::SourceOrganizeImports,
-            "source.fixAll" => CodeActionKind::SourceFixAll,
-            "notebook" => CodeActionKind::Notebook,
-            _ => CodeActionKind::Custom(Cow::Owned(v)),
+            "" => Self::Empty,
+            "quickfix" => Self::QuickFix,
+            "refactor" => Self::Refactor,
+            "refactor.extract" => Self::RefactorExtract,
+            "refactor.inline" => Self::RefactorInline,
+            "refactor.move" => Self::RefactorMove,
+            "refactor.rewrite" => Self::RefactorRewrite,
+            "source" => Self::Source,
+            "source.organizeImports" => Self::SourceOrganizeImports,
+            "source.fixAll" => Self::SourceFixAll,
+            "notebook" => Self::Notebook,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl CodeActionKind {
     /// Create a custom `CodeActionKind` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -12031,18 +12433,18 @@ impl CodeActionKind {
 impl From<&'static str> for CodeActionKind {
     fn from(s: &'static str) -> Self {
         match s {
-            "" => CodeActionKind::Empty,
-            "quickfix" => CodeActionKind::QuickFix,
-            "refactor" => CodeActionKind::Refactor,
-            "refactor.extract" => CodeActionKind::RefactorExtract,
-            "refactor.inline" => CodeActionKind::RefactorInline,
-            "refactor.move" => CodeActionKind::RefactorMove,
-            "refactor.rewrite" => CodeActionKind::RefactorRewrite,
-            "source" => CodeActionKind::Source,
-            "source.organizeImports" => CodeActionKind::SourceOrganizeImports,
-            "source.fixAll" => CodeActionKind::SourceFixAll,
-            "notebook" => CodeActionKind::Notebook,
-            _ => CodeActionKind::Custom(Cow::Borrowed(s)),
+            "" => Self::Empty,
+            "quickfix" => Self::QuickFix,
+            "refactor" => Self::Refactor,
+            "refactor.extract" => Self::RefactorExtract,
+            "refactor.inline" => Self::RefactorInline,
+            "refactor.move" => Self::RefactorMove,
+            "refactor.rewrite" => Self::RefactorRewrite,
+            "source" => Self::Source,
+            "source.organizeImports" => Self::SourceOrganizeImports,
+            "source.fixAll" => Self::SourceFixAll,
+            "notebook" => Self::Notebook,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -12053,20 +12455,21 @@ impl fmt::Display for CodeActionKind {
     }
 }
 impl CodeActionKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            CodeActionKind::Empty => "",
-            CodeActionKind::QuickFix => "quickfix",
-            CodeActionKind::Refactor => "refactor",
-            CodeActionKind::RefactorExtract => "refactor.extract",
-            CodeActionKind::RefactorInline => "refactor.inline",
-            CodeActionKind::RefactorMove => "refactor.move",
-            CodeActionKind::RefactorRewrite => "refactor.rewrite",
-            CodeActionKind::Source => "source",
-            CodeActionKind::SourceOrganizeImports => "source.organizeImports",
-            CodeActionKind::SourceFixAll => "source.fixAll",
-            CodeActionKind::Notebook => "notebook",
-            CodeActionKind::Custom(any) => any,
+            Self::Empty => "",
+            Self::QuickFix => "quickfix",
+            Self::Refactor => "refactor",
+            Self::RefactorExtract => "refactor.extract",
+            Self::RefactorInline => "refactor.inline",
+            Self::RefactorMove => "refactor.move",
+            Self::RefactorRewrite => "refactor.rewrite",
+            Self::Source => "source",
+            Self::SourceOrganizeImports => "source.organizeImports",
+            Self::SourceFixAll => "source.fixAll",
+            Self::Notebook => "notebook",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -12091,7 +12494,7 @@ impl TryFrom<u32> for CodeActionTag {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(CodeActionTag::LLMGenerated),
+            1u32 => Ok(Self::LLMGenerated),
             _ => Err(format!("Invalid CodeActionTag: {v}")),
         }
     }
@@ -12120,9 +12523,9 @@ impl TryFrom<String> for TraceValue {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "off" => Ok(TraceValue::Off),
-            "messages" => Ok(TraceValue::Messages),
-            "verbose" => Ok(TraceValue::Verbose),
+            "off" => Ok(Self::Off),
+            "messages" => Ok(Self::Messages),
+            "verbose" => Ok(Self::Verbose),
             _ => Err(format!("Invalid TraceValue: {v}")),
         }
     }
@@ -12134,11 +12537,12 @@ impl fmt::Display for TraceValue {
     }
 }
 impl TraceValue {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            TraceValue::Off => "off",
-            TraceValue::Messages => "messages",
-            TraceValue::Verbose => "verbose",
+            Self::Off => "off",
+            Self::Messages => "messages",
+            Self::Verbose => "verbose",
         }
     }
 }
@@ -12168,8 +12572,8 @@ impl TryFrom<String> for MarkupKind {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "plaintext" => Ok(MarkupKind::PlainText),
-            "markdown" => Ok(MarkupKind::Markdown),
+            "plaintext" => Ok(Self::PlainText),
+            "markdown" => Ok(Self::Markdown),
             _ => Err(format!("Invalid MarkupKind: {v}")),
         }
     }
@@ -12181,10 +12585,11 @@ impl fmt::Display for MarkupKind {
     }
 }
 impl MarkupKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            MarkupKind::PlainText => "plaintext",
-            MarkupKind::Markdown => "markdown",
+            Self::PlainText => "plaintext",
+            Self::Markdown => "markdown",
         }
     }
 }
@@ -12336,73 +12741,74 @@ impl From<LanguageKind> for String {
 impl From<String> for LanguageKind {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "abap" => LanguageKind::ABAP,
-            "bat" => LanguageKind::WindowsBat,
-            "bibtex" => LanguageKind::BibTeX,
-            "clojure" => LanguageKind::Clojure,
-            "coffeescript" => LanguageKind::Coffeescript,
-            "c" => LanguageKind::C,
-            "cpp" => LanguageKind::CPP,
-            "csharp" => LanguageKind::CSharp,
-            "css" => LanguageKind::CSS,
-            "d" => LanguageKind::D,
-            "pascal" => LanguageKind::Delphi,
-            "diff" => LanguageKind::Diff,
-            "dart" => LanguageKind::Dart,
-            "dockerfile" => LanguageKind::Dockerfile,
-            "elixir" => LanguageKind::Elixir,
-            "erlang" => LanguageKind::Erlang,
-            "fsharp" => LanguageKind::FSharp,
-            "git-commit" => LanguageKind::GitCommit,
-            "rebase" => LanguageKind::GitRebase,
-            "go" => LanguageKind::Go,
-            "groovy" => LanguageKind::Groovy,
-            "handlebars" => LanguageKind::Handlebars,
-            "haskell" => LanguageKind::Haskell,
-            "html" => LanguageKind::HTML,
-            "ini" => LanguageKind::Ini,
-            "java" => LanguageKind::Java,
-            "javascript" => LanguageKind::JavaScript,
-            "javascriptreact" => LanguageKind::JavaScriptReact,
-            "json" => LanguageKind::JSON,
-            "latex" => LanguageKind::LaTeX,
-            "less" => LanguageKind::Less,
-            "lua" => LanguageKind::Lua,
-            "makefile" => LanguageKind::Makefile,
-            "markdown" => LanguageKind::Markdown,
-            "objective-c" => LanguageKind::ObjectiveC,
-            "objective-cpp" => LanguageKind::ObjectiveCPP,
-            "pascal" => LanguageKind::Pascal,
-            "perl" => LanguageKind::Perl,
-            "perl6" => LanguageKind::Perl6,
-            "php" => LanguageKind::PHP,
-            "powershell" => LanguageKind::Powershell,
-            "jade" => LanguageKind::Pug,
-            "python" => LanguageKind::Python,
-            "r" => LanguageKind::R,
-            "razor" => LanguageKind::Razor,
-            "ruby" => LanguageKind::Ruby,
-            "rust" => LanguageKind::Rust,
-            "scss" => LanguageKind::SCSS,
-            "sass" => LanguageKind::SASS,
-            "scala" => LanguageKind::Scala,
-            "shaderlab" => LanguageKind::ShaderLab,
-            "shellscript" => LanguageKind::ShellScript,
-            "sql" => LanguageKind::SQL,
-            "swift" => LanguageKind::Swift,
-            "typescript" => LanguageKind::TypeScript,
-            "typescriptreact" => LanguageKind::TypeScriptReact,
-            "tex" => LanguageKind::TeX,
-            "vb" => LanguageKind::VisualBasic,
-            "xml" => LanguageKind::XML,
-            "xsl" => LanguageKind::XSL,
-            "yaml" => LanguageKind::YAML,
-            _ => LanguageKind::Custom(Cow::Owned(v)),
+            "abap" => Self::ABAP,
+            "bat" => Self::WindowsBat,
+            "bibtex" => Self::BibTeX,
+            "clojure" => Self::Clojure,
+            "coffeescript" => Self::Coffeescript,
+            "c" => Self::C,
+            "cpp" => Self::CPP,
+            "csharp" => Self::CSharp,
+            "css" => Self::CSS,
+            "d" => Self::D,
+            "pascal" => Self::Delphi,
+            "diff" => Self::Diff,
+            "dart" => Self::Dart,
+            "dockerfile" => Self::Dockerfile,
+            "elixir" => Self::Elixir,
+            "erlang" => Self::Erlang,
+            "fsharp" => Self::FSharp,
+            "git-commit" => Self::GitCommit,
+            "rebase" => Self::GitRebase,
+            "go" => Self::Go,
+            "groovy" => Self::Groovy,
+            "handlebars" => Self::Handlebars,
+            "haskell" => Self::Haskell,
+            "html" => Self::HTML,
+            "ini" => Self::Ini,
+            "java" => Self::Java,
+            "javascript" => Self::JavaScript,
+            "javascriptreact" => Self::JavaScriptReact,
+            "json" => Self::JSON,
+            "latex" => Self::LaTeX,
+            "less" => Self::Less,
+            "lua" => Self::Lua,
+            "makefile" => Self::Makefile,
+            "markdown" => Self::Markdown,
+            "objective-c" => Self::ObjectiveC,
+            "objective-cpp" => Self::ObjectiveCPP,
+            "pascal" => Self::Pascal,
+            "perl" => Self::Perl,
+            "perl6" => Self::Perl6,
+            "php" => Self::PHP,
+            "powershell" => Self::Powershell,
+            "jade" => Self::Pug,
+            "python" => Self::Python,
+            "r" => Self::R,
+            "razor" => Self::Razor,
+            "ruby" => Self::Ruby,
+            "rust" => Self::Rust,
+            "scss" => Self::SCSS,
+            "sass" => Self::SASS,
+            "scala" => Self::Scala,
+            "shaderlab" => Self::ShaderLab,
+            "shellscript" => Self::ShellScript,
+            "sql" => Self::SQL,
+            "swift" => Self::Swift,
+            "typescript" => Self::TypeScript,
+            "typescriptreact" => Self::TypeScriptReact,
+            "tex" => Self::TeX,
+            "vb" => Self::VisualBasic,
+            "xml" => Self::XML,
+            "xsl" => Self::XSL,
+            "yaml" => Self::YAML,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl LanguageKind {
     /// Create a custom `LanguageKind` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -12410,68 +12816,68 @@ impl LanguageKind {
 impl From<&'static str> for LanguageKind {
     fn from(s: &'static str) -> Self {
         match s {
-            "abap" => LanguageKind::ABAP,
-            "bat" => LanguageKind::WindowsBat,
-            "bibtex" => LanguageKind::BibTeX,
-            "clojure" => LanguageKind::Clojure,
-            "coffeescript" => LanguageKind::Coffeescript,
-            "c" => LanguageKind::C,
-            "cpp" => LanguageKind::CPP,
-            "csharp" => LanguageKind::CSharp,
-            "css" => LanguageKind::CSS,
-            "d" => LanguageKind::D,
-            "pascal" => LanguageKind::Delphi,
-            "diff" => LanguageKind::Diff,
-            "dart" => LanguageKind::Dart,
-            "dockerfile" => LanguageKind::Dockerfile,
-            "elixir" => LanguageKind::Elixir,
-            "erlang" => LanguageKind::Erlang,
-            "fsharp" => LanguageKind::FSharp,
-            "git-commit" => LanguageKind::GitCommit,
-            "rebase" => LanguageKind::GitRebase,
-            "go" => LanguageKind::Go,
-            "groovy" => LanguageKind::Groovy,
-            "handlebars" => LanguageKind::Handlebars,
-            "haskell" => LanguageKind::Haskell,
-            "html" => LanguageKind::HTML,
-            "ini" => LanguageKind::Ini,
-            "java" => LanguageKind::Java,
-            "javascript" => LanguageKind::JavaScript,
-            "javascriptreact" => LanguageKind::JavaScriptReact,
-            "json" => LanguageKind::JSON,
-            "latex" => LanguageKind::LaTeX,
-            "less" => LanguageKind::Less,
-            "lua" => LanguageKind::Lua,
-            "makefile" => LanguageKind::Makefile,
-            "markdown" => LanguageKind::Markdown,
-            "objective-c" => LanguageKind::ObjectiveC,
-            "objective-cpp" => LanguageKind::ObjectiveCPP,
-            "pascal" => LanguageKind::Pascal,
-            "perl" => LanguageKind::Perl,
-            "perl6" => LanguageKind::Perl6,
-            "php" => LanguageKind::PHP,
-            "powershell" => LanguageKind::Powershell,
-            "jade" => LanguageKind::Pug,
-            "python" => LanguageKind::Python,
-            "r" => LanguageKind::R,
-            "razor" => LanguageKind::Razor,
-            "ruby" => LanguageKind::Ruby,
-            "rust" => LanguageKind::Rust,
-            "scss" => LanguageKind::SCSS,
-            "sass" => LanguageKind::SASS,
-            "scala" => LanguageKind::Scala,
-            "shaderlab" => LanguageKind::ShaderLab,
-            "shellscript" => LanguageKind::ShellScript,
-            "sql" => LanguageKind::SQL,
-            "swift" => LanguageKind::Swift,
-            "typescript" => LanguageKind::TypeScript,
-            "typescriptreact" => LanguageKind::TypeScriptReact,
-            "tex" => LanguageKind::TeX,
-            "vb" => LanguageKind::VisualBasic,
-            "xml" => LanguageKind::XML,
-            "xsl" => LanguageKind::XSL,
-            "yaml" => LanguageKind::YAML,
-            _ => LanguageKind::Custom(Cow::Borrowed(s)),
+            "abap" => Self::ABAP,
+            "bat" => Self::WindowsBat,
+            "bibtex" => Self::BibTeX,
+            "clojure" => Self::Clojure,
+            "coffeescript" => Self::Coffeescript,
+            "c" => Self::C,
+            "cpp" => Self::CPP,
+            "csharp" => Self::CSharp,
+            "css" => Self::CSS,
+            "d" => Self::D,
+            "pascal" => Self::Delphi,
+            "diff" => Self::Diff,
+            "dart" => Self::Dart,
+            "dockerfile" => Self::Dockerfile,
+            "elixir" => Self::Elixir,
+            "erlang" => Self::Erlang,
+            "fsharp" => Self::FSharp,
+            "git-commit" => Self::GitCommit,
+            "rebase" => Self::GitRebase,
+            "go" => Self::Go,
+            "groovy" => Self::Groovy,
+            "handlebars" => Self::Handlebars,
+            "haskell" => Self::Haskell,
+            "html" => Self::HTML,
+            "ini" => Self::Ini,
+            "java" => Self::Java,
+            "javascript" => Self::JavaScript,
+            "javascriptreact" => Self::JavaScriptReact,
+            "json" => Self::JSON,
+            "latex" => Self::LaTeX,
+            "less" => Self::Less,
+            "lua" => Self::Lua,
+            "makefile" => Self::Makefile,
+            "markdown" => Self::Markdown,
+            "objective-c" => Self::ObjectiveC,
+            "objective-cpp" => Self::ObjectiveCPP,
+            "pascal" => Self::Pascal,
+            "perl" => Self::Perl,
+            "perl6" => Self::Perl6,
+            "php" => Self::PHP,
+            "powershell" => Self::Powershell,
+            "jade" => Self::Pug,
+            "python" => Self::Python,
+            "r" => Self::R,
+            "razor" => Self::Razor,
+            "ruby" => Self::Ruby,
+            "rust" => Self::Rust,
+            "scss" => Self::SCSS,
+            "sass" => Self::SASS,
+            "scala" => Self::Scala,
+            "shaderlab" => Self::ShaderLab,
+            "shellscript" => Self::ShellScript,
+            "sql" => Self::SQL,
+            "swift" => Self::Swift,
+            "typescript" => Self::TypeScript,
+            "typescriptreact" => Self::TypeScriptReact,
+            "tex" => Self::TeX,
+            "vb" => Self::VisualBasic,
+            "xml" => Self::XML,
+            "xsl" => Self::XSL,
+            "yaml" => Self::YAML,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -12482,70 +12888,71 @@ impl fmt::Display for LanguageKind {
     }
 }
 impl LanguageKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            LanguageKind::ABAP => "abap",
-            LanguageKind::WindowsBat => "bat",
-            LanguageKind::BibTeX => "bibtex",
-            LanguageKind::Clojure => "clojure",
-            LanguageKind::Coffeescript => "coffeescript",
-            LanguageKind::C => "c",
-            LanguageKind::CPP => "cpp",
-            LanguageKind::CSharp => "csharp",
-            LanguageKind::CSS => "css",
-            LanguageKind::D => "d",
-            LanguageKind::Delphi => "pascal",
-            LanguageKind::Diff => "diff",
-            LanguageKind::Dart => "dart",
-            LanguageKind::Dockerfile => "dockerfile",
-            LanguageKind::Elixir => "elixir",
-            LanguageKind::Erlang => "erlang",
-            LanguageKind::FSharp => "fsharp",
-            LanguageKind::GitCommit => "git-commit",
-            LanguageKind::GitRebase => "rebase",
-            LanguageKind::Go => "go",
-            LanguageKind::Groovy => "groovy",
-            LanguageKind::Handlebars => "handlebars",
-            LanguageKind::Haskell => "haskell",
-            LanguageKind::HTML => "html",
-            LanguageKind::Ini => "ini",
-            LanguageKind::Java => "java",
-            LanguageKind::JavaScript => "javascript",
-            LanguageKind::JavaScriptReact => "javascriptreact",
-            LanguageKind::JSON => "json",
-            LanguageKind::LaTeX => "latex",
-            LanguageKind::Less => "less",
-            LanguageKind::Lua => "lua",
-            LanguageKind::Makefile => "makefile",
-            LanguageKind::Markdown => "markdown",
-            LanguageKind::ObjectiveC => "objective-c",
-            LanguageKind::ObjectiveCPP => "objective-cpp",
-            LanguageKind::Pascal => "pascal",
-            LanguageKind::Perl => "perl",
-            LanguageKind::Perl6 => "perl6",
-            LanguageKind::PHP => "php",
-            LanguageKind::Powershell => "powershell",
-            LanguageKind::Pug => "jade",
-            LanguageKind::Python => "python",
-            LanguageKind::R => "r",
-            LanguageKind::Razor => "razor",
-            LanguageKind::Ruby => "ruby",
-            LanguageKind::Rust => "rust",
-            LanguageKind::SCSS => "scss",
-            LanguageKind::SASS => "sass",
-            LanguageKind::Scala => "scala",
-            LanguageKind::ShaderLab => "shaderlab",
-            LanguageKind::ShellScript => "shellscript",
-            LanguageKind::SQL => "sql",
-            LanguageKind::Swift => "swift",
-            LanguageKind::TypeScript => "typescript",
-            LanguageKind::TypeScriptReact => "typescriptreact",
-            LanguageKind::TeX => "tex",
-            LanguageKind::VisualBasic => "vb",
-            LanguageKind::XML => "xml",
-            LanguageKind::XSL => "xsl",
-            LanguageKind::YAML => "yaml",
-            LanguageKind::Custom(any) => any,
+            Self::ABAP => "abap",
+            Self::WindowsBat => "bat",
+            Self::BibTeX => "bibtex",
+            Self::Clojure => "clojure",
+            Self::Coffeescript => "coffeescript",
+            Self::C => "c",
+            Self::CPP => "cpp",
+            Self::CSharp => "csharp",
+            Self::CSS => "css",
+            Self::D => "d",
+            Self::Delphi => "pascal",
+            Self::Diff => "diff",
+            Self::Dart => "dart",
+            Self::Dockerfile => "dockerfile",
+            Self::Elixir => "elixir",
+            Self::Erlang => "erlang",
+            Self::FSharp => "fsharp",
+            Self::GitCommit => "git-commit",
+            Self::GitRebase => "rebase",
+            Self::Go => "go",
+            Self::Groovy => "groovy",
+            Self::Handlebars => "handlebars",
+            Self::Haskell => "haskell",
+            Self::HTML => "html",
+            Self::Ini => "ini",
+            Self::Java => "java",
+            Self::JavaScript => "javascript",
+            Self::JavaScriptReact => "javascriptreact",
+            Self::JSON => "json",
+            Self::LaTeX => "latex",
+            Self::Less => "less",
+            Self::Lua => "lua",
+            Self::Makefile => "makefile",
+            Self::Markdown => "markdown",
+            Self::ObjectiveC => "objective-c",
+            Self::ObjectiveCPP => "objective-cpp",
+            Self::Pascal => "pascal",
+            Self::Perl => "perl",
+            Self::Perl6 => "perl6",
+            Self::PHP => "php",
+            Self::Powershell => "powershell",
+            Self::Pug => "jade",
+            Self::Python => "python",
+            Self::R => "r",
+            Self::Razor => "razor",
+            Self::Ruby => "ruby",
+            Self::Rust => "rust",
+            Self::SCSS => "scss",
+            Self::SASS => "sass",
+            Self::Scala => "scala",
+            Self::ShaderLab => "shaderlab",
+            Self::ShellScript => "shellscript",
+            Self::SQL => "sql",
+            Self::Swift => "swift",
+            Self::TypeScript => "typescript",
+            Self::TypeScriptReact => "typescriptreact",
+            Self::TeX => "tex",
+            Self::VisualBasic => "vb",
+            Self::XML => "xml",
+            Self::XSL => "xsl",
+            Self::YAML => "yaml",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -12574,8 +12981,8 @@ impl TryFrom<u32> for InlineCompletionTriggerKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(InlineCompletionTriggerKind::Invoked),
-            2u32 => Ok(InlineCompletionTriggerKind::Automatic),
+            1u32 => Ok(Self::Invoked),
+            2u32 => Ok(Self::Automatic),
             _ => Err(format!("Invalid InlineCompletionTriggerKind: {v}")),
         }
     }
@@ -12617,15 +13024,16 @@ impl From<PositionEncodingKind> for String {
 impl From<String> for PositionEncodingKind {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "utf-8" => PositionEncodingKind::UTF8,
-            "utf-16" => PositionEncodingKind::UTF16,
-            "utf-32" => PositionEncodingKind::UTF32,
-            _ => PositionEncodingKind::Custom(Cow::Owned(v)),
+            "utf-8" => Self::UTF8,
+            "utf-16" => Self::UTF16,
+            "utf-32" => Self::UTF32,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl PositionEncodingKind {
     /// Create a custom `PositionEncodingKind` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -12633,10 +13041,10 @@ impl PositionEncodingKind {
 impl From<&'static str> for PositionEncodingKind {
     fn from(s: &'static str) -> Self {
         match s {
-            "utf-8" => PositionEncodingKind::UTF8,
-            "utf-16" => PositionEncodingKind::UTF16,
-            "utf-32" => PositionEncodingKind::UTF32,
-            _ => PositionEncodingKind::Custom(Cow::Borrowed(s)),
+            "utf-8" => Self::UTF8,
+            "utf-16" => Self::UTF16,
+            "utf-32" => Self::UTF32,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -12647,12 +13055,13 @@ impl fmt::Display for PositionEncodingKind {
     }
 }
 impl PositionEncodingKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            PositionEncodingKind::UTF8 => "utf-8",
-            PositionEncodingKind::UTF16 => "utf-16",
-            PositionEncodingKind::UTF32 => "utf-32",
-            PositionEncodingKind::Custom(any) => any,
+            Self::UTF8 => "utf-8",
+            Self::UTF16 => "utf-16",
+            Self::UTF32 => "utf-32",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -12681,9 +13090,9 @@ impl TryFrom<u32> for FileChangeType {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(FileChangeType::Created),
-            2u32 => Ok(FileChangeType::Changed),
-            3u32 => Ok(FileChangeType::Deleted),
+            1u32 => Ok(Self::Created),
+            2u32 => Ok(Self::Changed),
+            3u32 => Ok(Self::Deleted),
             _ => Err(format!("Invalid FileChangeType: {v}")),
         }
     }
@@ -12715,10 +13124,10 @@ impl From<WatchKind> for u32 {
 impl From<u32> for WatchKind {
     fn from(v: u32) -> Self {
         match v {
-            1u32 => WatchKind::Create,
-            2u32 => WatchKind::Change,
-            4u32 => WatchKind::Delete,
-            _ => WatchKind::Custom(v),
+            1u32 => Self::Create,
+            2u32 => Self::Change,
+            4u32 => Self::Delete,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -12750,10 +13159,10 @@ impl TryFrom<u32> for DiagnosticSeverity {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(DiagnosticSeverity::Error),
-            2u32 => Ok(DiagnosticSeverity::Warning),
-            3u32 => Ok(DiagnosticSeverity::Information),
-            4u32 => Ok(DiagnosticSeverity::Hint),
+            1u32 => Ok(Self::Error),
+            2u32 => Ok(Self::Warning),
+            3u32 => Ok(Self::Information),
+            4u32 => Ok(Self::Hint),
             _ => Err(format!("Invalid DiagnosticSeverity: {v}")),
         }
     }
@@ -12787,8 +13196,8 @@ impl TryFrom<u32> for DiagnosticTag {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(DiagnosticTag::Unnecessary),
-            2u32 => Ok(DiagnosticTag::Deprecated),
+            1u32 => Ok(Self::Unnecessary),
+            2u32 => Ok(Self::Deprecated),
             _ => Err(format!("Invalid DiagnosticTag: {v}")),
         }
     }
@@ -12820,9 +13229,9 @@ impl TryFrom<u32> for CompletionTriggerKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(CompletionTriggerKind::Invoked),
-            2u32 => Ok(CompletionTriggerKind::TriggerCharacter),
-            3u32 => Ok(CompletionTriggerKind::TriggerForIncompleteCompletions),
+            1u32 => Ok(Self::Invoked),
+            2u32 => Ok(Self::TriggerCharacter),
+            3u32 => Ok(Self::TriggerForIncompleteCompletions),
             _ => Err(format!("Invalid CompletionTriggerKind: {v}")),
         }
     }
@@ -12856,8 +13265,8 @@ impl TryFrom<u32> for ApplyKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(ApplyKind::Replace),
-            2u32 => Ok(ApplyKind::Merge),
+            1u32 => Ok(Self::Replace),
+            2u32 => Ok(Self::Merge),
             _ => Err(format!("Invalid ApplyKind: {v}")),
         }
     }
@@ -12889,9 +13298,9 @@ impl TryFrom<u32> for SignatureHelpTriggerKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(SignatureHelpTriggerKind::Invoked),
-            2u32 => Ok(SignatureHelpTriggerKind::TriggerCharacter),
-            3u32 => Ok(SignatureHelpTriggerKind::ContentChange),
+            1u32 => Ok(Self::Invoked),
+            2u32 => Ok(Self::TriggerCharacter),
+            3u32 => Ok(Self::ContentChange),
             _ => Err(format!("Invalid SignatureHelpTriggerKind: {v}")),
         }
     }
@@ -12923,8 +13332,8 @@ impl TryFrom<u32> for CodeActionTriggerKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(CodeActionTriggerKind::Invoked),
-            2u32 => Ok(CodeActionTriggerKind::Automatic),
+            1u32 => Ok(Self::Invoked),
+            2u32 => Ok(Self::Automatic),
             _ => Err(format!("Invalid CodeActionTriggerKind: {v}")),
         }
     }
@@ -12954,8 +13363,8 @@ impl TryFrom<String> for FileOperationPatternKind {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "file" => Ok(FileOperationPatternKind::File),
-            "folder" => Ok(FileOperationPatternKind::Folder),
+            "file" => Ok(Self::File),
+            "folder" => Ok(Self::Folder),
             _ => Err(format!("Invalid FileOperationPatternKind: {v}")),
         }
     }
@@ -12967,10 +13376,11 @@ impl fmt::Display for FileOperationPatternKind {
     }
 }
 impl FileOperationPatternKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            FileOperationPatternKind::File => "file",
-            FileOperationPatternKind::Folder => "folder",
+            Self::File => "file",
+            Self::Folder => "folder",
         }
     }
 }
@@ -12998,8 +13408,8 @@ impl TryFrom<u32> for NotebookCellKind {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(NotebookCellKind::Markup),
-            2u32 => Ok(NotebookCellKind::Code),
+            1u32 => Ok(Self::Markup),
+            2u32 => Ok(Self::Code),
             _ => Err(format!("Invalid NotebookCellKind: {v}")),
         }
     }
@@ -13028,9 +13438,9 @@ impl TryFrom<String> for ResourceOperationKind {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "create" => Ok(ResourceOperationKind::Create),
-            "rename" => Ok(ResourceOperationKind::Rename),
-            "delete" => Ok(ResourceOperationKind::Delete),
+            "create" => Ok(Self::Create),
+            "rename" => Ok(Self::Rename),
+            "delete" => Ok(Self::Delete),
             _ => Err(format!("Invalid ResourceOperationKind: {v}")),
         }
     }
@@ -13042,11 +13452,12 @@ impl fmt::Display for ResourceOperationKind {
     }
 }
 impl ResourceOperationKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            ResourceOperationKind::Create => "create",
-            ResourceOperationKind::Rename => "rename",
-            ResourceOperationKind::Delete => "delete",
+            Self::Create => "create",
+            Self::Rename => "rename",
+            Self::Delete => "delete",
         }
     }
 }
@@ -13084,10 +13495,10 @@ impl TryFrom<String> for FailureHandlingKind {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "abort" => Ok(FailureHandlingKind::Abort),
-            "transactional" => Ok(FailureHandlingKind::Transactional),
-            "textOnlyTransactional" => Ok(FailureHandlingKind::TextOnlyTransactional),
-            "undo" => Ok(FailureHandlingKind::Undo),
+            "abort" => Ok(Self::Abort),
+            "transactional" => Ok(Self::Transactional),
+            "textOnlyTransactional" => Ok(Self::TextOnlyTransactional),
+            "undo" => Ok(Self::Undo),
             _ => Err(format!("Invalid FailureHandlingKind: {v}")),
         }
     }
@@ -13099,12 +13510,13 @@ impl fmt::Display for FailureHandlingKind {
     }
 }
 impl FailureHandlingKind {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            FailureHandlingKind::Abort => "abort",
-            FailureHandlingKind::Transactional => "transactional",
-            FailureHandlingKind::TextOnlyTransactional => "textOnlyTransactional",
-            FailureHandlingKind::Undo => "undo",
+            Self::Abort => "abort",
+            Self::Transactional => "transactional",
+            Self::TextOnlyTransactional => "textOnlyTransactional",
+            Self::Undo => "undo",
         }
     }
 }
@@ -13127,7 +13539,7 @@ impl TryFrom<u32> for PrepareSupportDefaultBehavior {
     type Error = String;
     fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
         match v {
-            1u32 => Ok(PrepareSupportDefaultBehavior::Identifier),
+            1u32 => Ok(Self::Identifier),
             _ => Err(format!("Invalid PrepareSupportDefaultBehavior: {v}")),
         }
     }
@@ -13149,7 +13561,7 @@ impl TryFrom<String> for TokenFormat {
     type Error = String;
     fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
         match v.as_str() {
-            "relative" => Ok(TokenFormat::Relative),
+            "relative" => Ok(Self::Relative),
             _ => Err(format!("Invalid TokenFormat: {v}")),
         }
     }
@@ -13161,9 +13573,10 @@ impl fmt::Display for TokenFormat {
     }
 }
 impl TokenFormat {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            TokenFormat::Relative => "relative",
+            Self::Relative => "relative",
         }
     }
 }
@@ -13433,121 +13846,86 @@ impl From<LspRequestMethod> for String {
 impl From<String> for LspRequestMethod {
     fn from(v: String) -> Self {
         match v.as_str() {
-            "textDocument/implementation" => LspRequestMethod::TextDocumentImplementation,
-            "textDocument/typeDefinition" => LspRequestMethod::TextDocumentTypeDefinition,
-            "workspace/workspaceFolders" => LspRequestMethod::WorkspaceWorkspaceFolders,
-            "workspace/configuration" => LspRequestMethod::WorkspaceConfiguration,
-            "textDocument/documentColor" => LspRequestMethod::TextDocumentDocumentColor,
-            "textDocument/colorPresentation" => {
-                LspRequestMethod::TextDocumentColorPresentation
-            }
-            "textDocument/foldingRange" => LspRequestMethod::TextDocumentFoldingRange,
-            "workspace/foldingRange/refresh" => {
-                LspRequestMethod::WorkspaceFoldingRangeRefresh
-            }
-            "textDocument/declaration" => LspRequestMethod::TextDocumentDeclaration,
-            "textDocument/selectionRange" => LspRequestMethod::TextDocumentSelectionRange,
-            "window/workDoneProgress/create" => {
-                LspRequestMethod::WindowWorkDoneProgressCreate
-            }
-            "textDocument/prepareCallHierarchy" => {
-                LspRequestMethod::TextDocumentPrepareCallHierarchy
-            }
-            "callHierarchy/incomingCalls" => LspRequestMethod::CallHierarchyIncomingCalls,
-            "callHierarchy/outgoingCalls" => LspRequestMethod::CallHierarchyOutgoingCalls,
-            "textDocument/semanticTokens/full" => {
-                LspRequestMethod::TextDocumentSemanticTokensFull
-            }
+            "textDocument/implementation" => Self::TextDocumentImplementation,
+            "textDocument/typeDefinition" => Self::TextDocumentTypeDefinition,
+            "workspace/workspaceFolders" => Self::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => Self::WorkspaceConfiguration,
+            "textDocument/documentColor" => Self::TextDocumentDocumentColor,
+            "textDocument/colorPresentation" => Self::TextDocumentColorPresentation,
+            "textDocument/foldingRange" => Self::TextDocumentFoldingRange,
+            "workspace/foldingRange/refresh" => Self::WorkspaceFoldingRangeRefresh,
+            "textDocument/declaration" => Self::TextDocumentDeclaration,
+            "textDocument/selectionRange" => Self::TextDocumentSelectionRange,
+            "window/workDoneProgress/create" => Self::WindowWorkDoneProgressCreate,
+            "textDocument/prepareCallHierarchy" => Self::TextDocumentPrepareCallHierarchy,
+            "callHierarchy/incomingCalls" => Self::CallHierarchyIncomingCalls,
+            "callHierarchy/outgoingCalls" => Self::CallHierarchyOutgoingCalls,
+            "textDocument/semanticTokens/full" => Self::TextDocumentSemanticTokensFull,
             "textDocument/semanticTokens/full/delta" => {
-                LspRequestMethod::TextDocumentSemanticTokensFullDelta
+                Self::TextDocumentSemanticTokensFullDelta
             }
-            "textDocument/semanticTokens/range" => {
-                LspRequestMethod::TextDocumentSemanticTokensRange
-            }
-            "workspace/semanticTokens/refresh" => {
-                LspRequestMethod::WorkspaceSemanticTokensRefresh
-            }
-            "window/showDocument" => LspRequestMethod::WindowShowDocument,
-            "textDocument/linkedEditingRange" => {
-                LspRequestMethod::TextDocumentLinkedEditingRange
-            }
-            "workspace/willCreateFiles" => LspRequestMethod::WorkspaceWillCreateFiles,
-            "workspace/willRenameFiles" => LspRequestMethod::WorkspaceWillRenameFiles,
-            "workspace/willDeleteFiles" => LspRequestMethod::WorkspaceWillDeleteFiles,
-            "textDocument/moniker" => LspRequestMethod::TextDocumentMoniker,
-            "textDocument/prepareTypeHierarchy" => {
-                LspRequestMethod::TextDocumentPrepareTypeHierarchy
-            }
-            "typeHierarchy/supertypes" => LspRequestMethod::TypeHierarchySupertypes,
-            "typeHierarchy/subtypes" => LspRequestMethod::TypeHierarchySubtypes,
-            "textDocument/inlineValue" => LspRequestMethod::TextDocumentInlineValue,
-            "workspace/inlineValue/refresh" => {
-                LspRequestMethod::WorkspaceInlineValueRefresh
-            }
-            "textDocument/inlayHint" => LspRequestMethod::TextDocumentInlayHint,
-            "inlayHint/resolve" => LspRequestMethod::InlayHintResolve,
-            "workspace/inlayHint/refresh" => LspRequestMethod::WorkspaceInlayHintRefresh,
-            "textDocument/diagnostic" => LspRequestMethod::TextDocumentDiagnostic,
-            "workspace/diagnostic" => LspRequestMethod::WorkspaceDiagnostic,
-            "workspace/diagnostic/refresh" => {
-                LspRequestMethod::WorkspaceDiagnosticRefresh
-            }
-            "textDocument/inlineCompletion" => {
-                LspRequestMethod::TextDocumentInlineCompletion
-            }
-            "workspace/textDocumentContent" => {
-                LspRequestMethod::WorkspaceTextDocumentContent
-            }
+            "textDocument/semanticTokens/range" => Self::TextDocumentSemanticTokensRange,
+            "workspace/semanticTokens/refresh" => Self::WorkspaceSemanticTokensRefresh,
+            "window/showDocument" => Self::WindowShowDocument,
+            "textDocument/linkedEditingRange" => Self::TextDocumentLinkedEditingRange,
+            "workspace/willCreateFiles" => Self::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => Self::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => Self::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => Self::TextDocumentMoniker,
+            "textDocument/prepareTypeHierarchy" => Self::TextDocumentPrepareTypeHierarchy,
+            "typeHierarchy/supertypes" => Self::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => Self::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => Self::TextDocumentInlineValue,
+            "workspace/inlineValue/refresh" => Self::WorkspaceInlineValueRefresh,
+            "textDocument/inlayHint" => Self::TextDocumentInlayHint,
+            "inlayHint/resolve" => Self::InlayHintResolve,
+            "workspace/inlayHint/refresh" => Self::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => Self::TextDocumentDiagnostic,
+            "workspace/diagnostic" => Self::WorkspaceDiagnostic,
+            "workspace/diagnostic/refresh" => Self::WorkspaceDiagnosticRefresh,
+            "textDocument/inlineCompletion" => Self::TextDocumentInlineCompletion,
+            "workspace/textDocumentContent" => Self::WorkspaceTextDocumentContent,
             "workspace/textDocumentContent/refresh" => {
-                LspRequestMethod::WorkspaceTextDocumentContentRefresh
+                Self::WorkspaceTextDocumentContentRefresh
             }
-            "client/registerCapability" => LspRequestMethod::ClientRegisterCapability,
-            "client/unregisterCapability" => LspRequestMethod::ClientUnregisterCapability,
-            "initialize" => LspRequestMethod::Initialize,
-            "shutdown" => LspRequestMethod::Shutdown,
-            "window/showMessageRequest" => LspRequestMethod::WindowShowMessageRequest,
-            "textDocument/willSaveWaitUntil" => {
-                LspRequestMethod::TextDocumentWillSaveWaitUntil
-            }
-            "textDocument/completion" => LspRequestMethod::TextDocumentCompletion,
-            "completionItem/resolve" => LspRequestMethod::CompletionItemResolve,
-            "textDocument/hover" => LspRequestMethod::TextDocumentHover,
-            "textDocument/signatureHelp" => LspRequestMethod::TextDocumentSignatureHelp,
-            "textDocument/definition" => LspRequestMethod::TextDocumentDefinition,
-            "textDocument/references" => LspRequestMethod::TextDocumentReferences,
-            "textDocument/documentHighlight" => {
-                LspRequestMethod::TextDocumentDocumentHighlight
-            }
-            "textDocument/documentSymbol" => LspRequestMethod::TextDocumentDocumentSymbol,
-            "textDocument/codeAction" => LspRequestMethod::TextDocumentCodeAction,
-            "codeAction/resolve" => LspRequestMethod::CodeActionResolve,
-            "workspace/symbol" => LspRequestMethod::WorkspaceSymbol,
-            "workspaceSymbol/resolve" => LspRequestMethod::WorkspaceSymbolResolve,
-            "textDocument/codeLens" => LspRequestMethod::TextDocumentCodeLens,
-            "codeLens/resolve" => LspRequestMethod::CodeLensResolve,
-            "workspace/codeLens/refresh" => LspRequestMethod::WorkspaceCodeLensRefresh,
-            "textDocument/documentLink" => LspRequestMethod::TextDocumentDocumentLink,
-            "documentLink/resolve" => LspRequestMethod::DocumentLinkResolve,
-            "textDocument/formatting" => LspRequestMethod::TextDocumentFormatting,
-            "textDocument/rangeFormatting" => {
-                LspRequestMethod::TextDocumentRangeFormatting
-            }
-            "textDocument/rangesFormatting" => {
-                LspRequestMethod::TextDocumentRangesFormatting
-            }
-            "textDocument/onTypeFormatting" => {
-                LspRequestMethod::TextDocumentOnTypeFormatting
-            }
-            "textDocument/rename" => LspRequestMethod::TextDocumentRename,
-            "textDocument/prepareRename" => LspRequestMethod::TextDocumentPrepareRename,
-            "workspace/executeCommand" => LspRequestMethod::WorkspaceExecuteCommand,
-            "workspace/applyEdit" => LspRequestMethod::WorkspaceApplyEdit,
-            _ => LspRequestMethod::Custom(Cow::Owned(v)),
+            "client/registerCapability" => Self::ClientRegisterCapability,
+            "client/unregisterCapability" => Self::ClientUnregisterCapability,
+            "initialize" => Self::Initialize,
+            "shutdown" => Self::Shutdown,
+            "window/showMessageRequest" => Self::WindowShowMessageRequest,
+            "textDocument/willSaveWaitUntil" => Self::TextDocumentWillSaveWaitUntil,
+            "textDocument/completion" => Self::TextDocumentCompletion,
+            "completionItem/resolve" => Self::CompletionItemResolve,
+            "textDocument/hover" => Self::TextDocumentHover,
+            "textDocument/signatureHelp" => Self::TextDocumentSignatureHelp,
+            "textDocument/definition" => Self::TextDocumentDefinition,
+            "textDocument/references" => Self::TextDocumentReferences,
+            "textDocument/documentHighlight" => Self::TextDocumentDocumentHighlight,
+            "textDocument/documentSymbol" => Self::TextDocumentDocumentSymbol,
+            "textDocument/codeAction" => Self::TextDocumentCodeAction,
+            "codeAction/resolve" => Self::CodeActionResolve,
+            "workspace/symbol" => Self::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => Self::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => Self::TextDocumentCodeLens,
+            "codeLens/resolve" => Self::CodeLensResolve,
+            "workspace/codeLens/refresh" => Self::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => Self::TextDocumentDocumentLink,
+            "documentLink/resolve" => Self::DocumentLinkResolve,
+            "textDocument/formatting" => Self::TextDocumentFormatting,
+            "textDocument/rangeFormatting" => Self::TextDocumentRangeFormatting,
+            "textDocument/rangesFormatting" => Self::TextDocumentRangesFormatting,
+            "textDocument/onTypeFormatting" => Self::TextDocumentOnTypeFormatting,
+            "textDocument/rename" => Self::TextDocumentRename,
+            "textDocument/prepareRename" => Self::TextDocumentPrepareRename,
+            "workspace/executeCommand" => Self::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => Self::WorkspaceApplyEdit,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl LspRequestMethod {
     /// Create a custom `LspRequestMethod` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -13555,116 +13933,80 @@ impl LspRequestMethod {
 impl From<&'static str> for LspRequestMethod {
     fn from(s: &'static str) -> Self {
         match s {
-            "textDocument/implementation" => LspRequestMethod::TextDocumentImplementation,
-            "textDocument/typeDefinition" => LspRequestMethod::TextDocumentTypeDefinition,
-            "workspace/workspaceFolders" => LspRequestMethod::WorkspaceWorkspaceFolders,
-            "workspace/configuration" => LspRequestMethod::WorkspaceConfiguration,
-            "textDocument/documentColor" => LspRequestMethod::TextDocumentDocumentColor,
-            "textDocument/colorPresentation" => {
-                LspRequestMethod::TextDocumentColorPresentation
-            }
-            "textDocument/foldingRange" => LspRequestMethod::TextDocumentFoldingRange,
-            "workspace/foldingRange/refresh" => {
-                LspRequestMethod::WorkspaceFoldingRangeRefresh
-            }
-            "textDocument/declaration" => LspRequestMethod::TextDocumentDeclaration,
-            "textDocument/selectionRange" => LspRequestMethod::TextDocumentSelectionRange,
-            "window/workDoneProgress/create" => {
-                LspRequestMethod::WindowWorkDoneProgressCreate
-            }
-            "textDocument/prepareCallHierarchy" => {
-                LspRequestMethod::TextDocumentPrepareCallHierarchy
-            }
-            "callHierarchy/incomingCalls" => LspRequestMethod::CallHierarchyIncomingCalls,
-            "callHierarchy/outgoingCalls" => LspRequestMethod::CallHierarchyOutgoingCalls,
-            "textDocument/semanticTokens/full" => {
-                LspRequestMethod::TextDocumentSemanticTokensFull
-            }
+            "textDocument/implementation" => Self::TextDocumentImplementation,
+            "textDocument/typeDefinition" => Self::TextDocumentTypeDefinition,
+            "workspace/workspaceFolders" => Self::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => Self::WorkspaceConfiguration,
+            "textDocument/documentColor" => Self::TextDocumentDocumentColor,
+            "textDocument/colorPresentation" => Self::TextDocumentColorPresentation,
+            "textDocument/foldingRange" => Self::TextDocumentFoldingRange,
+            "workspace/foldingRange/refresh" => Self::WorkspaceFoldingRangeRefresh,
+            "textDocument/declaration" => Self::TextDocumentDeclaration,
+            "textDocument/selectionRange" => Self::TextDocumentSelectionRange,
+            "window/workDoneProgress/create" => Self::WindowWorkDoneProgressCreate,
+            "textDocument/prepareCallHierarchy" => Self::TextDocumentPrepareCallHierarchy,
+            "callHierarchy/incomingCalls" => Self::CallHierarchyIncomingCalls,
+            "callHierarchy/outgoingCalls" => Self::CallHierarchyOutgoingCalls,
+            "textDocument/semanticTokens/full" => Self::TextDocumentSemanticTokensFull,
             "textDocument/semanticTokens/full/delta" => {
-                LspRequestMethod::TextDocumentSemanticTokensFullDelta
+                Self::TextDocumentSemanticTokensFullDelta
             }
-            "textDocument/semanticTokens/range" => {
-                LspRequestMethod::TextDocumentSemanticTokensRange
-            }
-            "workspace/semanticTokens/refresh" => {
-                LspRequestMethod::WorkspaceSemanticTokensRefresh
-            }
-            "window/showDocument" => LspRequestMethod::WindowShowDocument,
-            "textDocument/linkedEditingRange" => {
-                LspRequestMethod::TextDocumentLinkedEditingRange
-            }
-            "workspace/willCreateFiles" => LspRequestMethod::WorkspaceWillCreateFiles,
-            "workspace/willRenameFiles" => LspRequestMethod::WorkspaceWillRenameFiles,
-            "workspace/willDeleteFiles" => LspRequestMethod::WorkspaceWillDeleteFiles,
-            "textDocument/moniker" => LspRequestMethod::TextDocumentMoniker,
-            "textDocument/prepareTypeHierarchy" => {
-                LspRequestMethod::TextDocumentPrepareTypeHierarchy
-            }
-            "typeHierarchy/supertypes" => LspRequestMethod::TypeHierarchySupertypes,
-            "typeHierarchy/subtypes" => LspRequestMethod::TypeHierarchySubtypes,
-            "textDocument/inlineValue" => LspRequestMethod::TextDocumentInlineValue,
-            "workspace/inlineValue/refresh" => {
-                LspRequestMethod::WorkspaceInlineValueRefresh
-            }
-            "textDocument/inlayHint" => LspRequestMethod::TextDocumentInlayHint,
-            "inlayHint/resolve" => LspRequestMethod::InlayHintResolve,
-            "workspace/inlayHint/refresh" => LspRequestMethod::WorkspaceInlayHintRefresh,
-            "textDocument/diagnostic" => LspRequestMethod::TextDocumentDiagnostic,
-            "workspace/diagnostic" => LspRequestMethod::WorkspaceDiagnostic,
-            "workspace/diagnostic/refresh" => {
-                LspRequestMethod::WorkspaceDiagnosticRefresh
-            }
-            "textDocument/inlineCompletion" => {
-                LspRequestMethod::TextDocumentInlineCompletion
-            }
-            "workspace/textDocumentContent" => {
-                LspRequestMethod::WorkspaceTextDocumentContent
-            }
+            "textDocument/semanticTokens/range" => Self::TextDocumentSemanticTokensRange,
+            "workspace/semanticTokens/refresh" => Self::WorkspaceSemanticTokensRefresh,
+            "window/showDocument" => Self::WindowShowDocument,
+            "textDocument/linkedEditingRange" => Self::TextDocumentLinkedEditingRange,
+            "workspace/willCreateFiles" => Self::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => Self::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => Self::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => Self::TextDocumentMoniker,
+            "textDocument/prepareTypeHierarchy" => Self::TextDocumentPrepareTypeHierarchy,
+            "typeHierarchy/supertypes" => Self::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => Self::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => Self::TextDocumentInlineValue,
+            "workspace/inlineValue/refresh" => Self::WorkspaceInlineValueRefresh,
+            "textDocument/inlayHint" => Self::TextDocumentInlayHint,
+            "inlayHint/resolve" => Self::InlayHintResolve,
+            "workspace/inlayHint/refresh" => Self::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => Self::TextDocumentDiagnostic,
+            "workspace/diagnostic" => Self::WorkspaceDiagnostic,
+            "workspace/diagnostic/refresh" => Self::WorkspaceDiagnosticRefresh,
+            "textDocument/inlineCompletion" => Self::TextDocumentInlineCompletion,
+            "workspace/textDocumentContent" => Self::WorkspaceTextDocumentContent,
             "workspace/textDocumentContent/refresh" => {
-                LspRequestMethod::WorkspaceTextDocumentContentRefresh
+                Self::WorkspaceTextDocumentContentRefresh
             }
-            "client/registerCapability" => LspRequestMethod::ClientRegisterCapability,
-            "client/unregisterCapability" => LspRequestMethod::ClientUnregisterCapability,
-            "initialize" => LspRequestMethod::Initialize,
-            "shutdown" => LspRequestMethod::Shutdown,
-            "window/showMessageRequest" => LspRequestMethod::WindowShowMessageRequest,
-            "textDocument/willSaveWaitUntil" => {
-                LspRequestMethod::TextDocumentWillSaveWaitUntil
-            }
-            "textDocument/completion" => LspRequestMethod::TextDocumentCompletion,
-            "completionItem/resolve" => LspRequestMethod::CompletionItemResolve,
-            "textDocument/hover" => LspRequestMethod::TextDocumentHover,
-            "textDocument/signatureHelp" => LspRequestMethod::TextDocumentSignatureHelp,
-            "textDocument/definition" => LspRequestMethod::TextDocumentDefinition,
-            "textDocument/references" => LspRequestMethod::TextDocumentReferences,
-            "textDocument/documentHighlight" => {
-                LspRequestMethod::TextDocumentDocumentHighlight
-            }
-            "textDocument/documentSymbol" => LspRequestMethod::TextDocumentDocumentSymbol,
-            "textDocument/codeAction" => LspRequestMethod::TextDocumentCodeAction,
-            "codeAction/resolve" => LspRequestMethod::CodeActionResolve,
-            "workspace/symbol" => LspRequestMethod::WorkspaceSymbol,
-            "workspaceSymbol/resolve" => LspRequestMethod::WorkspaceSymbolResolve,
-            "textDocument/codeLens" => LspRequestMethod::TextDocumentCodeLens,
-            "codeLens/resolve" => LspRequestMethod::CodeLensResolve,
-            "workspace/codeLens/refresh" => LspRequestMethod::WorkspaceCodeLensRefresh,
-            "textDocument/documentLink" => LspRequestMethod::TextDocumentDocumentLink,
-            "documentLink/resolve" => LspRequestMethod::DocumentLinkResolve,
-            "textDocument/formatting" => LspRequestMethod::TextDocumentFormatting,
-            "textDocument/rangeFormatting" => {
-                LspRequestMethod::TextDocumentRangeFormatting
-            }
-            "textDocument/rangesFormatting" => {
-                LspRequestMethod::TextDocumentRangesFormatting
-            }
-            "textDocument/onTypeFormatting" => {
-                LspRequestMethod::TextDocumentOnTypeFormatting
-            }
-            "textDocument/rename" => LspRequestMethod::TextDocumentRename,
-            "textDocument/prepareRename" => LspRequestMethod::TextDocumentPrepareRename,
-            "workspace/executeCommand" => LspRequestMethod::WorkspaceExecuteCommand,
-            "workspace/applyEdit" => LspRequestMethod::WorkspaceApplyEdit,
-            _ => LspRequestMethod::Custom(Cow::Borrowed(s)),
+            "client/registerCapability" => Self::ClientRegisterCapability,
+            "client/unregisterCapability" => Self::ClientUnregisterCapability,
+            "initialize" => Self::Initialize,
+            "shutdown" => Self::Shutdown,
+            "window/showMessageRequest" => Self::WindowShowMessageRequest,
+            "textDocument/willSaveWaitUntil" => Self::TextDocumentWillSaveWaitUntil,
+            "textDocument/completion" => Self::TextDocumentCompletion,
+            "completionItem/resolve" => Self::CompletionItemResolve,
+            "textDocument/hover" => Self::TextDocumentHover,
+            "textDocument/signatureHelp" => Self::TextDocumentSignatureHelp,
+            "textDocument/definition" => Self::TextDocumentDefinition,
+            "textDocument/references" => Self::TextDocumentReferences,
+            "textDocument/documentHighlight" => Self::TextDocumentDocumentHighlight,
+            "textDocument/documentSymbol" => Self::TextDocumentDocumentSymbol,
+            "textDocument/codeAction" => Self::TextDocumentCodeAction,
+            "codeAction/resolve" => Self::CodeActionResolve,
+            "workspace/symbol" => Self::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => Self::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => Self::TextDocumentCodeLens,
+            "codeLens/resolve" => Self::CodeLensResolve,
+            "workspace/codeLens/refresh" => Self::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => Self::TextDocumentDocumentLink,
+            "documentLink/resolve" => Self::DocumentLinkResolve,
+            "textDocument/formatting" => Self::TextDocumentFormatting,
+            "textDocument/rangeFormatting" => Self::TextDocumentRangeFormatting,
+            "textDocument/rangesFormatting" => Self::TextDocumentRangesFormatting,
+            "textDocument/onTypeFormatting" => Self::TextDocumentOnTypeFormatting,
+            "textDocument/rename" => Self::TextDocumentRename,
+            "textDocument/prepareRename" => Self::TextDocumentPrepareRename,
+            "workspace/executeCommand" => Self::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => Self::WorkspaceApplyEdit,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -13675,118 +14017,83 @@ impl fmt::Display for LspRequestMethod {
     }
 }
 impl LspRequestMethod {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            LspRequestMethod::TextDocumentImplementation => "textDocument/implementation",
-            LspRequestMethod::TextDocumentTypeDefinition => "textDocument/typeDefinition",
-            LspRequestMethod::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
-            LspRequestMethod::WorkspaceConfiguration => "workspace/configuration",
-            LspRequestMethod::TextDocumentDocumentColor => "textDocument/documentColor",
-            LspRequestMethod::TextDocumentColorPresentation => {
-                "textDocument/colorPresentation"
-            }
-            LspRequestMethod::TextDocumentFoldingRange => "textDocument/foldingRange",
-            LspRequestMethod::WorkspaceFoldingRangeRefresh => {
-                "workspace/foldingRange/refresh"
-            }
-            LspRequestMethod::TextDocumentDeclaration => "textDocument/declaration",
-            LspRequestMethod::TextDocumentSelectionRange => "textDocument/selectionRange",
-            LspRequestMethod::WindowWorkDoneProgressCreate => {
-                "window/workDoneProgress/create"
-            }
-            LspRequestMethod::TextDocumentPrepareCallHierarchy => {
-                "textDocument/prepareCallHierarchy"
-            }
-            LspRequestMethod::CallHierarchyIncomingCalls => "callHierarchy/incomingCalls",
-            LspRequestMethod::CallHierarchyOutgoingCalls => "callHierarchy/outgoingCalls",
-            LspRequestMethod::TextDocumentSemanticTokensFull => {
-                "textDocument/semanticTokens/full"
-            }
-            LspRequestMethod::TextDocumentSemanticTokensFullDelta => {
+            Self::TextDocumentImplementation => "textDocument/implementation",
+            Self::TextDocumentTypeDefinition => "textDocument/typeDefinition",
+            Self::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
+            Self::WorkspaceConfiguration => "workspace/configuration",
+            Self::TextDocumentDocumentColor => "textDocument/documentColor",
+            Self::TextDocumentColorPresentation => "textDocument/colorPresentation",
+            Self::TextDocumentFoldingRange => "textDocument/foldingRange",
+            Self::WorkspaceFoldingRangeRefresh => "workspace/foldingRange/refresh",
+            Self::TextDocumentDeclaration => "textDocument/declaration",
+            Self::TextDocumentSelectionRange => "textDocument/selectionRange",
+            Self::WindowWorkDoneProgressCreate => "window/workDoneProgress/create",
+            Self::TextDocumentPrepareCallHierarchy => "textDocument/prepareCallHierarchy",
+            Self::CallHierarchyIncomingCalls => "callHierarchy/incomingCalls",
+            Self::CallHierarchyOutgoingCalls => "callHierarchy/outgoingCalls",
+            Self::TextDocumentSemanticTokensFull => "textDocument/semanticTokens/full",
+            Self::TextDocumentSemanticTokensFullDelta => {
                 "textDocument/semanticTokens/full/delta"
             }
-            LspRequestMethod::TextDocumentSemanticTokensRange => {
-                "textDocument/semanticTokens/range"
-            }
-            LspRequestMethod::WorkspaceSemanticTokensRefresh => {
-                "workspace/semanticTokens/refresh"
-            }
-            LspRequestMethod::WindowShowDocument => "window/showDocument",
-            LspRequestMethod::TextDocumentLinkedEditingRange => {
-                "textDocument/linkedEditingRange"
-            }
-            LspRequestMethod::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
-            LspRequestMethod::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
-            LspRequestMethod::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
-            LspRequestMethod::TextDocumentMoniker => "textDocument/moniker",
-            LspRequestMethod::TextDocumentPrepareTypeHierarchy => {
-                "textDocument/prepareTypeHierarchy"
-            }
-            LspRequestMethod::TypeHierarchySupertypes => "typeHierarchy/supertypes",
-            LspRequestMethod::TypeHierarchySubtypes => "typeHierarchy/subtypes",
-            LspRequestMethod::TextDocumentInlineValue => "textDocument/inlineValue",
-            LspRequestMethod::WorkspaceInlineValueRefresh => {
-                "workspace/inlineValue/refresh"
-            }
-            LspRequestMethod::TextDocumentInlayHint => "textDocument/inlayHint",
-            LspRequestMethod::InlayHintResolve => "inlayHint/resolve",
-            LspRequestMethod::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
-            LspRequestMethod::TextDocumentDiagnostic => "textDocument/diagnostic",
-            LspRequestMethod::WorkspaceDiagnostic => "workspace/diagnostic",
-            LspRequestMethod::WorkspaceDiagnosticRefresh => {
-                "workspace/diagnostic/refresh"
-            }
-            LspRequestMethod::TextDocumentInlineCompletion => {
-                "textDocument/inlineCompletion"
-            }
-            LspRequestMethod::WorkspaceTextDocumentContent => {
-                "workspace/textDocumentContent"
-            }
-            LspRequestMethod::WorkspaceTextDocumentContentRefresh => {
+            Self::TextDocumentSemanticTokensRange => "textDocument/semanticTokens/range",
+            Self::WorkspaceSemanticTokensRefresh => "workspace/semanticTokens/refresh",
+            Self::WindowShowDocument => "window/showDocument",
+            Self::TextDocumentLinkedEditingRange => "textDocument/linkedEditingRange",
+            Self::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
+            Self::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
+            Self::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
+            Self::TextDocumentMoniker => "textDocument/moniker",
+            Self::TextDocumentPrepareTypeHierarchy => "textDocument/prepareTypeHierarchy",
+            Self::TypeHierarchySupertypes => "typeHierarchy/supertypes",
+            Self::TypeHierarchySubtypes => "typeHierarchy/subtypes",
+            Self::TextDocumentInlineValue => "textDocument/inlineValue",
+            Self::WorkspaceInlineValueRefresh => "workspace/inlineValue/refresh",
+            Self::TextDocumentInlayHint => "textDocument/inlayHint",
+            Self::InlayHintResolve => "inlayHint/resolve",
+            Self::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
+            Self::TextDocumentDiagnostic => "textDocument/diagnostic",
+            Self::WorkspaceDiagnostic => "workspace/diagnostic",
+            Self::WorkspaceDiagnosticRefresh => "workspace/diagnostic/refresh",
+            Self::TextDocumentInlineCompletion => "textDocument/inlineCompletion",
+            Self::WorkspaceTextDocumentContent => "workspace/textDocumentContent",
+            Self::WorkspaceTextDocumentContentRefresh => {
                 "workspace/textDocumentContent/refresh"
             }
-            LspRequestMethod::ClientRegisterCapability => "client/registerCapability",
-            LspRequestMethod::ClientUnregisterCapability => "client/unregisterCapability",
-            LspRequestMethod::Initialize => "initialize",
-            LspRequestMethod::Shutdown => "shutdown",
-            LspRequestMethod::WindowShowMessageRequest => "window/showMessageRequest",
-            LspRequestMethod::TextDocumentWillSaveWaitUntil => {
-                "textDocument/willSaveWaitUntil"
-            }
-            LspRequestMethod::TextDocumentCompletion => "textDocument/completion",
-            LspRequestMethod::CompletionItemResolve => "completionItem/resolve",
-            LspRequestMethod::TextDocumentHover => "textDocument/hover",
-            LspRequestMethod::TextDocumentSignatureHelp => "textDocument/signatureHelp",
-            LspRequestMethod::TextDocumentDefinition => "textDocument/definition",
-            LspRequestMethod::TextDocumentReferences => "textDocument/references",
-            LspRequestMethod::TextDocumentDocumentHighlight => {
-                "textDocument/documentHighlight"
-            }
-            LspRequestMethod::TextDocumentDocumentSymbol => "textDocument/documentSymbol",
-            LspRequestMethod::TextDocumentCodeAction => "textDocument/codeAction",
-            LspRequestMethod::CodeActionResolve => "codeAction/resolve",
-            LspRequestMethod::WorkspaceSymbol => "workspace/symbol",
-            LspRequestMethod::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
-            LspRequestMethod::TextDocumentCodeLens => "textDocument/codeLens",
-            LspRequestMethod::CodeLensResolve => "codeLens/resolve",
-            LspRequestMethod::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
-            LspRequestMethod::TextDocumentDocumentLink => "textDocument/documentLink",
-            LspRequestMethod::DocumentLinkResolve => "documentLink/resolve",
-            LspRequestMethod::TextDocumentFormatting => "textDocument/formatting",
-            LspRequestMethod::TextDocumentRangeFormatting => {
-                "textDocument/rangeFormatting"
-            }
-            LspRequestMethod::TextDocumentRangesFormatting => {
-                "textDocument/rangesFormatting"
-            }
-            LspRequestMethod::TextDocumentOnTypeFormatting => {
-                "textDocument/onTypeFormatting"
-            }
-            LspRequestMethod::TextDocumentRename => "textDocument/rename",
-            LspRequestMethod::TextDocumentPrepareRename => "textDocument/prepareRename",
-            LspRequestMethod::WorkspaceExecuteCommand => "workspace/executeCommand",
-            LspRequestMethod::WorkspaceApplyEdit => "workspace/applyEdit",
-            LspRequestMethod::Custom(any) => any,
+            Self::ClientRegisterCapability => "client/registerCapability",
+            Self::ClientUnregisterCapability => "client/unregisterCapability",
+            Self::Initialize => "initialize",
+            Self::Shutdown => "shutdown",
+            Self::WindowShowMessageRequest => "window/showMessageRequest",
+            Self::TextDocumentWillSaveWaitUntil => "textDocument/willSaveWaitUntil",
+            Self::TextDocumentCompletion => "textDocument/completion",
+            Self::CompletionItemResolve => "completionItem/resolve",
+            Self::TextDocumentHover => "textDocument/hover",
+            Self::TextDocumentSignatureHelp => "textDocument/signatureHelp",
+            Self::TextDocumentDefinition => "textDocument/definition",
+            Self::TextDocumentReferences => "textDocument/references",
+            Self::TextDocumentDocumentHighlight => "textDocument/documentHighlight",
+            Self::TextDocumentDocumentSymbol => "textDocument/documentSymbol",
+            Self::TextDocumentCodeAction => "textDocument/codeAction",
+            Self::CodeActionResolve => "codeAction/resolve",
+            Self::WorkspaceSymbol => "workspace/symbol",
+            Self::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
+            Self::TextDocumentCodeLens => "textDocument/codeLens",
+            Self::CodeLensResolve => "codeLens/resolve",
+            Self::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
+            Self::TextDocumentDocumentLink => "textDocument/documentLink",
+            Self::DocumentLinkResolve => "documentLink/resolve",
+            Self::TextDocumentFormatting => "textDocument/formatting",
+            Self::TextDocumentRangeFormatting => "textDocument/rangeFormatting",
+            Self::TextDocumentRangesFormatting => "textDocument/rangesFormatting",
+            Self::TextDocumentOnTypeFormatting => "textDocument/onTypeFormatting",
+            Self::TextDocumentRename => "textDocument/rename",
+            Self::TextDocumentPrepareRename => "textDocument/prepareRename",
+            Self::WorkspaceExecuteCommand => "workspace/executeCommand",
+            Self::WorkspaceApplyEdit => "workspace/applyEdit",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -13895,51 +14202,40 @@ impl From<String> for LspNotificationMethod {
     fn from(v: String) -> Self {
         match v.as_str() {
             "workspace/didChangeWorkspaceFolders" => {
-                LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders
+                Self::WorkspaceDidChangeWorkspaceFolders
             }
-            "window/workDoneProgress/cancel" => {
-                LspNotificationMethod::WindowWorkDoneProgressCancel
-            }
-            "workspace/didCreateFiles" => LspNotificationMethod::WorkspaceDidCreateFiles,
-            "workspace/didRenameFiles" => LspNotificationMethod::WorkspaceDidRenameFiles,
-            "workspace/didDeleteFiles" => LspNotificationMethod::WorkspaceDidDeleteFiles,
-            "notebookDocument/didOpen" => LspNotificationMethod::NotebookDocumentDidOpen,
-            "notebookDocument/didChange" => {
-                LspNotificationMethod::NotebookDocumentDidChange
-            }
-            "notebookDocument/didSave" => LspNotificationMethod::NotebookDocumentDidSave,
-            "notebookDocument/didClose" => {
-                LspNotificationMethod::NotebookDocumentDidClose
-            }
-            "initialized" => LspNotificationMethod::Initialized,
-            "exit" => LspNotificationMethod::Exit,
-            "workspace/didChangeConfiguration" => {
-                LspNotificationMethod::WorkspaceDidChangeConfiguration
-            }
-            "window/showMessage" => LspNotificationMethod::WindowShowMessage,
-            "window/logMessage" => LspNotificationMethod::WindowLogMessage,
-            "telemetry/event" => LspNotificationMethod::TelemetryEvent,
-            "textDocument/didOpen" => LspNotificationMethod::TextDocumentDidOpen,
-            "textDocument/didChange" => LspNotificationMethod::TextDocumentDidChange,
-            "textDocument/didClose" => LspNotificationMethod::TextDocumentDidClose,
-            "textDocument/didSave" => LspNotificationMethod::TextDocumentDidSave,
-            "textDocument/willSave" => LspNotificationMethod::TextDocumentWillSave,
-            "workspace/didChangeWatchedFiles" => {
-                LspNotificationMethod::WorkspaceDidChangeWatchedFiles
-            }
-            "textDocument/publishDiagnostics" => {
-                LspNotificationMethod::TextDocumentPublishDiagnostics
-            }
-            "$/setTrace" => LspNotificationMethod::SetTrace,
-            "$/logTrace" => LspNotificationMethod::LogTrace,
-            "$/cancelRequest" => LspNotificationMethod::CancelRequest,
-            "$/progress" => LspNotificationMethod::Progress,
-            _ => LspNotificationMethod::Custom(Cow::Owned(v)),
+            "window/workDoneProgress/cancel" => Self::WindowWorkDoneProgressCancel,
+            "workspace/didCreateFiles" => Self::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => Self::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => Self::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => Self::NotebookDocumentDidOpen,
+            "notebookDocument/didChange" => Self::NotebookDocumentDidChange,
+            "notebookDocument/didSave" => Self::NotebookDocumentDidSave,
+            "notebookDocument/didClose" => Self::NotebookDocumentDidClose,
+            "initialized" => Self::Initialized,
+            "exit" => Self::Exit,
+            "workspace/didChangeConfiguration" => Self::WorkspaceDidChangeConfiguration,
+            "window/showMessage" => Self::WindowShowMessage,
+            "window/logMessage" => Self::WindowLogMessage,
+            "telemetry/event" => Self::TelemetryEvent,
+            "textDocument/didOpen" => Self::TextDocumentDidOpen,
+            "textDocument/didChange" => Self::TextDocumentDidChange,
+            "textDocument/didClose" => Self::TextDocumentDidClose,
+            "textDocument/didSave" => Self::TextDocumentDidSave,
+            "textDocument/willSave" => Self::TextDocumentWillSave,
+            "workspace/didChangeWatchedFiles" => Self::WorkspaceDidChangeWatchedFiles,
+            "textDocument/publishDiagnostics" => Self::TextDocumentPublishDiagnostics,
+            "$/setTrace" => Self::SetTrace,
+            "$/logTrace" => Self::LogTrace,
+            "$/cancelRequest" => Self::CancelRequest,
+            "$/progress" => Self::Progress,
+            _ => Self::Custom(Cow::Owned(v)),
         }
     }
 }
 impl LspNotificationMethod {
     /// Create a custom `LspNotificationMethod` from a string literal.
+    #[must_use]
     pub const fn new(s: &'static str) -> Self {
         Self::Custom(Cow::Borrowed(s))
     }
@@ -13948,46 +14244,34 @@ impl From<&'static str> for LspNotificationMethod {
     fn from(s: &'static str) -> Self {
         match s {
             "workspace/didChangeWorkspaceFolders" => {
-                LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders
+                Self::WorkspaceDidChangeWorkspaceFolders
             }
-            "window/workDoneProgress/cancel" => {
-                LspNotificationMethod::WindowWorkDoneProgressCancel
-            }
-            "workspace/didCreateFiles" => LspNotificationMethod::WorkspaceDidCreateFiles,
-            "workspace/didRenameFiles" => LspNotificationMethod::WorkspaceDidRenameFiles,
-            "workspace/didDeleteFiles" => LspNotificationMethod::WorkspaceDidDeleteFiles,
-            "notebookDocument/didOpen" => LspNotificationMethod::NotebookDocumentDidOpen,
-            "notebookDocument/didChange" => {
-                LspNotificationMethod::NotebookDocumentDidChange
-            }
-            "notebookDocument/didSave" => LspNotificationMethod::NotebookDocumentDidSave,
-            "notebookDocument/didClose" => {
-                LspNotificationMethod::NotebookDocumentDidClose
-            }
-            "initialized" => LspNotificationMethod::Initialized,
-            "exit" => LspNotificationMethod::Exit,
-            "workspace/didChangeConfiguration" => {
-                LspNotificationMethod::WorkspaceDidChangeConfiguration
-            }
-            "window/showMessage" => LspNotificationMethod::WindowShowMessage,
-            "window/logMessage" => LspNotificationMethod::WindowLogMessage,
-            "telemetry/event" => LspNotificationMethod::TelemetryEvent,
-            "textDocument/didOpen" => LspNotificationMethod::TextDocumentDidOpen,
-            "textDocument/didChange" => LspNotificationMethod::TextDocumentDidChange,
-            "textDocument/didClose" => LspNotificationMethod::TextDocumentDidClose,
-            "textDocument/didSave" => LspNotificationMethod::TextDocumentDidSave,
-            "textDocument/willSave" => LspNotificationMethod::TextDocumentWillSave,
-            "workspace/didChangeWatchedFiles" => {
-                LspNotificationMethod::WorkspaceDidChangeWatchedFiles
-            }
-            "textDocument/publishDiagnostics" => {
-                LspNotificationMethod::TextDocumentPublishDiagnostics
-            }
-            "$/setTrace" => LspNotificationMethod::SetTrace,
-            "$/logTrace" => LspNotificationMethod::LogTrace,
-            "$/cancelRequest" => LspNotificationMethod::CancelRequest,
-            "$/progress" => LspNotificationMethod::Progress,
-            _ => LspNotificationMethod::Custom(Cow::Borrowed(s)),
+            "window/workDoneProgress/cancel" => Self::WindowWorkDoneProgressCancel,
+            "workspace/didCreateFiles" => Self::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => Self::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => Self::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => Self::NotebookDocumentDidOpen,
+            "notebookDocument/didChange" => Self::NotebookDocumentDidChange,
+            "notebookDocument/didSave" => Self::NotebookDocumentDidSave,
+            "notebookDocument/didClose" => Self::NotebookDocumentDidClose,
+            "initialized" => Self::Initialized,
+            "exit" => Self::Exit,
+            "workspace/didChangeConfiguration" => Self::WorkspaceDidChangeConfiguration,
+            "window/showMessage" => Self::WindowShowMessage,
+            "window/logMessage" => Self::WindowLogMessage,
+            "telemetry/event" => Self::TelemetryEvent,
+            "textDocument/didOpen" => Self::TextDocumentDidOpen,
+            "textDocument/didChange" => Self::TextDocumentDidChange,
+            "textDocument/didClose" => Self::TextDocumentDidClose,
+            "textDocument/didSave" => Self::TextDocumentDidSave,
+            "textDocument/willSave" => Self::TextDocumentWillSave,
+            "workspace/didChangeWatchedFiles" => Self::WorkspaceDidChangeWatchedFiles,
+            "textDocument/publishDiagnostics" => Self::TextDocumentPublishDiagnostics,
+            "$/setTrace" => Self::SetTrace,
+            "$/logTrace" => Self::LogTrace,
+            "$/cancelRequest" => Self::CancelRequest,
+            "$/progress" => Self::Progress,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
@@ -13998,49 +14282,38 @@ impl fmt::Display for LspNotificationMethod {
     }
 }
 impl LspNotificationMethod {
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders => {
+            Self::WorkspaceDidChangeWorkspaceFolders => {
                 "workspace/didChangeWorkspaceFolders"
             }
-            LspNotificationMethod::WindowWorkDoneProgressCancel => {
-                "window/workDoneProgress/cancel"
-            }
-            LspNotificationMethod::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
-            LspNotificationMethod::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
-            LspNotificationMethod::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
-            LspNotificationMethod::NotebookDocumentDidOpen => "notebookDocument/didOpen",
-            LspNotificationMethod::NotebookDocumentDidChange => {
-                "notebookDocument/didChange"
-            }
-            LspNotificationMethod::NotebookDocumentDidSave => "notebookDocument/didSave",
-            LspNotificationMethod::NotebookDocumentDidClose => {
-                "notebookDocument/didClose"
-            }
-            LspNotificationMethod::Initialized => "initialized",
-            LspNotificationMethod::Exit => "exit",
-            LspNotificationMethod::WorkspaceDidChangeConfiguration => {
-                "workspace/didChangeConfiguration"
-            }
-            LspNotificationMethod::WindowShowMessage => "window/showMessage",
-            LspNotificationMethod::WindowLogMessage => "window/logMessage",
-            LspNotificationMethod::TelemetryEvent => "telemetry/event",
-            LspNotificationMethod::TextDocumentDidOpen => "textDocument/didOpen",
-            LspNotificationMethod::TextDocumentDidChange => "textDocument/didChange",
-            LspNotificationMethod::TextDocumentDidClose => "textDocument/didClose",
-            LspNotificationMethod::TextDocumentDidSave => "textDocument/didSave",
-            LspNotificationMethod::TextDocumentWillSave => "textDocument/willSave",
-            LspNotificationMethod::WorkspaceDidChangeWatchedFiles => {
-                "workspace/didChangeWatchedFiles"
-            }
-            LspNotificationMethod::TextDocumentPublishDiagnostics => {
-                "textDocument/publishDiagnostics"
-            }
-            LspNotificationMethod::SetTrace => "$/setTrace",
-            LspNotificationMethod::LogTrace => "$/logTrace",
-            LspNotificationMethod::CancelRequest => "$/cancelRequest",
-            LspNotificationMethod::Progress => "$/progress",
-            LspNotificationMethod::Custom(any) => any,
+            Self::WindowWorkDoneProgressCancel => "window/workDoneProgress/cancel",
+            Self::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
+            Self::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
+            Self::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
+            Self::NotebookDocumentDidOpen => "notebookDocument/didOpen",
+            Self::NotebookDocumentDidChange => "notebookDocument/didChange",
+            Self::NotebookDocumentDidSave => "notebookDocument/didSave",
+            Self::NotebookDocumentDidClose => "notebookDocument/didClose",
+            Self::Initialized => "initialized",
+            Self::Exit => "exit",
+            Self::WorkspaceDidChangeConfiguration => "workspace/didChangeConfiguration",
+            Self::WindowShowMessage => "window/showMessage",
+            Self::WindowLogMessage => "window/logMessage",
+            Self::TelemetryEvent => "telemetry/event",
+            Self::TextDocumentDidOpen => "textDocument/didOpen",
+            Self::TextDocumentDidChange => "textDocument/didChange",
+            Self::TextDocumentDidClose => "textDocument/didClose",
+            Self::TextDocumentDidSave => "textDocument/didSave",
+            Self::TextDocumentWillSave => "textDocument/willSave",
+            Self::WorkspaceDidChangeWatchedFiles => "workspace/didChangeWatchedFiles",
+            Self::TextDocumentPublishDiagnostics => "textDocument/publishDiagnostics",
+            Self::SetTrace => "$/setTrace",
+            Self::LogTrace => "$/logTrace",
+            Self::CancelRequest => "$/cancelRequest",
+            Self::Progress => "$/progress",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -14111,7 +14384,7 @@ impl From<u32> for ActiveParameter {
     }
 }
 impl From<()> for ActiveParameter {
-    fn from(_: ()) -> Self {
+    fn from((): ()) -> Self {
         Self::Null
     }
 }
@@ -15459,7 +15732,7 @@ impl From<Cow<'_, str>> for RootPath {
     }
 }
 impl From<()> for RootPath {
-    fn from(_: ()) -> Self {
+    fn from((): ()) -> Self {
         Self::Null
     }
 }
@@ -15819,7 +16092,7 @@ impl From<Vec<WorkspaceFolder>> for WorkspaceFolders {
     }
 }
 impl From<()> for WorkspaceFolders {
-    fn from(_: ()) -> Self {
+    fn from((): ()) -> Self {
         Self::Null
     }
 }
@@ -15876,8 +16149,8 @@ impl From<Vec<WorkspaceSymbol>> for WorkspaceSymbolResponse {
 }
 
 /// A request to resolve the implementation locations of a symbol at a given text
-/// document position. The request's parameter is of type [TextDocumentPositionParams]
-/// the response is of type [Definition] or a Thenable that resolves to such.
+/// document position. The request's parameter is of type [`TextDocumentPositionParams`]
+/// the response is of type [`Definition`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum ImplementationRequest {}
 impl Request for ImplementationRequest {
@@ -15888,8 +16161,8 @@ impl Request for ImplementationRequest {
 }
 
 /// A request to resolve the type definition locations of a symbol at a given text
-/// document position. The request's parameter is of type [TextDocumentPositionParams]
-/// the response is of type [Definition] or a Thenable that resolves to such.
+/// document position. The request's parameter is of type [`TextDocumentPositionParams`]
+/// the response is of type [`Definition`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum TypeDefinitionRequest {}
 impl Request for TypeDefinitionRequest {
@@ -15926,7 +16199,7 @@ impl Request for ConfigurationRequest {
 }
 
 /// A request to list all color symbols found in a given text document. The request's
-/// parameter is of type [DocumentColorParams] the
+/// parameter is of type [`DocumentColorParams`] the
 /// response is of type [ColorInformation[]][ColorInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
@@ -15939,7 +16212,7 @@ impl Request for DocumentColorRequest {
 }
 
 /// A request to list all presentation for a color. The request's
-/// parameter is of type [ColorPresentationParams] the
+/// parameter is of type [`ColorPresentationParams`] the
 /// response is of type [ColorInformation[]][ColorInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
@@ -15952,8 +16225,8 @@ impl Request for ColorPresentationRequest {
 }
 
 /// A request to provide folding ranges in a document. The request's
-/// parameter is of type [FoldingRangeParams], the
-/// response is of type [FoldingRangeList] or a Thenable
+/// parameter is of type [`FoldingRangeParams`], the
+/// response is of type [`FoldingRangeList`] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
 pub enum FoldingRangeRequest {}
@@ -15976,8 +16249,8 @@ impl Request for FoldingRangeRefreshRequest {
 }
 
 /// A request to resolve the type definition locations of a symbol at a given text
-/// document position. The request's parameter is of type [TextDocumentPositionParams]
-/// the response is of type [Declaration] or a typed array of [DeclarationLink]
+/// document position. The request's parameter is of type [`TextDocumentPositionParams`]
+/// the response is of type [`Declaration`] or a typed array of [`DeclarationLink`]
 /// or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum DeclarationRequest {}
@@ -15989,7 +16262,7 @@ impl Request for DeclarationRequest {
 }
 
 /// A request to provide selection ranges in a document. The request's
-/// parameter is of type [SelectionRangeParams], the
+/// parameter is of type [`SelectionRangeParams`], the
 /// response is of type [SelectionRange[]][SelectionRange] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
@@ -16160,7 +16433,7 @@ impl Request for WillDeleteFilesRequest {
 }
 
 /// A request to get the moniker of a symbol at a given text document position.
-/// The request parameter is of type [TextDocumentPositionParams].
+/// The request parameter is of type [`TextDocumentPositionParams`].
 /// The response is of type [Moniker[]][Moniker] or `null`.
 #[derive(Debug)]
 pub enum MonikerRequest {}
@@ -16209,7 +16482,7 @@ impl Request for TypeHierarchySubtypesRequest {
 }
 
 /// A request to provide inline values in a document. The request's parameter is of
-/// type [InlineValueParams], the response is of type
+/// type [`InlineValueParams`], the response is of type
 /// [InlineValue[]][InlineValue] or a Thenable that resolves to such.
 ///
 /// @since 3.17.0
@@ -16233,7 +16506,7 @@ impl Request for InlineValueRefreshRequest {
 }
 
 /// A request to provide inlay hints in a document. The request's parameter is of
-/// type [InlayHintsParams], the response is of type
+/// type [`InlayHintsParams`], the response is of type
 /// [InlayHint[]][InlayHint] or a Thenable that resolves to such.
 ///
 /// @since 3.17.0
@@ -16247,8 +16520,8 @@ impl Request for InlayHintRequest {
 }
 
 /// A request to resolve additional properties for an inlay hint.
-/// The request's parameter is of type [InlayHint], the response is
-/// of type [InlayHint] or a Thenable that resolves to such.
+/// The request's parameter is of type [`InlayHint`], the response is
+/// of type [`InlayHint`] or a Thenable that resolves to such.
 ///
 /// @since 3.17.0
 #[derive(Debug)]
@@ -16307,7 +16580,7 @@ impl Request for DiagnosticRefreshRequest {
 }
 
 /// A request to provide inline completions in a document. The request's parameter is of
-/// type [InlineCompletionParams], the response is of type
+/// type [`InlineCompletionParams`], the response is of type
 /// [InlineCompletion[]][InlineCompletion] or a Thenable that resolves to such.
 ///
 /// @since 3.18.0
@@ -16373,8 +16646,8 @@ impl Request for UnregistrationRequest {
 
 /// The initialize request is sent from the client to the server.
 /// It is sent once as the request after starting up the server.
-/// The requests parameter is of type [InitializeParams]
-/// the response if of type [InitializeResult] of a Thenable that
+/// The requests parameter is of type [`InitializeParams`]
+/// the response if of type [`InitializeResult`] of a Thenable that
 /// resolves to such.
 #[derive(Debug)]
 pub enum InitializeRequest {}
@@ -16425,8 +16698,8 @@ impl Request for WillSaveTextDocumentWaitUntilRequest {
 }
 
 /// Request to request completion at a given text document position. The request's
-/// parameter is of type [TextDocumentPosition] the response
-/// is of type [CompletionItem[]][CompletionItem] or [CompletionList]
+/// parameter is of type [`TextDocumentPosition`] the response
+/// is of type [CompletionItem[]][CompletionItem] or [`CompletionList`]
 /// or a Thenable that resolves to such.
 ///
 /// The request can delay the computation of the [`detail`][`CompletionItem::detail`]
@@ -16443,8 +16716,8 @@ impl Request for CompletionRequest {
 }
 
 /// Request to resolve additional information for a given completion item.The request's
-/// parameter is of type [CompletionItem] the response
-/// is of type [CompletionItem] or a Thenable that resolves to such.
+/// parameter is of type [`CompletionItem`] the response
+/// is of type [`CompletionItem`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum CompletionResolveRequest {}
 impl Request for CompletionResolveRequest {
@@ -16455,8 +16728,8 @@ impl Request for CompletionResolveRequest {
 }
 
 /// Request to request hover information at a given text document position. The request's
-/// parameter is of type [TextDocumentPosition] the response is of
-/// type [Hover] or a Thenable that resolves to such.
+/// parameter is of type [`TextDocumentPosition`] the response is of
+/// type [`Hover`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum HoverRequest {}
 impl Request for HoverRequest {
@@ -16476,9 +16749,9 @@ impl Request for SignatureHelpRequest {
 }
 
 /// A request to resolve the definition location of a symbol at a given text
-/// document position. The request's parameter is of type [TextDocumentPosition]
-/// the response is of either type [Definition] or a typed array of
-/// [DefinitionLink] or a Thenable that resolves to such.
+/// document position. The request's parameter is of type [`TextDocumentPosition`]
+/// the response is of either type [`Definition`] or a typed array of
+/// [`DefinitionLink`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum DefinitionRequest {}
 impl Request for DefinitionRequest {
@@ -16490,7 +16763,7 @@ impl Request for DefinitionRequest {
 
 /// A request to resolve project-wide references for the symbol denoted
 /// by the given text document position. The request's parameter is of
-/// type [ReferenceParams] the response is of type
+/// type [`ReferenceParams`] the response is of type
 /// [Location[]][Location] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum ReferencesRequest {}
@@ -16501,9 +16774,9 @@ impl Request for ReferencesRequest {
     type Result = Option<Vec<Location>>;
 }
 
-/// Request to resolve a [DocumentHighlight] for a given
-/// text document position. The request's parameter is of type [TextDocumentPosition]
-/// the request response is an array of type [DocumentHighlight]
+/// Request to resolve a [`DocumentHighlight`] for a given
+/// text document position. The request's parameter is of type [`TextDocumentPosition`]
+/// the request response is an array of type [`DocumentHighlight`]
 /// or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum DocumentHighlightRequest {}
@@ -16515,7 +16788,7 @@ impl Request for DocumentHighlightRequest {
 }
 
 /// A request to list all symbols found in a given text document. The request's
-/// parameter is of type [TextDocumentIdentifier] the
+/// parameter is of type [`TextDocumentIdentifier`] the
 /// response is of type [SymbolInformation[]][SymbolInformation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
@@ -16538,8 +16811,8 @@ impl Request for CodeActionRequest {
 }
 
 /// Request to resolve additional information for a given code action.The request's
-/// parameter is of type [CodeAction] the response
-/// is of type [CodeAction] or a Thenable that resolves to such.
+/// parameter is of type [`CodeAction`] the response
+/// is of type [`CodeAction`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum CodeActionResolveRequest {}
 impl Request for CodeActionResolveRequest {
@@ -16550,7 +16823,7 @@ impl Request for CodeActionResolveRequest {
 }
 
 /// A request to list project-wide symbols matching the query string given
-/// by the [WorkspaceSymbolParams]. The response is
+/// by the [`WorkspaceSymbolParams`]. The response is
 /// of type [SymbolInformation[]][SymbolInformation] or a Thenable that
 /// resolves to such.
 ///
@@ -16623,8 +16896,8 @@ impl Request for DocumentLinkRequest {
 }
 
 /// Request to resolve additional information for a given document link. The request's
-/// parameter is of type [DocumentLink] the response
-/// is of type [DocumentLink] or a Thenable that resolves to such.
+/// parameter is of type [`DocumentLink`] the response
+/// is of type [`DocumentLink`] or a Thenable that resolves to such.
 #[derive(Debug)]
 pub enum DocumentLinkResolveRequest {}
 impl Request for DocumentLinkResolveRequest {
