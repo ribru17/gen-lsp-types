@@ -34,6 +34,53 @@ pub enum Id {
     Null,
 }
 
+impl From<i64> for Id {
+    fn from(value: i64) -> Self {
+        Self::Number(value)
+    }
+}
+
+impl From<i32> for Id {
+    fn from(value: i32) -> Self {
+        Self::Number(value as i64)
+    }
+}
+
+impl From<String> for Id {
+    fn from(value: String) -> Self {
+        Self::String(value)
+    }
+}
+
+impl From<()> for Id {
+    fn from((): ()) -> Self {
+        Self::Null
+    }
+}
+
+impl From<crate::Id> for Id {
+    fn from(value: crate::Id) -> Self {
+        match value {
+            crate::Id::Int(int) => Self::Number(int as i64),
+            crate::Id::String(string) => Self::String(string),
+        }
+    }
+}
+
+impl TryFrom<Id> for crate::Id {
+    type Error = String;
+
+    fn try_from(value: Id) -> Result<Self, Self::Error> {
+        match value {
+            Id::String(string) => Ok(Self::String(string)),
+            Id::Number(number) => Ok(Self::Int(
+                i32::try_from(number).map_err(|e| format!("Request ID int too big: {e}"))?,
+            )),
+            Id::Null => Err(Self::Error::from("Id cannot be null")),
+        }
+    }
+}
+
 /// A JSON-RPC Request (or Notification) object.
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize, Eq)]
 pub struct RequestObject {
