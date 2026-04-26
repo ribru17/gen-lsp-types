@@ -506,14 +506,14 @@ fn main() {
         }
 
         pub trait Notification {
-            type Params: DeserializeOwned + Serialize + Send + Sync;
+            type Params: DeserializeOwned + Serialize + Send + Sync + 'static;
             const METHOD: LspNotificationMethod;
             const MESSAGE_DIRECTION: MessageDirection;
         }
 
         pub trait Request {
-            type Params: DeserializeOwned + Serialize + Send + Sync;
-            type Result: DeserializeOwned + Serialize + Send + Sync;
+            type Params: DeserializeOwned + Serialize + Send + Sync + 'static;
+            type Result: DeserializeOwned + Serialize + Send + Sync + 'static;
             const METHOD: LspRequestMethod;
             const MESSAGE_DIRECTION: MessageDirection;
         }
