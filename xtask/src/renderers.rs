@@ -65,7 +65,7 @@ pub fn render_enum_ors(
             .iter()
             .all(|item| is_copyable(item, structs_map, enums_map, type_aliases_map))
         {
-            derives.push("Copy")
+            derives.push("Copy");
         }
 
         let all_prefixed = or_type.items.iter().all(|item| {
@@ -83,7 +83,7 @@ pub fn render_enum_ors(
                 if all_prefixed && let Type::ReferenceType(ref_type) = item.clone() {
                     let member = ref_type.name.strip_prefix(&name).unwrap();
                     let member_ident = format_ident!("{member}");
-                    let type_ = render_type(item, &ref_type.name, &None, enum_or_types);
+                    let type_ = render_type(item, &ref_type.name, None, enum_or_types);
                     (
                         quote! {
                             #member_ident(#type_)
@@ -115,7 +115,7 @@ pub fn render_enum_ors(
                                     },
                                     quote! {
                                         impl From<()> for #name_ident {
-                                            fn from(_: ()) -> Self {
+                                            fn from((): ()) -> Self {
                                                 Self::Null
                                             }
                                         }
@@ -145,7 +145,7 @@ pub fn render_enum_ors(
                         }
                         a => unimplemented!("{a:?}"),
                     };
-                    let type_ = render_type(item, &name, &None, enum_or_types);
+                    let type_ = render_type(item, &name, None, enum_or_types);
                     let member_ident = format_ident!("{}", name);
                     let more_impls = if is_string {
                         Some(quote! {
@@ -224,7 +224,7 @@ pub fn render_request(
         if is_nullable {
             collapse_null(&mut params);
         }
-        let mut type_ = render_type(params, &(name.clone() + "Params"), &None, enum_or_types);
+        let mut type_ = render_type(params, &(name.clone() + "Params"), None, enum_or_types);
         if is_nullable {
             type_ = quote! { Option<#type_> };
         }
@@ -242,7 +242,7 @@ pub fn render_request(
         .expect("Request name should end in request")
         .to_owned()
         + "Response";
-    let mut result = render_type(result, &resp_name, &None, enum_or_types);
+    let mut result = render_type(result, &resp_name, None, enum_or_types);
     if is_nullable {
         result = quote! { Option<#result> };
     }
@@ -282,7 +282,7 @@ pub fn render_notification(
         if is_nullable {
             collapse_null(&mut param);
         }
-        let mut type_ = render_type(param, &(name + "Params"), &None, enum_or_types);
+        let mut type_ = render_type(param, &(name + "Params"), None, enum_or_types);
         if is_nullable {
             type_ = quote! { Option<#type_> };
         }
@@ -331,12 +331,12 @@ pub fn render_type_alias(
             });
         }
         _ => {}
-    };
+    }
 
     let type_ = render_type(
         type_alias.type_,
         &type_alias.name,
-        &Some(documentation.clone()),
+        Some(&documentation),
         enum_or_types,
     );
 
@@ -377,11 +377,10 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let is_str_enum = matches!(enumeration.type_.name, EnumerationTypeName::String);
     let supports_custom = enumeration.supports_custom_values == Some(true);
 
-    let mut sers =
-        Vec::with_capacity(enumeration.values.len() + if supports_custom { 1 } else { 0 });
+    let mut sers = Vec::with_capacity(enumeration.values.len() + supports_custom as usize);
     let mut desers = Vec::with_capacity(enumeration.values.len() + 1);
     let mut as_str_arms = if is_str_enum {
-        Vec::with_capacity(enumeration.values.len() + if supports_custom { 1 } else { 0 })
+        Vec::with_capacity(enumeration.values.len() + supports_custom as usize)
     } else {
         Vec::new()
     };
@@ -428,13 +427,13 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             };
             let full_name = quote! { #name_ident::#ident };
             if supports_custom {
-                desers.push(quote! { #value => #full_name, });
+                desers.push(quote! { #value => Self::#ident, });
             } else {
-                desers.push(quote! { #value => Ok(#full_name), });
+                desers.push(quote! { #value => Ok(Self::#ident), });
             }
             if is_str_enum {
                 sers.push(quote! { #full_name => #value.to_string(), });
-                as_str_arms.push(quote! { #full_name => #value, });
+                as_str_arms.push(quote! { Self::#ident => #value, });
             } else {
                 sers.push(quote! { #full_name => #value, });
             }
@@ -451,17 +450,17 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             (
                 quote! { Cow<'static, str> },
                 quote! { #name_ident::Custom(any) => any.into_owned(), },
-                quote! { _ => #name_ident::Custom(Cow::Owned(v)), },
+                quote! { _ => Self::Custom(Cow::Owned(v)), },
             )
         } else {
             (
                 quote! { #value_type },
                 quote! { #name_ident::Custom(any) => any, },
-                quote! { _ => #name_ident::Custom(v), },
+                quote! { _ => Self::Custom(v), },
             )
         };
         if is_str_enum {
-            as_str_arms.push(quote! { #name_ident::Custom(any) => any, });
+            as_str_arms.push(quote! { Self::Custom(any) => any, });
         }
         values.push(quote! {
             /// A custom value.
@@ -525,6 +524,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         Some(quote! {
             impl #name_ident {
                 #[doc = #constructor_doc]
+                #[must_use]
                 pub const fn new(s: &'static str) -> Self {
                     Self::Custom(Cow::Borrowed(s))
                 }
@@ -534,7 +534,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
                 fn from(s: &'static str) -> Self {
                     match s {
                         #(#desers)*
-                        _ => #name_ident::Custom(Cow::Borrowed(s)),
+                        _ => Self::Custom(Cow::Borrowed(s)),
                     }
                 }
             }
@@ -545,6 +545,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let as_str_impl = if is_str_enum {
         Some(quote! {
             impl #name_ident {
+                #[must_use]
                 pub fn as_str(&self) -> &str {
                     match self {
                         #(#as_str_arms)*
@@ -629,7 +630,7 @@ fn get_special_property(
                 pub data: Option<Vec<SemanticToken>>,
             })
         }
-        ("SemanticTokens", "data") | ("SemanticTokensPartialResult", "data") => {
+        ("SemanticTokens" | "SemanticTokensPartialResult", "data") => {
             assert_ne!(property.optional, Some(true));
             assert_eq!(
                 property.type_,
@@ -709,7 +710,7 @@ pub fn render_structure(
     let mut properties: Vec<_> = structure_props
         .clone()
         .into_iter()
-        .flat_map(|property| {
+        .filter_map(|property| {
             if let Some(special_prop) =
                 get_special_property(&structure.name, &property, &mut props_simplified)
             {
@@ -782,7 +783,7 @@ pub fn render_structure(
                 collapse_null(&mut type_);
             }
 
-            let mut type_ = render_type(type_, &or_name, &None, enum_or_types);
+            let mut type_ = render_type(type_, &or_name, None, enum_or_types);
 
             if box_type {
                 type_ = quote! { Box<#type_> };
@@ -817,12 +818,7 @@ pub fn render_structure(
 
     properties.extend(mixin_props.clone().into_iter().map(|prop| {
         let name = format_ident!("{}", camel_to_snake(&prop.name));
-        let type_ = render_type(
-            prop.type_,
-            &camel_to_pascal(prop.name),
-            &None,
-            enum_or_types,
-        );
+        let type_ = render_type(prop.type_, &camel_to_pascal(prop.name), None, enum_or_types);
         props_simplified.push((name.to_token_stream(), type_.clone()));
         quote! {
             #[serde(flatten)]
@@ -842,7 +838,7 @@ pub fn render_structure(
         let (try_from_props, from_props): (Vec<TokenStream>, Vec<TokenStream>) = structure_props
             .iter()
             .chain(&mixin_props)
-            .flat_map(|prop| {
+            .filter_map(|prop| {
                 if matches!(prop.type_, Type::StringLiteralType(_)) {
                     return None;
                 }
@@ -870,13 +866,13 @@ pub fn render_structure(
                     if shadow.#prop_name != #prop_value {
                         return Err(format!(#err, shadow.#prop_name));
                     }
-                    Ok(#name { #(#try_from_props)* })
+                    Ok(Self { #(#try_from_props)* })
                 }
             }
 
             impl From<#name> for #ident {
                 fn from(original: #name) -> Self {
-                    #ident {
+                    Self {
                         #(#from_props)*
                         #prop_name: #prop_value.to_string(),
                     }
@@ -901,6 +897,7 @@ pub fn render_structure(
         let names = props_simplified.iter().map(|p| p.0.clone());
         quote! {
             impl #name {
+                #[must_use]
                 pub const fn new(#(#params)*) -> Self {
                     Self {
                         #(#names),*
@@ -995,7 +992,7 @@ pub fn render_notification_macro(requests: &[Notification]) -> TokenStream {
 fn render_type(
     type_: Type,
     or_name: &str,
-    or_documentation: &Option<TokenStream>,
+    or_documentation: Option<&TokenStream>,
     enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
 ) -> TokenStream {
     match type_ {
@@ -1025,11 +1022,11 @@ fn render_type(
             BaseTypes::Null => quote! { () },
         },
         Type::TupleType(tuple_type) => {
-            let types = tuple_type
+            let tuple_items = tuple_type
                 .items
                 .into_iter()
                 .map(|item| render_type(item, or_name, or_documentation, enum_or_types));
-            quote! { (#( #types ),*) }
+            quote! { (#( #tuple_items ),*) }
         }
         Type::MapType(map_type) => {
             let map_key_type = map_type.key;
@@ -1060,7 +1057,7 @@ fn render_type(
             {
                 panic!("Definition conflict for {or_name}:\n\n{enum_or_type:?}\n\n{or_type:?}");
             }
-            enum_or_types.insert(or_name.to_string(), (or_type, or_documentation.clone()));
+            enum_or_types.insert(or_name.to_string(), (or_type, or_documentation.cloned()));
             quote! { #ident }
         }
         Type::StructureLiteralType(struct_lit) => {
