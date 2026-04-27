@@ -183,6 +183,18 @@ impl SemanticToken {
         opt.serialize(serializer)
     }
 }
+impl std::ops::BitOr for WatchKind {
+    type Output = Self;
+    fn bitor(self, rhs: Self) -> Self {
+        (Into::<u32>::into(self) | Into::<u32>::into(rhs)).into()
+    }
+}
+impl std::ops::BitAnd for WatchKind {
+    type Output = Self;
+    fn bitand(self, rhs: Self) -> Self {
+        (Into::<u32>::into(self) & Into::<u32>::into(rhs)).into()
+    }
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
