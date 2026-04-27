@@ -666,6 +666,20 @@ fn main() {
                 opt.serialize(serializer)
             }
         }
+
+        // Special impls for WatchKind, which acts as bit flags.
+        impl std::ops::BitOr for WatchKind {
+            type Output = Self;
+            fn bitor(self, rhs: Self) -> Self {
+                (Into::<u32>::into(self) | Into::<u32>::into(rhs)).into()
+            }
+        }
+        impl std::ops::BitAnd for WatchKind {
+            type Output = Self;
+            fn bitand(self, rhs: Self) -> Self {
+                (Into::<u32>::into(self) & Into::<u32>::into(rhs)).into()
+            }
+        }
     };
 
     let mut enum_or_types = BTreeMap::new();

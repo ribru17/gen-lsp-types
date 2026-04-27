@@ -202,7 +202,7 @@ mod test {
     }
 
     #[test]
-    fn special_derives() {
+    fn special_impls() {
         let pos = Position {
             line: 2,
             character: 0,
@@ -249,6 +249,14 @@ mod test {
         assert_eq!(method, "$/cancelRequest");
         let method = LspNotificationMethod::WorkspaceDidChangeWatchedFiles.to_string();
         assert_eq!(method, "workspace/didChangeWatchedFiles");
+
+        let wk = WatchKind::Delete;
+        let wk2 = WatchKind::Create;
+        assert_eq!(wk | wk2, WatchKind::Custom(5));
+        assert_eq!(wk | wk2 | WatchKind::Change, WatchKind::Custom(7));
+        assert_eq!((wk | wk2) & wk, wk);
+        assert_eq!(wk | wk, wk);
+        assert_eq!((wk | wk2 | WatchKind::Change) & (wk | wk2), wk | wk2);
     }
 
     #[test]
