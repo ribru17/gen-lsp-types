@@ -13,6 +13,8 @@ mod test {
         collections::{HashMap, HashSet},
     };
 
+    use serde_json::json;
+
     use crate::*;
 
     #[test]
@@ -385,7 +387,7 @@ mod test {
         );
         assert_eq!(req.id(), Some(&json_rpc::Id::Number(123)));
         assert_eq!(req.method(), "textDocument/typeDefinition");
-        assert_eq!(req.params(), Some(&serde_json::to_value(params).unwrap()));
+        assert_eq!(req.params(), Some(&json!(params)));
     }
 
     #[test]
@@ -417,10 +419,7 @@ mod test {
         );
         assert_eq!(noti.id(), None);
         assert_eq!(noti.method(), "initialized");
-        assert_eq!(
-            noti.params(),
-            Some(&serde_json::to_value(InitializedParams {}).unwrap())
-        );
+        assert_eq!(noti.params(), Some(&json!(InitializedParams {})));
     }
 
     #[test]
@@ -508,7 +507,7 @@ mod test {
             json_rpc::Error {
                 code: crate::ErrorCodes::Custom(-32803),
                 message: "failed to foo the bar".into(),
-                data: Some(serde_json::to_value(String::from("hi")).unwrap()),
+                data: Some(json!("hi")),
             },
         );
 
@@ -524,7 +523,7 @@ mod test {
             json_rpc::Error {
                 code: crate::ErrorCodes::Custom(crate::LspErrorCodes::ContentModified.into()),
                 message: "failed to foo the bar".into(),
-                data: Some(serde_json::to_value(String::from("hi")).unwrap()),
+                data: Some(json!("hi")),
             },
         );
 
@@ -755,6 +754,13 @@ mod test {
             r#"{"jsonrpc":"2.0","method":"exit"}"#,
             serde_json::to_string(&req).unwrap()
         );
+    }
+
+    #[test]
+    fn tuple_serialization() {
+        let pil = ParameterInformationLabel::Tuple((1, 2));
+        assert_eq!("[1,2]", serde_json::to_string(&pil).unwrap());
+        assert_eq!(pil, serde_json::from_str("[1,2]").unwrap());
     }
 }
 
