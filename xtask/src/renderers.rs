@@ -252,7 +252,7 @@ pub fn render_request(
         pub enum #name_ident {}
 
         impl Request for #name_ident {
-            const METHOD: LspRequestMethod = LspRequestMethod::#method;
+            const METHOD: LspRequestMethod<'static> = LspRequestMethod::#method;
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
 
             type Params = #params;
@@ -296,11 +296,98 @@ pub fn render_notification(
         pub enum #name_ident {}
 
         impl Notification for #name_ident {
-            const METHOD: LspNotificationMethod = LspNotificationMethod::#method;
+            const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::#method;
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::#message_direction;
 
             type Params = #params;
         }
+    }
+}
+
+pub fn render_request_methods(requests: &[Request], notis: &[Notification]) -> TokenStream {
+    fn render(ident: &str, methods: &[&str]) -> TokenStream {
+        let ident = format_ident!("{ident}");
+        let enum_members = methods
+            .iter()
+            .map(|method| format_ident!("{}", method_to_pascal(method)));
+        let member_to_str = methods.iter().map(|method| {
+            let ident = format_ident!("{}", method_to_pascal(method));
+            quote! {
+                Self::#ident => #method,
+            }
+        });
+        let str_to_member = methods.iter().map(|method| {
+            let ident = format_ident!("{}", method_to_pascal(method));
+            quote! {
+                #method => Self::#ident,
+            }
+        });
+        quote! {
+            #[derive(PartialEq, Eq, Hash, Debug, Clone, Copy, Serialize, Deserialize)]
+            #[serde(into = "String", from = "&'a str")]
+            pub enum #ident<'a> {
+                #(#enum_members,)*
+                Custom(&'a str),
+            }
+
+            impl<'a> #ident<'a> {
+                #[must_use]
+                pub const fn as_str(&self) -> &'a str {
+                    match self {
+                        #(#member_to_str)*
+                        Self::Custom(custom) => custom,
+                    }
+                }
+
+                #[must_use]
+                pub const fn new(value: &'a str) -> Self {
+                    Self::Custom(value)
+                }
+            }
+
+            impl<'a> From<&'a str> for #ident<'a> {
+                fn from(value: &'a str) -> Self {
+                    match value {
+                        #(#str_to_member)*
+                        _ => Self::Custom(value),
+                    }
+                }
+            }
+
+            impl<'a> From<#ident<'a>> for String {
+                fn from(value: #ident<'a>) -> Self {
+                    value.as_str().to_owned()
+                }
+            }
+
+            impl fmt::Display for #ident<'_> {
+                fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                    let s = self.as_str();
+                    write!(f, "{s}")
+                }
+            }
+        }
+    }
+
+    let requests = render(
+        "LspRequestMethod",
+        &requests
+            .iter()
+            .map(|req| req.method.as_str())
+            .collect::<Vec<_>>(),
+    );
+
+    let notis = render(
+        "LspNotificationMethod",
+        &notis
+            .iter()
+            .map(|noti| noti.method.as_str())
+            .collect::<Vec<_>>(),
+    );
+
+    quote! {
+        #requests
+        #notis
     }
 }
 

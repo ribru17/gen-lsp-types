@@ -38,13 +38,13 @@ pub enum MessageDirection {
 }
 pub trait Notification {
     type Params: DeserializeOwned + Serialize + Send + Sync + 'static;
-    const METHOD: LspNotificationMethod;
+    const METHOD: LspNotificationMethod<'static>;
     const MESSAGE_DIRECTION: MessageDirection;
 }
 pub trait Request {
     type Params: DeserializeOwned + Serialize + Send + Sync + 'static;
     type Result: DeserializeOwned + Serialize + Send + Sync + 'static;
-    const METHOD: LspRequestMethod;
+    const METHOD: LspRequestMethod<'static>;
     const MESSAGE_DIRECTION: MessageDirection;
 }
 #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
@@ -13604,743 +13604,6 @@ impl TokenFormat {
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
-#[serde(into = "String", from = "String")]
-pub enum LspRequestMethod {
-    TextDocumentImplementation,
-    TextDocumentTypeDefinition,
-    WorkspaceWorkspaceFolders,
-    WorkspaceConfiguration,
-    TextDocumentDocumentColor,
-    TextDocumentColorPresentation,
-    TextDocumentFoldingRange,
-    WorkspaceFoldingRangeRefresh,
-    TextDocumentDeclaration,
-    TextDocumentSelectionRange,
-    WindowWorkDoneProgressCreate,
-    TextDocumentPrepareCallHierarchy,
-    CallHierarchyIncomingCalls,
-    CallHierarchyOutgoingCalls,
-    TextDocumentSemanticTokensFull,
-    TextDocumentSemanticTokensFullDelta,
-    TextDocumentSemanticTokensRange,
-    WorkspaceSemanticTokensRefresh,
-    WindowShowDocument,
-    TextDocumentLinkedEditingRange,
-    WorkspaceWillCreateFiles,
-    WorkspaceWillRenameFiles,
-    WorkspaceWillDeleteFiles,
-    TextDocumentMoniker,
-    TextDocumentPrepareTypeHierarchy,
-    TypeHierarchySupertypes,
-    TypeHierarchySubtypes,
-    TextDocumentInlineValue,
-    WorkspaceInlineValueRefresh,
-    TextDocumentInlayHint,
-    InlayHintResolve,
-    WorkspaceInlayHintRefresh,
-    TextDocumentDiagnostic,
-    WorkspaceDiagnostic,
-    WorkspaceDiagnosticRefresh,
-    TextDocumentInlineCompletion,
-    WorkspaceTextDocumentContent,
-    WorkspaceTextDocumentContentRefresh,
-    ClientRegisterCapability,
-    ClientUnregisterCapability,
-    Initialize,
-    Shutdown,
-    WindowShowMessageRequest,
-    TextDocumentWillSaveWaitUntil,
-    TextDocumentCompletion,
-    CompletionItemResolve,
-    TextDocumentHover,
-    TextDocumentSignatureHelp,
-    TextDocumentDefinition,
-    TextDocumentReferences,
-    TextDocumentDocumentHighlight,
-    TextDocumentDocumentSymbol,
-    TextDocumentCodeAction,
-    CodeActionResolve,
-    WorkspaceSymbol,
-    WorkspaceSymbolResolve,
-    TextDocumentCodeLens,
-    CodeLensResolve,
-    WorkspaceCodeLensRefresh,
-    TextDocumentDocumentLink,
-    DocumentLinkResolve,
-    TextDocumentFormatting,
-    TextDocumentRangeFormatting,
-    TextDocumentRangesFormatting,
-    TextDocumentOnTypeFormatting,
-    TextDocumentRename,
-    TextDocumentPrepareRename,
-    WorkspaceExecuteCommand,
-    WorkspaceApplyEdit,
-    /// A custom value.
-    #[serde(untagged)]
-    Custom(Cow<'static, str>),
-}
-impl From<LspRequestMethod> for String {
-    fn from(e: LspRequestMethod) -> Self {
-        match e {
-            LspRequestMethod::TextDocumentImplementation => {
-                "textDocument/implementation".to_string()
-            }
-            LspRequestMethod::TextDocumentTypeDefinition => {
-                "textDocument/typeDefinition".to_string()
-            }
-            LspRequestMethod::WorkspaceWorkspaceFolders => {
-                "workspace/workspaceFolders".to_string()
-            }
-            LspRequestMethod::WorkspaceConfiguration => {
-                "workspace/configuration".to_string()
-            }
-            LspRequestMethod::TextDocumentDocumentColor => {
-                "textDocument/documentColor".to_string()
-            }
-            LspRequestMethod::TextDocumentColorPresentation => {
-                "textDocument/colorPresentation".to_string()
-            }
-            LspRequestMethod::TextDocumentFoldingRange => {
-                "textDocument/foldingRange".to_string()
-            }
-            LspRequestMethod::WorkspaceFoldingRangeRefresh => {
-                "workspace/foldingRange/refresh".to_string()
-            }
-            LspRequestMethod::TextDocumentDeclaration => {
-                "textDocument/declaration".to_string()
-            }
-            LspRequestMethod::TextDocumentSelectionRange => {
-                "textDocument/selectionRange".to_string()
-            }
-            LspRequestMethod::WindowWorkDoneProgressCreate => {
-                "window/workDoneProgress/create".to_string()
-            }
-            LspRequestMethod::TextDocumentPrepareCallHierarchy => {
-                "textDocument/prepareCallHierarchy".to_string()
-            }
-            LspRequestMethod::CallHierarchyIncomingCalls => {
-                "callHierarchy/incomingCalls".to_string()
-            }
-            LspRequestMethod::CallHierarchyOutgoingCalls => {
-                "callHierarchy/outgoingCalls".to_string()
-            }
-            LspRequestMethod::TextDocumentSemanticTokensFull => {
-                "textDocument/semanticTokens/full".to_string()
-            }
-            LspRequestMethod::TextDocumentSemanticTokensFullDelta => {
-                "textDocument/semanticTokens/full/delta".to_string()
-            }
-            LspRequestMethod::TextDocumentSemanticTokensRange => {
-                "textDocument/semanticTokens/range".to_string()
-            }
-            LspRequestMethod::WorkspaceSemanticTokensRefresh => {
-                "workspace/semanticTokens/refresh".to_string()
-            }
-            LspRequestMethod::WindowShowDocument => "window/showDocument".to_string(),
-            LspRequestMethod::TextDocumentLinkedEditingRange => {
-                "textDocument/linkedEditingRange".to_string()
-            }
-            LspRequestMethod::WorkspaceWillCreateFiles => {
-                "workspace/willCreateFiles".to_string()
-            }
-            LspRequestMethod::WorkspaceWillRenameFiles => {
-                "workspace/willRenameFiles".to_string()
-            }
-            LspRequestMethod::WorkspaceWillDeleteFiles => {
-                "workspace/willDeleteFiles".to_string()
-            }
-            LspRequestMethod::TextDocumentMoniker => "textDocument/moniker".to_string(),
-            LspRequestMethod::TextDocumentPrepareTypeHierarchy => {
-                "textDocument/prepareTypeHierarchy".to_string()
-            }
-            LspRequestMethod::TypeHierarchySupertypes => {
-                "typeHierarchy/supertypes".to_string()
-            }
-            LspRequestMethod::TypeHierarchySubtypes => {
-                "typeHierarchy/subtypes".to_string()
-            }
-            LspRequestMethod::TextDocumentInlineValue => {
-                "textDocument/inlineValue".to_string()
-            }
-            LspRequestMethod::WorkspaceInlineValueRefresh => {
-                "workspace/inlineValue/refresh".to_string()
-            }
-            LspRequestMethod::TextDocumentInlayHint => {
-                "textDocument/inlayHint".to_string()
-            }
-            LspRequestMethod::InlayHintResolve => "inlayHint/resolve".to_string(),
-            LspRequestMethod::WorkspaceInlayHintRefresh => {
-                "workspace/inlayHint/refresh".to_string()
-            }
-            LspRequestMethod::TextDocumentDiagnostic => {
-                "textDocument/diagnostic".to_string()
-            }
-            LspRequestMethod::WorkspaceDiagnostic => "workspace/diagnostic".to_string(),
-            LspRequestMethod::WorkspaceDiagnosticRefresh => {
-                "workspace/diagnostic/refresh".to_string()
-            }
-            LspRequestMethod::TextDocumentInlineCompletion => {
-                "textDocument/inlineCompletion".to_string()
-            }
-            LspRequestMethod::WorkspaceTextDocumentContent => {
-                "workspace/textDocumentContent".to_string()
-            }
-            LspRequestMethod::WorkspaceTextDocumentContentRefresh => {
-                "workspace/textDocumentContent/refresh".to_string()
-            }
-            LspRequestMethod::ClientRegisterCapability => {
-                "client/registerCapability".to_string()
-            }
-            LspRequestMethod::ClientUnregisterCapability => {
-                "client/unregisterCapability".to_string()
-            }
-            LspRequestMethod::Initialize => "initialize".to_string(),
-            LspRequestMethod::Shutdown => "shutdown".to_string(),
-            LspRequestMethod::WindowShowMessageRequest => {
-                "window/showMessageRequest".to_string()
-            }
-            LspRequestMethod::TextDocumentWillSaveWaitUntil => {
-                "textDocument/willSaveWaitUntil".to_string()
-            }
-            LspRequestMethod::TextDocumentCompletion => {
-                "textDocument/completion".to_string()
-            }
-            LspRequestMethod::CompletionItemResolve => {
-                "completionItem/resolve".to_string()
-            }
-            LspRequestMethod::TextDocumentHover => "textDocument/hover".to_string(),
-            LspRequestMethod::TextDocumentSignatureHelp => {
-                "textDocument/signatureHelp".to_string()
-            }
-            LspRequestMethod::TextDocumentDefinition => {
-                "textDocument/definition".to_string()
-            }
-            LspRequestMethod::TextDocumentReferences => {
-                "textDocument/references".to_string()
-            }
-            LspRequestMethod::TextDocumentDocumentHighlight => {
-                "textDocument/documentHighlight".to_string()
-            }
-            LspRequestMethod::TextDocumentDocumentSymbol => {
-                "textDocument/documentSymbol".to_string()
-            }
-            LspRequestMethod::TextDocumentCodeAction => {
-                "textDocument/codeAction".to_string()
-            }
-            LspRequestMethod::CodeActionResolve => "codeAction/resolve".to_string(),
-            LspRequestMethod::WorkspaceSymbol => "workspace/symbol".to_string(),
-            LspRequestMethod::WorkspaceSymbolResolve => {
-                "workspaceSymbol/resolve".to_string()
-            }
-            LspRequestMethod::TextDocumentCodeLens => "textDocument/codeLens".to_string(),
-            LspRequestMethod::CodeLensResolve => "codeLens/resolve".to_string(),
-            LspRequestMethod::WorkspaceCodeLensRefresh => {
-                "workspace/codeLens/refresh".to_string()
-            }
-            LspRequestMethod::TextDocumentDocumentLink => {
-                "textDocument/documentLink".to_string()
-            }
-            LspRequestMethod::DocumentLinkResolve => "documentLink/resolve".to_string(),
-            LspRequestMethod::TextDocumentFormatting => {
-                "textDocument/formatting".to_string()
-            }
-            LspRequestMethod::TextDocumentRangeFormatting => {
-                "textDocument/rangeFormatting".to_string()
-            }
-            LspRequestMethod::TextDocumentRangesFormatting => {
-                "textDocument/rangesFormatting".to_string()
-            }
-            LspRequestMethod::TextDocumentOnTypeFormatting => {
-                "textDocument/onTypeFormatting".to_string()
-            }
-            LspRequestMethod::TextDocumentRename => "textDocument/rename".to_string(),
-            LspRequestMethod::TextDocumentPrepareRename => {
-                "textDocument/prepareRename".to_string()
-            }
-            LspRequestMethod::WorkspaceExecuteCommand => {
-                "workspace/executeCommand".to_string()
-            }
-            LspRequestMethod::WorkspaceApplyEdit => "workspace/applyEdit".to_string(),
-            LspRequestMethod::Custom(any) => any.into_owned(),
-        }
-    }
-}
-impl From<String> for LspRequestMethod {
-    fn from(v: String) -> Self {
-        match v.as_str() {
-            "textDocument/implementation" => Self::TextDocumentImplementation,
-            "textDocument/typeDefinition" => Self::TextDocumentTypeDefinition,
-            "workspace/workspaceFolders" => Self::WorkspaceWorkspaceFolders,
-            "workspace/configuration" => Self::WorkspaceConfiguration,
-            "textDocument/documentColor" => Self::TextDocumentDocumentColor,
-            "textDocument/colorPresentation" => Self::TextDocumentColorPresentation,
-            "textDocument/foldingRange" => Self::TextDocumentFoldingRange,
-            "workspace/foldingRange/refresh" => Self::WorkspaceFoldingRangeRefresh,
-            "textDocument/declaration" => Self::TextDocumentDeclaration,
-            "textDocument/selectionRange" => Self::TextDocumentSelectionRange,
-            "window/workDoneProgress/create" => Self::WindowWorkDoneProgressCreate,
-            "textDocument/prepareCallHierarchy" => Self::TextDocumentPrepareCallHierarchy,
-            "callHierarchy/incomingCalls" => Self::CallHierarchyIncomingCalls,
-            "callHierarchy/outgoingCalls" => Self::CallHierarchyOutgoingCalls,
-            "textDocument/semanticTokens/full" => Self::TextDocumentSemanticTokensFull,
-            "textDocument/semanticTokens/full/delta" => {
-                Self::TextDocumentSemanticTokensFullDelta
-            }
-            "textDocument/semanticTokens/range" => Self::TextDocumentSemanticTokensRange,
-            "workspace/semanticTokens/refresh" => Self::WorkspaceSemanticTokensRefresh,
-            "window/showDocument" => Self::WindowShowDocument,
-            "textDocument/linkedEditingRange" => Self::TextDocumentLinkedEditingRange,
-            "workspace/willCreateFiles" => Self::WorkspaceWillCreateFiles,
-            "workspace/willRenameFiles" => Self::WorkspaceWillRenameFiles,
-            "workspace/willDeleteFiles" => Self::WorkspaceWillDeleteFiles,
-            "textDocument/moniker" => Self::TextDocumentMoniker,
-            "textDocument/prepareTypeHierarchy" => Self::TextDocumentPrepareTypeHierarchy,
-            "typeHierarchy/supertypes" => Self::TypeHierarchySupertypes,
-            "typeHierarchy/subtypes" => Self::TypeHierarchySubtypes,
-            "textDocument/inlineValue" => Self::TextDocumentInlineValue,
-            "workspace/inlineValue/refresh" => Self::WorkspaceInlineValueRefresh,
-            "textDocument/inlayHint" => Self::TextDocumentInlayHint,
-            "inlayHint/resolve" => Self::InlayHintResolve,
-            "workspace/inlayHint/refresh" => Self::WorkspaceInlayHintRefresh,
-            "textDocument/diagnostic" => Self::TextDocumentDiagnostic,
-            "workspace/diagnostic" => Self::WorkspaceDiagnostic,
-            "workspace/diagnostic/refresh" => Self::WorkspaceDiagnosticRefresh,
-            "textDocument/inlineCompletion" => Self::TextDocumentInlineCompletion,
-            "workspace/textDocumentContent" => Self::WorkspaceTextDocumentContent,
-            "workspace/textDocumentContent/refresh" => {
-                Self::WorkspaceTextDocumentContentRefresh
-            }
-            "client/registerCapability" => Self::ClientRegisterCapability,
-            "client/unregisterCapability" => Self::ClientUnregisterCapability,
-            "initialize" => Self::Initialize,
-            "shutdown" => Self::Shutdown,
-            "window/showMessageRequest" => Self::WindowShowMessageRequest,
-            "textDocument/willSaveWaitUntil" => Self::TextDocumentWillSaveWaitUntil,
-            "textDocument/completion" => Self::TextDocumentCompletion,
-            "completionItem/resolve" => Self::CompletionItemResolve,
-            "textDocument/hover" => Self::TextDocumentHover,
-            "textDocument/signatureHelp" => Self::TextDocumentSignatureHelp,
-            "textDocument/definition" => Self::TextDocumentDefinition,
-            "textDocument/references" => Self::TextDocumentReferences,
-            "textDocument/documentHighlight" => Self::TextDocumentDocumentHighlight,
-            "textDocument/documentSymbol" => Self::TextDocumentDocumentSymbol,
-            "textDocument/codeAction" => Self::TextDocumentCodeAction,
-            "codeAction/resolve" => Self::CodeActionResolve,
-            "workspace/symbol" => Self::WorkspaceSymbol,
-            "workspaceSymbol/resolve" => Self::WorkspaceSymbolResolve,
-            "textDocument/codeLens" => Self::TextDocumentCodeLens,
-            "codeLens/resolve" => Self::CodeLensResolve,
-            "workspace/codeLens/refresh" => Self::WorkspaceCodeLensRefresh,
-            "textDocument/documentLink" => Self::TextDocumentDocumentLink,
-            "documentLink/resolve" => Self::DocumentLinkResolve,
-            "textDocument/formatting" => Self::TextDocumentFormatting,
-            "textDocument/rangeFormatting" => Self::TextDocumentRangeFormatting,
-            "textDocument/rangesFormatting" => Self::TextDocumentRangesFormatting,
-            "textDocument/onTypeFormatting" => Self::TextDocumentOnTypeFormatting,
-            "textDocument/rename" => Self::TextDocumentRename,
-            "textDocument/prepareRename" => Self::TextDocumentPrepareRename,
-            "workspace/executeCommand" => Self::WorkspaceExecuteCommand,
-            "workspace/applyEdit" => Self::WorkspaceApplyEdit,
-            _ => Self::Custom(Cow::Owned(v)),
-        }
-    }
-}
-impl LspRequestMethod {
-    /// Create a custom `LspRequestMethod` from a string literal.
-    #[must_use]
-    pub const fn new(s: &'static str) -> Self {
-        Self::Custom(Cow::Borrowed(s))
-    }
-}
-impl From<&'static str> for LspRequestMethod {
-    fn from(s: &'static str) -> Self {
-        match s {
-            "textDocument/implementation" => Self::TextDocumentImplementation,
-            "textDocument/typeDefinition" => Self::TextDocumentTypeDefinition,
-            "workspace/workspaceFolders" => Self::WorkspaceWorkspaceFolders,
-            "workspace/configuration" => Self::WorkspaceConfiguration,
-            "textDocument/documentColor" => Self::TextDocumentDocumentColor,
-            "textDocument/colorPresentation" => Self::TextDocumentColorPresentation,
-            "textDocument/foldingRange" => Self::TextDocumentFoldingRange,
-            "workspace/foldingRange/refresh" => Self::WorkspaceFoldingRangeRefresh,
-            "textDocument/declaration" => Self::TextDocumentDeclaration,
-            "textDocument/selectionRange" => Self::TextDocumentSelectionRange,
-            "window/workDoneProgress/create" => Self::WindowWorkDoneProgressCreate,
-            "textDocument/prepareCallHierarchy" => Self::TextDocumentPrepareCallHierarchy,
-            "callHierarchy/incomingCalls" => Self::CallHierarchyIncomingCalls,
-            "callHierarchy/outgoingCalls" => Self::CallHierarchyOutgoingCalls,
-            "textDocument/semanticTokens/full" => Self::TextDocumentSemanticTokensFull,
-            "textDocument/semanticTokens/full/delta" => {
-                Self::TextDocumentSemanticTokensFullDelta
-            }
-            "textDocument/semanticTokens/range" => Self::TextDocumentSemanticTokensRange,
-            "workspace/semanticTokens/refresh" => Self::WorkspaceSemanticTokensRefresh,
-            "window/showDocument" => Self::WindowShowDocument,
-            "textDocument/linkedEditingRange" => Self::TextDocumentLinkedEditingRange,
-            "workspace/willCreateFiles" => Self::WorkspaceWillCreateFiles,
-            "workspace/willRenameFiles" => Self::WorkspaceWillRenameFiles,
-            "workspace/willDeleteFiles" => Self::WorkspaceWillDeleteFiles,
-            "textDocument/moniker" => Self::TextDocumentMoniker,
-            "textDocument/prepareTypeHierarchy" => Self::TextDocumentPrepareTypeHierarchy,
-            "typeHierarchy/supertypes" => Self::TypeHierarchySupertypes,
-            "typeHierarchy/subtypes" => Self::TypeHierarchySubtypes,
-            "textDocument/inlineValue" => Self::TextDocumentInlineValue,
-            "workspace/inlineValue/refresh" => Self::WorkspaceInlineValueRefresh,
-            "textDocument/inlayHint" => Self::TextDocumentInlayHint,
-            "inlayHint/resolve" => Self::InlayHintResolve,
-            "workspace/inlayHint/refresh" => Self::WorkspaceInlayHintRefresh,
-            "textDocument/diagnostic" => Self::TextDocumentDiagnostic,
-            "workspace/diagnostic" => Self::WorkspaceDiagnostic,
-            "workspace/diagnostic/refresh" => Self::WorkspaceDiagnosticRefresh,
-            "textDocument/inlineCompletion" => Self::TextDocumentInlineCompletion,
-            "workspace/textDocumentContent" => Self::WorkspaceTextDocumentContent,
-            "workspace/textDocumentContent/refresh" => {
-                Self::WorkspaceTextDocumentContentRefresh
-            }
-            "client/registerCapability" => Self::ClientRegisterCapability,
-            "client/unregisterCapability" => Self::ClientUnregisterCapability,
-            "initialize" => Self::Initialize,
-            "shutdown" => Self::Shutdown,
-            "window/showMessageRequest" => Self::WindowShowMessageRequest,
-            "textDocument/willSaveWaitUntil" => Self::TextDocumentWillSaveWaitUntil,
-            "textDocument/completion" => Self::TextDocumentCompletion,
-            "completionItem/resolve" => Self::CompletionItemResolve,
-            "textDocument/hover" => Self::TextDocumentHover,
-            "textDocument/signatureHelp" => Self::TextDocumentSignatureHelp,
-            "textDocument/definition" => Self::TextDocumentDefinition,
-            "textDocument/references" => Self::TextDocumentReferences,
-            "textDocument/documentHighlight" => Self::TextDocumentDocumentHighlight,
-            "textDocument/documentSymbol" => Self::TextDocumentDocumentSymbol,
-            "textDocument/codeAction" => Self::TextDocumentCodeAction,
-            "codeAction/resolve" => Self::CodeActionResolve,
-            "workspace/symbol" => Self::WorkspaceSymbol,
-            "workspaceSymbol/resolve" => Self::WorkspaceSymbolResolve,
-            "textDocument/codeLens" => Self::TextDocumentCodeLens,
-            "codeLens/resolve" => Self::CodeLensResolve,
-            "workspace/codeLens/refresh" => Self::WorkspaceCodeLensRefresh,
-            "textDocument/documentLink" => Self::TextDocumentDocumentLink,
-            "documentLink/resolve" => Self::DocumentLinkResolve,
-            "textDocument/formatting" => Self::TextDocumentFormatting,
-            "textDocument/rangeFormatting" => Self::TextDocumentRangeFormatting,
-            "textDocument/rangesFormatting" => Self::TextDocumentRangesFormatting,
-            "textDocument/onTypeFormatting" => Self::TextDocumentOnTypeFormatting,
-            "textDocument/rename" => Self::TextDocumentRename,
-            "textDocument/prepareRename" => Self::TextDocumentPrepareRename,
-            "workspace/executeCommand" => Self::WorkspaceExecuteCommand,
-            "workspace/applyEdit" => Self::WorkspaceApplyEdit,
-            _ => Self::Custom(Cow::Borrowed(s)),
-        }
-    }
-}
-impl fmt::Display for LspRequestMethod {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = self.clone().into();
-        write!(f, "{s}")
-    }
-}
-impl LspRequestMethod {
-    #[must_use]
-    pub fn as_str(&self) -> &str {
-        match self {
-            Self::TextDocumentImplementation => "textDocument/implementation",
-            Self::TextDocumentTypeDefinition => "textDocument/typeDefinition",
-            Self::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
-            Self::WorkspaceConfiguration => "workspace/configuration",
-            Self::TextDocumentDocumentColor => "textDocument/documentColor",
-            Self::TextDocumentColorPresentation => "textDocument/colorPresentation",
-            Self::TextDocumentFoldingRange => "textDocument/foldingRange",
-            Self::WorkspaceFoldingRangeRefresh => "workspace/foldingRange/refresh",
-            Self::TextDocumentDeclaration => "textDocument/declaration",
-            Self::TextDocumentSelectionRange => "textDocument/selectionRange",
-            Self::WindowWorkDoneProgressCreate => "window/workDoneProgress/create",
-            Self::TextDocumentPrepareCallHierarchy => "textDocument/prepareCallHierarchy",
-            Self::CallHierarchyIncomingCalls => "callHierarchy/incomingCalls",
-            Self::CallHierarchyOutgoingCalls => "callHierarchy/outgoingCalls",
-            Self::TextDocumentSemanticTokensFull => "textDocument/semanticTokens/full",
-            Self::TextDocumentSemanticTokensFullDelta => {
-                "textDocument/semanticTokens/full/delta"
-            }
-            Self::TextDocumentSemanticTokensRange => "textDocument/semanticTokens/range",
-            Self::WorkspaceSemanticTokensRefresh => "workspace/semanticTokens/refresh",
-            Self::WindowShowDocument => "window/showDocument",
-            Self::TextDocumentLinkedEditingRange => "textDocument/linkedEditingRange",
-            Self::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
-            Self::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
-            Self::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
-            Self::TextDocumentMoniker => "textDocument/moniker",
-            Self::TextDocumentPrepareTypeHierarchy => "textDocument/prepareTypeHierarchy",
-            Self::TypeHierarchySupertypes => "typeHierarchy/supertypes",
-            Self::TypeHierarchySubtypes => "typeHierarchy/subtypes",
-            Self::TextDocumentInlineValue => "textDocument/inlineValue",
-            Self::WorkspaceInlineValueRefresh => "workspace/inlineValue/refresh",
-            Self::TextDocumentInlayHint => "textDocument/inlayHint",
-            Self::InlayHintResolve => "inlayHint/resolve",
-            Self::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
-            Self::TextDocumentDiagnostic => "textDocument/diagnostic",
-            Self::WorkspaceDiagnostic => "workspace/diagnostic",
-            Self::WorkspaceDiagnosticRefresh => "workspace/diagnostic/refresh",
-            Self::TextDocumentInlineCompletion => "textDocument/inlineCompletion",
-            Self::WorkspaceTextDocumentContent => "workspace/textDocumentContent",
-            Self::WorkspaceTextDocumentContentRefresh => {
-                "workspace/textDocumentContent/refresh"
-            }
-            Self::ClientRegisterCapability => "client/registerCapability",
-            Self::ClientUnregisterCapability => "client/unregisterCapability",
-            Self::Initialize => "initialize",
-            Self::Shutdown => "shutdown",
-            Self::WindowShowMessageRequest => "window/showMessageRequest",
-            Self::TextDocumentWillSaveWaitUntil => "textDocument/willSaveWaitUntil",
-            Self::TextDocumentCompletion => "textDocument/completion",
-            Self::CompletionItemResolve => "completionItem/resolve",
-            Self::TextDocumentHover => "textDocument/hover",
-            Self::TextDocumentSignatureHelp => "textDocument/signatureHelp",
-            Self::TextDocumentDefinition => "textDocument/definition",
-            Self::TextDocumentReferences => "textDocument/references",
-            Self::TextDocumentDocumentHighlight => "textDocument/documentHighlight",
-            Self::TextDocumentDocumentSymbol => "textDocument/documentSymbol",
-            Self::TextDocumentCodeAction => "textDocument/codeAction",
-            Self::CodeActionResolve => "codeAction/resolve",
-            Self::WorkspaceSymbol => "workspace/symbol",
-            Self::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
-            Self::TextDocumentCodeLens => "textDocument/codeLens",
-            Self::CodeLensResolve => "codeLens/resolve",
-            Self::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
-            Self::TextDocumentDocumentLink => "textDocument/documentLink",
-            Self::DocumentLinkResolve => "documentLink/resolve",
-            Self::TextDocumentFormatting => "textDocument/formatting",
-            Self::TextDocumentRangeFormatting => "textDocument/rangeFormatting",
-            Self::TextDocumentRangesFormatting => "textDocument/rangesFormatting",
-            Self::TextDocumentOnTypeFormatting => "textDocument/onTypeFormatting",
-            Self::TextDocumentRename => "textDocument/rename",
-            Self::TextDocumentPrepareRename => "textDocument/prepareRename",
-            Self::WorkspaceExecuteCommand => "workspace/executeCommand",
-            Self::WorkspaceApplyEdit => "workspace/applyEdit",
-            Self::Custom(any) => any,
-        }
-    }
-}
-
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
-#[serde(into = "String", from = "String")]
-pub enum LspNotificationMethod {
-    WorkspaceDidChangeWorkspaceFolders,
-    WindowWorkDoneProgressCancel,
-    WorkspaceDidCreateFiles,
-    WorkspaceDidRenameFiles,
-    WorkspaceDidDeleteFiles,
-    NotebookDocumentDidOpen,
-    NotebookDocumentDidChange,
-    NotebookDocumentDidSave,
-    NotebookDocumentDidClose,
-    Initialized,
-    Exit,
-    WorkspaceDidChangeConfiguration,
-    WindowShowMessage,
-    WindowLogMessage,
-    TelemetryEvent,
-    TextDocumentDidOpen,
-    TextDocumentDidChange,
-    TextDocumentDidClose,
-    TextDocumentDidSave,
-    TextDocumentWillSave,
-    WorkspaceDidChangeWatchedFiles,
-    TextDocumentPublishDiagnostics,
-    SetTrace,
-    LogTrace,
-    CancelRequest,
-    Progress,
-    /// A custom value.
-    #[serde(untagged)]
-    Custom(Cow<'static, str>),
-}
-impl From<LspNotificationMethod> for String {
-    fn from(e: LspNotificationMethod) -> Self {
-        match e {
-            LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders => {
-                "workspace/didChangeWorkspaceFolders".to_string()
-            }
-            LspNotificationMethod::WindowWorkDoneProgressCancel => {
-                "window/workDoneProgress/cancel".to_string()
-            }
-            LspNotificationMethod::WorkspaceDidCreateFiles => {
-                "workspace/didCreateFiles".to_string()
-            }
-            LspNotificationMethod::WorkspaceDidRenameFiles => {
-                "workspace/didRenameFiles".to_string()
-            }
-            LspNotificationMethod::WorkspaceDidDeleteFiles => {
-                "workspace/didDeleteFiles".to_string()
-            }
-            LspNotificationMethod::NotebookDocumentDidOpen => {
-                "notebookDocument/didOpen".to_string()
-            }
-            LspNotificationMethod::NotebookDocumentDidChange => {
-                "notebookDocument/didChange".to_string()
-            }
-            LspNotificationMethod::NotebookDocumentDidSave => {
-                "notebookDocument/didSave".to_string()
-            }
-            LspNotificationMethod::NotebookDocumentDidClose => {
-                "notebookDocument/didClose".to_string()
-            }
-            LspNotificationMethod::Initialized => "initialized".to_string(),
-            LspNotificationMethod::Exit => "exit".to_string(),
-            LspNotificationMethod::WorkspaceDidChangeConfiguration => {
-                "workspace/didChangeConfiguration".to_string()
-            }
-            LspNotificationMethod::WindowShowMessage => "window/showMessage".to_string(),
-            LspNotificationMethod::WindowLogMessage => "window/logMessage".to_string(),
-            LspNotificationMethod::TelemetryEvent => "telemetry/event".to_string(),
-            LspNotificationMethod::TextDocumentDidOpen => {
-                "textDocument/didOpen".to_string()
-            }
-            LspNotificationMethod::TextDocumentDidChange => {
-                "textDocument/didChange".to_string()
-            }
-            LspNotificationMethod::TextDocumentDidClose => {
-                "textDocument/didClose".to_string()
-            }
-            LspNotificationMethod::TextDocumentDidSave => {
-                "textDocument/didSave".to_string()
-            }
-            LspNotificationMethod::TextDocumentWillSave => {
-                "textDocument/willSave".to_string()
-            }
-            LspNotificationMethod::WorkspaceDidChangeWatchedFiles => {
-                "workspace/didChangeWatchedFiles".to_string()
-            }
-            LspNotificationMethod::TextDocumentPublishDiagnostics => {
-                "textDocument/publishDiagnostics".to_string()
-            }
-            LspNotificationMethod::SetTrace => "$/setTrace".to_string(),
-            LspNotificationMethod::LogTrace => "$/logTrace".to_string(),
-            LspNotificationMethod::CancelRequest => "$/cancelRequest".to_string(),
-            LspNotificationMethod::Progress => "$/progress".to_string(),
-            LspNotificationMethod::Custom(any) => any.into_owned(),
-        }
-    }
-}
-impl From<String> for LspNotificationMethod {
-    fn from(v: String) -> Self {
-        match v.as_str() {
-            "workspace/didChangeWorkspaceFolders" => {
-                Self::WorkspaceDidChangeWorkspaceFolders
-            }
-            "window/workDoneProgress/cancel" => Self::WindowWorkDoneProgressCancel,
-            "workspace/didCreateFiles" => Self::WorkspaceDidCreateFiles,
-            "workspace/didRenameFiles" => Self::WorkspaceDidRenameFiles,
-            "workspace/didDeleteFiles" => Self::WorkspaceDidDeleteFiles,
-            "notebookDocument/didOpen" => Self::NotebookDocumentDidOpen,
-            "notebookDocument/didChange" => Self::NotebookDocumentDidChange,
-            "notebookDocument/didSave" => Self::NotebookDocumentDidSave,
-            "notebookDocument/didClose" => Self::NotebookDocumentDidClose,
-            "initialized" => Self::Initialized,
-            "exit" => Self::Exit,
-            "workspace/didChangeConfiguration" => Self::WorkspaceDidChangeConfiguration,
-            "window/showMessage" => Self::WindowShowMessage,
-            "window/logMessage" => Self::WindowLogMessage,
-            "telemetry/event" => Self::TelemetryEvent,
-            "textDocument/didOpen" => Self::TextDocumentDidOpen,
-            "textDocument/didChange" => Self::TextDocumentDidChange,
-            "textDocument/didClose" => Self::TextDocumentDidClose,
-            "textDocument/didSave" => Self::TextDocumentDidSave,
-            "textDocument/willSave" => Self::TextDocumentWillSave,
-            "workspace/didChangeWatchedFiles" => Self::WorkspaceDidChangeWatchedFiles,
-            "textDocument/publishDiagnostics" => Self::TextDocumentPublishDiagnostics,
-            "$/setTrace" => Self::SetTrace,
-            "$/logTrace" => Self::LogTrace,
-            "$/cancelRequest" => Self::CancelRequest,
-            "$/progress" => Self::Progress,
-            _ => Self::Custom(Cow::Owned(v)),
-        }
-    }
-}
-impl LspNotificationMethod {
-    /// Create a custom `LspNotificationMethod` from a string literal.
-    #[must_use]
-    pub const fn new(s: &'static str) -> Self {
-        Self::Custom(Cow::Borrowed(s))
-    }
-}
-impl From<&'static str> for LspNotificationMethod {
-    fn from(s: &'static str) -> Self {
-        match s {
-            "workspace/didChangeWorkspaceFolders" => {
-                Self::WorkspaceDidChangeWorkspaceFolders
-            }
-            "window/workDoneProgress/cancel" => Self::WindowWorkDoneProgressCancel,
-            "workspace/didCreateFiles" => Self::WorkspaceDidCreateFiles,
-            "workspace/didRenameFiles" => Self::WorkspaceDidRenameFiles,
-            "workspace/didDeleteFiles" => Self::WorkspaceDidDeleteFiles,
-            "notebookDocument/didOpen" => Self::NotebookDocumentDidOpen,
-            "notebookDocument/didChange" => Self::NotebookDocumentDidChange,
-            "notebookDocument/didSave" => Self::NotebookDocumentDidSave,
-            "notebookDocument/didClose" => Self::NotebookDocumentDidClose,
-            "initialized" => Self::Initialized,
-            "exit" => Self::Exit,
-            "workspace/didChangeConfiguration" => Self::WorkspaceDidChangeConfiguration,
-            "window/showMessage" => Self::WindowShowMessage,
-            "window/logMessage" => Self::WindowLogMessage,
-            "telemetry/event" => Self::TelemetryEvent,
-            "textDocument/didOpen" => Self::TextDocumentDidOpen,
-            "textDocument/didChange" => Self::TextDocumentDidChange,
-            "textDocument/didClose" => Self::TextDocumentDidClose,
-            "textDocument/didSave" => Self::TextDocumentDidSave,
-            "textDocument/willSave" => Self::TextDocumentWillSave,
-            "workspace/didChangeWatchedFiles" => Self::WorkspaceDidChangeWatchedFiles,
-            "textDocument/publishDiagnostics" => Self::TextDocumentPublishDiagnostics,
-            "$/setTrace" => Self::SetTrace,
-            "$/logTrace" => Self::LogTrace,
-            "$/cancelRequest" => Self::CancelRequest,
-            "$/progress" => Self::Progress,
-            _ => Self::Custom(Cow::Borrowed(s)),
-        }
-    }
-}
-impl fmt::Display for LspNotificationMethod {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = self.clone().into();
-        write!(f, "{s}")
-    }
-}
-impl LspNotificationMethod {
-    #[must_use]
-    pub fn as_str(&self) -> &str {
-        match self {
-            Self::WorkspaceDidChangeWorkspaceFolders => {
-                "workspace/didChangeWorkspaceFolders"
-            }
-            Self::WindowWorkDoneProgressCancel => "window/workDoneProgress/cancel",
-            Self::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
-            Self::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
-            Self::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
-            Self::NotebookDocumentDidOpen => "notebookDocument/didOpen",
-            Self::NotebookDocumentDidChange => "notebookDocument/didChange",
-            Self::NotebookDocumentDidSave => "notebookDocument/didSave",
-            Self::NotebookDocumentDidClose => "notebookDocument/didClose",
-            Self::Initialized => "initialized",
-            Self::Exit => "exit",
-            Self::WorkspaceDidChangeConfiguration => "workspace/didChangeConfiguration",
-            Self::WindowShowMessage => "window/showMessage",
-            Self::WindowLogMessage => "window/logMessage",
-            Self::TelemetryEvent => "telemetry/event",
-            Self::TextDocumentDidOpen => "textDocument/didOpen",
-            Self::TextDocumentDidChange => "textDocument/didChange",
-            Self::TextDocumentDidClose => "textDocument/didClose",
-            Self::TextDocumentDidSave => "textDocument/didSave",
-            Self::TextDocumentWillSave => "textDocument/willSave",
-            Self::WorkspaceDidChangeWatchedFiles => "workspace/didChangeWatchedFiles",
-            Self::TextDocumentPublishDiagnostics => "textDocument/publishDiagnostics",
-            Self::SetTrace => "$/setTrace",
-            Self::LogTrace => "$/logTrace",
-            Self::CancelRequest => "$/cancelRequest",
-            Self::Progress => "$/progress",
-            Self::Custom(any) => any,
-        }
-    }
-}
-
 /// Information about where a symbol is defined.
 ///
 /// Provides additional metadata over normal [location][Location] definitions, including the range of
@@ -16214,7 +15477,7 @@ impl From<Vec<WorkspaceSymbol>> for WorkspaceSymbolResponse {
 #[derive(Debug)]
 pub enum ImplementationRequest {}
 impl Request for ImplementationRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentImplementation;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentImplementation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ImplementationParams;
     type Result = Option<ImplementationResponse>;
@@ -16226,7 +15489,7 @@ impl Request for ImplementationRequest {
 #[derive(Debug)]
 pub enum TypeDefinitionRequest {}
 impl Request for TypeDefinitionRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentTypeDefinition;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentTypeDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeDefinitionParams;
     type Result = Option<TypeDefinitionResponse>;
@@ -16236,7 +15499,7 @@ impl Request for TypeDefinitionRequest {
 #[derive(Debug)]
 pub enum WorkspaceFoldersRequest {}
 impl Request for WorkspaceFoldersRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWorkspaceFolders;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceWorkspaceFolders;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = Option<Vec<WorkspaceFolder>>;
@@ -16252,7 +15515,7 @@ impl Request for WorkspaceFoldersRequest {
 #[derive(Debug)]
 pub enum ConfigurationRequest {}
 impl Request for ConfigurationRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceConfiguration;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceConfiguration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ConfigurationParams;
     type Result = Vec<LspAny>;
@@ -16265,7 +15528,7 @@ impl Request for ConfigurationRequest {
 #[derive(Debug)]
 pub enum DocumentColorRequest {}
 impl Request for DocumentColorRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentColor;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDocumentColor;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentColorParams;
     type Result = Option<Vec<ColorInformation>>;
@@ -16278,7 +15541,7 @@ impl Request for DocumentColorRequest {
 #[derive(Debug)]
 pub enum ColorPresentationRequest {}
 impl Request for ColorPresentationRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentColorPresentation;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentColorPresentation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ColorPresentationParams;
     type Result = Option<Vec<ColorPresentation>>;
@@ -16291,7 +15554,7 @@ impl Request for ColorPresentationRequest {
 #[derive(Debug)]
 pub enum FoldingRangeRequest {}
 impl Request for FoldingRangeRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentFoldingRange;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentFoldingRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = FoldingRangeParams;
     type Result = Option<Vec<FoldingRange>>;
@@ -16302,7 +15565,7 @@ impl Request for FoldingRangeRequest {
 #[derive(Debug)]
 pub enum FoldingRangeRefreshRequest {}
 impl Request for FoldingRangeRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceFoldingRangeRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceFoldingRangeRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16315,7 +15578,7 @@ impl Request for FoldingRangeRefreshRequest {
 #[derive(Debug)]
 pub enum DeclarationRequest {}
 impl Request for DeclarationRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDeclaration;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDeclaration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeclarationParams;
     type Result = Option<DeclarationResponse>;
@@ -16328,7 +15591,7 @@ impl Request for DeclarationRequest {
 #[derive(Debug)]
 pub enum SelectionRangeRequest {}
 impl Request for SelectionRangeRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSelectionRange;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentSelectionRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SelectionRangeParams;
     type Result = Option<Vec<SelectionRange>>;
@@ -16339,7 +15602,7 @@ impl Request for SelectionRangeRequest {
 #[derive(Debug)]
 pub enum WorkDoneProgressCreateRequest {}
 impl Request for WorkDoneProgressCreateRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WindowWorkDoneProgressCreate;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WindowWorkDoneProgressCreate;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = WorkDoneProgressCreateParams;
     type Result = ();
@@ -16352,7 +15615,7 @@ impl Request for WorkDoneProgressCreateRequest {
 #[derive(Debug)]
 pub enum CallHierarchyPrepareRequest {}
 impl Request for CallHierarchyPrepareRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentPrepareCallHierarchy;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentPrepareCallHierarchy;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CallHierarchyPrepareParams;
     type Result = Option<Vec<CallHierarchyItem>>;
@@ -16364,7 +15627,7 @@ impl Request for CallHierarchyPrepareRequest {
 #[derive(Debug)]
 pub enum CallHierarchyIncomingCallsRequest {}
 impl Request for CallHierarchyIncomingCallsRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::CallHierarchyIncomingCalls;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::CallHierarchyIncomingCalls;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CallHierarchyIncomingCallsParams;
     type Result = Option<Vec<CallHierarchyIncomingCall>>;
@@ -16376,7 +15639,7 @@ impl Request for CallHierarchyIncomingCallsRequest {
 #[derive(Debug)]
 pub enum CallHierarchyOutgoingCallsRequest {}
 impl Request for CallHierarchyOutgoingCallsRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::CallHierarchyOutgoingCalls;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::CallHierarchyOutgoingCalls;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CallHierarchyOutgoingCallsParams;
     type Result = Option<Vec<CallHierarchyOutgoingCall>>;
@@ -16386,7 +15649,7 @@ impl Request for CallHierarchyOutgoingCallsRequest {
 #[derive(Debug)]
 pub enum SemanticTokensRequest {}
 impl Request for SemanticTokensRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSemanticTokensFull;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentSemanticTokensFull;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensParams;
     type Result = Option<SemanticTokens>;
@@ -16396,7 +15659,7 @@ impl Request for SemanticTokensRequest {
 #[derive(Debug)]
 pub enum SemanticTokensDeltaRequest {}
 impl Request for SemanticTokensDeltaRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSemanticTokensFullDelta;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentSemanticTokensFullDelta;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensDeltaParams;
     type Result = Option<SemanticTokensDeltaResponse>;
@@ -16406,7 +15669,7 @@ impl Request for SemanticTokensDeltaRequest {
 #[derive(Debug)]
 pub enum SemanticTokensRangeRequest {}
 impl Request for SemanticTokensRangeRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSemanticTokensRange;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentSemanticTokensRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensRangeParams;
     type Result = Option<SemanticTokens>;
@@ -16416,7 +15679,7 @@ impl Request for SemanticTokensRangeRequest {
 #[derive(Debug)]
 pub enum SemanticTokensRefreshRequest {}
 impl Request for SemanticTokensRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceSemanticTokensRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceSemanticTokensRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16431,7 +15694,7 @@ impl Request for SemanticTokensRefreshRequest {
 #[derive(Debug)]
 pub enum ShowDocumentRequest {}
 impl Request for ShowDocumentRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WindowShowDocument;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WindowShowDocument;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ShowDocumentParams;
     type Result = ShowDocumentResult;
@@ -16443,7 +15706,7 @@ impl Request for ShowDocumentRequest {
 #[derive(Debug)]
 pub enum LinkedEditingRangeRequest {}
 impl Request for LinkedEditingRangeRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentLinkedEditingRange;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentLinkedEditingRange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = LinkedEditingRangeParams;
     type Result = Option<LinkedEditingRanges>;
@@ -16460,7 +15723,7 @@ impl Request for LinkedEditingRangeRequest {
 #[derive(Debug)]
 pub enum WillCreateFilesRequest {}
 impl Request for WillCreateFilesRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWillCreateFiles;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceWillCreateFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CreateFilesParams;
     type Result = Option<WorkspaceEdit>;
@@ -16473,7 +15736,7 @@ impl Request for WillCreateFilesRequest {
 #[derive(Debug)]
 pub enum WillRenameFilesRequest {}
 impl Request for WillRenameFilesRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWillRenameFiles;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceWillRenameFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = RenameFilesParams;
     type Result = Option<WorkspaceEdit>;
@@ -16486,7 +15749,7 @@ impl Request for WillRenameFilesRequest {
 #[derive(Debug)]
 pub enum WillDeleteFilesRequest {}
 impl Request for WillDeleteFilesRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceWillDeleteFiles;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceWillDeleteFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeleteFilesParams;
     type Result = Option<WorkspaceEdit>;
@@ -16498,7 +15761,7 @@ impl Request for WillDeleteFilesRequest {
 #[derive(Debug)]
 pub enum MonikerRequest {}
 impl Request for MonikerRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentMoniker;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentMoniker;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = MonikerParams;
     type Result = Option<Vec<Moniker>>;
@@ -16511,7 +15774,7 @@ impl Request for MonikerRequest {
 #[derive(Debug)]
 pub enum TypeHierarchyPrepareRequest {}
 impl Request for TypeHierarchyPrepareRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentPrepareTypeHierarchy;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentPrepareTypeHierarchy;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchyPrepareParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
@@ -16523,7 +15786,7 @@ impl Request for TypeHierarchyPrepareRequest {
 #[derive(Debug)]
 pub enum TypeHierarchySupertypesRequest {}
 impl Request for TypeHierarchySupertypesRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TypeHierarchySupertypes;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TypeHierarchySupertypes;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchySupertypesParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
@@ -16535,7 +15798,7 @@ impl Request for TypeHierarchySupertypesRequest {
 #[derive(Debug)]
 pub enum TypeHierarchySubtypesRequest {}
 impl Request for TypeHierarchySubtypesRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TypeHierarchySubtypes;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TypeHierarchySubtypes;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchySubtypesParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
@@ -16549,7 +15812,7 @@ impl Request for TypeHierarchySubtypesRequest {
 #[derive(Debug)]
 pub enum InlineValueRequest {}
 impl Request for InlineValueRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentInlineValue;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentInlineValue;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineValueParams;
     type Result = Option<Vec<InlineValue>>;
@@ -16559,7 +15822,7 @@ impl Request for InlineValueRequest {
 #[derive(Debug)]
 pub enum InlineValueRefreshRequest {}
 impl Request for InlineValueRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceInlineValueRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceInlineValueRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16573,7 +15836,7 @@ impl Request for InlineValueRefreshRequest {
 #[derive(Debug)]
 pub enum InlayHintRequest {}
 impl Request for InlayHintRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentInlayHint;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentInlayHint;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlayHintParams;
     type Result = Option<Vec<InlayHint>>;
@@ -16587,7 +15850,7 @@ impl Request for InlayHintRequest {
 #[derive(Debug)]
 pub enum InlayHintResolveRequest {}
 impl Request for InlayHintResolveRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::InlayHintResolve;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::InlayHintResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlayHint;
     type Result = InlayHint;
@@ -16597,7 +15860,7 @@ impl Request for InlayHintResolveRequest {
 #[derive(Debug)]
 pub enum InlayHintRefreshRequest {}
 impl Request for InlayHintRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceInlayHintRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceInlayHintRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16609,7 +15872,7 @@ impl Request for InlayHintRefreshRequest {
 #[derive(Debug)]
 pub enum DocumentDiagnosticRequest {}
 impl Request for DocumentDiagnosticRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDiagnostic;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDiagnostic;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentDiagnosticParams;
     type Result = DocumentDiagnosticReport;
@@ -16621,7 +15884,7 @@ impl Request for DocumentDiagnosticRequest {
 #[derive(Debug)]
 pub enum WorkspaceDiagnosticRequest {}
 impl Request for WorkspaceDiagnosticRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceDiagnostic;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceDiagnostic;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceDiagnosticParams;
     type Result = WorkspaceDiagnosticReport;
@@ -16633,7 +15896,7 @@ impl Request for WorkspaceDiagnosticRequest {
 #[derive(Debug)]
 pub enum DiagnosticRefreshRequest {}
 impl Request for DiagnosticRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceDiagnosticRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceDiagnosticRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16648,7 +15911,7 @@ impl Request for DiagnosticRefreshRequest {
 #[derive(Debug)]
 pub enum InlineCompletionRequest {}
 impl Request for InlineCompletionRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentInlineCompletion;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentInlineCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineCompletionParams;
     type Result = Option<InlineCompletionResponse>;
@@ -16662,7 +15925,7 @@ impl Request for InlineCompletionRequest {
 #[derive(Debug)]
 pub enum TextDocumentContentRequest {}
 impl Request for TextDocumentContentRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceTextDocumentContent;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceTextDocumentContent;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TextDocumentContentParams;
     type Result = TextDocumentContentResult;
@@ -16676,7 +15939,7 @@ impl Request for TextDocumentContentRequest {
 #[derive(Debug)]
 pub enum TextDocumentContentRefreshRequest {}
 impl Request for TextDocumentContentRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceTextDocumentContentRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceTextDocumentContentRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = TextDocumentContentRefreshParams;
     type Result = ();
@@ -16687,7 +15950,7 @@ impl Request for TextDocumentContentRefreshRequest {
 #[derive(Debug)]
 pub enum RegistrationRequest {}
 impl Request for RegistrationRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::ClientRegisterCapability;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::ClientRegisterCapability;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = RegistrationParams;
     type Result = ();
@@ -16698,7 +15961,7 @@ impl Request for RegistrationRequest {
 #[derive(Debug)]
 pub enum UnregistrationRequest {}
 impl Request for UnregistrationRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::ClientUnregisterCapability;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::ClientUnregisterCapability;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = UnregistrationParams;
     type Result = ();
@@ -16712,7 +15975,7 @@ impl Request for UnregistrationRequest {
 #[derive(Debug)]
 pub enum InitializeRequest {}
 impl Request for InitializeRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::Initialize;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::Initialize;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InitializeParams;
     type Result = InitializeResult;
@@ -16725,7 +15988,7 @@ impl Request for InitializeRequest {
 #[derive(Debug)]
 pub enum ShutdownRequest {}
 impl Request for ShutdownRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::Shutdown;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::Shutdown;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ();
     type Result = ();
@@ -16736,7 +15999,7 @@ impl Request for ShutdownRequest {
 #[derive(Debug)]
 pub enum ShowMessageRequest {}
 impl Request for ShowMessageRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WindowShowMessageRequest;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WindowShowMessageRequest;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ShowMessageRequestParams;
     type Result = Option<MessageActionItem>;
@@ -16751,7 +16014,7 @@ impl Request for ShowMessageRequest {
 #[derive(Debug)]
 pub enum WillSaveTextDocumentWaitUntilRequest {}
 impl Request for WillSaveTextDocumentWaitUntilRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentWillSaveWaitUntil;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentWillSaveWaitUntil;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WillSaveTextDocumentParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16769,7 +16032,7 @@ impl Request for WillSaveTextDocumentWaitUntilRequest {
 #[derive(Debug)]
 pub enum CompletionRequest {}
 impl Request for CompletionRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentCompletion;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentCompletion;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CompletionParams;
     type Result = Option<CompletionResponse>;
@@ -16781,7 +16044,7 @@ impl Request for CompletionRequest {
 #[derive(Debug)]
 pub enum CompletionResolveRequest {}
 impl Request for CompletionResolveRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::CompletionItemResolve;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::CompletionItemResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CompletionItem;
     type Result = CompletionItem;
@@ -16793,7 +16056,7 @@ impl Request for CompletionResolveRequest {
 #[derive(Debug)]
 pub enum HoverRequest {}
 impl Request for HoverRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentHover;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentHover;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = HoverParams;
     type Result = Option<Hover>;
@@ -16802,7 +16065,7 @@ impl Request for HoverRequest {
 #[derive(Debug)]
 pub enum SignatureHelpRequest {}
 impl Request for SignatureHelpRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentSignatureHelp;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentSignatureHelp;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SignatureHelpParams;
     type Result = Option<SignatureHelp>;
@@ -16815,7 +16078,7 @@ impl Request for SignatureHelpRequest {
 #[derive(Debug)]
 pub enum DefinitionRequest {}
 impl Request for DefinitionRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDefinition;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDefinition;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DefinitionParams;
     type Result = Option<DefinitionResponse>;
@@ -16828,7 +16091,7 @@ impl Request for DefinitionRequest {
 #[derive(Debug)]
 pub enum ReferencesRequest {}
 impl Request for ReferencesRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentReferences;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentReferences;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ReferenceParams;
     type Result = Option<Vec<Location>>;
@@ -16841,7 +16104,7 @@ impl Request for ReferencesRequest {
 #[derive(Debug)]
 pub enum DocumentHighlightRequest {}
 impl Request for DocumentHighlightRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentHighlight;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDocumentHighlight;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentHighlightParams;
     type Result = Option<Vec<DocumentHighlight>>;
@@ -16854,7 +16117,7 @@ impl Request for DocumentHighlightRequest {
 #[derive(Debug)]
 pub enum DocumentSymbolRequest {}
 impl Request for DocumentSymbolRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentSymbol;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDocumentSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentSymbolParams;
     type Result = Option<DocumentSymbolResponse>;
@@ -16864,7 +16127,7 @@ impl Request for DocumentSymbolRequest {
 #[derive(Debug)]
 pub enum CodeActionRequest {}
 impl Request for CodeActionRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentCodeAction;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentCodeAction;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeActionParams;
     type Result = Option<Vec<CodeActionResponse>>;
@@ -16876,7 +16139,7 @@ impl Request for CodeActionRequest {
 #[derive(Debug)]
 pub enum CodeActionResolveRequest {}
 impl Request for CodeActionResolveRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::CodeActionResolve;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::CodeActionResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeAction;
     type Result = CodeAction;
@@ -16894,7 +16157,7 @@ impl Request for CodeActionResolveRequest {
 #[derive(Debug)]
 pub enum WorkspaceSymbolRequest {}
 impl Request for WorkspaceSymbolRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceSymbol;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceSymbol;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceSymbolParams;
     type Result = Option<WorkspaceSymbolResponse>;
@@ -16907,7 +16170,7 @@ impl Request for WorkspaceSymbolRequest {
 #[derive(Debug)]
 pub enum WorkspaceSymbolResolveRequest {}
 impl Request for WorkspaceSymbolResolveRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceSymbolResolve;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceSymbolResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceSymbol;
     type Result = WorkspaceSymbol;
@@ -16917,7 +16180,7 @@ impl Request for WorkspaceSymbolResolveRequest {
 #[derive(Debug)]
 pub enum CodeLensRequest {}
 impl Request for CodeLensRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentCodeLens;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentCodeLens;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeLensParams;
     type Result = Option<Vec<CodeLens>>;
@@ -16927,7 +16190,7 @@ impl Request for CodeLensRequest {
 #[derive(Debug)]
 pub enum CodeLensResolveRequest {}
 impl Request for CodeLensResolveRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::CodeLensResolve;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::CodeLensResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeLens;
     type Result = CodeLens;
@@ -16939,7 +16202,7 @@ impl Request for CodeLensResolveRequest {
 #[derive(Debug)]
 pub enum CodeLensRefreshRequest {}
 impl Request for CodeLensRefreshRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceCodeLensRefresh;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceCodeLensRefresh;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ();
     type Result = ();
@@ -16949,7 +16212,7 @@ impl Request for CodeLensRefreshRequest {
 #[derive(Debug)]
 pub enum DocumentLinkRequest {}
 impl Request for DocumentLinkRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentDocumentLink;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDocumentLink;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentLinkParams;
     type Result = Option<Vec<DocumentLink>>;
@@ -16961,7 +16224,7 @@ impl Request for DocumentLinkRequest {
 #[derive(Debug)]
 pub enum DocumentLinkResolveRequest {}
 impl Request for DocumentLinkResolveRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::DocumentLinkResolve;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::DocumentLinkResolve;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentLink;
     type Result = DocumentLink;
@@ -16971,7 +16234,7 @@ impl Request for DocumentLinkResolveRequest {
 #[derive(Debug)]
 pub enum DocumentFormattingRequest {}
 impl Request for DocumentFormattingRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentFormatting;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16981,7 +16244,7 @@ impl Request for DocumentFormattingRequest {
 #[derive(Debug)]
 pub enum DocumentRangeFormattingRequest {}
 impl Request for DocumentRangeFormattingRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentRangeFormatting;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentRangeFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentRangeFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -16994,7 +16257,7 @@ impl Request for DocumentRangeFormattingRequest {
 #[derive(Debug)]
 pub enum DocumentRangesFormattingRequest {}
 impl Request for DocumentRangesFormattingRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentRangesFormatting;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentRangesFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentRangesFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -17004,7 +16267,7 @@ impl Request for DocumentRangesFormattingRequest {
 #[derive(Debug)]
 pub enum DocumentOnTypeFormattingRequest {}
 impl Request for DocumentOnTypeFormattingRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentOnTypeFormatting;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentOnTypeFormatting;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentOnTypeFormattingParams;
     type Result = Option<Vec<TextEdit>>;
@@ -17014,7 +16277,7 @@ impl Request for DocumentOnTypeFormattingRequest {
 #[derive(Debug)]
 pub enum RenameRequest {}
 impl Request for RenameRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentRename;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentRename;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = RenameParams;
     type Result = Option<WorkspaceEdit>;
@@ -17026,7 +16289,7 @@ impl Request for RenameRequest {
 #[derive(Debug)]
 pub enum PrepareRenameRequest {}
 impl Request for PrepareRenameRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::TextDocumentPrepareRename;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentPrepareRename;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = PrepareRenameParams;
     type Result = Option<PrepareRenameResult>;
@@ -17037,7 +16300,7 @@ impl Request for PrepareRenameRequest {
 #[derive(Debug)]
 pub enum ExecuteCommandRequest {}
 impl Request for ExecuteCommandRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceExecuteCommand;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceExecuteCommand;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ExecuteCommandParams;
     type Result = Option<LspAny>;
@@ -17047,7 +16310,7 @@ impl Request for ExecuteCommandRequest {
 #[derive(Debug)]
 pub enum ApplyWorkspaceEditRequest {}
 impl Request for ApplyWorkspaceEditRequest {
-    const METHOD: LspRequestMethod = LspRequestMethod::WorkspaceApplyEdit;
+    const METHOD: LspRequestMethod<'static> = LspRequestMethod::WorkspaceApplyEdit;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ApplyWorkspaceEditParams;
     type Result = ApplyWorkspaceEditResult;
@@ -17058,7 +16321,7 @@ impl Request for ApplyWorkspaceEditRequest {
 #[derive(Debug)]
 pub enum DidChangeWorkspaceFoldersNotification {}
 impl Notification for DidChangeWorkspaceFoldersNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WorkspaceDidChangeWorkspaceFolders;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeWorkspaceFoldersParams;
 }
@@ -17068,7 +16331,7 @@ impl Notification for DidChangeWorkspaceFoldersNotification {
 #[derive(Debug)]
 pub enum WorkDoneProgressCancelNotification {}
 impl Notification for WorkDoneProgressCancelNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WindowWorkDoneProgressCancel;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WindowWorkDoneProgressCancel;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkDoneProgressCancelParams;
 }
@@ -17080,7 +16343,7 @@ impl Notification for WorkDoneProgressCancelNotification {
 #[derive(Debug)]
 pub enum DidCreateFilesNotification {}
 impl Notification for DidCreateFilesNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidCreateFiles;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WorkspaceDidCreateFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CreateFilesParams;
 }
@@ -17092,7 +16355,7 @@ impl Notification for DidCreateFilesNotification {
 #[derive(Debug)]
 pub enum DidRenameFilesNotification {}
 impl Notification for DidRenameFilesNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidRenameFiles;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WorkspaceDidRenameFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = RenameFilesParams;
 }
@@ -17104,7 +16367,7 @@ impl Notification for DidRenameFilesNotification {
 #[derive(Debug)]
 pub enum DidDeleteFilesNotification {}
 impl Notification for DidDeleteFilesNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidDeleteFiles;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WorkspaceDidDeleteFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DeleteFilesParams;
 }
@@ -17115,7 +16378,7 @@ impl Notification for DidDeleteFilesNotification {
 #[derive(Debug)]
 pub enum DidOpenNotebookDocumentNotification {}
 impl Notification for DidOpenNotebookDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidOpen;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::NotebookDocumentDidOpen;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidOpenNotebookDocumentParams;
 }
@@ -17123,7 +16386,7 @@ impl Notification for DidOpenNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum DidChangeNotebookDocumentNotification {}
 impl Notification for DidChangeNotebookDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidChange;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::NotebookDocumentDidChange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeNotebookDocumentParams;
 }
@@ -17134,7 +16397,7 @@ impl Notification for DidChangeNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum DidSaveNotebookDocumentNotification {}
 impl Notification for DidSaveNotebookDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidSave;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::NotebookDocumentDidSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidSaveNotebookDocumentParams;
 }
@@ -17145,7 +16408,7 @@ impl Notification for DidSaveNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum DidCloseNotebookDocumentNotification {}
 impl Notification for DidCloseNotebookDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::NotebookDocumentDidClose;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::NotebookDocumentDidClose;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidCloseNotebookDocumentParams;
 }
@@ -17156,7 +16419,7 @@ impl Notification for DidCloseNotebookDocumentNotification {
 #[derive(Debug)]
 pub enum InitializedNotification {}
 impl Notification for InitializedNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::Initialized;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::Initialized;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InitializedParams;
 }
@@ -17166,7 +16429,7 @@ impl Notification for InitializedNotification {
 #[derive(Debug)]
 pub enum ExitNotification {}
 impl Notification for ExitNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::Exit;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::Exit;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ();
 }
@@ -17177,7 +16440,7 @@ impl Notification for ExitNotification {
 #[derive(Debug)]
 pub enum DidChangeConfigurationNotification {}
 impl Notification for DidChangeConfigurationNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidChangeConfiguration;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WorkspaceDidChangeConfiguration;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeConfigurationParams;
 }
@@ -17187,7 +16450,7 @@ impl Notification for DidChangeConfigurationNotification {
 #[derive(Debug)]
 pub enum ShowMessageNotification {}
 impl Notification for ShowMessageNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WindowShowMessage;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WindowShowMessage;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = ShowMessageParams;
 }
@@ -17197,7 +16460,7 @@ impl Notification for ShowMessageNotification {
 #[derive(Debug)]
 pub enum LogMessageNotification {}
 impl Notification for LogMessageNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WindowLogMessage;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WindowLogMessage;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = LogMessageParams;
 }
@@ -17207,7 +16470,7 @@ impl Notification for LogMessageNotification {
 #[derive(Debug)]
 pub enum TelemetryEventNotification {}
 impl Notification for TelemetryEventNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TelemetryEvent;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TelemetryEvent;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = LspAny;
 }
@@ -17223,7 +16486,7 @@ impl Notification for TelemetryEventNotification {
 #[derive(Debug)]
 pub enum DidOpenTextDocumentNotification {}
 impl Notification for DidOpenTextDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidOpen;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TextDocumentDidOpen;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidOpenTextDocumentParams;
 }
@@ -17233,7 +16496,7 @@ impl Notification for DidOpenTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidChangeTextDocumentNotification {}
 impl Notification for DidChangeTextDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidChange;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TextDocumentDidChange;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeTextDocumentParams;
 }
@@ -17248,7 +16511,7 @@ impl Notification for DidChangeTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidCloseTextDocumentNotification {}
 impl Notification for DidCloseTextDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidClose;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TextDocumentDidClose;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidCloseTextDocumentParams;
 }
@@ -17258,7 +16521,7 @@ impl Notification for DidCloseTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidSaveTextDocumentNotification {}
 impl Notification for DidSaveTextDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentDidSave;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TextDocumentDidSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidSaveTextDocumentParams;
 }
@@ -17268,7 +16531,7 @@ impl Notification for DidSaveTextDocumentNotification {
 #[derive(Debug)]
 pub enum WillSaveTextDocumentNotification {}
 impl Notification for WillSaveTextDocumentNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentWillSave;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TextDocumentWillSave;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WillSaveTextDocumentParams;
 }
@@ -17278,7 +16541,7 @@ impl Notification for WillSaveTextDocumentNotification {
 #[derive(Debug)]
 pub enum DidChangeWatchedFilesNotification {}
 impl Notification for DidChangeWatchedFilesNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::WorkspaceDidChangeWatchedFiles;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::WorkspaceDidChangeWatchedFiles;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DidChangeWatchedFilesParams;
 }
@@ -17288,7 +16551,7 @@ impl Notification for DidChangeWatchedFilesNotification {
 #[derive(Debug)]
 pub enum PublishDiagnosticsNotification {}
 impl Notification for PublishDiagnosticsNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::TextDocumentPublishDiagnostics;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::TextDocumentPublishDiagnostics;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = PublishDiagnosticsParams;
 }
@@ -17296,7 +16559,7 @@ impl Notification for PublishDiagnosticsNotification {
 #[derive(Debug)]
 pub enum SetTraceNotification {}
 impl Notification for SetTraceNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::SetTrace;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::SetTrace;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SetTraceParams;
 }
@@ -17304,7 +16567,7 @@ impl Notification for SetTraceNotification {
 #[derive(Debug)]
 pub enum LogTraceNotification {}
 impl Notification for LogTraceNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::LogTrace;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::LogTrace;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ServerToClient;
     type Params = LogTraceParams;
 }
@@ -17312,7 +16575,7 @@ impl Notification for LogTraceNotification {
 #[derive(Debug)]
 pub enum CancelNotification {}
 impl Notification for CancelNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::CancelRequest;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::CancelRequest;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = CancelParams;
 }
@@ -17320,9 +16583,377 @@ impl Notification for CancelNotification {
 #[derive(Debug)]
 pub enum ProgressNotification {}
 impl Notification for ProgressNotification {
-    const METHOD: LspNotificationMethod = LspNotificationMethod::Progress;
+    const METHOD: LspNotificationMethod<'static> = LspNotificationMethod::Progress;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::Both;
     type Params = ProgressParams;
+}
+
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(into = "String", from = "&'a str")]
+pub enum LspRequestMethod<'a> {
+    TextDocumentImplementation,
+    TextDocumentTypeDefinition,
+    WorkspaceWorkspaceFolders,
+    WorkspaceConfiguration,
+    TextDocumentDocumentColor,
+    TextDocumentColorPresentation,
+    TextDocumentFoldingRange,
+    WorkspaceFoldingRangeRefresh,
+    TextDocumentDeclaration,
+    TextDocumentSelectionRange,
+    WindowWorkDoneProgressCreate,
+    TextDocumentPrepareCallHierarchy,
+    CallHierarchyIncomingCalls,
+    CallHierarchyOutgoingCalls,
+    TextDocumentSemanticTokensFull,
+    TextDocumentSemanticTokensFullDelta,
+    TextDocumentSemanticTokensRange,
+    WorkspaceSemanticTokensRefresh,
+    WindowShowDocument,
+    TextDocumentLinkedEditingRange,
+    WorkspaceWillCreateFiles,
+    WorkspaceWillRenameFiles,
+    WorkspaceWillDeleteFiles,
+    TextDocumentMoniker,
+    TextDocumentPrepareTypeHierarchy,
+    TypeHierarchySupertypes,
+    TypeHierarchySubtypes,
+    TextDocumentInlineValue,
+    WorkspaceInlineValueRefresh,
+    TextDocumentInlayHint,
+    InlayHintResolve,
+    WorkspaceInlayHintRefresh,
+    TextDocumentDiagnostic,
+    WorkspaceDiagnostic,
+    WorkspaceDiagnosticRefresh,
+    TextDocumentInlineCompletion,
+    WorkspaceTextDocumentContent,
+    WorkspaceTextDocumentContentRefresh,
+    ClientRegisterCapability,
+    ClientUnregisterCapability,
+    Initialize,
+    Shutdown,
+    WindowShowMessageRequest,
+    TextDocumentWillSaveWaitUntil,
+    TextDocumentCompletion,
+    CompletionItemResolve,
+    TextDocumentHover,
+    TextDocumentSignatureHelp,
+    TextDocumentDefinition,
+    TextDocumentReferences,
+    TextDocumentDocumentHighlight,
+    TextDocumentDocumentSymbol,
+    TextDocumentCodeAction,
+    CodeActionResolve,
+    WorkspaceSymbol,
+    WorkspaceSymbolResolve,
+    TextDocumentCodeLens,
+    CodeLensResolve,
+    WorkspaceCodeLensRefresh,
+    TextDocumentDocumentLink,
+    DocumentLinkResolve,
+    TextDocumentFormatting,
+    TextDocumentRangeFormatting,
+    TextDocumentRangesFormatting,
+    TextDocumentOnTypeFormatting,
+    TextDocumentRename,
+    TextDocumentPrepareRename,
+    WorkspaceExecuteCommand,
+    WorkspaceApplyEdit,
+    Custom(&'a str),
+}
+impl<'a> LspRequestMethod<'a> {
+    #[must_use]
+    pub const fn as_str(&self) -> &'a str {
+        match self {
+            Self::TextDocumentImplementation => "textDocument/implementation",
+            Self::TextDocumentTypeDefinition => "textDocument/typeDefinition",
+            Self::WorkspaceWorkspaceFolders => "workspace/workspaceFolders",
+            Self::WorkspaceConfiguration => "workspace/configuration",
+            Self::TextDocumentDocumentColor => "textDocument/documentColor",
+            Self::TextDocumentColorPresentation => "textDocument/colorPresentation",
+            Self::TextDocumentFoldingRange => "textDocument/foldingRange",
+            Self::WorkspaceFoldingRangeRefresh => "workspace/foldingRange/refresh",
+            Self::TextDocumentDeclaration => "textDocument/declaration",
+            Self::TextDocumentSelectionRange => "textDocument/selectionRange",
+            Self::WindowWorkDoneProgressCreate => "window/workDoneProgress/create",
+            Self::TextDocumentPrepareCallHierarchy => "textDocument/prepareCallHierarchy",
+            Self::CallHierarchyIncomingCalls => "callHierarchy/incomingCalls",
+            Self::CallHierarchyOutgoingCalls => "callHierarchy/outgoingCalls",
+            Self::TextDocumentSemanticTokensFull => "textDocument/semanticTokens/full",
+            Self::TextDocumentSemanticTokensFullDelta => {
+                "textDocument/semanticTokens/full/delta"
+            }
+            Self::TextDocumentSemanticTokensRange => "textDocument/semanticTokens/range",
+            Self::WorkspaceSemanticTokensRefresh => "workspace/semanticTokens/refresh",
+            Self::WindowShowDocument => "window/showDocument",
+            Self::TextDocumentLinkedEditingRange => "textDocument/linkedEditingRange",
+            Self::WorkspaceWillCreateFiles => "workspace/willCreateFiles",
+            Self::WorkspaceWillRenameFiles => "workspace/willRenameFiles",
+            Self::WorkspaceWillDeleteFiles => "workspace/willDeleteFiles",
+            Self::TextDocumentMoniker => "textDocument/moniker",
+            Self::TextDocumentPrepareTypeHierarchy => "textDocument/prepareTypeHierarchy",
+            Self::TypeHierarchySupertypes => "typeHierarchy/supertypes",
+            Self::TypeHierarchySubtypes => "typeHierarchy/subtypes",
+            Self::TextDocumentInlineValue => "textDocument/inlineValue",
+            Self::WorkspaceInlineValueRefresh => "workspace/inlineValue/refresh",
+            Self::TextDocumentInlayHint => "textDocument/inlayHint",
+            Self::InlayHintResolve => "inlayHint/resolve",
+            Self::WorkspaceInlayHintRefresh => "workspace/inlayHint/refresh",
+            Self::TextDocumentDiagnostic => "textDocument/diagnostic",
+            Self::WorkspaceDiagnostic => "workspace/diagnostic",
+            Self::WorkspaceDiagnosticRefresh => "workspace/diagnostic/refresh",
+            Self::TextDocumentInlineCompletion => "textDocument/inlineCompletion",
+            Self::WorkspaceTextDocumentContent => "workspace/textDocumentContent",
+            Self::WorkspaceTextDocumentContentRefresh => {
+                "workspace/textDocumentContent/refresh"
+            }
+            Self::ClientRegisterCapability => "client/registerCapability",
+            Self::ClientUnregisterCapability => "client/unregisterCapability",
+            Self::Initialize => "initialize",
+            Self::Shutdown => "shutdown",
+            Self::WindowShowMessageRequest => "window/showMessageRequest",
+            Self::TextDocumentWillSaveWaitUntil => "textDocument/willSaveWaitUntil",
+            Self::TextDocumentCompletion => "textDocument/completion",
+            Self::CompletionItemResolve => "completionItem/resolve",
+            Self::TextDocumentHover => "textDocument/hover",
+            Self::TextDocumentSignatureHelp => "textDocument/signatureHelp",
+            Self::TextDocumentDefinition => "textDocument/definition",
+            Self::TextDocumentReferences => "textDocument/references",
+            Self::TextDocumentDocumentHighlight => "textDocument/documentHighlight",
+            Self::TextDocumentDocumentSymbol => "textDocument/documentSymbol",
+            Self::TextDocumentCodeAction => "textDocument/codeAction",
+            Self::CodeActionResolve => "codeAction/resolve",
+            Self::WorkspaceSymbol => "workspace/symbol",
+            Self::WorkspaceSymbolResolve => "workspaceSymbol/resolve",
+            Self::TextDocumentCodeLens => "textDocument/codeLens",
+            Self::CodeLensResolve => "codeLens/resolve",
+            Self::WorkspaceCodeLensRefresh => "workspace/codeLens/refresh",
+            Self::TextDocumentDocumentLink => "textDocument/documentLink",
+            Self::DocumentLinkResolve => "documentLink/resolve",
+            Self::TextDocumentFormatting => "textDocument/formatting",
+            Self::TextDocumentRangeFormatting => "textDocument/rangeFormatting",
+            Self::TextDocumentRangesFormatting => "textDocument/rangesFormatting",
+            Self::TextDocumentOnTypeFormatting => "textDocument/onTypeFormatting",
+            Self::TextDocumentRename => "textDocument/rename",
+            Self::TextDocumentPrepareRename => "textDocument/prepareRename",
+            Self::WorkspaceExecuteCommand => "workspace/executeCommand",
+            Self::WorkspaceApplyEdit => "workspace/applyEdit",
+            Self::Custom(custom) => custom,
+        }
+    }
+    #[must_use]
+    pub const fn new(value: &'a str) -> Self {
+        Self::Custom(value)
+    }
+}
+impl<'a> From<&'a str> for LspRequestMethod<'a> {
+    fn from(value: &'a str) -> Self {
+        match value {
+            "textDocument/implementation" => Self::TextDocumentImplementation,
+            "textDocument/typeDefinition" => Self::TextDocumentTypeDefinition,
+            "workspace/workspaceFolders" => Self::WorkspaceWorkspaceFolders,
+            "workspace/configuration" => Self::WorkspaceConfiguration,
+            "textDocument/documentColor" => Self::TextDocumentDocumentColor,
+            "textDocument/colorPresentation" => Self::TextDocumentColorPresentation,
+            "textDocument/foldingRange" => Self::TextDocumentFoldingRange,
+            "workspace/foldingRange/refresh" => Self::WorkspaceFoldingRangeRefresh,
+            "textDocument/declaration" => Self::TextDocumentDeclaration,
+            "textDocument/selectionRange" => Self::TextDocumentSelectionRange,
+            "window/workDoneProgress/create" => Self::WindowWorkDoneProgressCreate,
+            "textDocument/prepareCallHierarchy" => Self::TextDocumentPrepareCallHierarchy,
+            "callHierarchy/incomingCalls" => Self::CallHierarchyIncomingCalls,
+            "callHierarchy/outgoingCalls" => Self::CallHierarchyOutgoingCalls,
+            "textDocument/semanticTokens/full" => Self::TextDocumentSemanticTokensFull,
+            "textDocument/semanticTokens/full/delta" => {
+                Self::TextDocumentSemanticTokensFullDelta
+            }
+            "textDocument/semanticTokens/range" => Self::TextDocumentSemanticTokensRange,
+            "workspace/semanticTokens/refresh" => Self::WorkspaceSemanticTokensRefresh,
+            "window/showDocument" => Self::WindowShowDocument,
+            "textDocument/linkedEditingRange" => Self::TextDocumentLinkedEditingRange,
+            "workspace/willCreateFiles" => Self::WorkspaceWillCreateFiles,
+            "workspace/willRenameFiles" => Self::WorkspaceWillRenameFiles,
+            "workspace/willDeleteFiles" => Self::WorkspaceWillDeleteFiles,
+            "textDocument/moniker" => Self::TextDocumentMoniker,
+            "textDocument/prepareTypeHierarchy" => Self::TextDocumentPrepareTypeHierarchy,
+            "typeHierarchy/supertypes" => Self::TypeHierarchySupertypes,
+            "typeHierarchy/subtypes" => Self::TypeHierarchySubtypes,
+            "textDocument/inlineValue" => Self::TextDocumentInlineValue,
+            "workspace/inlineValue/refresh" => Self::WorkspaceInlineValueRefresh,
+            "textDocument/inlayHint" => Self::TextDocumentInlayHint,
+            "inlayHint/resolve" => Self::InlayHintResolve,
+            "workspace/inlayHint/refresh" => Self::WorkspaceInlayHintRefresh,
+            "textDocument/diagnostic" => Self::TextDocumentDiagnostic,
+            "workspace/diagnostic" => Self::WorkspaceDiagnostic,
+            "workspace/diagnostic/refresh" => Self::WorkspaceDiagnosticRefresh,
+            "textDocument/inlineCompletion" => Self::TextDocumentInlineCompletion,
+            "workspace/textDocumentContent" => Self::WorkspaceTextDocumentContent,
+            "workspace/textDocumentContent/refresh" => {
+                Self::WorkspaceTextDocumentContentRefresh
+            }
+            "client/registerCapability" => Self::ClientRegisterCapability,
+            "client/unregisterCapability" => Self::ClientUnregisterCapability,
+            "initialize" => Self::Initialize,
+            "shutdown" => Self::Shutdown,
+            "window/showMessageRequest" => Self::WindowShowMessageRequest,
+            "textDocument/willSaveWaitUntil" => Self::TextDocumentWillSaveWaitUntil,
+            "textDocument/completion" => Self::TextDocumentCompletion,
+            "completionItem/resolve" => Self::CompletionItemResolve,
+            "textDocument/hover" => Self::TextDocumentHover,
+            "textDocument/signatureHelp" => Self::TextDocumentSignatureHelp,
+            "textDocument/definition" => Self::TextDocumentDefinition,
+            "textDocument/references" => Self::TextDocumentReferences,
+            "textDocument/documentHighlight" => Self::TextDocumentDocumentHighlight,
+            "textDocument/documentSymbol" => Self::TextDocumentDocumentSymbol,
+            "textDocument/codeAction" => Self::TextDocumentCodeAction,
+            "codeAction/resolve" => Self::CodeActionResolve,
+            "workspace/symbol" => Self::WorkspaceSymbol,
+            "workspaceSymbol/resolve" => Self::WorkspaceSymbolResolve,
+            "textDocument/codeLens" => Self::TextDocumentCodeLens,
+            "codeLens/resolve" => Self::CodeLensResolve,
+            "workspace/codeLens/refresh" => Self::WorkspaceCodeLensRefresh,
+            "textDocument/documentLink" => Self::TextDocumentDocumentLink,
+            "documentLink/resolve" => Self::DocumentLinkResolve,
+            "textDocument/formatting" => Self::TextDocumentFormatting,
+            "textDocument/rangeFormatting" => Self::TextDocumentRangeFormatting,
+            "textDocument/rangesFormatting" => Self::TextDocumentRangesFormatting,
+            "textDocument/onTypeFormatting" => Self::TextDocumentOnTypeFormatting,
+            "textDocument/rename" => Self::TextDocumentRename,
+            "textDocument/prepareRename" => Self::TextDocumentPrepareRename,
+            "workspace/executeCommand" => Self::WorkspaceExecuteCommand,
+            "workspace/applyEdit" => Self::WorkspaceApplyEdit,
+            _ => Self::Custom(value),
+        }
+    }
+}
+impl<'a> From<LspRequestMethod<'a>> for String {
+    fn from(value: LspRequestMethod<'a>) -> Self {
+        value.as_str().to_owned()
+    }
+}
+impl fmt::Display for LspRequestMethod<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = self.as_str();
+        write!(f, "{s}")
+    }
+}
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(into = "String", from = "&'a str")]
+pub enum LspNotificationMethod<'a> {
+    WorkspaceDidChangeWorkspaceFolders,
+    WindowWorkDoneProgressCancel,
+    WorkspaceDidCreateFiles,
+    WorkspaceDidRenameFiles,
+    WorkspaceDidDeleteFiles,
+    NotebookDocumentDidOpen,
+    NotebookDocumentDidChange,
+    NotebookDocumentDidSave,
+    NotebookDocumentDidClose,
+    Initialized,
+    Exit,
+    WorkspaceDidChangeConfiguration,
+    WindowShowMessage,
+    WindowLogMessage,
+    TelemetryEvent,
+    TextDocumentDidOpen,
+    TextDocumentDidChange,
+    TextDocumentDidClose,
+    TextDocumentDidSave,
+    TextDocumentWillSave,
+    WorkspaceDidChangeWatchedFiles,
+    TextDocumentPublishDiagnostics,
+    SetTrace,
+    LogTrace,
+    CancelRequest,
+    Progress,
+    Custom(&'a str),
+}
+impl<'a> LspNotificationMethod<'a> {
+    #[must_use]
+    pub const fn as_str(&self) -> &'a str {
+        match self {
+            Self::WorkspaceDidChangeWorkspaceFolders => {
+                "workspace/didChangeWorkspaceFolders"
+            }
+            Self::WindowWorkDoneProgressCancel => "window/workDoneProgress/cancel",
+            Self::WorkspaceDidCreateFiles => "workspace/didCreateFiles",
+            Self::WorkspaceDidRenameFiles => "workspace/didRenameFiles",
+            Self::WorkspaceDidDeleteFiles => "workspace/didDeleteFiles",
+            Self::NotebookDocumentDidOpen => "notebookDocument/didOpen",
+            Self::NotebookDocumentDidChange => "notebookDocument/didChange",
+            Self::NotebookDocumentDidSave => "notebookDocument/didSave",
+            Self::NotebookDocumentDidClose => "notebookDocument/didClose",
+            Self::Initialized => "initialized",
+            Self::Exit => "exit",
+            Self::WorkspaceDidChangeConfiguration => "workspace/didChangeConfiguration",
+            Self::WindowShowMessage => "window/showMessage",
+            Self::WindowLogMessage => "window/logMessage",
+            Self::TelemetryEvent => "telemetry/event",
+            Self::TextDocumentDidOpen => "textDocument/didOpen",
+            Self::TextDocumentDidChange => "textDocument/didChange",
+            Self::TextDocumentDidClose => "textDocument/didClose",
+            Self::TextDocumentDidSave => "textDocument/didSave",
+            Self::TextDocumentWillSave => "textDocument/willSave",
+            Self::WorkspaceDidChangeWatchedFiles => "workspace/didChangeWatchedFiles",
+            Self::TextDocumentPublishDiagnostics => "textDocument/publishDiagnostics",
+            Self::SetTrace => "$/setTrace",
+            Self::LogTrace => "$/logTrace",
+            Self::CancelRequest => "$/cancelRequest",
+            Self::Progress => "$/progress",
+            Self::Custom(custom) => custom,
+        }
+    }
+    #[must_use]
+    pub const fn new(value: &'a str) -> Self {
+        Self::Custom(value)
+    }
+}
+impl<'a> From<&'a str> for LspNotificationMethod<'a> {
+    fn from(value: &'a str) -> Self {
+        match value {
+            "workspace/didChangeWorkspaceFolders" => {
+                Self::WorkspaceDidChangeWorkspaceFolders
+            }
+            "window/workDoneProgress/cancel" => Self::WindowWorkDoneProgressCancel,
+            "workspace/didCreateFiles" => Self::WorkspaceDidCreateFiles,
+            "workspace/didRenameFiles" => Self::WorkspaceDidRenameFiles,
+            "workspace/didDeleteFiles" => Self::WorkspaceDidDeleteFiles,
+            "notebookDocument/didOpen" => Self::NotebookDocumentDidOpen,
+            "notebookDocument/didChange" => Self::NotebookDocumentDidChange,
+            "notebookDocument/didSave" => Self::NotebookDocumentDidSave,
+            "notebookDocument/didClose" => Self::NotebookDocumentDidClose,
+            "initialized" => Self::Initialized,
+            "exit" => Self::Exit,
+            "workspace/didChangeConfiguration" => Self::WorkspaceDidChangeConfiguration,
+            "window/showMessage" => Self::WindowShowMessage,
+            "window/logMessage" => Self::WindowLogMessage,
+            "telemetry/event" => Self::TelemetryEvent,
+            "textDocument/didOpen" => Self::TextDocumentDidOpen,
+            "textDocument/didChange" => Self::TextDocumentDidChange,
+            "textDocument/didClose" => Self::TextDocumentDidClose,
+            "textDocument/didSave" => Self::TextDocumentDidSave,
+            "textDocument/willSave" => Self::TextDocumentWillSave,
+            "workspace/didChangeWatchedFiles" => Self::WorkspaceDidChangeWatchedFiles,
+            "textDocument/publishDiagnostics" => Self::TextDocumentPublishDiagnostics,
+            "$/setTrace" => Self::SetTrace,
+            "$/logTrace" => Self::LogTrace,
+            "$/cancelRequest" => Self::CancelRequest,
+            "$/progress" => Self::Progress,
+            _ => Self::Custom(value),
+        }
+    }
+}
+impl<'a> From<LspNotificationMethod<'a>> for String {
+    fn from(value: LspNotificationMethod<'a>) -> Self {
+        value.as_str().to_owned()
+    }
+}
+impl fmt::Display for LspNotificationMethod<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = self.as_str();
+        write!(f, "{s}")
+    }
 }
 
 /// Get the [`Request`] type for a request method.

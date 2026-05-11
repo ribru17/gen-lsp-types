@@ -14,11 +14,12 @@ use regex::{Captures, Regex};
 use crate::{
     renderers::{
         render_enum_ors, render_enumeration, render_notification, render_notification_macro,
-        render_request, render_request_macro, render_structure, render_type_alias,
+        render_request, render_request_macro, render_request_methods, render_structure,
+        render_type_alias,
     },
     schema::{
-        BaseType, BaseTypes, Enumeration, EnumerationEntry, EnumerationEntryValue, EnumerationType,
-        EnumerationTypeName, MapKeyType, OrType, Property, Structure, TupleType, Type, TypeAlias,
+        BaseType, BaseTypes, Enumeration, MapKeyType, OrType, Property, Structure, TupleType, Type,
+        TypeAlias,
     },
 };
 
@@ -507,14 +508,14 @@ fn main() {
 
         pub trait Notification {
             type Params: DeserializeOwned + Serialize + Send + Sync + 'static;
-            const METHOD: LspNotificationMethod;
+            const METHOD: LspNotificationMethod<'static>;
             const MESSAGE_DIRECTION: MessageDirection;
         }
 
         pub trait Request {
             type Params: DeserializeOwned + Serialize + Send + Sync + 'static;
             type Result: DeserializeOwned + Serialize + Send + Sync + 'static;
-            const METHOD: LspRequestMethod;
+            const METHOD: LspRequestMethod<'static>;
             const MESSAGE_DIRECTION: MessageDirection;
         }
 
@@ -709,68 +710,7 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let enumerations = model
-        .enumerations
-        .into_iter()
-        .chain(std::iter::once({
-            let values = model
-                .requests
-                .iter()
-                .map(|req| EnumerationEntry {
-                    name: method_to_pascal(&req.method),
-                    deprecated: None,
-                    documentation: None,
-                    proposed: None,
-                    since: None,
-                    since_tags: Vec::new(),
-                    value: EnumerationEntryValue::String(req.method.clone()),
-                })
-                .collect();
-            Enumeration {
-                deprecated: None,
-                documentation: None,
-                name: String::from("LspRequestMethod"),
-                proposed: None,
-                since: None,
-                since_tags: Vec::new(),
-                supports_custom_values: Some(true),
-                type_: EnumerationType {
-                    kind: "base".into(),
-                    name: EnumerationTypeName::String,
-                },
-                values,
-            }
-        }))
-        .chain(std::iter::once({
-            let values = model
-                .notifications
-                .iter()
-                .map(|noti| EnumerationEntry {
-                    name: method_to_pascal(&noti.method),
-                    deprecated: None,
-                    documentation: None,
-                    proposed: None,
-                    since: None,
-                    since_tags: Vec::new(),
-                    value: EnumerationEntryValue::String(noti.method.clone()),
-                })
-                .collect();
-            Enumeration {
-                deprecated: None,
-                documentation: None,
-                name: String::from("LspNotificationMethod"),
-                proposed: None,
-                since: None,
-                since_tags: Vec::new(),
-                supports_custom_values: Some(true),
-                type_: EnumerationType {
-                    kind: "base".into(),
-                    name: EnumerationTypeName::String,
-                },
-                values,
-            }
-        }))
-        .map(render_enumeration);
+    let enumerations = model.enumerations.into_iter().map(render_enumeration);
 
     let type_aliases = model
         .type_aliases
@@ -780,6 +720,8 @@ fn main() {
 
     let request_macro = render_request_macro(&model.requests);
     let notification_macro = render_notification_macro(&model.notifications);
+
+    let methods = render_request_methods(&model.requests, &model.notifications);
 
     let requests = model
         .requests
@@ -809,6 +751,7 @@ fn main() {
         .chain(enum_ors)
         .chain(requests)
         .chain(notifications)
+        .chain(iter::once(methods))
         .chain(iter::once(request_macro))
         .chain(iter::once(notification_macro))
         .chain(iter::once(postdefs));
