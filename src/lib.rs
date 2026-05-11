@@ -35,10 +35,7 @@ mod test {
 
         // Missing documentSelector. Be liberal on deserialization, even though this is technically a
         // noncompliant representation.
-        assert_eq!(
-            serde_json::from_str::<TextDocumentRegistrationOptions>("{}").unwrap(),
-            tdro
-        );
+        assert_eq!(tdro, serde_json::from_str("{}").unwrap());
     }
 
     #[test]
@@ -52,15 +49,18 @@ mod test {
             r#"{"processId":null,"rootUri":null,"capabilities":{}}"#
         );
 
-        let ip = serde_json::from_str::<InitializeParams>(&ip_str).unwrap();
-
-        assert_eq!(ip, InitializeParams::default());
+        assert_eq!(
+            InitializeParams::default(),
+            serde_json::from_str(&ip_str).unwrap()
+        );
 
         // Missing processId. Be liberal on deserialization, even though this is technically a
         // noncompliant representation.
         let bad_ip_str = r#"{"rootUri":null,"capabilities":{}}"#;
-        let bad_ip = serde_json::from_str::<InitializeParams>(bad_ip_str);
-        assert_eq!(bad_ip.unwrap(), InitializeParams::default());
+        assert_eq!(
+            InitializeParams::default(),
+            serde_json::from_str(bad_ip_str).unwrap()
+        );
     }
 
     #[test]
@@ -243,9 +243,9 @@ mod test {
         assert_eq!(method, "textDocument/onTypeFormatting");
         let method = LspRequestMethod::Shutdown.to_string();
         assert_eq!(method, "shutdown");
-        let method = LspRequestMethod::Custom(Cow::Borrowed("foo")).to_string();
+        let method = LspRequestMethod::Custom("foo").to_string();
         assert_eq!(method, "foo");
-        let method = LspNotificationMethod::Custom(Cow::Borrowed("foo")).to_string();
+        let method = LspNotificationMethod::Custom("foo").to_string();
         assert_eq!(method, "foo");
         let method = LspNotificationMethod::CancelRequest.to_string();
         assert_eq!(method, "$/cancelRequest");
@@ -590,8 +590,8 @@ mod test {
         impl Request for ParentModule {
             type Params = ();
             type Result = Option<DefinitionResponse>;
-            const METHOD: LspRequestMethod =
-                LspRequestMethod::Custom(Cow::Borrowed("experimental/parentModule"));
+            const METHOD: LspRequestMethod<'_> =
+                LspRequestMethod::Custom("experimental/parentModule");
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
         }
 
@@ -605,7 +605,7 @@ mod test {
         struct ServerStatusNotification;
         impl Notification for ServerStatusNotification {
             type Params = ();
-            const METHOD: LspNotificationMethod =
+            const METHOD: LspNotificationMethod<'_> =
                 LspNotificationMethod::new("experimental/serverStatus");
             const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
         }
@@ -615,6 +615,34 @@ mod test {
             r#"{"jsonrpc":"2.0","method":"experimental/serverStatus"}"#,
             serde_json::to_string(&noti).unwrap()
         );
+
+        // Compilation checks
+        let method: &'static str = <ParentModule as Request>::METHOD.as_str();
+        assert_eq!(method, "experimental/parentModule");
+        let method = LspRequestMethod::new("asdf");
+        let method_str: &'static str = method.as_str();
+        assert_eq!(method_str, "asdf");
+        let method = LspRequestMethod::Custom("asdf");
+        let method_str: &'static str = method.as_str();
+        assert_eq!(method_str, "asdf");
+        let owned = String::from("workspace/didCreateFiles");
+        let method: LspNotificationMethod<'_> = owned.as_str().into();
+        assert_eq!(method, LspNotificationMethod::WorkspaceDidCreateFiles);
+        let owned = String::from("foo");
+        let method: LspNotificationMethod<'_> = owned.as_str().into();
+        assert_eq!(method, LspNotificationMethod::new("foo"));
+        // Copy
+        let method1 = LspRequestMethod::TextDocumentCompletion;
+        let method2 = method1;
+        assert_eq!(method1, method2);
+        // We can `match` on local vars without extra allocations! Yay!
+        #[allow(clippy::match_same_arms)]
+        match method {
+            LspNotificationMethod::TextDocumentWillSave => {}
+            LspNotificationMethod::Custom("foo") => {}
+            LspNotificationMethod::Custom(_) => {}
+            _ => {}
+        }
     }
 
     #[test]
