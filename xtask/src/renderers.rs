@@ -322,6 +322,15 @@ pub fn render_request_methods(requests: &[Request], notis: &[Notification]) -> T
                 #method => Self::#ident,
             }
         });
+        let new_doc = format!(
+            " Creates a new [{ident}]. The created variant will **always** be [{ident}::Custom]."
+        );
+        let from_str_doc = [
+            format!(" Creates a new [{ident}] from a `&str`. The created variant will be"),
+            format!(" [{ident}::Custom] **if and only if** the `&str` does not match an"),
+            format!(" existing [{ident}]."),
+        ]
+        .map(|doc| quote! { #[doc = #doc] });
         quote! {
             #[derive(PartialEq, Eq, Hash, Debug, Clone, Copy, Serialize, Deserialize)]
             #[serde(into = "String", from = "&'a str")]
@@ -339,6 +348,7 @@ pub fn render_request_methods(requests: &[Request], notis: &[Notification]) -> T
                     }
                 }
 
+                #[doc = #new_doc]
                 #[must_use]
                 pub const fn new(value: &'a str) -> Self {
                     Self::Custom(value)
@@ -346,6 +356,7 @@ pub fn render_request_methods(requests: &[Request], notis: &[Notification]) -> T
             }
 
             impl<'a> From<&'a str> for #ident<'a> {
+                #(#from_str_doc)*
                 fn from(value: &'a str) -> Self {
                     match value {
                         #(#str_to_member)*
