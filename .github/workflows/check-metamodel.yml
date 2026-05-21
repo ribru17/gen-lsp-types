@@ -44,6 +44,7 @@ jobs:
           else
             echo "::error::The local LSP metamodel is out of sync with the official Microsoft spec."
             echo "::notice::Please update $LOCAL_METAMODEL to match the latest version."
+            echo "curl -o xtask/metaModel.json https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.json"
 
             diff -u local_normalized.json upstream_normalized.json || true
             exit 1
@@ -67,6 +68,7 @@ jobs:
           else
             echo "::error::The local LSP metamodel is out of sync with the official Microsoft spec."
             echo "::notice::Please update $LOCAL_METAMODEL_SCHEMA to match the latest version."
+            echo "curl -o xtask/metaModel.schema.json https://raw.githubusercontent.com/microsoft/language-server-protocol/gh-pages/_specifications/lsp/3.18/metaModel/metaModel.schema.json"
 
             diff -u local_normalized.schema.json upstream_normalized.schema.json || true
             exit 1

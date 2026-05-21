@@ -65,6 +65,12 @@ pub fn get_struct_derives(
         derives.push("Ord");
     }
 
+    if structure.name == "Diagnostic" {
+        // We add a custom default impl for the `Diagnostic` message since it is too important not
+        // to have it. In the future, this could maybe be done more generally.
+        derives.push("Default");
+    }
+
     derives
 }
 

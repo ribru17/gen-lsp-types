@@ -682,6 +682,17 @@ fn main() {
         }
     };
 
+    // This allows `Diagnostic` to be `Default`.
+    let postdefs = {
+        quote! {
+            impl Default for Message {
+                fn default() -> Self {
+                    Message::String(String::default())
+                }
+            }
+        }
+    };
+
     let mut enum_or_types = BTreeMap::new();
 
     let structures = model
@@ -799,7 +810,8 @@ fn main() {
         .chain(requests)
         .chain(notifications)
         .chain(iter::once(request_macro))
-        .chain(iter::once(notification_macro));
+        .chain(iter::once(notification_macro))
+        .chain(iter::once(postdefs));
 
     let formatted_items: Vec<String> = all_items
         .map(|request| {
