@@ -6608,8 +6608,11 @@ pub struct Diagnostic {
     /// appears in the user interface.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<String>,
-    /// The diagnostic's message. It usually appears in the user interface
-    pub message: String,
+    /// The diagnostic's message. It usually appears in the user interface.
+    ///
+    /// @since 3.18.0 - support for MarkupContent. This is guarded by the client
+    /// capability `textDocument.diagnostic.markupMessageSupport`.
+    pub message: Message,
     /// Additional metadata about the diagnostic.
     ///
     /// @since 3.15.0
@@ -6634,7 +6637,7 @@ impl Diagnostic {
         code: Option<Code>,
         code_description: Option<CodeDescription>,
         source: Option<String>,
-        message: String,
+        message: Message,
         tags: Option<Vec<DiagnosticTag>>,
         related_information: Option<Vec<DiagnosticRelatedInformation>>,
         data: Option<LspAny>,
@@ -10477,6 +10480,12 @@ pub struct DiagnosticClientCapabilities {
     /// Whether the clients supports related documents for document diagnostic pulls.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub related_document_support: Option<bool>,
+    /// Whether the client supports `MarkupContent` in diagnostic messages.
+    ///
+    /// @since 3.18.0
+    /// @proposed
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub markup_message_support: Option<bool>,
     #[serde(flatten)]
     pub diagnostics_capabilities: DiagnosticsCapabilities,
 }
@@ -10485,11 +10494,13 @@ impl DiagnosticClientCapabilities {
     pub const fn new(
         dynamic_registration: Option<bool>,
         related_document_support: Option<bool>,
+        markup_message_support: Option<bool>,
         diagnostics_capabilities: DiagnosticsCapabilities,
     ) -> Self {
         Self {
             dynamic_registration,
             related_document_support,
+            markup_message_support,
             diagnostics_capabilities,
         }
     }
@@ -15444,6 +15455,43 @@ impl From<MarkedStringWithLanguage> for MarkedString {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
+pub enum Message {
+    String(String),
+    MarkupContent(MarkupContent),
+}
+impl From<String> for Message {
+    fn from(v: String) -> Self {
+        Self::String(v)
+    }
+}
+impl From<&str> for Message {
+    fn from(v: &str) -> Self {
+        Self::String(v.into())
+    }
+}
+impl From<char> for Message {
+    fn from(v: char) -> Self {
+        Self::String(v.into())
+    }
+}
+impl From<Box<str>> for Message {
+    fn from(v: Box<str>) -> Self {
+        Self::String(v.into())
+    }
+}
+impl From<Cow<'_, str>> for Message {
+    fn from(v: Cow<'_, str>) -> Self {
+        Self::String(v.into())
+    }
+}
+impl From<MarkupContent> for Message {
+    fn from(v: MarkupContent) -> Self {
+        Self::MarkupContent(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
 pub enum MonikerProvider {
     Bool(bool),
     MonikerOptions(MonikerOptions),
@@ -17584,4 +17632,10 @@ macro_rules! lsp_notification {
     ("$/progress") => {
         $crate::ProgressNotification
     };
+}
+
+impl Default for Message {
+    fn default() -> Self {
+        Message::String(String::default())
+    }
 }
