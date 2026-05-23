@@ -3,7 +3,7 @@ use serde_json::Value;
 
 use crate::{ErrorCodes, Notification, Request};
 
-fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
+pub(crate) fn deserialize_some<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
 where
     T: Deserialize<'de>,
     D: Deserializer<'de>,

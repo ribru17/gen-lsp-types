@@ -3,6 +3,38 @@ pub mod json_rpc;
 
 pub use generated::*;
 
+/// # Tests for compilation success/failure.
+///
+/// ## Should not leak internal symbols
+///
+/// ```compile_fail
+/// use gen_lsp_types::generated;
+/// ```
+///
+/// ```compile_fail
+/// use gen_lsp_types::deserialize_some;
+/// ```
+///
+/// ```compile_fail
+/// use gen_lsp_types::SemanticToken::deserialize_tokens;
+/// ```
+///
+/// ```
+/// use gen_lsp_types::SemanticToken;
+/// ```
+///
+/// ```compile_fail
+/// use gen_lsp_types::json_rpc::deserialize_some;
+/// ```
+///
+/// ## Should have newtype Lsp(Request|Notification)Method semantics
+///
+/// ```compile_fail
+/// use gen_lsp_types::LspNotificationMethod;
+/// let foo: &str = LspNotificationMethod::CancelRequest;
+/// ```
+mod compiletest {}
+
 /// Tests for default features.
 #[cfg(test)]
 #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
@@ -259,6 +291,15 @@ mod test {
         assert_eq!((wk | wk2) & wk, wk);
         assert_eq!(wk | wk, wk);
         assert_eq!((wk | wk2 | WatchKind::Change) & (wk | wk2), wk | wk2);
+        assert_eq!(WatchKind::Delete ^ WatchKind::Delete, WatchKind::Custom(0));
+        assert_eq!(WatchKind::Custom(0) ^ WatchKind::Create, WatchKind::Create);
+        let mut wk = WatchKind::Custom(0);
+        wk |= WatchKind::Delete;
+        assert_eq!(wk, WatchKind::Delete);
+        wk &= WatchKind::Create;
+        assert_eq!(wk, WatchKind::Custom(0));
+        wk ^= WatchKind::Delete;
+        assert_eq!(wk, WatchKind::Delete);
     }
 
     #[test]
