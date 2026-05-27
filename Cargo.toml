@@ -9,6 +9,7 @@ repository = "https://github.com/ribru17/gen-lsp-types"
 keywords = ["lsp", "codegen"]
 readme = "README.md"
 categories = ["development-tools"]
+exclude = ["/.github/"]
 
 [lib]
 path = "src/lib.rs"
