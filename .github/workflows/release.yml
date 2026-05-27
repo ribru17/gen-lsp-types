@@ -1,8 +1,5 @@
 name: Release
 
-permissions:
-  contents: write
-
 on:
   push:
     tags:
@@ -10,22 +7,20 @@ on:
 
   workflow_dispatch:
 
-env:
-  RUST_TOOLCHAIN: '1.95.0'
-
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9
-        with:
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
+      - uses: rust-lang/crates-io-auth-action@bbd81622f20ce9e2dd9622e3218b975523e45bbe # v1.0.4
+        id: auth
 
-      # TODO: set up trusted publishing
-      # https://crates.io/docs/trusted-publishing
-      - name: Publish to crates.io
-        run: cargo publish --package gen-lsp-types --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Publish to crates.io with trusted publishing
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
