@@ -74,7 +74,7 @@ dependencies = [
 
 [[package]]
 name = "gen-lsp-types"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "fluent-uri",
  "serde",
