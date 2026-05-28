@@ -687,6 +687,48 @@ mod test {
     }
 
     #[test]
+    fn request_with_partial_results() {
+        fn foo<R: RequestWithPartialResults>(
+            _params: R::Params,
+            _partial_result: R::PartialResult,
+        ) {
+            // Do nothing!
+        }
+
+        foo::<DocumentSymbolRequest>(
+            DocumentSymbolParams {
+                text_document: TextDocumentIdentifier { uri: "".into() },
+                work_done_progress_params: WorkDoneProgressParams {
+                    work_done_token: None,
+                },
+                partial_result_params: PartialResultParams {
+                    partial_result_token: None,
+                },
+            },
+            DocumentSymbolPartialResponse::SymbolInformationList(vec![SymbolInformation {
+                deprecated: None,
+                location: Location {
+                    uri: "".into(),
+                    range: Range::default(),
+                },
+                base_symbol_information: BaseSymbolInformation {
+                    name: String::new(),
+                    kind: SymbolKind::File,
+                    tags: None,
+                    container_name: None,
+                },
+            }]),
+        );
+
+        let partial_result = DocumentSymbolPartialResponse::DocumentSymbolList(Vec::new());
+        let _ = match partial_result {
+            DocumentSymbolPartialResponse::SymbolInformationList(_) => 1,
+            DocumentSymbolPartialResponse::DocumentSymbolList(_) => 2,
+            // No `null` branch
+        };
+    }
+
+    #[test]
     #[allow(clippy::similar_names)]
     fn semantic_tokens() {
         let ste = SemanticTokensEdit {

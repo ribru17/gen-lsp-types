@@ -12,6 +12,9 @@ impl Request for ImplementationRequest {
     type Params = ImplementationParams;
     type Result = Option<ImplementationResponse>;
 }
+impl RequestWithPartialResults for ImplementationRequest {
+    type PartialResult = ImplementationPartialResponse;
+}
 
 /// A request to resolve the type definition locations of a symbol at a given text
 /// document position. The request's parameter is of type [`TextDocumentPositionParams`]
@@ -23,6 +26,9 @@ impl Request for TypeDefinitionRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeDefinitionParams;
     type Result = Option<TypeDefinitionResponse>;
+}
+impl RequestWithPartialResults for TypeDefinitionRequest {
+    type PartialResult = TypeDefinitionPartialResponse;
 }
 
 /// The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
@@ -63,6 +69,9 @@ impl Request for DocumentColorRequest {
     type Params = DocumentColorParams;
     type Result = Option<Vec<ColorInformation>>;
 }
+impl RequestWithPartialResults for DocumentColorRequest {
+    type PartialResult = Vec<ColorInformation>;
+}
 
 /// A request to list all presentation for a color. The request's
 /// parameter is of type [`ColorPresentationParams`] the
@@ -76,6 +85,9 @@ impl Request for ColorPresentationRequest {
     type Params = ColorPresentationParams;
     type Result = Option<Vec<ColorPresentation>>;
 }
+impl RequestWithPartialResults for ColorPresentationRequest {
+    type PartialResult = Vec<ColorPresentation>;
+}
 
 /// A request to provide folding ranges in a document. The request's
 /// parameter is of type [`FoldingRangeParams`], the
@@ -88,6 +100,9 @@ impl Request for FoldingRangeRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = FoldingRangeParams;
     type Result = Option<Vec<FoldingRange>>;
+}
+impl RequestWithPartialResults for FoldingRangeRequest {
+    type PartialResult = Vec<FoldingRange>;
 }
 
 /// @since 3.18.0
@@ -113,6 +128,9 @@ impl Request for DeclarationRequest {
     type Params = DeclarationParams;
     type Result = Option<DeclarationResponse>;
 }
+impl RequestWithPartialResults for DeclarationRequest {
+    type PartialResult = DeclarationPartialResponse;
+}
 
 /// A request to provide selection ranges in a document. The request's
 /// parameter is of type [`SelectionRangeParams`], the
@@ -125,6 +143,9 @@ impl Request for SelectionRangeRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SelectionRangeParams;
     type Result = Option<Vec<SelectionRange>>;
+}
+impl RequestWithPartialResults for SelectionRangeRequest {
+    type PartialResult = Vec<SelectionRange>;
 }
 
 /// The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
@@ -162,6 +183,9 @@ impl Request for CallHierarchyIncomingCallsRequest {
     type Params = CallHierarchyIncomingCallsParams;
     type Result = Option<Vec<CallHierarchyIncomingCall>>;
 }
+impl RequestWithPartialResults for CallHierarchyIncomingCallsRequest {
+    type PartialResult = Vec<CallHierarchyIncomingCall>;
+}
 
 /// A request to resolve the outgoing calls for a given `CallHierarchyItem`.
 ///
@@ -174,6 +198,9 @@ impl Request for CallHierarchyOutgoingCallsRequest {
     type Params = CallHierarchyOutgoingCallsParams;
     type Result = Option<Vec<CallHierarchyOutgoingCall>>;
 }
+impl RequestWithPartialResults for CallHierarchyOutgoingCallsRequest {
+    type PartialResult = Vec<CallHierarchyOutgoingCall>;
+}
 
 /// @since 3.16.0
 #[derive(Debug)]
@@ -183,6 +210,9 @@ impl Request for SemanticTokensRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensParams;
     type Result = Option<SemanticTokens>;
+}
+impl RequestWithPartialResults for SemanticTokensRequest {
+    type PartialResult = SemanticTokensPartialResult;
 }
 
 /// @since 3.16.0
@@ -194,6 +224,9 @@ impl Request for SemanticTokensDeltaRequest {
     type Params = SemanticTokensDeltaParams;
     type Result = Option<SemanticTokensDeltaResponse>;
 }
+impl RequestWithPartialResults for SemanticTokensDeltaRequest {
+    type PartialResult = SemanticTokensDeltaPartialResponse;
+}
 
 /// @since 3.16.0
 #[derive(Debug)]
@@ -203,6 +236,9 @@ impl Request for SemanticTokensRangeRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = SemanticTokensRangeParams;
     type Result = Option<SemanticTokens>;
+}
+impl RequestWithPartialResults for SemanticTokensRangeRequest {
+    type PartialResult = SemanticTokensPartialResult;
 }
 
 /// @since 3.16.0
@@ -296,6 +332,9 @@ impl Request for MonikerRequest {
     type Params = MonikerParams;
     type Result = Option<Vec<Moniker>>;
 }
+impl RequestWithPartialResults for MonikerRequest {
+    type PartialResult = Vec<Moniker>;
+}
 
 /// A request to result a `TypeHierarchyItem` in a document at a given position.
 /// Can be used as an input to a subtypes or supertypes type hierarchy.
@@ -321,6 +360,9 @@ impl Request for TypeHierarchySupertypesRequest {
     type Params = TypeHierarchySupertypesParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
 }
+impl RequestWithPartialResults for TypeHierarchySupertypesRequest {
+    type PartialResult = Vec<TypeHierarchyItem>;
+}
 
 /// A request to resolve the subtypes for a given `TypeHierarchyItem`.
 ///
@@ -332,6 +374,9 @@ impl Request for TypeHierarchySubtypesRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = TypeHierarchySubtypesParams;
     type Result = Option<Vec<TypeHierarchyItem>>;
+}
+impl RequestWithPartialResults for TypeHierarchySubtypesRequest {
+    type PartialResult = Vec<TypeHierarchyItem>;
 }
 
 /// A request to provide inline values in a document. The request's parameter is of
@@ -346,6 +391,9 @@ impl Request for InlineValueRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineValueParams;
     type Result = Option<Vec<InlineValue>>;
+}
+impl RequestWithPartialResults for InlineValueRequest {
+    type PartialResult = Vec<InlineValue>;
 }
 
 /// @since 3.17.0
@@ -370,6 +418,9 @@ impl Request for InlayHintRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlayHintParams;
     type Result = Option<Vec<InlayHint>>;
+}
+impl RequestWithPartialResults for InlayHintRequest {
+    type PartialResult = Vec<InlayHint>;
 }
 
 /// A request to resolve additional properties for an inlay hint.
@@ -407,6 +458,9 @@ impl Request for DocumentDiagnosticRequest {
     type Params = DocumentDiagnosticParams;
     type Result = DocumentDiagnosticReport;
 }
+impl RequestWithPartialResults for DocumentDiagnosticRequest {
+    type PartialResult = DocumentDiagnosticReportPartialResult;
+}
 
 /// The workspace diagnostic request definition.
 ///
@@ -418,6 +472,9 @@ impl Request for WorkspaceDiagnosticRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = WorkspaceDiagnosticParams;
     type Result = WorkspaceDiagnosticReport;
+}
+impl RequestWithPartialResults for WorkspaceDiagnosticRequest {
+    type PartialResult = WorkspaceDiagnosticReportPartialResult;
 }
 
 /// The diagnostic refresh request definition.
@@ -445,6 +502,9 @@ impl Request for InlineCompletionRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = InlineCompletionParams;
     type Result = Option<InlineCompletionResponse>;
+}
+impl RequestWithPartialResults for InlineCompletionRequest {
+    type PartialResult = Vec<InlineCompletionItem>;
 }
 
 /// The `workspace/textDocumentContent` request is sent from the client to the
@@ -567,6 +627,9 @@ impl Request for CompletionRequest {
     type Params = CompletionParams;
     type Result = Option<CompletionResponse>;
 }
+impl RequestWithPartialResults for CompletionRequest {
+    type PartialResult = Vec<CompletionItem>;
+}
 
 /// Request to resolve additional information for a given completion item.The request's
 /// parameter is of type [`CompletionItem`] the response
@@ -613,6 +676,9 @@ impl Request for DefinitionRequest {
     type Params = DefinitionParams;
     type Result = Option<DefinitionResponse>;
 }
+impl RequestWithPartialResults for DefinitionRequest {
+    type PartialResult = DefinitionPartialResponse;
+}
 
 /// A request to resolve project-wide references for the symbol denoted
 /// by the given text document position. The request's parameter is of
@@ -625,6 +691,9 @@ impl Request for ReferencesRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ReferenceParams;
     type Result = Option<Vec<Location>>;
+}
+impl RequestWithPartialResults for ReferencesRequest {
+    type PartialResult = Vec<Location>;
 }
 
 /// Request to resolve a [`DocumentHighlight`] for a given
@@ -639,6 +708,9 @@ impl Request for DocumentHighlightRequest {
     type Params = DocumentHighlightParams;
     type Result = Option<Vec<DocumentHighlight>>;
 }
+impl RequestWithPartialResults for DocumentHighlightRequest {
+    type PartialResult = Vec<DocumentHighlight>;
+}
 
 /// A request to list all symbols found in a given text document. The request's
 /// parameter is of type [`TextDocumentIdentifier`] the
@@ -652,6 +724,9 @@ impl Request for DocumentSymbolRequest {
     type Params = DocumentSymbolParams;
     type Result = Option<DocumentSymbolResponse>;
 }
+impl RequestWithPartialResults for DocumentSymbolRequest {
+    type PartialResult = DocumentSymbolPartialResponse;
+}
 
 /// A request to provide commands for the given text document and range.
 #[derive(Debug)]
@@ -661,6 +736,9 @@ impl Request for CodeActionRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeActionParams;
     type Result = Option<Vec<CodeActionResponse>>;
+}
+impl RequestWithPartialResults for CodeActionRequest {
+    type PartialResult = Vec<CodeActionPartialResponse>;
 }
 
 /// Request to resolve additional information for a given code action.The request's
@@ -692,6 +770,9 @@ impl Request for WorkspaceSymbolRequest {
     type Params = WorkspaceSymbolParams;
     type Result = Option<WorkspaceSymbolResponse>;
 }
+impl RequestWithPartialResults for WorkspaceSymbolRequest {
+    type PartialResult = WorkspaceSymbolPartialResponse;
+}
 
 /// A request to resolve the range inside the workspace
 /// symbol's location.
@@ -714,6 +795,9 @@ impl Request for CodeLensRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = CodeLensParams;
     type Result = Option<Vec<CodeLens>>;
+}
+impl RequestWithPartialResults for CodeLensRequest {
+    type PartialResult = Vec<CodeLens>;
 }
 
 /// A request to resolve a command for a given code lens.
@@ -746,6 +830,9 @@ impl Request for DocumentLinkRequest {
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentLinkParams;
     type Result = Option<Vec<DocumentLink>>;
+}
+impl RequestWithPartialResults for DocumentLinkRequest {
+    type PartialResult = Vec<DocumentLink>;
 }
 
 /// Request to resolve additional information for a given document link. The request's

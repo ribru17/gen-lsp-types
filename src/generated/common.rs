@@ -19,6 +19,9 @@ pub trait Request {
     const METHOD: LspRequestMethod<'static>;
     const MESSAGE_DIRECTION: MessageDirection;
 }
+pub trait RequestWithPartialResults: Request {
+    type PartialResult: DeserializeOwned + Serialize + Send + Sync + 'static;
+}
 #[cfg(all(not(feature = "url"), not(feature = "fluent-uri")))]
 /// URIs are transferred as strings. The URI's format is defined in https://tools.ietf.org/html/rfc3986.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]

@@ -169,6 +169,17 @@ Note the `kind` property is not present. However, when serializing, it will
 always be present with a value of `"delete"`. Deserializing only succeeds when
 the field is present and has a `"delete"` value.
 
+### Stronger typing
+
+This library's `Request` and `Notification` traits define not only the
+associated `Params` and `Result` objects, but also their message directions
+(i.e. `ClientToServer`, `ServerToClient`, `Both`). It also defines the method
+string as an `enum`, rather than a `&'static str`.
+
+Additionally, the library defines a `RequestWithPartialResults` trait for
+requests which support streaming partial results. The trait exposes a
+`PartialResult` type for this use case.
+
 ## Notable changes from `lsp-types`
 
 [`lsp-types` controversially
