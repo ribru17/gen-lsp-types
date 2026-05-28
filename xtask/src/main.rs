@@ -4,12 +4,10 @@ mod renderers;
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     fs, iter,
-    sync::LazyLock,
 };
 
 use proc_macro2::TokenStream;
 use quote::quote;
-use regex::{Captures, Regex};
 
 use crate::{
     renderers::{
@@ -26,14 +24,6 @@ use crate::{
 mod schema {
     typify::import_types!("metaModel.schema.json");
 }
-
-static LINK_RE_1: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\{@link +(\w+) ([\w \[\]]+)\}").unwrap());
-static LINK_RE_2: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\{@link +(\w+)\.(\w+) ([\w \.`]+)\}").unwrap());
-static LINK_RE_3: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{@link +(\w+)\}").unwrap());
-static LINK_RE_4: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\{@link(code)? +(\w+)\.(\w+)\}").unwrap());
 
 /// Convert a method name to `PascalCase`. E.g. `textDocument/diagnostic` => `TextDocumentDiagnostic`
 fn method_to_pascal(method: &str) -> String {
@@ -80,39 +70,6 @@ fn camel_to_snake(camel: &str) -> String {
 fn camel_to_pascal(mut camel: String) -> String {
     camel[0..1].make_ascii_uppercase();
     camel
-}
-
-fn render_documentation(documentation: Option<String>) -> TokenStream {
-    let toks = documentation.into_iter().flat_map(|doc| {
-        // Reformat documentation strings.
-        let doc = doc.replace('\u{200B}', "");
-        let doc = LINK_RE_1.replace_all(&doc, |caps: &Captures| {
-            format!("[{}][{}]", &caps[2], &caps[1])
-        });
-        let doc = LINK_RE_2.replace_all(&doc, |caps: &Captures| {
-            format!("[{}][`{}::{}`]", &caps[3], &caps[1], &caps[2])
-        });
-        let doc = LINK_RE_3.replace_all(&doc, |caps: &Captures| format!("[`{}`]", &caps[1]));
-        let doc = LINK_RE_4.replace_all(&doc, |caps: &Captures| {
-            format!("[`{}::{}`]", &caps[2], &caps[3])
-        });
-
-        let lines = doc.split('\n');
-        lines
-            .map(|line| {
-                let line = if line.is_empty() {
-                    line.to_string()
-                } else {
-                    [" ", line].concat()
-                };
-                quote! { #[doc = #line] }
-            })
-            .collect::<Vec<_>>()
-    });
-
-    quote! {
-        #(#toks)*
-    }
 }
 
 fn has_field_conflict(

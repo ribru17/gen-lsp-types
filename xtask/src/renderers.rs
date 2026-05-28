@@ -1,12 +1,16 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    collections::{BTreeMap, HashMap},
+    sync::LazyLock,
+};
 
 use proc_macro2::TokenStream;
 use quote::{ToTokens, format_ident, quote};
+use regex::{Captures, Regex};
 
 use crate::{
     camel_to_pascal, camel_to_snake,
     derives::{get_enum_derives, get_struct_derives, has_float, is_copyable, is_hashable},
-    is_nullable, method_to_pascal, render_documentation, resolve_struct_properties,
+    is_nullable, method_to_pascal, resolve_struct_properties,
     schema::{
         ArrayType, BaseType, BaseTypes, Enumeration, EnumerationEntryValue, EnumerationTypeName,
         MapKeyType, MapKeyTypeObjectName, Notification, OrType, Property, Request, Structure, Type,
@@ -32,6 +36,51 @@ fn collapse_null(type_: &mut Type) {
             *type_ = item;
         }
     }
+}
+
+fn render_documentation(documentation: Option<String>) -> TokenStream {
+    static LINK_RE_1: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\{@link +(\w+) ([\w \[\]]+)\}").unwrap());
+    static LINK_RE_2: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\{@link +(\w+)\.(\w+) ([\w \.`]+)\}").unwrap());
+    static LINK_RE_3: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{@link +(\w+)\}").unwrap());
+    static LINK_RE_4: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"\{@link(code)? +(\w+)\.(\w+)\}").unwrap());
+
+    let toks = documentation.into_iter().flat_map(|doc| {
+        // Reformat documentation strings.
+        let doc = doc.replace('\u{200B}', "");
+        let doc = LINK_RE_1.replace_all(&doc, |caps: &Captures| {
+            format!("[{}][{}]", &caps[2], &caps[1])
+        });
+        let doc = LINK_RE_2.replace_all(&doc, |caps: &Captures| {
+            format!("[{}][`{}::{}`]", &caps[3], &caps[1], &caps[2])
+        });
+        let doc = LINK_RE_3.replace_all(&doc, |caps: &Captures| format!("[`{}`]", &caps[1]));
+        let doc = LINK_RE_4.replace_all(&doc, |caps: &Captures| {
+            format!("[`{}::{}`]", &caps[2], &caps[3])
+        });
+
+        let lines = doc.split('\n');
+        lines
+            .map(|line| {
+                let line = if line.is_empty() {
+                    line.to_string()
+                } else {
+                    [" ", line].concat()
+                };
+                quote! { #[doc = #line] }
+            })
+            .collect::<Vec<_>>()
+    });
+
+    quote! {
+        #(#toks)*
+    }
+}
+
+fn render_deprecated(note: &str) -> TokenStream {
+    quote! { #[deprecated(note = #note)] }
 }
 
 pub fn render_enum_ors(
@@ -246,9 +295,7 @@ pub fn render_request(
     if is_result_nullable {
         result = quote! { Option<#result> };
     }
-    let deprecated = request
-        .deprecated
-        .map(|note| quote! {#[deprecated(note = #note)]});
+    let deprecated = request.deprecated.as_deref().map(render_deprecated);
     let partial_impl = request.partial_result.map(|mut type_| {
         let is_nullable = is_nullable(&type_);
         if is_nullable {
@@ -295,6 +342,7 @@ pub fn render_notification(
         panic!("Unnamed request: {notification:?}");
     };
     let documentation = render_documentation(notification.documentation);
+    let deprecated = notification.deprecated.as_deref().map(render_deprecated);
     let name_ident = format_ident!("{name}");
     let method = format_ident!("{}", method_to_pascal(&notification.method));
     let message_direction = format_ident!(
@@ -318,6 +366,7 @@ pub fn render_notification(
     };
     quote! {
         #documentation
+        #deprecated
         #[derive(Debug)]
         pub enum #name_ident {}
 
@@ -467,8 +516,10 @@ pub fn render_type_alias(
     if enum_or_types.contains_key(&type_alias.name) {
         None
     } else {
+        let deprecated = type_alias.deprecated.as_deref().map(render_deprecated);
         Some(quote! {
             #documentation
+            #deprecated
             pub type #name = #type_;
         })
     }
@@ -478,18 +529,13 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let derives = get_enum_derives(&enumeration)
         .into_iter()
         .map(|derive| format_ident!("{derive}"));
+    let deprecated = enumeration.deprecated.as_deref().map(render_deprecated);
     let mut attributes = quote! {
         #[derive(#(#derives),*)]
+        #deprecated
     };
 
     let documentation = render_documentation(enumeration.documentation);
-
-    if let Some(note) = enumeration.deprecated {
-        attributes = quote! {
-            #attributes
-            #[deprecated(note = #note)]
-        };
-    }
 
     let name = if enumeration.name == "LSPErrorCodes" {
         String::from("LspErrorCodes")
@@ -533,9 +579,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         .into_iter()
         .map(|item| {
             let documentation = render_documentation(item.documentation);
-            let deprecated = item.deprecated.map(|note| {
-                quote! { #[deprecated(note = #note)] }
-            });
+            let deprecated = item.deprecated.as_deref().map(render_deprecated);
             let ident = format_ident!("{}", camel_to_pascal(item.name));
             let value = match item.value {
                 EnumerationEntryValue::Number(value) => {
@@ -737,10 +781,7 @@ fn get_special_property(
                 )
             );
             let documentation = render_documentation(property.documentation.clone());
-            let deprecated = property
-                .deprecated
-                .as_ref()
-                .map(|note| quote! { #[deprecated(note = #note)] });
+            let deprecated = property.deprecated.as_deref().map(render_deprecated);
             props_simplified.push((quote! { data }, quote! { Option<Vec<SemanticToken>> }));
             Some(quote! {
                 #documentation
@@ -770,10 +811,7 @@ fn get_special_property(
                 )
             );
             let documentation = render_documentation(property.documentation.clone());
-            let deprecated = property
-                .deprecated
-                .as_ref()
-                .map(|note| quote! { #[deprecated(note = #note)] });
+            let deprecated = property.deprecated.as_deref().map(render_deprecated);
             props_simplified.push((quote! { data }, quote! { Vec<SemanticToken> }));
             Some(quote! {
                 #documentation
@@ -804,17 +842,13 @@ pub fn render_structure(
     let derives = get_struct_derives(&structure, structs_map, enums_map, type_aliases_map)
         .into_iter()
         .map(|derive| format_ident!("{derive}"));
+    let deprecated = structure.deprecated.as_deref().map(render_deprecated);
     let mut attributes = quote! {
         #[derive(#(#derives),*)]
         #[serde(rename_all = "camelCase")]
+        #deprecated
     };
     let name = format_ident!("{}", structure.name);
-    if let Some(note) = structure.deprecated {
-        attributes = quote! {
-            #attributes
-            #[deprecated(note = #note)]
-        };
-    }
     let documentation = render_documentation(structure.documentation);
     let has_kind = structure
         .properties
@@ -845,11 +879,7 @@ pub fn render_structure(
                 string_lit_prop = Some(property);
                 return None;
             }
-            let deprecated = property.deprecated.map(|note| {
-                quote! {
-                    #[deprecated(note = #note)]
-                }
-            });
+            let deprecated = property.deprecated.as_deref().map(render_deprecated);
             let documentation = render_documentation(property.documentation);
 
             let (name, mut serde_attributes) = if property.name == "type" {
