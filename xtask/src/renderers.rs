@@ -233,21 +233,45 @@ pub fn render_request(
         quote! { () }
     };
     let mut result = request.result;
-    let is_nullable = is_nullable(&result);
-    if is_nullable {
+    let is_result_nullable = is_nullable(&result);
+    if is_result_nullable {
         collapse_null(&mut result);
     }
     let resp_name = name
         .strip_suffix("Request")
-        .expect("Request name should end in request")
+        .expect("Request name should end in \"Request\"")
         .to_owned()
         + "Response";
     let mut result = render_type(result, &resp_name, None, enum_or_types);
-    if is_nullable {
+    if is_result_nullable {
         result = quote! { Option<#result> };
     }
+    let deprecated = request
+        .deprecated
+        .map(|note| quote! {#[deprecated(note = #note)]});
+    let partial_impl = request.partial_result.map(|mut type_| {
+        let is_nullable = is_nullable(&type_);
+        if is_nullable {
+            collapse_null(&mut type_);
+        }
+        let partial_resp_name = name
+            .strip_suffix("Request")
+            .expect("Request name should end in \"Request\"")
+            .to_owned()
+            + "PartialResponse";
+        let mut partial_result = render_type(type_, &partial_resp_name, None, enum_or_types);
+        if is_nullable {
+            partial_result = quote! { Option<#partial_result> };
+        }
+        quote! {
+            impl RequestWithPartialResults for #name_ident {
+                type PartialResult = #partial_result;
+            }
+        }
+    });
     quote! {
         #documentation
+        #deprecated
         #[derive(Debug)]
         pub enum #name_ident {}
 
@@ -258,6 +282,8 @@ pub fn render_request(
             type Params = #params;
             type Result = #result;
         }
+
+        #partial_impl
     }
 }
 

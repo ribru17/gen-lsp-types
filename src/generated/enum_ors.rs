@@ -171,6 +171,23 @@ impl From<Cow<'_, str>> for Code {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
 #[serde(untagged)]
+pub enum CodeActionPartialResponse {
+    Command(Command),
+    CodeAction(CodeAction),
+}
+impl From<Command> for CodeActionPartialResponse {
+    fn from(v: Command) -> Self {
+        Self::Command(v)
+    }
+}
+impl From<CodeAction> for CodeActionPartialResponse {
+    fn from(v: CodeAction) -> Self {
+        Self::CodeAction(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
 pub enum CodeActionProvider {
     Bool(bool),
     CodeActionOptions(CodeActionOptions),
@@ -303,6 +320,23 @@ impl From<Vec<Location>> for Declaration {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
+pub enum DeclarationPartialResponse {
+    LocationList(Vec<Location>),
+    DeclarationLinkList(Vec<DeclarationLink>),
+}
+impl From<Vec<Location>> for DeclarationPartialResponse {
+    fn from(v: Vec<Location>) -> Self {
+        Self::LocationList(v)
+    }
+}
+impl From<Vec<DeclarationLink>> for DeclarationPartialResponse {
+    fn from(v: Vec<DeclarationLink>) -> Self {
+        Self::DeclarationLinkList(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
 pub enum DeclarationProvider {
     Bool(bool),
     DeclarationOptions(DeclarationOptions),
@@ -361,6 +395,23 @@ impl From<Location> for Definition {
 impl From<Vec<Location>> for Definition {
     fn from(v: Vec<Location>) -> Self {
         Self::LocationList(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DefinitionPartialResponse {
+    LocationList(Vec<Location>),
+    DefinitionLinkList(Vec<DefinitionLink>),
+}
+impl From<Vec<Location>> for DefinitionPartialResponse {
+    fn from(v: Vec<Location>) -> Self {
+        Self::LocationList(v)
+    }
+}
+impl From<Vec<DefinitionLink>> for DefinitionPartialResponse {
+    fn from(v: Vec<DefinitionLink>) -> Self {
+        Self::DefinitionLinkList(v)
     }
 }
 
@@ -537,6 +588,23 @@ impl From<bool> for DocumentRangeFormattingProvider {
 impl From<DocumentRangeFormattingOptions> for DocumentRangeFormattingProvider {
     fn from(v: DocumentRangeFormattingOptions) -> Self {
         Self::DocumentRangeFormattingOptions(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum DocumentSymbolPartialResponse {
+    SymbolInformationList(Vec<SymbolInformation>),
+    DocumentSymbolList(Vec<DocumentSymbol>),
+}
+impl From<Vec<SymbolInformation>> for DocumentSymbolPartialResponse {
+    fn from(v: Vec<SymbolInformation>) -> Self {
+        Self::SymbolInformationList(v)
+    }
+}
+impl From<Vec<DocumentSymbol>> for DocumentSymbolPartialResponse {
+    fn from(v: Vec<DocumentSymbol>) -> Self {
+        Self::DocumentSymbolList(v)
     }
 }
 
@@ -762,6 +830,23 @@ impl From<Box<str>> for Id {
 impl From<Cow<'_, str>> for Id {
     fn from(v: Cow<'_, str>) -> Self {
         Self::String(v.into())
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
+pub enum ImplementationPartialResponse {
+    LocationList(Vec<Location>),
+    DefinitionLinkList(Vec<DefinitionLink>),
+}
+impl From<Vec<Location>> for ImplementationPartialResponse {
+    fn from(v: Vec<Location>) -> Self {
+        Self::LocationList(v)
+    }
+}
+impl From<Vec<DefinitionLink>> for ImplementationPartialResponse {
+    fn from(v: Vec<DefinitionLink>) -> Self {
+        Self::DefinitionLinkList(v)
     }
 }
 
@@ -1484,6 +1569,23 @@ impl From<SelectionRangeRegistrationOptions> for SelectionRangeProvider {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
+pub enum SemanticTokensDeltaPartialResponse {
+    SemanticTokensPartialResult(SemanticTokensPartialResult),
+    SemanticTokensDeltaPartialResult(SemanticTokensDeltaPartialResult),
+}
+impl From<SemanticTokensPartialResult> for SemanticTokensDeltaPartialResponse {
+    fn from(v: SemanticTokensPartialResult) -> Self {
+        Self::SemanticTokensPartialResult(v)
+    }
+}
+impl From<SemanticTokensDeltaPartialResult> for SemanticTokensDeltaPartialResponse {
+    fn from(v: SemanticTokensDeltaPartialResult) -> Self {
+        Self::SemanticTokensDeltaPartialResult(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
 pub enum SemanticTokensDeltaResponse {
     SemanticTokens(SemanticTokens),
     SemanticTokensDelta(SemanticTokensDelta),
@@ -1664,6 +1766,23 @@ impl From<MarkupContent> for Tooltip {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
+pub enum TypeDefinitionPartialResponse {
+    LocationList(Vec<Location>),
+    DefinitionLinkList(Vec<DefinitionLink>),
+}
+impl From<Vec<Location>> for TypeDefinitionPartialResponse {
+    fn from(v: Vec<Location>) -> Self {
+        Self::LocationList(v)
+    }
+}
+impl From<Vec<DefinitionLink>> for TypeDefinitionPartialResponse {
+    fn from(v: Vec<DefinitionLink>) -> Self {
+        Self::DefinitionLinkList(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(untagged)]
 pub enum TypeDefinitionProvider {
     Bool(bool),
     TypeDefinitionOptions(TypeDefinitionOptions),
@@ -1779,6 +1898,23 @@ impl From<Location> for WorkspaceSymbolLocation {
 impl From<LocationUriOnly> for WorkspaceSymbolLocation {
     fn from(v: LocationUriOnly) -> Self {
         Self::LocationUriOnly(v)
+    }
+}
+
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum WorkspaceSymbolPartialResponse {
+    SymbolInformationList(Vec<SymbolInformation>),
+    WorkspaceSymbolList(Vec<WorkspaceSymbol>),
+}
+impl From<Vec<SymbolInformation>> for WorkspaceSymbolPartialResponse {
+    fn from(v: Vec<SymbolInformation>) -> Self {
+        Self::SymbolInformationList(v)
+    }
+}
+impl From<Vec<WorkspaceSymbol>> for WorkspaceSymbolPartialResponse {
+    fn from(v: Vec<WorkspaceSymbol>) -> Self {
+        Self::WorkspaceSymbolList(v)
     }
 }
 
