@@ -1109,6 +1109,7 @@ impl From<LinkedEditingRangeRegistrationOptions> for LinkedEditingRangeProvider 
 ///
 /// Note that markdown strings will be sanitized - that means html will be escaped.
 /// @deprecated use MarkupContent instead.
+#[deprecated(note = "use MarkupContent instead.")]
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum MarkedString {

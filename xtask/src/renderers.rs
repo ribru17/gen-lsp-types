@@ -1,4 +1,5 @@
 use std::{
+    cell::RefCell,
     collections::{BTreeMap, HashMap},
     sync::LazyLock,
 };
@@ -17,6 +18,17 @@ use crate::{
         TypeAlias,
     },
 };
+
+thread_local! {
+    static ENUM_ORS: RefCell<BTreeMap<String, EnumOrMetadata>> = const { RefCell::new(BTreeMap::new()) };
+}
+
+#[derive(Debug)]
+struct EnumOrMetadata {
+    or_type: OrType,
+    documentation: Option<TokenStream>,
+    deprecated: Option<TokenStream>,
+}
 
 fn collapse_null(type_: &mut Type) {
     if let Type::OrType(or_type) = type_ {
@@ -84,14 +96,21 @@ fn render_deprecated(note: &str) -> TokenStream {
 }
 
 pub fn render_enum_ors(
-    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
 ) -> Vec<TokenStream> {
     let mut toks = Vec::new();
 
-    while let Some((name, (or_type, documentation))) = enum_or_types.pop_first() {
+    while let Some((
+        name,
+        EnumOrMetadata {
+            or_type,
+            documentation,
+            deprecated,
+        },
+    )) = ENUM_ORS.with_borrow_mut(BTreeMap::pop_first)
+    {
         let mut derives = vec!["Serialize", "Deserialize", "PartialEq", "Debug", "Clone"];
 
         if or_type
@@ -132,7 +151,7 @@ pub fn render_enum_ors(
                 if all_prefixed && let Type::ReferenceType(ref_type) = item.clone() {
                     let member = ref_type.name.strip_prefix(&name).unwrap();
                     let member_ident = format_ident!("{member}");
-                    let type_ = render_type(item, &ref_type.name, None, enum_or_types);
+                    let type_ = render_type(item, &ref_type.name);
                     (
                         quote! {
                             #member_ident(#type_)
@@ -194,7 +213,7 @@ pub fn render_enum_ors(
                         }
                         a => unimplemented!("{a:?}"),
                     };
-                    let type_ = render_type(item, &name, None, enum_or_types);
+                    let type_ = render_type(item, &name);
                     let member_ident = format_ident!("{}", name);
                     let more_impls = if is_string {
                         Some(quote! {
@@ -242,6 +261,7 @@ pub fn render_enum_ors(
         let derives = derives.iter().map(|d| format_ident!("{d}"));
         toks.push(quote! {
             #documentation
+            #deprecated
             #[derive(#(#derives),*)]
             #[serde(untagged)]
             pub enum #name_ident {
@@ -254,10 +274,7 @@ pub fn render_enum_ors(
     toks
 }
 
-pub fn render_request(
-    request: Request,
-    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
-) -> TokenStream {
+pub fn render_request(request: Request) -> TokenStream {
     let Some(name) = request.type_name else {
         panic!("Unnamed request: {request:?}");
     };
@@ -273,7 +290,7 @@ pub fn render_request(
         if is_nullable {
             collapse_null(&mut params);
         }
-        let mut type_ = render_type(params, &(name.clone() + "Params"), None, enum_or_types);
+        let mut type_ = render_type(params, &(name.clone() + "Params"));
         if is_nullable {
             type_ = quote! { Option<#type_> };
         }
@@ -291,7 +308,7 @@ pub fn render_request(
         .expect("Request name should end in \"Request\"")
         .to_owned()
         + "Response";
-    let mut result = render_type(result, &resp_name, None, enum_or_types);
+    let mut result = render_type(result, &resp_name);
     if is_result_nullable {
         result = quote! { Option<#result> };
     }
@@ -306,7 +323,7 @@ pub fn render_request(
             .expect("Request name should end in \"Request\"")
             .to_owned()
             + "PartialResponse";
-        let mut partial_result = render_type(type_, &partial_resp_name, None, enum_or_types);
+        let mut partial_result = render_type(type_, &partial_resp_name);
         if is_nullable {
             partial_result = quote! { Option<#partial_result> };
         }
@@ -334,10 +351,7 @@ pub fn render_request(
     }
 }
 
-pub fn render_notification(
-    notification: Notification,
-    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
-) -> TokenStream {
+pub fn render_notification(notification: Notification) -> TokenStream {
     let Some(name) = notification.type_name else {
         panic!("Unnamed request: {notification:?}");
     };
@@ -356,7 +370,7 @@ pub fn render_notification(
         if is_nullable {
             collapse_null(&mut param);
         }
-        let mut type_ = render_type(param, &(name + "Params"), None, enum_or_types);
+        let mut type_ = render_type(param, &(name + "Params"));
         if is_nullable {
             type_ = quote! { Option<#type_> };
         }
@@ -477,52 +491,52 @@ pub fn render_request_methods(requests: &[Request], notis: &[Notification]) -> T
     }
 }
 
-pub fn render_type_alias(
-    type_alias: TypeAlias,
-    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
-) -> Option<TokenStream> {
+pub fn render_type_alias(type_alias: TypeAlias) -> Option<TokenStream> {
     let documentation = render_documentation(type_alias.documentation);
+    let deprecated = type_alias.deprecated.as_deref().map(render_deprecated);
     let name = format_ident!("{}", type_alias.name);
 
     match type_alias.name.as_str() {
         "LSPObject" => {
             return Some(quote! {
                 #documentation
+                #deprecated
                 pub type LspObject = HashMap<String, LspAny>;
             });
         }
         "LSPAny" => {
             return Some(quote! {
                 #documentation
+                #deprecated
                 pub type LspAny = serde_json::Value;
             });
         }
         "LSPArray" => {
             return Some(quote! {
                 #documentation
+                #deprecated
                 pub type LspArray = Vec<LspAny>;
             });
         }
         _ => {}
     }
 
-    let type_ = render_type(
-        type_alias.type_,
-        &type_alias.name,
-        Some(&documentation),
-        enum_or_types,
-    );
+    let type_ = render_type(type_alias.type_, &type_alias.name);
 
-    if enum_or_types.contains_key(&type_alias.name) {
-        None
-    } else {
-        let deprecated = type_alias.deprecated.as_deref().map(render_deprecated);
-        Some(quote! {
-            #documentation
-            #deprecated
-            pub type #name = #type_;
-        })
-    }
+    ENUM_ORS.with_borrow_mut(|enum_or_types| {
+        if let Some(enum_or) = enum_or_types.get_mut(&type_alias.name) {
+            enum_or.documentation = Some(documentation);
+            enum_or.deprecated = deprecated;
+            None
+        } else {
+            let deprecated = type_alias.deprecated.as_deref().map(render_deprecated);
+            Some(quote! {
+                #documentation
+                #deprecated
+                pub type #name = #type_;
+            })
+        }
+    })
 }
 
 pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
@@ -832,7 +846,6 @@ pub fn render_structure(
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
     type_aliases_map: &HashMap<String, TypeAlias>,
-    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
 ) -> Option<TokenStream> {
     // We inline these structs; consider them private and do not generate.
     if structure.name.starts_with('_') {
@@ -923,8 +936,11 @@ pub fn render_structure(
             {
                 or_name = format!("{}{}", structure.name, or_name);
             } else if let Type::OrType(or_type) = &property.type_
-                && let Some((enum_or, _)) = enum_or_types.get(&or_name)
-                && enum_or != or_type
+                && ENUM_ORS.with_borrow(|enum_ors| {
+                    enum_ors
+                        .get(&or_name)
+                        .is_some_and(|enum_or| enum_or.or_type != *or_type)
+                })
             {
                 or_name = format!("{}{}", structure.name, or_name);
             }
@@ -937,7 +953,7 @@ pub fn render_structure(
                 collapse_null(&mut type_);
             }
 
-            let mut type_ = render_type(type_, &or_name, None, enum_or_types);
+            let mut type_ = render_type(type_, &or_name);
 
             if box_type {
                 type_ = quote! { Box<#type_> };
@@ -972,7 +988,7 @@ pub fn render_structure(
 
     properties.extend(mixin_props.clone().into_iter().map(|prop| {
         let name = format_ident!("{}", camel_to_snake(&prop.name));
-        let type_ = render_type(prop.type_, &camel_to_pascal(prop.name), None, enum_or_types);
+        let type_ = render_type(prop.type_, &camel_to_pascal(prop.name));
         props_simplified.push((name.to_token_stream(), type_.clone()));
         quote! {
             #[serde(flatten)]
@@ -1140,15 +1156,7 @@ pub fn render_notification_macro(requests: &[Notification]) -> TokenStream {
 ///
 /// * `type` - The type to be rendered.
 /// * `or_name` - The type name to give to an "or" type found within this type.
-/// * `or_documentation` - The documentation for the created "or" type, if any.
-/// * `enum_or_types` - The "or" type to insert into if an "or" type is found. They will be aliased
-///   and rendered as separate types, for better DX.
-fn render_type(
-    type_: Type,
-    or_name: &str,
-    or_documentation: Option<&TokenStream>,
-    enum_or_types: &mut BTreeMap<String, (OrType, Option<TokenStream>)>,
-) -> TokenStream {
+fn render_type(type_: Type, or_name: &str) -> TokenStream {
     match type_ {
         Type::ReferenceType(ref_type) => {
             match ref_type.name.as_str() {
@@ -1162,8 +1170,7 @@ fn render_type(
         }
         Type::ArrayType(array_type) => {
             let or_name = or_name.strip_suffix('s').unwrap_or(or_name);
-            let element_type =
-                render_type(array_type.element, or_name, or_documentation, enum_or_types);
+            let element_type = render_type(array_type.element, or_name);
             quote! { Vec<#element_type> }
         }
         Type::BaseType(base_type) => match base_type.name {
@@ -1179,7 +1186,7 @@ fn render_type(
             let tuple_items = tuple_type
                 .items
                 .into_iter()
-                .map(|item| render_type(item, or_name, or_documentation, enum_or_types));
+                .map(|item| render_type(item, or_name));
             quote! { (#( #tuple_items ),*) }
         }
         Type::MapType(map_type) => {
@@ -1196,9 +1203,9 @@ fn render_type(
                     Type::BaseType(BaseType { kind, name })
                 }
             };
-            let key = render_type(key_type, or_name, or_documentation, enum_or_types);
+            let key = render_type(key_type, or_name);
             let or_name = or_name.strip_suffix('s').unwrap_or(or_name);
-            let value = render_type(*map_type.value, or_name, or_documentation, enum_or_types);
+            let value = render_type(*map_type.value, or_name);
             quote! { HashMap<#key, #value> }
         }
         Type::StringLiteralType(e) => {
@@ -1206,12 +1213,22 @@ fn render_type(
         }
         Type::OrType(or_type) => {
             let ident = format_ident!("{or_name}");
-            if let Some(enum_or_type) = enum_or_types.get(or_name)
-                && or_type != enum_or_type.0
-            {
-                panic!("Definition conflict for {or_name}:\n\n{enum_or_type:?}\n\n{or_type:?}");
-            }
-            enum_or_types.insert(or_name.to_string(), (or_type, or_documentation.cloned()));
+            ENUM_ORS.with_borrow_mut(|enum_ors| {
+                if let Some(enum_or_type) = enum_ors.get(or_name)
+                    && or_type != enum_or_type.or_type
+                {
+                    panic!("Definition conflict for {or_name}:\n\n{enum_or_type:?}\n\n{or_type:?}");
+                }
+                enum_ors.insert(
+                    or_name.to_string(),
+                    EnumOrMetadata {
+                        or_type,
+                        // Metadata will be set elsewhere, as needed.
+                        documentation: None,
+                        deprecated: None,
+                    },
+                );
+            });
             quote! { #ident }
         }
         Type::StructureLiteralType(struct_lit) => {
