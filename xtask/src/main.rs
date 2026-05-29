@@ -2,7 +2,7 @@ mod derives;
 mod renderers;
 
 use std::{
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     fs, iter,
 };
 
@@ -503,19 +503,11 @@ fn main() {
         compile_error!("Features 'url' and 'fluent-uri' are mutually exclusive and cannot be enabled together.");
     };
 
-    let mut enum_or_types = BTreeMap::new();
-
     let structures = model
         .structures
         .into_iter()
         .filter_map(|structure| {
-            render_structure(
-                structure,
-                &structs_map,
-                &enums_map,
-                &type_aliases_map,
-                &mut enum_or_types,
-            )
+            render_structure(structure, &structs_map, &enums_map, &type_aliases_map)
         })
         .collect::<Vec<_>>();
 
@@ -524,7 +516,7 @@ fn main() {
     let type_aliases = model
         .type_aliases
         .into_iter()
-        .filter_map(|ta| render_type_alias(ta, &mut enum_or_types))
+        .filter_map(render_type_alias)
         .collect::<Vec<_>>();
 
     let request_macro = render_request_macro(&model.requests);
@@ -535,21 +527,16 @@ fn main() {
     let requests = model
         .requests
         .into_iter()
-        .map(|req| render_request(req, &mut enum_or_types))
+        .map(render_request)
         .collect::<Vec<_>>();
 
     let notifications = model
         .notifications
         .into_iter()
-        .map(|noti| render_notification(noti, &mut enum_or_types))
+        .map(render_notification)
         .collect::<Vec<_>>();
 
-    let enum_ors = render_enum_ors(
-        &mut enum_or_types,
-        &structs_map,
-        &enums_map,
-        &type_aliases_map,
-    );
+    let enum_ors = render_enum_ors(&structs_map, &enums_map, &type_aliases_map);
 
     let common_imports = quote! {
         use serde::{de::DeserializeOwned, Deserialize, Serialize};
