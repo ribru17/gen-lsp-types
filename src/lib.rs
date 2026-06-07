@@ -873,6 +873,22 @@ mod test {
         assert_eq!("[1,2]", serde_json::to_string(&pil).unwrap());
         assert_eq!(pil, serde_json::from_str("[1,2]").unwrap());
     }
+
+    #[test]
+    fn lsp_object_derives() {
+        // `LspObject` is `Hash`able
+        let _: HashMap<NotebookCell, i32> = HashMap::from([(
+            NotebookCell::new(NotebookCellKind::Code, Uri("foo".to_owned()), None, None),
+            123,
+        )]);
+
+        // Structure literals are `Hash`able
+        let _: HashMap<SemanticTokensRegistrationOptions, i32> =
+            HashMap::from([(SemanticTokensRegistrationOptions::default(), 123)]);
+
+        // `LspAny` is `Hash`able
+        let _: HashMap<Command, i32> = HashMap::from([(Command::default(), 123)]);
+    }
 }
 
 /// Tests for the "url" feature.

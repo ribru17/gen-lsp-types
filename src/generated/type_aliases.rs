@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 #[allow(clippy::wildcard_imports)]
 use super::*;
 
@@ -41,7 +40,7 @@ pub type ChangeAnnotationIdentifier = String;
 
 /// LSP object definition.
 /// @since 3.17.0
-pub type LspObject = HashMap<String, LspAny>;
+pub type LspObject = serde_json::Map<String, LspAny>;
 
 /// The glob pattern to watch relative to the base path. Glob patterns can have the following syntax:
 /// - `*` to match zero or more characters in a path segment
