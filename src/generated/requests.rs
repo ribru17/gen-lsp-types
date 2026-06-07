@@ -67,7 +67,7 @@ impl Request for DocumentColorRequest {
     const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentDocumentColor;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = DocumentColorParams;
-    type Result = Option<Vec<ColorInformation>>;
+    type Result = Vec<ColorInformation>;
 }
 impl RequestWithPartialResults for DocumentColorRequest {
     type PartialResult = Vec<ColorInformation>;
@@ -75,7 +75,7 @@ impl RequestWithPartialResults for DocumentColorRequest {
 
 /// A request to list all presentation for a color. The request's
 /// parameter is of type [`ColorPresentationParams`] the
-/// response is of type [ColorInformation[]][ColorInformation] or a Thenable
+/// response is of type [ColorPresentation[]][ColorPresentation] or a Thenable
 /// that resolves to such.
 #[derive(Debug)]
 pub enum ColorPresentationRequest {}
@@ -83,7 +83,7 @@ impl Request for ColorPresentationRequest {
     const METHOD: LspRequestMethod<'static> = LspRequestMethod::TextDocumentColorPresentation;
     const MESSAGE_DIRECTION: MessageDirection = MessageDirection::ClientToServer;
     type Params = ColorPresentationParams;
-    type Result = Option<Vec<ColorPresentation>>;
+    type Result = Vec<ColorPresentation>;
 }
 impl RequestWithPartialResults for ColorPresentationRequest {
     type PartialResult = Vec<ColorPresentation>;
@@ -105,8 +105,9 @@ impl RequestWithPartialResults for FoldingRangeRequest {
     type PartialResult = Vec<FoldingRange>;
 }
 
+/// A request to refresh the folding ranges in a document.
+///
 /// @since 3.18.0
-/// @proposed
 #[derive(Debug)]
 pub enum FoldingRangeRefreshRequest {}
 impl Request for FoldingRangeRefreshRequest {
@@ -494,7 +495,6 @@ impl Request for DiagnosticRefreshRequest {
 /// [InlineCompletion[]][InlineCompletion] or a Thenable that resolves to such.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Debug)]
 pub enum InlineCompletionRequest {}
 impl Request for InlineCompletionRequest {
@@ -511,7 +511,6 @@ impl RequestWithPartialResults for InlineCompletionRequest {
 /// server to request the content of a text document.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Debug)]
 pub enum TextDocumentContentRequest {}
 impl Request for TextDocumentContentRequest {
@@ -525,7 +524,6 @@ impl Request for TextDocumentContentRequest {
 /// the content of a specific text document.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Debug)]
 pub enum TextDocumentContentRefreshRequest {}
 impl Request for TextDocumentContentRefreshRequest {
@@ -870,7 +868,6 @@ impl Request for DocumentRangeFormattingRequest {
 /// A request to format ranges in a document.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Debug)]
 pub enum DocumentRangesFormattingRequest {}
 impl Request for DocumentRangesFormattingRequest {

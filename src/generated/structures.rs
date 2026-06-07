@@ -1457,10 +1457,10 @@ impl TypeHierarchySubtypesParams {
 pub struct InlineValueParams {
     /// The text document.
     pub text_document: TextDocumentIdentifier,
-    /// The document range for which inline values should be computed.
+    /// The document range for which inline values information will be returned.
     pub range: Range,
-    /// Additional information about the context in which inline values were
-    /// requested.
+    /// Additional information about the context in which inline values information was
+    /// requested.     */
     pub context: InlineValueContext,
     #[serde(flatten)]
     pub work_done_progress_params: WorkDoneProgressParams,
@@ -1929,7 +1929,6 @@ impl DidCloseNotebookDocumentParams {
 /// A parameter literal used in inline completion requests.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionParams {
@@ -1959,7 +1958,6 @@ impl InlineCompletionParams {
 /// Represents a collection of [inline completion items][InlineCompletionItem] to be presented in the editor.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionList {
@@ -1976,7 +1974,6 @@ impl InlineCompletionList {
 /// An inline completion item represents a text snippet that is proposed inline to complete text that is being typed.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionItem {
@@ -2012,7 +2009,6 @@ impl InlineCompletionItem {
 /// Inline completion options used during static or dynamic registration.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionRegistrationOptions {
@@ -2041,7 +2037,6 @@ impl InlineCompletionRegistrationOptions {
 /// Parameters for the `workspace/textDocumentContent` request.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentParams {
@@ -2058,7 +2053,6 @@ impl TextDocumentContentParams {
 /// Result of the `workspace/textDocumentContent` request.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentResult {
@@ -2078,7 +2072,6 @@ impl TextDocumentContentResult {
 /// Text document content provider registration options.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentRegistrationOptions {
@@ -2103,7 +2096,6 @@ impl TextDocumentContentRegistrationOptions {
 /// Parameters for the `workspace/textDocumentContent/refresh` request.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentRefreshParams {
@@ -3022,6 +3014,9 @@ pub struct SignatureHelp {
     /// In future version of the protocol this property might become
     /// mandatory (but still nullable) to better express the active parameter if
     /// the active signature does have any.
+    ///
+    /// Since version 3.16.0 the `SignatureInformation` itself provides a
+    /// `activeParameter` property and it should be used instead of this one.
     #[serde(default, deserialize_with = "deserialize_some")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_parameter: Option<ActiveParameter>,
@@ -3424,7 +3419,6 @@ pub struct Command {
     /// An optional tooltip.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tooltip: Option<String>,
     /// The identifier of the actual command handler.
@@ -3915,7 +3909,6 @@ impl DocumentRangeFormattingRegistrationOptions {
 /// The parameters of a [`DocumentRangesFormattingRequest`].
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentRangesFormattingParams {
@@ -4128,7 +4121,6 @@ pub struct ApplyWorkspaceEditParams {
     /// Additional data about the edit.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<WorkspaceEditMetadata>,
 }
@@ -5294,7 +5286,7 @@ impl InlineValueContext {
     }
 }
 
-/// Provide inline value as text.
+/// Returns inline value information as the complete text to be shown.
 ///
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
@@ -5312,16 +5304,22 @@ impl InlineValueText {
     }
 }
 
-/// Provide inline value through a variable lookup.
-/// If only a range is specified, the variable name will be extracted from the underlying document.
-/// An optional variable name can be used to override the extracted name.
+/// To compute inline value through a variable lookup.
+///
+/// If only a range is specified, the variable name should
+/// be extracted from the underlying document.
+///
+/// An optional variable name could be used to lookup instead
+/// of the extracted name.
 ///
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueVariableLookup {
     /// The document range for which the inline value applies.
-    /// The range is used to extract the variable name from the underlying document.
+    ///
+    /// The range could be used to extract the variable name
+    /// from the underlying document.
     pub range: Range,
     /// If specified the name of the variable to look up.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -5344,18 +5342,24 @@ impl InlineValueVariableLookup {
     }
 }
 
-/// Provide an inline value through an expression evaluation.
-/// If only a range is specified, the expression will be extracted from the underlying document.
-/// An optional expression can be used to override the extracted expression.
+/// To compute an inline value through an expression evaluation.
+///
+/// If only a range is specified, the expression should be
+/// extracted from the underlying document.
+///
+/// An optional expression could be evaluated instead of
+/// the extracted expression.
 ///
 /// @since 3.17.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineValueEvaluatableExpression {
     /// The document range for which the inline value applies.
-    /// The range is used to extract the evaluatable expression from the underlying document.
+    ///
+    /// The range could be used to extract the evaluatable expression
+    /// from the underlying document.
     pub range: Range,
-    /// If specified the expression overrides the extracted expression.
+    /// If specified the expression could be evaluated instead.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expression: Option<String>,
 }
@@ -5895,7 +5899,6 @@ impl NotebookDocumentIdentifier {
 /// Provides information about the context in which an inline completion was requested.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionContext {
@@ -5927,7 +5930,6 @@ impl InlineCompletionContext {
 /// `${name:default value}`.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "ShadowStringValue", into = "ShadowStringValue")]
@@ -5969,7 +5971,6 @@ impl StringValue {
 /// Inline completion options used during static registration.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionOptions {
@@ -5986,7 +5987,6 @@ impl InlineCompletionOptions {
 /// Text document content provider options.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentOptions {
@@ -6205,7 +6205,6 @@ pub struct ServerCapabilities {
     /// Inline completion options used during static registration.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_completion_provider: Option<InlineCompletionProvider>,
     /// Workspace specific server capabilities.
@@ -7058,7 +7057,6 @@ pub struct CodeActionOptions {
     /// At most one documentation entry should be shown per provider.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub documentation: Option<Vec<CodeActionKindDocumentation>>,
     /// The server provides support to resolve additional
@@ -7238,7 +7236,6 @@ pub struct DocumentRangeFormattingOptions {
     /// Whether the server supports formatting multiple ranges at once.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ranges_support: Option<bool>,
     #[serde(flatten)]
@@ -7357,7 +7354,6 @@ impl ExecuteCommandOptions {
 /// Additional data about a workspace edit.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkspaceEditMetadata {
@@ -7458,7 +7454,6 @@ impl AnnotatedTextEdit {
 /// An interactive text edit.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SnippetTextEdit {
@@ -7581,7 +7576,7 @@ impl DeleteFileOptions {
 #[serde(rename_all = "camelCase")]
 pub struct FileOperationPattern {
     /// The glob pattern to match. Glob patterns can have the following syntax:
-    /// - `*` to match one or more characters in a path segment
+    /// - `*` to match zero or more characters in a path segment
     /// - `?` to match on one character in a path segment
     /// - `**` to match any number of path segments, including none
     /// - `{}` to group sub patterns into an OR expression. (e.g. `**/*.{ts,js}` matches all TypeScript and JavaScript files)
@@ -7788,7 +7783,6 @@ impl NotebookDocumentCellChanges {
 /// Describes the currently selected completion item.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SelectedCompletionInfo {
@@ -7934,7 +7928,6 @@ pub struct WorkspaceOptions {
     /// The server supports the `workspace/textDocumentContent` request.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_document_content: Option<TextDocumentContent>,
 }
@@ -8110,7 +8103,6 @@ impl ParameterInformation {
 /// Documentation for a class of code actions.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionKindDocumentation {
@@ -8324,13 +8316,11 @@ pub struct WorkspaceClientCapabilities {
     /// Capabilities specific to the folding range requests scoped to the workspace.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub folding_range: Option<FoldingRangeWorkspaceClientCapabilities>,
     /// Capabilities specific to the `workspace/textDocumentContent` request.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text_document_content: Option<TextDocumentContentClientCapabilities>,
 }
@@ -8506,7 +8496,6 @@ pub struct TextDocumentClientCapabilities {
     /// Client capabilities specific to inline completions.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_completion: Option<InlineCompletionClientCapabilities>,
 }
@@ -9041,13 +9030,11 @@ pub struct WorkspaceEditClientCapabilities {
     /// Whether the client supports `WorkspaceEditMetadata` in `WorkspaceEdit`s.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata_support: Option<bool>,
     /// Whether the client supports snippets as text edits.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub snippet_edit_support: Option<bool>,
 }
@@ -9340,7 +9327,6 @@ impl DiagnosticWorkspaceClientCapabilities {
 /// Client workspace capabilities specific to folding ranges
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct FoldingRangeWorkspaceClientCapabilities {
@@ -9353,7 +9339,6 @@ pub struct FoldingRangeWorkspaceClientCapabilities {
     /// change that requires such a calculation.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refresh_support: Option<bool>,
 }
@@ -9367,7 +9352,6 @@ impl FoldingRangeWorkspaceClientCapabilities {
 /// Client capabilities for a text document content provider.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct TextDocumentContentClientCapabilities {
@@ -9444,6 +9428,7 @@ pub struct CompletionClientCapabilities {
     /// capabilities.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completion_item: Option<ClientCompletionItemOptions>,
+    /// The client supports the following completion item kinds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub completion_item_kind: Option<ClientCompletionItemOptionsKind>,
     /// Defines how the client handles whitespace and indentation
@@ -9779,7 +9764,6 @@ pub struct CodeActionClientCapabilities {
     /// code actions.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub documentation_support: Option<bool>,
     /// Client supports the tag property on a code action. Clients
@@ -9910,7 +9894,6 @@ pub struct DocumentRangeFormattingClientCapabilities {
     /// Whether the client supports formatting multiple ranges at once.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ranges_support: Option<bool>,
 }
@@ -10291,7 +10274,6 @@ pub struct DiagnosticClientCapabilities {
     /// Whether the client supports `MarkupContent` in diagnostic messages.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub markup_message_support: Option<bool>,
     #[serde(flatten)]
@@ -10317,7 +10299,6 @@ impl DiagnosticClientCapabilities {
 /// Client capabilities specific to inline completions.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineCompletionClientCapabilities {
@@ -10716,7 +10697,6 @@ pub struct ClientSignatureInformationOptions {
     /// indicate that no parameter should be active.
     ///
     /// @since 3.18.0
-    /// @proposed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_active_parameter_support: Option<bool>,
 }

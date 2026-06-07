@@ -62,6 +62,7 @@ fn render_documentation(documentation: Option<String>) -> TokenStream {
     let toks = documentation.into_iter().flat_map(|doc| {
         // Reformat documentation strings.
         let doc = doc.replace('\u{200B}', "");
+        let doc = doc.replace('\t', "    ");
         let doc = LINK_RE_1.replace_all(&doc, |caps: &Captures| {
             format!("[{}][{}]", &caps[2], &caps[1])
         });
