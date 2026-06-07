@@ -505,14 +505,33 @@ mod test {
 
         let res = json_rpc::ResponseObject::from_success::<ShowMessageRequest>(
             id.clone(),
-            Some(crate::MessageActionItem {
+            Some(MessageActionItem {
                 title: "foo".into(),
+                properties: HashMap::default(),
             }),
         );
 
         let ser = serde_json::to_string(&res).unwrap();
         assert_eq!(
             r#"{"jsonrpc":"2.0","result":{"title":"foo"},"id":123}"#,
+            &ser
+        );
+        assert_eq!(res, serde_json::from_str(&ser).unwrap());
+
+        let res = json_rpc::ResponseObject::from_success::<ShowMessageRequest>(
+            id.clone(),
+            Some(MessageActionItem {
+                title: "foo".into(),
+                properties: HashMap::from([(
+                    String::from("bar"),
+                    MessageActionItemProperty::Int(321),
+                )]),
+            }),
+        );
+
+        let ser = serde_json::to_string(&res).unwrap();
+        assert_eq!(
+            r#"{"jsonrpc":"2.0","result":{"bar":321,"title":"foo"},"id":123}"#,
             &ser
         );
         assert_eq!(res, serde_json::from_str(&ser).unwrap());

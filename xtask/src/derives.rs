@@ -19,6 +19,12 @@ pub fn get_struct_derives(
     let mut defaultable = true;
     let mut copyable = true;
 
+    // TODO: Remove special case logic until LSP fixes
+    // https://github.com/microsoft/language-server-protocol/issues/2148
+    if structure.name == "MessageActionItem" {
+        hashable = false;
+    }
+
     for (prop_type, optional) in structure
         .properties
         .iter()
@@ -334,6 +340,11 @@ pub fn is_hashable(
             Type::BaseType(BaseType { kind: _, name }) => !matches!(name, BaseTypes::Decimal),
             Type::ReferenceType(ref_type) => {
                 if let Some(structure) = structs_map.get(&ref_type.name) {
+                    // TODO: Remove special case logic until LSP fixes
+                    // https://github.com/microsoft/language-server-protocol/issues/2148
+                    if structure.name == "MessageActionItem" {
+                        return false;
+                    }
                     structure
                         .properties
                         .iter()

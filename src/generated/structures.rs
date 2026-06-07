@@ -2308,7 +2308,7 @@ impl ShowMessageParams {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ShowMessageRequestParams {
     /// The message type. See [`MessageType`]
@@ -2331,16 +2331,24 @@ impl ShowMessageRequestParams {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MessageActionItem {
     /// A short title like 'Retry', 'Open Log' etc.
     pub title: String,
+    /// Additional attributes that the client preserves and
+    /// sends back to the server. This depends on the client
+    /// capability window.messageActionItem.additionalPropertiesSupport.
+    #[serde(flatten)]
+    pub properties: HashMap<String, MessageActionItemProperty>,
 }
 impl MessageActionItem {
     #[must_use]
-    pub const fn new(title: String) -> Self {
-        Self { title }
+    pub const fn new(
+        title: String,
+        properties: HashMap<String, MessageActionItemProperty>,
+    ) -> Self {
+        Self { title, properties }
     }
 }
 
@@ -11107,4 +11115,12 @@ impl SemanticToken {
         let opt = data.as_ref().map(|t| Wrapper { tokens: t.clone() });
         opt.serialize(serializer)
     }
+}
+#[derive(Debug, Eq, Hash, PartialEq, Clone, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum MessageActionItemProperty {
+    String(String),
+    Bool(bool),
+    Int(i32),
+    Object(LspObject),
 }
