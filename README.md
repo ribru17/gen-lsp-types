@@ -98,9 +98,9 @@ pub struct InitializeParams {
 ...where `WorkspaceFolders` is an `enum`:
 
 ```rust
+#[serde(untagged)]
 pub enum WorkspaceFolders {
     WorkspaceFolderList(Vec<WorkspaceFolder>),
-    #[serde(rename = "null")]
     Null,
 }
 ```
