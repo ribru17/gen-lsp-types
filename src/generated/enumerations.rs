@@ -782,7 +782,6 @@ pub enum MessageType {
     /// A debug message.
     ///
     /// @since 3.18.0
-    /// @proposed
     Debug,
 }
 impl From<MessageType> for u32 {
@@ -1149,7 +1148,6 @@ pub enum CodeActionKind {
     /// - ...
     ///
     /// @since 3.18.0
-    /// @proposed
     RefactorMove,
     /// Base kind for refactoring rewrite actions: 'refactor.rewrite'
     ///
@@ -1406,10 +1404,8 @@ pub enum LanguageKind {
     CSharp,
     CSS,
     /// @since 3.18.0
-    /// @proposed
     D,
     /// @since 3.18.0
-    /// @proposed
     Delphi,
     Diff,
     Dart,
@@ -1437,11 +1433,11 @@ pub enum LanguageKind {
     ObjectiveC,
     ObjectiveCPP,
     /// @since 3.18.0
-    /// @proposed
     Pascal,
     Perl,
     Perl6,
     PHP,
+    Plaintext,
     Powershell,
     Pug,
     Python,
@@ -1488,7 +1484,7 @@ impl From<LanguageKind> for String {
             LanguageKind::Erlang => "erlang".to_string(),
             LanguageKind::FSharp => "fsharp".to_string(),
             LanguageKind::GitCommit => "git-commit".to_string(),
-            LanguageKind::GitRebase => "rebase".to_string(),
+            LanguageKind::GitRebase => "git-rebase".to_string(),
             LanguageKind::Go => "go".to_string(),
             LanguageKind::Groovy => "groovy".to_string(),
             LanguageKind::Handlebars => "handlebars".to_string(),
@@ -1510,6 +1506,7 @@ impl From<LanguageKind> for String {
             LanguageKind::Perl => "perl".to_string(),
             LanguageKind::Perl6 => "perl6".to_string(),
             LanguageKind::PHP => "php".to_string(),
+            LanguageKind::Plaintext => "plaintext".to_string(),
             LanguageKind::Powershell => "powershell".to_string(),
             LanguageKind::Pug => "jade".to_string(),
             LanguageKind::Python => "python".to_string(),
@@ -1556,7 +1553,7 @@ impl From<String> for LanguageKind {
             "erlang" => Self::Erlang,
             "fsharp" => Self::FSharp,
             "git-commit" => Self::GitCommit,
-            "rebase" => Self::GitRebase,
+            "git-rebase" => Self::GitRebase,
             "go" => Self::Go,
             "groovy" => Self::Groovy,
             "handlebars" => Self::Handlebars,
@@ -1578,6 +1575,7 @@ impl From<String> for LanguageKind {
             "perl" => Self::Perl,
             "perl6" => Self::Perl6,
             "php" => Self::PHP,
+            "plaintext" => Self::Plaintext,
             "powershell" => Self::Powershell,
             "jade" => Self::Pug,
             "python" => Self::Python,
@@ -1631,7 +1629,7 @@ impl From<&'static str> for LanguageKind {
             "erlang" => Self::Erlang,
             "fsharp" => Self::FSharp,
             "git-commit" => Self::GitCommit,
-            "rebase" => Self::GitRebase,
+            "git-rebase" => Self::GitRebase,
             "go" => Self::Go,
             "groovy" => Self::Groovy,
             "handlebars" => Self::Handlebars,
@@ -1653,6 +1651,7 @@ impl From<&'static str> for LanguageKind {
             "perl" => Self::Perl,
             "perl6" => Self::Perl6,
             "php" => Self::PHP,
+            "plaintext" => Self::Plaintext,
             "powershell" => Self::Powershell,
             "jade" => Self::Pug,
             "python" => Self::Python,
@@ -1706,7 +1705,7 @@ impl LanguageKind {
             Self::Erlang => "erlang",
             Self::FSharp => "fsharp",
             Self::GitCommit => "git-commit",
-            Self::GitRebase => "rebase",
+            Self::GitRebase => "git-rebase",
             Self::Go => "go",
             Self::Groovy => "groovy",
             Self::Handlebars => "handlebars",
@@ -1728,6 +1727,7 @@ impl LanguageKind {
             Self::Perl => "perl",
             Self::Perl6 => "perl6",
             Self::PHP => "php",
+            Self::Plaintext => "plaintext",
             Self::Powershell => "powershell",
             Self::Pug => "jade",
             Self::Python => "python",
@@ -1757,7 +1757,6 @@ impl LanguageKind {
 /// Describes how an [inline completion provider][InlineCompletionItemProvider] was triggered.
 ///
 /// @since 3.18.0
-/// @proposed
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", try_from = "u32")]
 pub enum InlineCompletionTriggerKind {
