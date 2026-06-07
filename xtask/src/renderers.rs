@@ -502,7 +502,7 @@ pub fn render_type_alias(type_alias: TypeAlias) -> Option<TokenStream> {
             return Some(quote! {
                 #documentation
                 #deprecated
-                pub type LspObject = HashMap<String, LspAny>;
+                pub type LspObject = serde_json::Map<String, LspAny>;
             });
         }
         "LSPAny" => {

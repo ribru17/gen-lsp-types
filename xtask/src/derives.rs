@@ -326,8 +326,9 @@ pub fn is_hashable(
         }
         seen.insert(type_);
         match type_ {
-            Type::MapType(_) | Type::StructureLiteralType(_) => false,
-            Type::StringLiteralType(_)
+            Type::MapType(_) => false,
+            Type::StructureLiteralType(_)
+            | Type::StringLiteralType(_)
             | Type::IntegerLiteralType(_)
             | Type::BooleanLiteralType(_) => true,
             Type::BaseType(BaseType { kind: _, name }) => !matches!(name, BaseTypes::Decimal),
@@ -343,6 +344,9 @@ pub fn is_hashable(
                             is_hashable_(prop_type, structs_map, type_aliases_map, seen)
                         })
                 } else if let Some(type_alias) = type_aliases_map.get(&ref_type.name) {
+                    if type_alias.name == "LSPObject" || type_alias.name == "LSPAny" {
+                        return true;
+                    }
                     is_hashable_(&type_alias.type_, structs_map, type_aliases_map, seen)
                 } else {
                     true

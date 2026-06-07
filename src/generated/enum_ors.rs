@@ -115,7 +115,7 @@ for ClientSemanticTokensRequestOptionsFull {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum ClientSemanticTokensRequestOptionsRange {
     Bool(bool),
@@ -186,7 +186,7 @@ impl From<CodeAction> for CodeActionPartialResponse {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum CodeActionProvider {
     Bool(bool),
@@ -260,7 +260,7 @@ impl From<InsertReplaceEdit> for CompletionItemTextEdit {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum CompletionResponse {
     CompletionItemList(Vec<CompletionItem>),
@@ -930,7 +930,7 @@ impl From<InlineCompletionOptions> for InlineCompletionProvider {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum InlineCompletionResponse {
     InlineCompletionList(InlineCompletionList),
@@ -1037,7 +1037,7 @@ impl From<StringValue> for InsertText {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum Label {
     String(String),
@@ -1420,7 +1420,7 @@ impl From<ReferenceOptions> for ReferencesProvider {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum RelatedDocument {
     FullDocumentDiagnosticReport(FullDocumentDiagnosticReport),
@@ -1602,7 +1602,7 @@ impl From<SemanticTokensDelta> for SemanticTokensDeltaResponse {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum SemanticTokensOptionsRange {
     Bool(bool),
@@ -1619,7 +1619,7 @@ impl From<LspObject> for SemanticTokensOptionsRange {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum SemanticTokensProvider {
     SemanticTokensOptions(SemanticTokensOptions),
@@ -1848,7 +1848,7 @@ impl From<TypeHierarchyRegistrationOptions> for TypeHierarchyProvider {
 /// A workspace diagnostic document report.
 ///
 /// @since 3.17.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum WorkspaceDocumentDiagnosticReport {
     WorkspaceFullDocumentDiagnosticReport(WorkspaceFullDocumentDiagnosticReport),
@@ -1902,7 +1902,7 @@ impl From<LocationUriOnly> for WorkspaceSymbolLocation {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum WorkspaceSymbolPartialResponse {
     SymbolInformationList(Vec<SymbolInformation>),
@@ -1936,7 +1936,7 @@ impl From<WorkspaceSymbolOptions> for WorkspaceSymbolProvider {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum WorkspaceSymbolResponse {
     SymbolInformationList(Vec<SymbolInformation>),

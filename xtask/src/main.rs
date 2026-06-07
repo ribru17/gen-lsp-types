@@ -711,7 +711,6 @@ fn main() {
         .chain(iter::once(structure_postdefs));
 
     let type_alias_imports = quote! {
-        use std::collections::HashMap;
         #[allow(clippy::wildcard_imports)]
         use super::*;
     };
