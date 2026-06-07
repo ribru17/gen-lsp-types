@@ -997,6 +997,23 @@ pub fn render_structure(
         }
     }));
 
+    // TODO: Remove special case logic until LSP fixes
+    // https://github.com/microsoft/language-server-protocol/issues/2148
+    if structure.name == "MessageActionItem" {
+        let arbitrary_properties = quote! {
+            /// Additional attributes that the client preserves and
+            /// sends back to the server. This depends on the client
+            /// capability window.messageActionItem.additionalPropertiesSupport.
+            #[serde(flatten)]
+            pub properties: HashMap<String, MessageActionItemProperty>,
+        };
+        properties.push(arbitrary_properties);
+        props_simplified.push((
+            quote! { properties },
+            quote! { HashMap<String, MessageActionItemProperty> },
+        ));
+    }
+
     let shadow = if let Some(strlit_prop) = string_lit_prop {
         let shadow_name = format!("Shadow{name}");
         let ident = format_ident!("{shadow_name}");

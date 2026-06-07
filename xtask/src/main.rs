@@ -704,6 +704,15 @@ fn main() {
                     opt.serialize(serializer)
                 }
             }
+
+            #[derive(Debug, Eq, Hash, PartialEq, Clone, Deserialize, Serialize)]
+            #[serde(untagged)]
+            pub enum MessageActionItemProperty {
+                String(String),
+                Bool(bool),
+                Int(i32),
+                Object(LspObject),
+            }
         }
     };
     let structures = iter::once(structure_imports)
