@@ -772,24 +772,9 @@ mod test {
         let ste = SemanticTokensEdit {
             start: 0,
             delete_count: 1,
-            data: Some(vec![
-                SemanticToken {
-                    delta_line: 2,
-                    delta_start: 5,
-                    length: 3,
-                    token_type: 0,
-                    token_modifiers_bitset: 3,
-                },
-                SemanticToken {
-                    delta_line: 0,
-                    delta_start: 5,
-                    length: 4,
-                    token_type: 1,
-                    token_modifiers_bitset: 0,
-                },
-            ]),
+            data: Some(vec![2, 5, 3, 4, 1, 0]),
         };
-        let ste_ser = r#"{"start":0,"deleteCount":1,"data":[2,5,3,0,3,0,5,4,1,0]}"#;
+        let ste_ser = r#"{"start":0,"deleteCount":1,"data":[2,5,3,4,1,0]}"#;
         assert_eq!(serde_json::to_string(&ste).unwrap(), ste_ser);
         assert_eq!(ste, serde_json::from_str(ste_ser).unwrap());
 

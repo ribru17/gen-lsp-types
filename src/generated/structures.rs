@@ -4870,21 +4870,12 @@ pub struct SemanticTokensEdit {
     /// The count of elements to remove.
     pub delete_count: u32,
     /// The elements to insert.
-    #[serde(
-        default,
-        skip_serializing_if = "Option::is_none",
-        deserialize_with = "SemanticToken::deserialize_optional_tokens",
-        serialize_with = "SemanticToken::serialize_optional_tokens"
-    )]
-    pub data: Option<Vec<SemanticToken>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<Vec<u32>>,
 }
 impl SemanticTokensEdit {
     #[must_use]
-    pub const fn new(
-        start: u32,
-        delete_count: u32,
-        data: Option<Vec<SemanticToken>>,
-    ) -> Self {
+    pub const fn new(start: u32, delete_count: u32, data: Option<Vec<u32>>) -> Self {
         Self { start, delete_count, data }
     }
 }
@@ -11084,36 +11075,6 @@ impl SemanticToken {
             seq.serialize_element(&token.token_modifiers_bitset)?;
         }
         seq.end()
-    }
-    fn deserialize_optional_tokens<'de, D>(
-        deserializer: D,
-    ) -> Result<Option<Vec<SemanticToken>>, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        #[derive(Deserialize)]
-        #[serde(transparent)]
-        struct Wrapper {
-            #[serde(deserialize_with = "SemanticToken::deserialize_tokens")]
-            tokens: Vec<SemanticToken>,
-        }
-        Ok(Option::<Wrapper>::deserialize(deserializer)?.map(|wrapper| wrapper.tokens))
-    }
-    fn serialize_optional_tokens<S>(
-        data: &Option<Vec<SemanticToken>>,
-        serializer: S,
-    ) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        #[derive(Serialize)]
-        #[serde(transparent)]
-        struct Wrapper {
-            #[serde(serialize_with = "SemanticToken::serialize_tokens")]
-            tokens: Vec<SemanticToken>,
-        }
-        let opt = data.as_ref().map(|t| Wrapper { tokens: t.clone() });
-        opt.serialize(serializer)
     }
 }
 #[derive(Debug, Eq, Hash, PartialEq, Clone, Deserialize, Serialize)]
