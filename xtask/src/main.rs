@@ -2,6 +2,7 @@ mod derives;
 mod renderers;
 
 use std::{
+    assert_matches,
     collections::{HashMap, HashSet},
     fs, iter,
 };
@@ -16,8 +17,8 @@ use crate::{
         render_type_alias,
     },
     schema::{
-        BaseType, BaseTypes, Enumeration, MapKeyType, OrType, Property, Structure, TupleType, Type,
-        TypeAlias,
+        ArrayType, BaseType, BaseTypes, Enumeration, MapKeyType, OrType, Property, ReferenceType,
+        Structure, TupleType, Type, TypeAlias,
     },
 };
 
@@ -395,6 +396,36 @@ fn main() {
             }))
     }) {
         fix_serde_stupidity(type_);
+    }
+
+    // TODO: Remove once serde_json fixes https://github.com/serde-rs/json/issues/1244
+    // Hi Will :D
+    {
+        let hover = model
+            .structures
+            .iter_mut()
+            .find(|structure| structure.name == "Hover")
+            .expect("Couldn't find \"Hover\" structure");
+        let contents = hover
+            .properties
+            .iter_mut()
+            .find(|prop| prop.name == "contents")
+            .expect("Couldn't find \"contents\" property");
+        let Type::OrType(contents_type) = &mut contents.type_ else {
+            panic!("Wrong content type: {:?}", contents.type_)
+        };
+        assert_matches!(
+            &contents_type.items[1],
+            Type::ReferenceType(ReferenceType { kind: _, name }) if name.as_str() == "MarkedString"
+        );
+        assert_matches!(
+            &contents_type.items[2],
+            Type::ArrayType(boxed) if matches!(boxed.as_ref(), ArrayType { kind: _, element: Type::ReferenceType(ReferenceType { kind: _, name }) } if name.as_str() == "MarkedString")
+        );
+        let ([_, a], [b]) = contents_type.items.split_at_mut(2) else {
+            panic!("Unexpected \"contents\" type structure: {contents_type:?}");
+        };
+        std::mem::swap(a, b);
     }
 
     let model = model;

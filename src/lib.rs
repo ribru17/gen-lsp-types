@@ -908,6 +908,19 @@ mod test {
         // `LspAny` is `Hash`able
         let _: HashMap<Command, i32> = HashMap::from([(Command::default(), 123)]);
     }
+
+    #[test]
+    fn hover_contents() {
+        let contents = Contents::MarkedStringList(vec![
+            MarkedString::String("Foo".to_owned()),
+            MarkedString::String("Bar".to_owned()),
+        ]);
+
+        // https://github.com/serde-rs/json/issues/1244
+        let ser = serde_json::to_string(&contents).unwrap();
+        assert_eq!(ser, r#"["Foo","Bar"]"#);
+        assert_eq!(contents, serde_json::from_str(&ser).unwrap());
+    }
 }
 
 /// Tests for the "url" feature.
