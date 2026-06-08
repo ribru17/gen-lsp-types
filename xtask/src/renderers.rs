@@ -780,36 +780,6 @@ fn get_special_property(
 ) -> Option<TokenStream> {
     let property_name = property.name.as_str();
     match (structure_name, property_name) {
-        ("SemanticTokensEdit", "data") => {
-            assert_eq!(property.optional, Some(true));
-            assert_eq!(
-                property.type_,
-                Type::ArrayType(
-                    ArrayType {
-                        kind: "array".into(),
-                        element: Type::BaseType(BaseType {
-                            kind: "base".into(),
-                            name: BaseTypes::Uinteger
-                        })
-                    }
-                    .into()
-                )
-            );
-            let documentation = render_documentation(property.documentation.clone());
-            let deprecated = property.deprecated.as_deref().map(render_deprecated);
-            props_simplified.push((quote! { data }, quote! { Option<Vec<SemanticToken>> }));
-            Some(quote! {
-                #documentation
-                #deprecated
-                #[serde(
-                    default,
-                    skip_serializing_if = "Option::is_none",
-                    deserialize_with = "SemanticToken::deserialize_optional_tokens",
-                    serialize_with = "SemanticToken::serialize_optional_tokens"
-                )]
-                pub data: Option<Vec<SemanticToken>>,
-            })
-        }
         ("SemanticTokens" | "SemanticTokensPartialResult", "data") => {
             assert_ne!(property.optional, Some(true));
             assert_eq!(
