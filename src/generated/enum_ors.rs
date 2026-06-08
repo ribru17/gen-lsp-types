@@ -281,22 +281,22 @@ impl From<CompletionList> for CompletionResponse {
 #[serde(untagged)]
 pub enum Contents {
     MarkupContent(MarkupContent),
-    MarkedString(MarkedString),
     MarkedStringList(Vec<MarkedString>),
+    MarkedString(MarkedString),
 }
 impl From<MarkupContent> for Contents {
     fn from(v: MarkupContent) -> Self {
         Self::MarkupContent(v)
     }
 }
-impl From<MarkedString> for Contents {
-    fn from(v: MarkedString) -> Self {
-        Self::MarkedString(v)
-    }
-}
 impl From<Vec<MarkedString>> for Contents {
     fn from(v: Vec<MarkedString>) -> Self {
         Self::MarkedStringList(v)
+    }
+}
+impl From<MarkedString> for Contents {
+    fn from(v: MarkedString) -> Self {
+        Self::MarkedString(v)
     }
 }
 
