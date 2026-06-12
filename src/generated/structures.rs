@@ -1460,7 +1460,7 @@ pub struct InlineValueParams {
     /// The document range for which inline values information will be returned.
     pub range: Range,
     /// Additional information about the context in which inline values information was
-    /// requested.     */
+    /// requested.
     pub context: InlineValueContext,
     #[serde(flatten)]
     pub work_done_progress_params: WorkDoneProgressParams,
