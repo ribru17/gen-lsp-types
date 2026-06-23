@@ -1271,7 +1271,7 @@ impl CodeActionKind {
 
 /// Code action tags are extra annotations that tweak the behavior of a code action.
 ///
-/// @since 3.18.0 - proposed
+/// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", try_from = "u32")]
 pub enum CodeActionTag {

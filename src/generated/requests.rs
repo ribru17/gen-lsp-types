@@ -450,6 +450,7 @@ impl Request for InlayHintRefreshRequest {
 
 /// The document diagnostic request definition.
 ///
+///
 /// @since 3.17.0
 #[derive(Debug)]
 pub enum DocumentDiagnosticRequest {}
@@ -460,7 +461,7 @@ impl Request for DocumentDiagnosticRequest {
     type Result = DocumentDiagnosticReport;
 }
 impl RequestWithPartialResults for DocumentDiagnosticRequest {
-    type PartialResult = DocumentDiagnosticReportPartialResult;
+    type PartialResult = DocumentDiagnosticReportProgress;
 }
 
 /// The workspace diagnostic request definition.

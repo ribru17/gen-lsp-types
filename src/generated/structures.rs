@@ -1678,21 +1678,6 @@ impl DocumentDiagnosticParams {
     }
 }
 
-/// A partial result for a document diagnostic report.
-///
-/// @since 3.17.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct DocumentDiagnosticReportPartialResult {
-    pub related_documents: HashMap<Uri, RelatedDocument>,
-}
-impl DocumentDiagnosticReportPartialResult {
-    #[must_use]
-    pub const fn new(related_documents: HashMap<Uri, RelatedDocument>) -> Self {
-        Self { related_documents }
-    }
-}
-
 /// Cancellation data returned from a diagnostic request.
 ///
 /// @since 3.17.0
@@ -3512,7 +3497,7 @@ pub struct CodeAction {
     pub data: Option<LspAny>,
     /// Tags for this code action.
     ///
-    /// @since 3.18.0 - proposed
+    /// @since 3.18.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<CodeActionTag>>,
 }
@@ -5561,116 +5546,18 @@ impl RelatedUnchangedDocumentDiagnosticReport {
     }
 }
 
-/// A diagnostic report with a full set of problems.
+/// A partial result for a document diagnostic report.
 ///
 /// @since 3.17.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Default)]
 #[serde(rename_all = "camelCase")]
-#[serde(
-    try_from = "ShadowFullDocumentDiagnosticReport",
-    into = "ShadowFullDocumentDiagnosticReport"
-)]
-pub struct FullDocumentDiagnosticReport {
-    /// An optional result id. If provided it will
-    /// be sent on the next diagnostic request for the
-    /// same document.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub result_id: Option<String>,
-    /// The actual items.
-    pub items: Vec<Diagnostic>,
+pub struct DocumentDiagnosticReportPartialResult {
+    pub related_documents: HashMap<Uri, RelatedDocument>,
 }
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
-#[serde(rename_all = "camelCase")]
-struct ShadowFullDocumentDiagnosticReport {
-    /// An optional result id. If provided it will
-    /// be sent on the next diagnostic request for the
-    /// same document.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub result_id: Option<String>,
-    /// The actual items.
-    pub items: Vec<Diagnostic>,
-    pub kind: String,
-}
-impl TryFrom<ShadowFullDocumentDiagnosticReport> for FullDocumentDiagnosticReport {
-    type Error = String;
-    fn try_from(
-        shadow: ShadowFullDocumentDiagnosticReport,
-    ) -> Result<Self, Self::Error> {
-        if shadow.kind != "full" {
-            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
-        }
-        Ok(Self {
-            result_id: shadow.result_id,
-            items: shadow.items,
-        })
-    }
-}
-impl From<FullDocumentDiagnosticReport> for ShadowFullDocumentDiagnosticReport {
-    fn from(original: FullDocumentDiagnosticReport) -> Self {
-        Self {
-            result_id: original.result_id,
-            items: original.items,
-            kind: "full".to_string(),
-        }
-    }
-}
-impl FullDocumentDiagnosticReport {
+impl DocumentDiagnosticReportPartialResult {
     #[must_use]
-    pub const fn new(result_id: Option<String>, items: Vec<Diagnostic>) -> Self {
-        Self { result_id, items }
-    }
-}
-
-/// A diagnostic report indicating that the last returned
-/// report is still accurate.
-///
-/// @since 3.17.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
-#[serde(rename_all = "camelCase")]
-#[serde(
-    try_from = "ShadowUnchangedDocumentDiagnosticReport",
-    into = "ShadowUnchangedDocumentDiagnosticReport"
-)]
-pub struct UnchangedDocumentDiagnosticReport {
-    /// A result id which will be sent on the next
-    /// diagnostic request for the same document.
-    pub result_id: String,
-}
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
-#[serde(rename_all = "camelCase")]
-struct ShadowUnchangedDocumentDiagnosticReport {
-    /// A result id which will be sent on the next
-    /// diagnostic request for the same document.
-    pub result_id: String,
-    pub kind: String,
-}
-impl TryFrom<ShadowUnchangedDocumentDiagnosticReport>
-for UnchangedDocumentDiagnosticReport {
-    type Error = String;
-    fn try_from(
-        shadow: ShadowUnchangedDocumentDiagnosticReport,
-    ) -> Result<Self, Self::Error> {
-        if shadow.kind != "unchanged" {
-            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
-        }
-        Ok(Self {
-            result_id: shadow.result_id,
-        })
-    }
-}
-impl From<UnchangedDocumentDiagnosticReport>
-for ShadowUnchangedDocumentDiagnosticReport {
-    fn from(original: UnchangedDocumentDiagnosticReport) -> Self {
-        Self {
-            result_id: original.result_id,
-            kind: "unchanged".to_string(),
-        }
-    }
-}
-impl UnchangedDocumentDiagnosticReport {
-    #[must_use]
-    pub const fn new(result_id: String) -> Self {
-        Self { result_id }
+    pub const fn new(related_documents: HashMap<Uri, RelatedDocument>) -> Self {
+        Self { related_documents }
     }
 }
 
@@ -7599,6 +7486,119 @@ impl FileOperationPattern {
         options: Option<FileOperationPatternOptions>,
     ) -> Self {
         Self { glob, matches, options }
+    }
+}
+
+/// A diagnostic report with a full set of problems.
+///
+/// @since 3.17.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+#[serde(
+    try_from = "ShadowFullDocumentDiagnosticReport",
+    into = "ShadowFullDocumentDiagnosticReport"
+)]
+pub struct FullDocumentDiagnosticReport {
+    /// An optional result id. If provided it will
+    /// be sent on the next diagnostic request for the
+    /// same document.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_id: Option<String>,
+    /// The actual items.
+    pub items: Vec<Diagnostic>,
+}
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+struct ShadowFullDocumentDiagnosticReport {
+    /// An optional result id. If provided it will
+    /// be sent on the next diagnostic request for the
+    /// same document.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result_id: Option<String>,
+    /// The actual items.
+    pub items: Vec<Diagnostic>,
+    pub kind: String,
+}
+impl TryFrom<ShadowFullDocumentDiagnosticReport> for FullDocumentDiagnosticReport {
+    type Error = String;
+    fn try_from(
+        shadow: ShadowFullDocumentDiagnosticReport,
+    ) -> Result<Self, Self::Error> {
+        if shadow.kind != "full" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(Self {
+            result_id: shadow.result_id,
+            items: shadow.items,
+        })
+    }
+}
+impl From<FullDocumentDiagnosticReport> for ShadowFullDocumentDiagnosticReport {
+    fn from(original: FullDocumentDiagnosticReport) -> Self {
+        Self {
+            result_id: original.result_id,
+            items: original.items,
+            kind: "full".to_string(),
+        }
+    }
+}
+impl FullDocumentDiagnosticReport {
+    #[must_use]
+    pub const fn new(result_id: Option<String>, items: Vec<Diagnostic>) -> Self {
+        Self { result_id, items }
+    }
+}
+
+/// A diagnostic report indicating that the last returned
+/// report is still accurate.
+///
+/// @since 3.17.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+#[serde(
+    try_from = "ShadowUnchangedDocumentDiagnosticReport",
+    into = "ShadowUnchangedDocumentDiagnosticReport"
+)]
+pub struct UnchangedDocumentDiagnosticReport {
+    /// A result id which will be sent on the next
+    /// diagnostic request for the same document.
+    pub result_id: String,
+}
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+struct ShadowUnchangedDocumentDiagnosticReport {
+    /// A result id which will be sent on the next
+    /// diagnostic request for the same document.
+    pub result_id: String,
+    pub kind: String,
+}
+impl TryFrom<ShadowUnchangedDocumentDiagnosticReport>
+for UnchangedDocumentDiagnosticReport {
+    type Error = String;
+    fn try_from(
+        shadow: ShadowUnchangedDocumentDiagnosticReport,
+    ) -> Result<Self, Self::Error> {
+        if shadow.kind != "unchanged" {
+            return Err(format!("Invalid value for prop kind: {}", shadow.kind));
+        }
+        Ok(Self {
+            result_id: shadow.result_id,
+        })
+    }
+}
+impl From<UnchangedDocumentDiagnosticReport>
+for ShadowUnchangedDocumentDiagnosticReport {
+    fn from(original: UnchangedDocumentDiagnosticReport) -> Self {
+        Self {
+            result_id: original.result_id,
+            kind: "unchanged".to_string(),
+        }
+    }
+}
+impl UnchangedDocumentDiagnosticReport {
+    #[must_use]
+    pub const fn new(result_id: String) -> Self {
+        Self { result_id }
     }
 }
 
@@ -9768,7 +9768,7 @@ pub struct CodeActionClientCapabilities {
     /// Client supports the tag property on a code action. Clients
     /// supporting tags have to handle unknown tags gracefully.
     ///
-    /// @since 3.18.0 - proposed
+    /// @since 3.18.0
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tag_support: Option<CodeActionTagOptions>,
 }
@@ -10745,7 +10745,7 @@ impl ClientCodeActionResolveOptions {
     }
 }
 
-/// @since 3.18.0 - proposed
+/// @since 3.18.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeActionTagOptions {

@@ -74,10 +74,21 @@ fn render_documentation(documentation: Option<String>) -> TokenStream {
         });
 
         let lines = doc.split('\n');
+        let mut in_codeblock = false;
         lines
             .map(|line| {
                 let line = if line.is_empty() {
                     line.to_string()
+                } else if line.starts_with("```") {
+                    // Hacky markdown "parsing" to fix doctests
+                    if in_codeblock {
+                        in_codeblock = false;
+                        [" ", line].concat()
+                    } else {
+                        in_codeblock = true;
+                        let suffix = if line == "```" { "text" } else { "" };
+                        [" ", line, suffix].concat()
+                    }
                 } else {
                     [" ", line].concat()
                 };

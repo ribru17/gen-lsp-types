@@ -519,6 +519,38 @@ impl From<RelatedUnchangedDocumentDiagnosticReport> for DocumentDiagnosticReport
     }
 }
 
+/// The document diagnostic report used when reporting partial result.
+///
+/// When using partial results, the first literal sent needs to be a
+/// DocumentDiagnosticReport providing the diagnostics on the document
+/// followed by n DocumentDiagnosticReportPartialResult literals providing
+/// the diagnostics for related documents.
+///
+/// ```text
+/// DocumentDiagnosticReport
+/// DocumentDiagnosticReportPartialResult
+/// DocumentDiagnosticReportPartialResult
+/// ...
+/// ```
+///
+/// @since 3.18.1
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq)]
+#[serde(untagged)]
+pub enum DocumentDiagnosticReportProgress {
+    DocumentDiagnosticReport(DocumentDiagnosticReport),
+    DocumentDiagnosticReportPartialResult(DocumentDiagnosticReportPartialResult),
+}
+impl From<DocumentDiagnosticReport> for DocumentDiagnosticReportProgress {
+    fn from(v: DocumentDiagnosticReport) -> Self {
+        Self::DocumentDiagnosticReport(v)
+    }
+}
+impl From<DocumentDiagnosticReportPartialResult> for DocumentDiagnosticReportProgress {
+    fn from(v: DocumentDiagnosticReportPartialResult) -> Self {
+        Self::DocumentDiagnosticReportPartialResult(v)
+    }
+}
+
 /// A document filter describes a top level text document or
 /// a notebook cell document.
 ///
