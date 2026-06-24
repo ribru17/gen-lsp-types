@@ -660,6 +660,30 @@ fn main() {
                 pub token_modifiers_bitset: u32,
             }
 
+            impl From<[u32; 5]> for SemanticToken {
+                fn from(slice: [u32; 5]) -> Self {
+                    Self {
+                        delta_line: slice[0],
+                        delta_start: slice[1],
+                        length: slice[2],
+                        token_type: slice[3],
+                        token_modifiers_bitset: slice[4],
+                    }
+                }
+            }
+
+            impl From<SemanticToken> for [u32; 5] {
+                fn from(token: SemanticToken) -> Self {
+                    [
+                        token.delta_line,
+                        token.delta_start,
+                        token.length,
+                        token.token_type,
+                        token.token_modifiers_bitset,
+                    ]
+                }
+            }
+
             impl SemanticToken {
                 fn deserialize_tokens<'de, D>(deserializer: D) -> Result<Vec<SemanticToken>, D::Error>
                 where

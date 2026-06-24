@@ -846,6 +846,21 @@ mod test {
         let stpr_ser = r#"{"data":[]}"#;
         assert_eq!(serde_json::to_string(&stpr).unwrap(), stpr_ser);
         assert_eq!(stpr, serde_json::from_str(stpr_ser).unwrap());
+
+        let slice: [u32; 5] = [1, 2, 3, 4, 5];
+        let token: SemanticToken = slice.into();
+        assert_eq!(
+            token,
+            SemanticToken {
+                delta_line: 1,
+                delta_start: 2,
+                length: 3,
+                token_type: 4,
+                token_modifiers_bitset: 5,
+            }
+        );
+        let slice: [u32; 5] = token.into();
+        assert_eq!(slice, [1, 2, 3, 4, 5]);
     }
 
     #[test]
