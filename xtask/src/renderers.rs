@@ -735,11 +735,16 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     } else {
         None
     };
+    let maybe_const = if supports_custom {
+        None
+    } else {
+        Some(quote! { const })
+    };
     let as_str_impl = if is_str_enum {
         Some(quote! {
             impl #name_ident {
                 #[must_use]
-                pub fn as_str(&self) -> &str {
+                pub #maybe_const fn as_str(&self) -> &str {
                     match self {
                         #(#as_str_arms)*
                     }

@@ -324,7 +324,7 @@ impl fmt::Display for DocumentDiagnosticReportKind {
 }
 impl DocumentDiagnosticReportKind {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Full => "full",
             Self::Unchanged => "unchanged",
@@ -675,7 +675,7 @@ impl fmt::Display for UniquenessLevel {
 }
 impl UniquenessLevel {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Document => "document",
             Self::Project => "project",
@@ -728,7 +728,7 @@ impl fmt::Display for MonikerKind {
 }
 impl MonikerKind {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Import => "import",
             Self::Export => "export",
@@ -1333,7 +1333,7 @@ impl fmt::Display for TraceValue {
 }
 impl TraceValue {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Off => "off",
             Self::Messages => "messages",
@@ -1381,7 +1381,7 @@ impl fmt::Display for MarkupKind {
 }
 impl MarkupKind {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::PlainText => "plaintext",
             Self::Markdown => "markdown",
@@ -2173,7 +2173,7 @@ impl fmt::Display for FileOperationPatternKind {
 }
 impl FileOperationPatternKind {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::File => "file",
             Self::Folder => "folder",
@@ -2249,7 +2249,7 @@ impl fmt::Display for ResourceOperationKind {
 }
 impl ResourceOperationKind {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Create => "create",
             Self::Rename => "rename",
@@ -2307,7 +2307,7 @@ impl fmt::Display for FailureHandlingKind {
 }
 impl FailureHandlingKind {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Abort => "abort",
             Self::Transactional => "transactional",
@@ -2370,7 +2370,7 @@ impl fmt::Display for TokenFormat {
 }
 impl TokenFormat {
     #[must_use]
-    pub fn as_str(&self) -> &str {
+    pub const fn as_str(&self) -> &str {
         match self {
             Self::Relative => "relative",
         }

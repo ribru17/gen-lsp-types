@@ -8,7 +8,6 @@
     clippy::too_long_first_doc_paragraph,
     clippy::doc_markdown,
     clippy::match_same_arms,
-    clippy::missing_const_for_fn,
     clippy::doc_link_with_quotes,
     clippy::manual_string_new,
     clippy::use_self,
