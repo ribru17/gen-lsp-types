@@ -921,6 +921,28 @@ mod test {
         assert_eq!(ser, r#"["Foo","Bar"]"#);
         assert_eq!(contents, serde_json::from_str(&ser).unwrap());
     }
+
+    #[test]
+    fn with_uri_accesses_uri() {
+        let uri = Uri::from("file://rust/is/a/must.rs");
+        let tdi = TextDocumentIdentifier { uri: uri.clone() };
+        let vtdi = VersionedTextDocumentIdentifier {
+            text_document_identifier: tdi.clone(),
+            version: 1,
+        };
+        let ler_params = LinkedEditingRangeParams {
+            work_done_progress_params: WorkDoneProgressParams::default(),
+            text_document_position_params: TextDocumentPositionParams {
+                text_document: tdi.clone(),
+                position: Position::default(),
+            },
+        };
+
+        assert_eq!(&uri, vtdi.uri());
+        assert_eq!(&uri, tdi.uri());
+        assert_eq!(&uri, uri.uri());
+        assert_eq!(&uri, ler_params.uri());
+    }
 }
 
 /// Tests for the "url" feature.

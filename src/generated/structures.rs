@@ -11107,3 +11107,381 @@ pub enum MessageActionItemProperty {
     Int(i32),
     Object(LspObject),
 }
+
+impl WithUri for CallHierarchyItem {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for CallHierarchyPrepareParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for CodeActionParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for CodeLensParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for ColorPresentationParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for CompletionParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for CreateFile {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for DeclarationParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for DefinitionParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for DeleteFile {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for DidChangeTextDocumentParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DidCloseTextDocumentParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DidOpenTextDocumentParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DidSaveTextDocumentParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentColorParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentDiagnosticParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentFormattingParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentHighlightParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for DocumentLinkParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentOnTypeFormattingParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentRangeFormattingParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentRangesFormattingParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for DocumentSymbolParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for FileEvent {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for FoldingRangeParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for HoverParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for ImplementationParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for InlayHintParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for InlineCompletionParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for InlineValueParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for LinkedEditingRangeParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for Location {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for LocationUriOnly {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for MonikerParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for NotebookDocument {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for NotebookDocumentIdentifier {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for OptionalVersionedTextDocumentIdentifier {
+    fn uri(&self) -> &Uri {
+        self.text_document_identifier.uri()
+    }
+}
+
+impl WithUri for PrepareRenameParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for PreviousResultId {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for PublishDiagnosticsParams {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for ReferenceParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for RenameParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for SelectionRangeParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for SemanticTokensDeltaParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for SemanticTokensParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for SemanticTokensRangeParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for ShowDocumentParams {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for SignatureHelpParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for TextDocumentContentParams {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for TextDocumentContentRefreshParams {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for TextDocumentEdit {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for TextDocumentIdentifier {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for TextDocumentItem {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for TextDocumentPositionParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for TypeDefinitionParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for TypeHierarchyItem {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for TypeHierarchyPrepareParams {
+    fn uri(&self) -> &Uri {
+        self.text_document_position_params.uri()
+    }
+}
+
+impl WithUri for VersionedNotebookDocumentIdentifier {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for VersionedTextDocumentIdentifier {
+    fn uri(&self) -> &Uri {
+        self.text_document_identifier.uri()
+    }
+}
+
+impl WithUri for WillSaveTextDocumentParams {
+    fn uri(&self) -> &Uri {
+        self.text_document.uri()
+    }
+}
+
+impl WithUri for WorkspaceFolder {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for WorkspaceFullDocumentDiagnosticReport {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
+
+impl WithUri for WorkspaceUnchangedDocumentDiagnosticReport {
+    fn uri(&self) -> &Uri {
+        self.uri.uri()
+    }
+}
