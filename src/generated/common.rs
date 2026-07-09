@@ -666,6 +666,16 @@ macro_rules! lsp_request {
     };
 }
 
+/// Provides generic access to [`crate::Uri`]s
+pub trait WithUri {
+    fn uri(&self) -> &Uri;
+}
+impl WithUri for Uri {
+    fn uri(&self) -> &Uri {
+        self
+    }
+}
+
 /// Get the [`Notification`] type for a notification method.
 ///
 /// Example:

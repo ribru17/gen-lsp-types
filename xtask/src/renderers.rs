@@ -106,6 +106,38 @@ fn render_deprecated(note: &str) -> TokenStream {
     quote! { #[deprecated(note = #note)] }
 }
 
+pub fn render_with_uri_trait() -> TokenStream {
+    quote! {
+        /// Provides generic access to [`crate::Uri`]s
+        pub trait WithUri {
+            fn uri(&self) -> &Uri;
+        }
+
+        impl WithUri for Uri {
+            fn uri(&self) -> &Uri {
+                self
+            }
+        }
+    }
+}
+
+pub fn render_with_uri_impls(structs_map: &HashMap<String, Structure>) -> Vec<TokenStream> {
+    crate::with_uri::get_structs_with_uri(structs_map)
+        .into_iter()
+        .map(|(name, key)| {
+            let name = format_ident!("{name}");
+            let key = format_ident!("{key}");
+            quote! {
+                impl WithUri for #name {
+                    fn uri(&self) -> &Uri {
+                        self.#key.uri()
+                    }
+                }
+            }
+        })
+        .collect()
+}
+
 pub fn render_enum_ors(
     structs_map: &HashMap<String, Structure>,
     enums_map: &HashMap<String, Enumeration>,
