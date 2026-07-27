@@ -14,5 +14,5 @@ proc-macro2 = "1.0.106"
 quote = "1.0.45"
 serde = { workspace = true }
 serde_json = { workspace = true }
-syn = "2.0.117"
+syn = "3.0.2"
 typify = "0.7.0"
