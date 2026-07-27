@@ -554,12 +554,6 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let derives = get_enum_derives(&enumeration)
         .into_iter()
         .map(|derive| format_ident!("{derive}"));
-    let deprecated = enumeration.deprecated.as_deref().map(render_deprecated);
-    let mut attributes = quote! {
-        #[derive(#(#derives),*)]
-        #deprecated
-    };
-
     let documentation = render_documentation(enumeration.documentation);
 
     let name = if enumeration.name == "LSPErrorCodes" {
@@ -570,12 +564,11 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let name_ident = format_ident!("{}", name);
 
     let is_str_enum = matches!(enumeration.type_.name, EnumerationTypeName::String);
-    let supports_custom = enumeration.supports_custom_values == Some(true);
 
-    let mut sers = Vec::with_capacity(enumeration.values.len() + supports_custom as usize);
+    let mut sers = Vec::with_capacity(enumeration.values.len() + 1);
     let mut desers = Vec::with_capacity(enumeration.values.len() + 1);
     let mut as_str_arms = if is_str_enum {
-        Vec::with_capacity(enumeration.values.len() + supports_custom as usize)
+        Vec::with_capacity(enumeration.values.len() + 1)
     } else {
         Vec::new()
     };
@@ -587,17 +580,12 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     };
 
     let value_type_str = value_type.to_string();
-    if supports_custom {
-        attributes = quote! {
-            #attributes
-            #[serde(into = #value_type_str, from = #value_type_str)]
-        }
-    } else {
-        attributes = quote! {
-            #attributes
-            #[serde(into = #value_type_str, try_from = #value_type_str)]
-        }
-    }
+    let deprecated = enumeration.deprecated.as_deref().map(render_deprecated);
+    let attributes = quote! {
+        #[derive(#(#derives),*)]
+        #deprecated
+        #[serde(into = #value_type_str, from = #value_type_str)]
+    };
 
     let mut values: Vec<TokenStream> = enumeration
         .values
@@ -618,12 +606,8 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
                 }
                 EnumerationEntryValue::String(string) => quote! { #string },
             };
+            desers.push(quote! { #value => Self::#ident, });
             let full_name = quote! { #name_ident::#ident };
-            if supports_custom {
-                desers.push(quote! { #value => Self::#ident, });
-            } else {
-                desers.push(quote! { #value => Ok(Self::#ident), });
-            }
             if is_str_enum {
                 sers.push(quote! { #full_name => #value.to_string(), });
                 as_str_arms.push(quote! { Self::#ident => #value, });
@@ -637,7 +621,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             }
         })
         .collect();
-    let deser_catchall = if supports_custom {
+    let deser_catchall = {
         // allow for constructing string enums in `const` contexts
         let (custom_type, custom_ser, custom_deser) = if is_str_enum {
             (
@@ -662,9 +646,6 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         });
         sers.push(custom_ser);
         custom_deser
-    } else {
-        let fmt = format!("Invalid {name_ident}: {{v}}");
-        quote! { _ => Err(format!(#fmt)), }
     };
 
     let enum_tokens = quote! {
@@ -675,32 +656,18 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         }
     };
 
-    let (deser_trait, deser_method, trait_err, return_type) = if supports_custom {
-        (
-            format_ident!("From"),
-            format_ident!("from"),
-            None,
-            quote! { Self },
-        )
-    } else {
-        (
-            format_ident!("TryFrom"),
-            format_ident!("try_from"),
-            Some(quote! { type Error = String; }),
-            quote! { Result<Self, <Self as TryFrom<#value_type>>::Error> },
-        )
-    };
+    let (deser_trait, deser_method, return_type) = (
+        format_ident!("From"),
+        format_ident!("from"),
+        quote! { Self },
+    );
     let as_str = if is_str_enum {
         Some(quote! { .as_str() })
     } else {
         None
     };
     let display = if is_str_enum {
-        let s = if supports_custom {
-            quote! { self.clone() }
-        } else {
-            quote! { (*self) }
-        };
+        let s = quote! { self.clone() };
         Some(quote! {
             impl fmt::Display for #name_ident {
                 fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -712,7 +679,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     } else {
         None
     };
-    let from_static_str = if is_str_enum && supports_custom {
+    let from_static_str = if is_str_enum {
         let constructor_doc = format!(" Create a custom `{name}` from a string literal.");
         Some(quote! {
             impl #name_ident {
@@ -735,16 +702,11 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     } else {
         None
     };
-    let maybe_const = if supports_custom {
-        None
-    } else {
-        Some(quote! { const })
-    };
     let as_str_impl = if is_str_enum {
         Some(quote! {
             impl #name_ident {
                 #[must_use]
-                pub #maybe_const fn as_str(&self) -> &str {
+                pub fn as_str(&self) -> &str {
                     match self {
                         #(#as_str_arms)*
                     }
@@ -764,8 +726,6 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         }
 
         impl #deser_trait<#value_type> for #name_ident {
-            #trait_err
-
             fn #deser_method(v: #value_type) -> #return_type {
                 match v #as_str {
                     #(#desers)*

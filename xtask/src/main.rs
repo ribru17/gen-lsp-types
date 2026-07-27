@@ -422,7 +422,7 @@ fn main() {
             &contents_type.items[2],
             Type::ArrayType(boxed) if matches!(boxed.as_ref(), ArrayType { kind: _, element: Type::ReferenceType(ReferenceType { kind: _, name }) } if name.as_str() == "MarkedString")
         );
-        let ([_, a], [b]) = contents_type.items.split_at_mut(2) else {
+        let ([a, _], [b]) = contents_type.items.split_at_mut(2) else {
             panic!("Unexpected \"contents\" type structure: {contents_type:?}");
         };
         std::mem::swap(a, b);

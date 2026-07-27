@@ -288,8 +288,8 @@ impl SemanticTokenModifiers {
 /// The document diagnostic report kinds.
 ///
 /// @since 3.17.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum DocumentDiagnosticReportKind {
     /// A diagnostic report with a full
     /// set of problems.
@@ -297,37 +297,57 @@ pub enum DocumentDiagnosticReportKind {
     /// A report indicating that the last
     /// returned report is still accurate.
     Unchanged,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<DocumentDiagnosticReportKind> for String {
     fn from(e: DocumentDiagnosticReportKind) -> Self {
         match e {
             DocumentDiagnosticReportKind::Full => "full".to_string(),
             DocumentDiagnosticReportKind::Unchanged => "unchanged".to_string(),
+            DocumentDiagnosticReportKind::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for DocumentDiagnosticReportKind {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for DocumentDiagnosticReportKind {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "full" => Ok(Self::Full),
-            "unchanged" => Ok(Self::Unchanged),
-            _ => Err(format!("Invalid DocumentDiagnosticReportKind: {v}")),
+            "full" => Self::Full,
+            "unchanged" => Self::Unchanged,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl DocumentDiagnosticReportKind {
+    /// Create a custom `DocumentDiagnosticReportKind` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for DocumentDiagnosticReportKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "full" => Self::Full,
+            "unchanged" => Self::Unchanged,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for DocumentDiagnosticReportKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl DocumentDiagnosticReportKind {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Full => "full",
             Self::Unchanged => "unchanged",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -504,7 +524,7 @@ impl FoldingRangeKind {
 
 /// A symbol kind.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum SymbolKind {
     File,
     Module,
@@ -532,6 +552,9 @@ pub enum SymbolKind {
     Event,
     Operator,
     TypeParameter,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<SymbolKind> for u32 {
     fn from(e: SymbolKind) -> Self {
@@ -562,40 +585,40 @@ impl From<SymbolKind> for u32 {
             SymbolKind::Event => 24u32,
             SymbolKind::Operator => 25u32,
             SymbolKind::TypeParameter => 26u32,
+            SymbolKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for SymbolKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for SymbolKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::File),
-            2u32 => Ok(Self::Module),
-            3u32 => Ok(Self::Namespace),
-            4u32 => Ok(Self::Package),
-            5u32 => Ok(Self::Class),
-            6u32 => Ok(Self::Method),
-            7u32 => Ok(Self::Property),
-            8u32 => Ok(Self::Field),
-            9u32 => Ok(Self::Constructor),
-            10u32 => Ok(Self::Enum),
-            11u32 => Ok(Self::Interface),
-            12u32 => Ok(Self::Function),
-            13u32 => Ok(Self::Variable),
-            14u32 => Ok(Self::Constant),
-            15u32 => Ok(Self::String),
-            16u32 => Ok(Self::Number),
-            17u32 => Ok(Self::Boolean),
-            18u32 => Ok(Self::Array),
-            19u32 => Ok(Self::Object),
-            20u32 => Ok(Self::Key),
-            21u32 => Ok(Self::Null),
-            22u32 => Ok(Self::EnumMember),
-            23u32 => Ok(Self::Struct),
-            24u32 => Ok(Self::Event),
-            25u32 => Ok(Self::Operator),
-            26u32 => Ok(Self::TypeParameter),
-            _ => Err(format!("Invalid SymbolKind: {v}")),
+            1u32 => Self::File,
+            2u32 => Self::Module,
+            3u32 => Self::Namespace,
+            4u32 => Self::Package,
+            5u32 => Self::Class,
+            6u32 => Self::Method,
+            7u32 => Self::Property,
+            8u32 => Self::Field,
+            9u32 => Self::Constructor,
+            10u32 => Self::Enum,
+            11u32 => Self::Interface,
+            12u32 => Self::Function,
+            13u32 => Self::Variable,
+            14u32 => Self::Constant,
+            15u32 => Self::String,
+            16u32 => Self::Number,
+            17u32 => Self::Boolean,
+            18u32 => Self::Array,
+            19u32 => Self::Object,
+            20u32 => Self::Key,
+            21u32 => Self::Null,
+            22u32 => Self::EnumMember,
+            23u32 => Self::Struct,
+            24u32 => Self::Event,
+            25u32 => Self::Operator,
+            26u32 => Self::TypeParameter,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -604,24 +627,27 @@ impl TryFrom<u32> for SymbolKind {
 ///
 /// @since 3.16
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum SymbolTag {
     /// Render a symbol as obsolete, usually using a strike-out.
     Deprecated,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<SymbolTag> for u32 {
     fn from(e: SymbolTag) -> Self {
         match e {
             SymbolTag::Deprecated => 1u32,
+            SymbolTag::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for SymbolTag {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for SymbolTag {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Deprecated),
-            _ => Err(format!("Invalid SymbolTag: {v}")),
+            1u32 => Self::Deprecated,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -629,8 +655,8 @@ impl TryFrom<u32> for SymbolTag {
 /// Moniker uniqueness level to define scope of the moniker.
 ///
 /// @since 3.16.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum UniquenessLevel {
     /// The moniker is only unique inside a document
     Document,
@@ -642,6 +668,9 @@ pub enum UniquenessLevel {
     Scheme,
     /// The moniker is globally unique
     Global,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<UniquenessLevel> for String {
     fn from(e: UniquenessLevel) -> Self {
@@ -651,37 +680,57 @@ impl From<UniquenessLevel> for String {
             UniquenessLevel::Group => "group".to_string(),
             UniquenessLevel::Scheme => "scheme".to_string(),
             UniquenessLevel::Global => "global".to_string(),
+            UniquenessLevel::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for UniquenessLevel {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for UniquenessLevel {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "document" => Ok(Self::Document),
-            "project" => Ok(Self::Project),
-            "group" => Ok(Self::Group),
-            "scheme" => Ok(Self::Scheme),
-            "global" => Ok(Self::Global),
-            _ => Err(format!("Invalid UniquenessLevel: {v}")),
+            "document" => Self::Document,
+            "project" => Self::Project,
+            "group" => Self::Group,
+            "scheme" => Self::Scheme,
+            "global" => Self::Global,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl UniquenessLevel {
+    /// Create a custom `UniquenessLevel` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for UniquenessLevel {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "document" => Self::Document,
+            "project" => Self::Project,
+            "group" => Self::Group,
+            "scheme" => Self::Scheme,
+            "global" => Self::Global,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for UniquenessLevel {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl UniquenessLevel {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Document => "document",
             Self::Project => "project",
             Self::Group => "group",
             Self::Scheme => "scheme",
             Self::Global => "global",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -689,8 +738,8 @@ impl UniquenessLevel {
 /// The moniker kind.
 ///
 /// @since 3.16.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum MonikerKind {
     /// The moniker represent a symbol that is imported into a project
     Import,
@@ -699,6 +748,9 @@ pub enum MonikerKind {
     /// The moniker represents a symbol that is local to a project (e.g. a local
     /// variable of a function, a class not visible outside the project, ...)
     Local,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<MonikerKind> for String {
     fn from(e: MonikerKind) -> Self {
@@ -706,33 +758,51 @@ impl From<MonikerKind> for String {
             MonikerKind::Import => "import".to_string(),
             MonikerKind::Export => "export".to_string(),
             MonikerKind::Local => "local".to_string(),
+            MonikerKind::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for MonikerKind {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for MonikerKind {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "import" => Ok(Self::Import),
-            "export" => Ok(Self::Export),
-            "local" => Ok(Self::Local),
-            _ => Err(format!("Invalid MonikerKind: {v}")),
+            "import" => Self::Import,
+            "export" => Self::Export,
+            "local" => Self::Local,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl MonikerKind {
+    /// Create a custom `MonikerKind` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for MonikerKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "import" => Self::Import,
+            "export" => Self::Export,
+            "local" => Self::Local,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for MonikerKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl MonikerKind {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Import => "import",
             Self::Export => "export",
             Self::Local => "local",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -741,35 +811,38 @@ impl MonikerKind {
 ///
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum InlayHintKind {
     /// An inlay hint that for a type annotation.
     Type,
     /// An inlay hint that is for a parameter.
     Parameter,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<InlayHintKind> for u32 {
     fn from(e: InlayHintKind) -> Self {
         match e {
             InlayHintKind::Type => 1u32,
             InlayHintKind::Parameter => 2u32,
+            InlayHintKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for InlayHintKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for InlayHintKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Type),
-            2u32 => Ok(Self::Parameter),
-            _ => Err(format!("Invalid InlayHintKind: {v}")),
+            1u32 => Self::Type,
+            2u32 => Self::Parameter,
+            _ => Self::Custom(v),
         }
     }
 }
 
 /// The message type
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum MessageType {
     /// An error message.
     Error,
@@ -783,6 +856,9 @@ pub enum MessageType {
     ///
     /// @since 3.18.0
     Debug,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<MessageType> for u32 {
     fn from(e: MessageType) -> Self {
@@ -792,19 +868,19 @@ impl From<MessageType> for u32 {
             MessageType::Info => 3u32,
             MessageType::Log => 4u32,
             MessageType::Debug => 5u32,
+            MessageType::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for MessageType {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for MessageType {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Error),
-            2u32 => Ok(Self::Warning),
-            3u32 => Ok(Self::Info),
-            4u32 => Ok(Self::Log),
-            5u32 => Ok(Self::Debug),
-            _ => Err(format!("Invalid MessageType: {v}")),
+            1u32 => Self::Error,
+            2u32 => Self::Warning,
+            3u32 => Self::Info,
+            4u32 => Self::Log,
+            5u32 => Self::Debug,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -812,7 +888,7 @@ impl TryFrom<u32> for MessageType {
 /// Defines how the host (editor) should sync
 /// document changes to the language server.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum TextDocumentSyncKind {
     /// Documents should not be synced at all.
     None,
@@ -823,6 +899,9 @@ pub enum TextDocumentSyncKind {
     /// After that only incremental updates to the document are
     /// send.
     Incremental,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<TextDocumentSyncKind> for u32 {
     fn from(e: TextDocumentSyncKind) -> Self {
@@ -830,24 +909,24 @@ impl From<TextDocumentSyncKind> for u32 {
             TextDocumentSyncKind::None => 0u32,
             TextDocumentSyncKind::Full => 1u32,
             TextDocumentSyncKind::Incremental => 2u32,
+            TextDocumentSyncKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for TextDocumentSyncKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for TextDocumentSyncKind {
+    fn from(v: u32) -> Self {
         match v {
-            0u32 => Ok(Self::None),
-            1u32 => Ok(Self::Full),
-            2u32 => Ok(Self::Incremental),
-            _ => Err(format!("Invalid TextDocumentSyncKind: {v}")),
+            0u32 => Self::None,
+            1u32 => Self::Full,
+            2u32 => Self::Incremental,
+            _ => Self::Custom(v),
         }
     }
 }
 
 /// Represents reasons why a text document is saved.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum TextDocumentSaveReason {
     /// Manually triggered, e.g. by the user pressing save, by starting debugging,
     /// or by an API call.
@@ -856,6 +935,9 @@ pub enum TextDocumentSaveReason {
     AfterDelay,
     /// When the editor lost focus.
     FocusOut,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<TextDocumentSaveReason> for u32 {
     fn from(e: TextDocumentSaveReason) -> Self {
@@ -863,24 +945,24 @@ impl From<TextDocumentSaveReason> for u32 {
             TextDocumentSaveReason::Manual => 1u32,
             TextDocumentSaveReason::AfterDelay => 2u32,
             TextDocumentSaveReason::FocusOut => 3u32,
+            TextDocumentSaveReason::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for TextDocumentSaveReason {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for TextDocumentSaveReason {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Manual),
-            2u32 => Ok(Self::AfterDelay),
-            3u32 => Ok(Self::FocusOut),
-            _ => Err(format!("Invalid TextDocumentSaveReason: {v}")),
+            1u32 => Self::Manual,
+            2u32 => Self::AfterDelay,
+            3u32 => Self::FocusOut,
+            _ => Self::Custom(v),
         }
     }
 }
 
 /// The kind of a completion entry.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum CompletionItemKind {
     Text,
     Method,
@@ -907,6 +989,9 @@ pub enum CompletionItemKind {
     Event,
     Operator,
     TypeParameter,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<CompletionItemKind> for u32 {
     fn from(e: CompletionItemKind) -> Self {
@@ -936,39 +1021,39 @@ impl From<CompletionItemKind> for u32 {
             CompletionItemKind::Event => 23u32,
             CompletionItemKind::Operator => 24u32,
             CompletionItemKind::TypeParameter => 25u32,
+            CompletionItemKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for CompletionItemKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for CompletionItemKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Text),
-            2u32 => Ok(Self::Method),
-            3u32 => Ok(Self::Function),
-            4u32 => Ok(Self::Constructor),
-            5u32 => Ok(Self::Field),
-            6u32 => Ok(Self::Variable),
-            7u32 => Ok(Self::Class),
-            8u32 => Ok(Self::Interface),
-            9u32 => Ok(Self::Module),
-            10u32 => Ok(Self::Property),
-            11u32 => Ok(Self::Unit),
-            12u32 => Ok(Self::Value),
-            13u32 => Ok(Self::Enum),
-            14u32 => Ok(Self::Keyword),
-            15u32 => Ok(Self::Snippet),
-            16u32 => Ok(Self::Color),
-            17u32 => Ok(Self::File),
-            18u32 => Ok(Self::Reference),
-            19u32 => Ok(Self::Folder),
-            20u32 => Ok(Self::EnumMember),
-            21u32 => Ok(Self::Constant),
-            22u32 => Ok(Self::Struct),
-            23u32 => Ok(Self::Event),
-            24u32 => Ok(Self::Operator),
-            25u32 => Ok(Self::TypeParameter),
-            _ => Err(format!("Invalid CompletionItemKind: {v}")),
+            1u32 => Self::Text,
+            2u32 => Self::Method,
+            3u32 => Self::Function,
+            4u32 => Self::Constructor,
+            5u32 => Self::Field,
+            6u32 => Self::Variable,
+            7u32 => Self::Class,
+            8u32 => Self::Interface,
+            9u32 => Self::Module,
+            10u32 => Self::Property,
+            11u32 => Self::Unit,
+            12u32 => Self::Value,
+            13u32 => Self::Enum,
+            14u32 => Self::Keyword,
+            15u32 => Self::Snippet,
+            16u32 => Self::Color,
+            17u32 => Self::File,
+            18u32 => Self::Reference,
+            19u32 => Self::Folder,
+            20u32 => Self::EnumMember,
+            21u32 => Self::Constant,
+            22u32 => Self::Struct,
+            23u32 => Self::Event,
+            24u32 => Self::Operator,
+            25u32 => Self::TypeParameter,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -978,24 +1063,27 @@ impl TryFrom<u32> for CompletionItemKind {
 ///
 /// @since 3.15.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum CompletionItemTag {
     /// Render a completion as obsolete, usually using a strike-out.
     Deprecated,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<CompletionItemTag> for u32 {
     fn from(e: CompletionItemTag) -> Self {
         match e {
             CompletionItemTag::Deprecated => 1u32,
+            CompletionItemTag::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for CompletionItemTag {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for CompletionItemTag {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Deprecated),
-            _ => Err(format!("Invalid CompletionItemTag: {v}")),
+            1u32 => Self::Deprecated,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -1003,7 +1091,7 @@ impl TryFrom<u32> for CompletionItemTag {
 /// Defines whether the insert text in a completion item should be interpreted as
 /// plain text or a snippet.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum InsertTextFormat {
     /// The primary text to be inserted is treated as a plain string.
     PlainText,
@@ -1016,22 +1104,25 @@ pub enum InsertTextFormat {
     ///
     /// See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
     Snippet,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<InsertTextFormat> for u32 {
     fn from(e: InsertTextFormat) -> Self {
         match e {
             InsertTextFormat::PlainText => 1u32,
             InsertTextFormat::Snippet => 2u32,
+            InsertTextFormat::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for InsertTextFormat {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for InsertTextFormat {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::PlainText),
-            2u32 => Ok(Self::Snippet),
-            _ => Err(format!("Invalid InsertTextFormat: {v}")),
+            1u32 => Self::PlainText,
+            2u32 => Self::Snippet,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -1041,7 +1132,7 @@ impl TryFrom<u32> for InsertTextFormat {
 ///
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum InsertTextMode {
     /// The insertion or replace strings is taken as it is. If the
     /// value is multi line the lines below the cursor will be
@@ -1057,29 +1148,32 @@ pub enum InsertTextMode {
     /// multi line completion item is indented using 2 tabs and all
     /// following lines inserted will be indented using 2 tabs as well.
     AdjustIndentation,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<InsertTextMode> for u32 {
     fn from(e: InsertTextMode) -> Self {
         match e {
             InsertTextMode::AsIs => 1u32,
             InsertTextMode::AdjustIndentation => 2u32,
+            InsertTextMode::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for InsertTextMode {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for InsertTextMode {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::AsIs),
-            2u32 => Ok(Self::AdjustIndentation),
-            _ => Err(format!("Invalid InsertTextMode: {v}")),
+            1u32 => Self::AsIs,
+            2u32 => Self::AdjustIndentation,
+            _ => Self::Custom(v),
         }
     }
 }
 
 /// A document highlight kind.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum DocumentHighlightKind {
     /// A textual occurrence.
     Text,
@@ -1087,6 +1181,9 @@ pub enum DocumentHighlightKind {
     Read,
     /// Write-access of a symbol, like writing to a variable.
     Write,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<DocumentHighlightKind> for u32 {
     fn from(e: DocumentHighlightKind) -> Self {
@@ -1094,17 +1191,17 @@ impl From<DocumentHighlightKind> for u32 {
             DocumentHighlightKind::Text => 1u32,
             DocumentHighlightKind::Read => 2u32,
             DocumentHighlightKind::Write => 3u32,
+            DocumentHighlightKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for DocumentHighlightKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for DocumentHighlightKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Text),
-            2u32 => Ok(Self::Read),
-            3u32 => Ok(Self::Write),
-            _ => Err(format!("Invalid DocumentHighlightKind: {v}")),
+            1u32 => Self::Text,
+            2u32 => Self::Read,
+            3u32 => Self::Write,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -1273,30 +1370,33 @@ impl CodeActionKind {
 ///
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum CodeActionTag {
     /// Marks the code action as LLM-generated.
     LLMGenerated,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<CodeActionTag> for u32 {
     fn from(e: CodeActionTag) -> Self {
         match e {
             CodeActionTag::LLMGenerated => 1u32,
+            CodeActionTag::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for CodeActionTag {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for CodeActionTag {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::LLMGenerated),
-            _ => Err(format!("Invalid CodeActionTag: {v}")),
+            1u32 => Self::LLMGenerated,
+            _ => Self::Custom(v),
         }
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum TraceValue {
     /// Turn tracing off.
     Off,
@@ -1304,6 +1404,9 @@ pub enum TraceValue {
     Messages,
     /// Verbose message tracing.
     Verbose,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<TraceValue> for String {
     fn from(e: TraceValue) -> Self {
@@ -1311,33 +1414,51 @@ impl From<TraceValue> for String {
             TraceValue::Off => "off".to_string(),
             TraceValue::Messages => "messages".to_string(),
             TraceValue::Verbose => "verbose".to_string(),
+            TraceValue::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for TraceValue {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for TraceValue {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "off" => Ok(Self::Off),
-            "messages" => Ok(Self::Messages),
-            "verbose" => Ok(Self::Verbose),
-            _ => Err(format!("Invalid TraceValue: {v}")),
+            "off" => Self::Off,
+            "messages" => Self::Messages,
+            "verbose" => Self::Verbose,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl TraceValue {
+    /// Create a custom `TraceValue` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for TraceValue {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "off" => Self::Off,
+            "messages" => Self::Messages,
+            "verbose" => Self::Verbose,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for TraceValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl TraceValue {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Off => "off",
             Self::Messages => "messages",
             Self::Verbose => "verbose",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -1347,44 +1468,64 @@ impl TraceValue {
 ///
 /// Please note that `MarkupKinds` must not start with a `$`. This kinds
 /// are reserved for internal usage.
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum MarkupKind {
     /// Plain text is supported as a content format
     PlainText,
     /// Markdown is supported as a content format
     Markdown,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<MarkupKind> for String {
     fn from(e: MarkupKind) -> Self {
         match e {
             MarkupKind::PlainText => "plaintext".to_string(),
             MarkupKind::Markdown => "markdown".to_string(),
+            MarkupKind::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for MarkupKind {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for MarkupKind {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "plaintext" => Ok(Self::PlainText),
-            "markdown" => Ok(Self::Markdown),
-            _ => Err(format!("Invalid MarkupKind: {v}")),
+            "plaintext" => Self::PlainText,
+            "markdown" => Self::Markdown,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl MarkupKind {
+    /// Create a custom `MarkupKind` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for MarkupKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "plaintext" => Self::PlainText,
+            "markdown" => Self::Markdown,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for MarkupKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl MarkupKind {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::PlainText => "plaintext",
             Self::Markdown => "markdown",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -1758,28 +1899,31 @@ impl LanguageKind {
 ///
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum InlineCompletionTriggerKind {
     /// Completion was triggered explicitly by a user gesture.
     Invoked,
     /// Completion was triggered automatically while editing.
     Automatic,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<InlineCompletionTriggerKind> for u32 {
     fn from(e: InlineCompletionTriggerKind) -> Self {
         match e {
             InlineCompletionTriggerKind::Invoked => 1u32,
             InlineCompletionTriggerKind::Automatic => 2u32,
+            InlineCompletionTriggerKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for InlineCompletionTriggerKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for InlineCompletionTriggerKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Invoked),
-            2u32 => Ok(Self::Automatic),
-            _ => Err(format!("Invalid InlineCompletionTriggerKind: {v}")),
+            1u32 => Self::Invoked,
+            2u32 => Self::Automatic,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -1864,7 +2008,7 @@ impl PositionEncodingKind {
 
 /// The file event type
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum FileChangeType {
     /// The file got created.
     Created,
@@ -1872,6 +2016,9 @@ pub enum FileChangeType {
     Changed,
     /// The file got deleted.
     Deleted,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<FileChangeType> for u32 {
     fn from(e: FileChangeType) -> Self {
@@ -1879,17 +2026,17 @@ impl From<FileChangeType> for u32 {
             FileChangeType::Created => 1u32,
             FileChangeType::Changed => 2u32,
             FileChangeType::Deleted => 3u32,
+            FileChangeType::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for FileChangeType {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for FileChangeType {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Created),
-            2u32 => Ok(Self::Changed),
-            3u32 => Ok(Self::Deleted),
-            _ => Err(format!("Invalid FileChangeType: {v}")),
+            1u32 => Self::Created,
+            2u32 => Self::Changed,
+            3u32 => Self::Deleted,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -1930,7 +2077,7 @@ impl From<u32> for WatchKind {
 
 /// The diagnostic's severity.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum DiagnosticSeverity {
     /// Reports an error.
     Error,
@@ -1940,6 +2087,9 @@ pub enum DiagnosticSeverity {
     Information,
     /// Reports a hint.
     Hint,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<DiagnosticSeverity> for u32 {
     fn from(e: DiagnosticSeverity) -> Self {
@@ -1948,18 +2098,18 @@ impl From<DiagnosticSeverity> for u32 {
             DiagnosticSeverity::Warning => 2u32,
             DiagnosticSeverity::Information => 3u32,
             DiagnosticSeverity::Hint => 4u32,
+            DiagnosticSeverity::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for DiagnosticSeverity {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for DiagnosticSeverity {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Error),
-            2u32 => Ok(Self::Warning),
-            3u32 => Ok(Self::Information),
-            4u32 => Ok(Self::Hint),
-            _ => Err(format!("Invalid DiagnosticSeverity: {v}")),
+            1u32 => Self::Error,
+            2u32 => Self::Warning,
+            3u32 => Self::Information,
+            4u32 => Self::Hint,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -1968,7 +2118,7 @@ impl TryFrom<u32> for DiagnosticSeverity {
 ///
 /// @since 3.15.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum DiagnosticTag {
     /// Unused or unnecessary code.
     ///
@@ -1979,29 +2129,32 @@ pub enum DiagnosticTag {
     ///
     /// Clients are allowed to rendered diagnostics with this tag strike through.
     Deprecated,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<DiagnosticTag> for u32 {
     fn from(e: DiagnosticTag) -> Self {
         match e {
             DiagnosticTag::Unnecessary => 1u32,
             DiagnosticTag::Deprecated => 2u32,
+            DiagnosticTag::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for DiagnosticTag {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for DiagnosticTag {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Unnecessary),
-            2u32 => Ok(Self::Deprecated),
-            _ => Err(format!("Invalid DiagnosticTag: {v}")),
+            1u32 => Self::Unnecessary,
+            2u32 => Self::Deprecated,
+            _ => Self::Custom(v),
         }
     }
 }
 
 /// How a completion was triggered
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum CompletionTriggerKind {
     /// Completion was triggered by typing an identifier (24x7 code
     /// complete), manual invocation (e.g Ctrl+Space) or via API.
@@ -2011,6 +2164,9 @@ pub enum CompletionTriggerKind {
     TriggerCharacter,
     /// Completion was re-triggered as current completion list is incomplete
     TriggerForIncompleteCompletions,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<CompletionTriggerKind> for u32 {
     fn from(e: CompletionTriggerKind) -> Self {
@@ -2018,17 +2174,17 @@ impl From<CompletionTriggerKind> for u32 {
             CompletionTriggerKind::Invoked => 1u32,
             CompletionTriggerKind::TriggerCharacter => 2u32,
             CompletionTriggerKind::TriggerForIncompleteCompletions => 3u32,
+            CompletionTriggerKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for CompletionTriggerKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for CompletionTriggerKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Invoked),
-            2u32 => Ok(Self::TriggerCharacter),
-            3u32 => Ok(Self::TriggerForIncompleteCompletions),
-            _ => Err(format!("Invalid CompletionTriggerKind: {v}")),
+            1u32 => Self::Invoked,
+            2u32 => Self::TriggerCharacter,
+            3u32 => Self::TriggerForIncompleteCompletions,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -2038,7 +2194,7 @@ impl TryFrom<u32> for CompletionTriggerKind {
 ///
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum ApplyKind {
     /// The value from the individual item (if provided and not `null`) will be
     /// used instead of the default.
@@ -2048,22 +2204,25 @@ pub enum ApplyKind {
     /// The specific rules for mergeing values are defined against each field
     /// that supports merging.
     Merge,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<ApplyKind> for u32 {
     fn from(e: ApplyKind) -> Self {
         match e {
             ApplyKind::Replace => 1u32,
             ApplyKind::Merge => 2u32,
+            ApplyKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for ApplyKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for ApplyKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Replace),
-            2u32 => Ok(Self::Merge),
-            _ => Err(format!("Invalid ApplyKind: {v}")),
+            1u32 => Self::Replace,
+            2u32 => Self::Merge,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -2072,7 +2231,7 @@ impl TryFrom<u32> for ApplyKind {
 ///
 /// @since 3.15.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum SignatureHelpTriggerKind {
     /// Signature help was invoked manually by the user or by a command.
     Invoked,
@@ -2080,6 +2239,9 @@ pub enum SignatureHelpTriggerKind {
     TriggerCharacter,
     /// Signature help was triggered by the cursor moving or by the document content changing.
     ContentChange,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<SignatureHelpTriggerKind> for u32 {
     fn from(e: SignatureHelpTriggerKind) -> Self {
@@ -2087,17 +2249,17 @@ impl From<SignatureHelpTriggerKind> for u32 {
             SignatureHelpTriggerKind::Invoked => 1u32,
             SignatureHelpTriggerKind::TriggerCharacter => 2u32,
             SignatureHelpTriggerKind::ContentChange => 3u32,
+            SignatureHelpTriggerKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for SignatureHelpTriggerKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for SignatureHelpTriggerKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Invoked),
-            2u32 => Ok(Self::TriggerCharacter),
-            3u32 => Ok(Self::ContentChange),
-            _ => Err(format!("Invalid SignatureHelpTriggerKind: {v}")),
+            1u32 => Self::Invoked,
+            2u32 => Self::TriggerCharacter,
+            3u32 => Self::ContentChange,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -2106,7 +2268,7 @@ impl TryFrom<u32> for SignatureHelpTriggerKind {
 ///
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum CodeActionTriggerKind {
     /// Code actions were explicitly requested by the user or by an extension.
     Invoked,
@@ -2115,22 +2277,25 @@ pub enum CodeActionTriggerKind {
     /// This typically happens when current selection in a file changes, but can
     /// also be triggered when file content changes.
     Automatic,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<CodeActionTriggerKind> for u32 {
     fn from(e: CodeActionTriggerKind) -> Self {
         match e {
             CodeActionTriggerKind::Invoked => 1u32,
             CodeActionTriggerKind::Automatic => 2u32,
+            CodeActionTriggerKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for CodeActionTriggerKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for CodeActionTriggerKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Invoked),
-            2u32 => Ok(Self::Automatic),
-            _ => Err(format!("Invalid CodeActionTriggerKind: {v}")),
+            1u32 => Self::Invoked,
+            2u32 => Self::Automatic,
+            _ => Self::Custom(v),
         }
     }
 }
@@ -2139,44 +2304,64 @@ impl TryFrom<u32> for CodeActionTriggerKind {
 /// both.
 ///
 /// @since 3.16.0
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum FileOperationPatternKind {
     /// The pattern matches a file only.
     File,
     /// The pattern matches a folder only.
     Folder,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<FileOperationPatternKind> for String {
     fn from(e: FileOperationPatternKind) -> Self {
         match e {
             FileOperationPatternKind::File => "file".to_string(),
             FileOperationPatternKind::Folder => "folder".to_string(),
+            FileOperationPatternKind::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for FileOperationPatternKind {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for FileOperationPatternKind {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "file" => Ok(Self::File),
-            "folder" => Ok(Self::Folder),
-            _ => Err(format!("Invalid FileOperationPatternKind: {v}")),
+            "file" => Self::File,
+            "folder" => Self::Folder,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl FileOperationPatternKind {
+    /// Create a custom `FileOperationPatternKind` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for FileOperationPatternKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "file" => Self::File,
+            "folder" => Self::Folder,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for FileOperationPatternKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl FileOperationPatternKind {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::File => "file",
             Self::Folder => "folder",
+            Self::Custom(any) => any,
         }
     }
 }
@@ -2185,34 +2370,37 @@ impl FileOperationPatternKind {
 ///
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum NotebookCellKind {
     /// A markup-cell is formatted source that is used for display.
     Markup,
     /// A code-cell is source code.
     Code,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<NotebookCellKind> for u32 {
     fn from(e: NotebookCellKind) -> Self {
         match e {
             NotebookCellKind::Markup => 1u32,
             NotebookCellKind::Code => 2u32,
+            NotebookCellKind::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for NotebookCellKind {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for NotebookCellKind {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Markup),
-            2u32 => Ok(Self::Code),
-            _ => Err(format!("Invalid NotebookCellKind: {v}")),
+            1u32 => Self::Markup,
+            2u32 => Self::Code,
+            _ => Self::Custom(v),
         }
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum ResourceOperationKind {
     /// Supports creating new files and folders.
     Create,
@@ -2220,6 +2408,9 @@ pub enum ResourceOperationKind {
     Rename,
     /// Supports deleting existing files and folders.
     Delete,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<ResourceOperationKind> for String {
     fn from(e: ResourceOperationKind) -> Self {
@@ -2227,39 +2418,57 @@ impl From<ResourceOperationKind> for String {
             ResourceOperationKind::Create => "create".to_string(),
             ResourceOperationKind::Rename => "rename".to_string(),
             ResourceOperationKind::Delete => "delete".to_string(),
+            ResourceOperationKind::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for ResourceOperationKind {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for ResourceOperationKind {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "create" => Ok(Self::Create),
-            "rename" => Ok(Self::Rename),
-            "delete" => Ok(Self::Delete),
-            _ => Err(format!("Invalid ResourceOperationKind: {v}")),
+            "create" => Self::Create,
+            "rename" => Self::Rename,
+            "delete" => Self::Delete,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl ResourceOperationKind {
+    /// Create a custom `ResourceOperationKind` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for ResourceOperationKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "create" => Self::Create,
+            "rename" => Self::Rename,
+            "delete" => Self::Delete,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for ResourceOperationKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl ResourceOperationKind {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Create => "create",
             Self::Rename => "rename",
             Self::Delete => "delete",
+            Self::Custom(any) => any,
         }
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum FailureHandlingKind {
     /// Applying the workspace change is simply aborted if one of the changes provided
     /// fails. All operations executed before the failing operation stay executed.
@@ -2274,6 +2483,9 @@ pub enum FailureHandlingKind {
     /// The client tries to undo the operations already executed. But there is no
     /// guarantee that this is succeeding.
     Undo,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<FailureHandlingKind> for String {
     fn from(e: FailureHandlingKind) -> Self {
@@ -2284,95 +2496,136 @@ impl From<FailureHandlingKind> for String {
                 "textOnlyTransactional".to_string()
             }
             FailureHandlingKind::Undo => "undo".to_string(),
+            FailureHandlingKind::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for FailureHandlingKind {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for FailureHandlingKind {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "abort" => Ok(Self::Abort),
-            "transactional" => Ok(Self::Transactional),
-            "textOnlyTransactional" => Ok(Self::TextOnlyTransactional),
-            "undo" => Ok(Self::Undo),
-            _ => Err(format!("Invalid FailureHandlingKind: {v}")),
+            "abort" => Self::Abort,
+            "transactional" => Self::Transactional,
+            "textOnlyTransactional" => Self::TextOnlyTransactional,
+            "undo" => Self::Undo,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl FailureHandlingKind {
+    /// Create a custom `FailureHandlingKind` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for FailureHandlingKind {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "abort" => Self::Abort,
+            "transactional" => Self::Transactional,
+            "textOnlyTransactional" => Self::TextOnlyTransactional,
+            "undo" => Self::Undo,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for FailureHandlingKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl FailureHandlingKind {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Abort => "abort",
             Self::Transactional => "transactional",
             Self::TextOnlyTransactional => "textOnlyTransactional",
             Self::Undo => "undo",
+            Self::Custom(any) => any,
         }
     }
 }
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "u32", try_from = "u32")]
+#[serde(into = "u32", from = "u32")]
 pub enum PrepareSupportDefaultBehavior {
     /// The client's default behavior is to select the identifier
     /// according the to language's syntax rule.
     Identifier,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(u32),
 }
 impl From<PrepareSupportDefaultBehavior> for u32 {
     fn from(e: PrepareSupportDefaultBehavior) -> Self {
         match e {
             PrepareSupportDefaultBehavior::Identifier => 1u32,
+            PrepareSupportDefaultBehavior::Custom(any) => any,
         }
     }
 }
-impl TryFrom<u32> for PrepareSupportDefaultBehavior {
-    type Error = String;
-    fn try_from(v: u32) -> Result<Self, <Self as TryFrom<u32>>::Error> {
+impl From<u32> for PrepareSupportDefaultBehavior {
+    fn from(v: u32) -> Self {
         match v {
-            1u32 => Ok(Self::Identifier),
-            _ => Err(format!("Invalid PrepareSupportDefaultBehavior: {v}")),
+            1u32 => Self::Identifier,
+            _ => Self::Custom(v),
         }
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
-#[serde(into = "String", try_from = "String")]
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize)]
+#[serde(into = "String", from = "String")]
 pub enum TokenFormat {
     Relative,
+    /// A custom value.
+    #[serde(untagged)]
+    Custom(Cow<'static, str>),
 }
 impl From<TokenFormat> for String {
     fn from(e: TokenFormat) -> Self {
         match e {
             TokenFormat::Relative => "relative".to_string(),
+            TokenFormat::Custom(any) => any.into_owned(),
         }
     }
 }
-impl TryFrom<String> for TokenFormat {
-    type Error = String;
-    fn try_from(v: String) -> Result<Self, <Self as TryFrom<String>>::Error> {
+impl From<String> for TokenFormat {
+    fn from(v: String) -> Self {
         match v.as_str() {
-            "relative" => Ok(Self::Relative),
-            _ => Err(format!("Invalid TokenFormat: {v}")),
+            "relative" => Self::Relative,
+            _ => Self::Custom(Cow::Owned(v)),
+        }
+    }
+}
+impl TokenFormat {
+    /// Create a custom `TokenFormat` from a string literal.
+    #[must_use]
+    pub const fn new(s: &'static str) -> Self {
+        Self::Custom(Cow::Borrowed(s))
+    }
+}
+impl From<&'static str> for TokenFormat {
+    fn from(s: &'static str) -> Self {
+        match s {
+            "relative" => Self::Relative,
+            _ => Self::Custom(Cow::Borrowed(s)),
         }
     }
 }
 impl fmt::Display for TokenFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let s: String = (*self).into();
+        let s: String = self.clone().into();
         write!(f, "{s}")
     }
 }
 impl TokenFormat {
     #[must_use]
-    pub const fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         match self {
             Self::Relative => "relative",
+            Self::Custom(any) => any,
         }
     }
 }

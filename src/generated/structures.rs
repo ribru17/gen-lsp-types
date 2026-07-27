@@ -4386,7 +4386,7 @@ impl WorkDoneProgressEnd {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Copy)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct SetTraceParams {
     pub value: TraceValue,

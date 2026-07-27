@@ -280,14 +280,9 @@ impl From<CompletionList> for CompletionResponse {
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(untagged)]
 pub enum Contents {
-    MarkupContent(MarkupContent),
     MarkedStringList(Vec<MarkedString>),
     MarkedString(MarkedString),
-}
-impl From<MarkupContent> for Contents {
-    fn from(v: MarkupContent) -> Self {
-        Self::MarkupContent(v)
-    }
+    MarkupContent(MarkupContent),
 }
 impl From<Vec<MarkedString>> for Contents {
     fn from(v: Vec<MarkedString>) -> Self {
@@ -297,6 +292,11 @@ impl From<Vec<MarkedString>> for Contents {
 impl From<MarkedString> for Contents {
     fn from(v: MarkedString) -> Self {
         Self::MarkedString(v)
+    }
+}
+impl From<MarkupContent> for Contents {
+    fn from(v: MarkupContent) -> Self {
+        Self::MarkupContent(v)
     }
 }
 

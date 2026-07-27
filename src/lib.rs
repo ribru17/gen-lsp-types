@@ -388,7 +388,7 @@ mod test {
             serde_json::from_str::<SymbolKind>(&ser).unwrap(),
             SymbolKind::Namespace
         );
-        assert!(serde_json::from_str::<SymbolKind>("299").is_err());
+        assert!(serde_json::from_str::<SymbolKind>("299").is_ok());
 
         let wk = WatchKind::Custom(123);
         let ser = serde_json::to_string(&wk).unwrap();
@@ -919,6 +919,21 @@ mod test {
         // https://github.com/serde-rs/json/issues/1244
         let ser = serde_json::to_string(&contents).unwrap();
         assert_eq!(ser, r#"["Foo","Bar"]"#);
+        assert_eq!(contents, serde_json::from_str(&ser).unwrap());
+
+        let contents = Contents::MarkedString(MarkedString::String("Foo".to_owned()));
+
+        let ser = serde_json::to_string(&contents).unwrap();
+        assert_eq!(ser, r#""Foo""#);
+        assert_eq!(contents, serde_json::from_str(&ser).unwrap());
+
+        let contents = Contents::MarkupContent(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value: "foo".to_owned(),
+        });
+
+        let ser = serde_json::to_string(&contents).unwrap();
+        assert_eq!(ser, r#"{"kind":"markdown","value":"foo"}"#);
         assert_eq!(contents, serde_json::from_str(&ser).unwrap());
     }
 }
