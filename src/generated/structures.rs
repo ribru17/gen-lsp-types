@@ -296,34 +296,6 @@ impl ColorPresentation {
     }
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
-#[serde(rename_all = "camelCase")]
-pub struct WorkDoneProgressOptions {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub work_done_progress: Option<bool>,
-}
-impl WorkDoneProgressOptions {
-    #[must_use]
-    pub const fn new(work_done_progress: Option<bool>) -> Self {
-        Self { work_done_progress }
-    }
-}
-
-/// General text document registration options.
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct TextDocumentRegistrationOptions {
-    /// A document selector to identify the scope of the registration. If set to null
-    /// the document selector provided on the client side will be used.
-    pub document_selector: Option<DocumentSelector>,
-}
-impl TextDocumentRegistrationOptions {
-    #[must_use]
-    pub const fn new(document_selector: Option<DocumentSelector>) -> Self {
-        Self { document_selector }
-    }
-}
-
 /// Parameters for a [`FoldingRangeRequest`].
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
@@ -2365,6 +2337,21 @@ impl DidOpenTextDocumentParams {
     #[must_use]
     pub const fn new(text_document: TextDocumentItem) -> Self {
         Self { text_document }
+    }
+}
+
+/// General text document registration options.
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct TextDocumentRegistrationOptions {
+    /// A document selector to identify the scope of the registration. If set to null
+    /// the document selector provided on the client side will be used.
+    pub document_selector: Option<DocumentSelector>,
+}
+impl TextDocumentRegistrationOptions {
+    #[must_use]
+    pub const fn new(document_selector: Option<DocumentSelector>) -> Self {
+        Self { document_selector }
     }
 }
 
@@ -4881,15 +4868,15 @@ impl LinkedEditingRangeOptions {
 /// Represents information on a file/folder create.
 ///
 /// @since 3.16.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct FileCreate {
-    /// A file:// URI for the location of the file/folder being created.
-    pub uri: String,
+    /// A URI for the location of the file/folder being created.
+    pub uri: Uri,
 }
 impl FileCreate {
     #[must_use]
-    pub const fn new(uri: String) -> Self {
+    pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
 }
@@ -5193,17 +5180,17 @@ impl FileOperationFilter {
 /// Represents information on a file/folder rename.
 ///
 /// @since 3.16.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct FileRename {
-    /// A file:// URI for the original location of the file/folder being renamed.
-    pub old_uri: String,
-    /// A file:// URI for the new location of the file/folder being renamed.
-    pub new_uri: String,
+    /// A URI for the original location of the file/folder being renamed.
+    pub old_uri: Uri,
+    /// A URI for the new location of the file/folder being renamed.
+    pub new_uri: Uri,
 }
 impl FileRename {
     #[must_use]
-    pub const fn new(old_uri: String, new_uri: String) -> Self {
+    pub const fn new(old_uri: Uri, new_uri: Uri) -> Self {
         Self { old_uri, new_uri }
     }
 }
@@ -5211,15 +5198,15 @@ impl FileRename {
 /// Represents information on a file/folder delete.
 ///
 /// @since 3.16.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct FileDelete {
-    /// A file:// URI for the location of the file/folder being deleted.
-    pub uri: String,
+    /// A URI for the location of the file/folder being deleted.
+    pub uri: Uri,
 }
 impl FileDelete {
     #[must_use]
-    pub const fn new(uri: String) -> Self {
+    pub const fn new(uri: Uri) -> Self {
         Self { uri }
     }
 }
@@ -7254,6 +7241,19 @@ impl WorkspaceEditMetadata {
     }
 }
 
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default, Copy)]
+#[serde(rename_all = "camelCase")]
+pub struct WorkDoneProgressOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub work_done_progress: Option<bool>,
+}
+impl WorkDoneProgressOptions {
+    #[must_use]
+    pub const fn new(work_done_progress: Option<bool>) -> Self {
+        Self { work_done_progress }
+    }
+}
+
 /// @since 3.16.0
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
 #[serde(rename_all = "camelCase")]
@@ -8123,32 +8123,6 @@ impl CodeActionKindDocumentation {
     }
 }
 
-/// A notebook cell text document filter denotes a cell text
-/// document by different properties.
-///
-/// @since 3.17.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
-#[serde(rename_all = "camelCase")]
-pub struct NotebookCellTextDocumentFilter {
-    /// A filter that matches against the notebook
-    /// containing the notebook cell. If a string
-    /// value is provided it matches against the
-    /// notebook type. '*' matches every notebook.
-    pub notebook: Notebook,
-    /// A language id like `python`.
-    ///
-    /// Will be matched against the language id of the
-    /// notebook cell document. '*' matches every language.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub language: Option<String>,
-}
-impl NotebookCellTextDocumentFilter {
-    #[must_use]
-    pub const fn new(notebook: Notebook, language: Option<String>) -> Self {
-        Self { notebook, language }
-    }
-}
-
 /// Matching options for the file operation pattern.
 ///
 /// @since 3.16.0
@@ -8766,6 +8740,32 @@ impl FileOperationOptions {
     }
 }
 
+/// A notebook cell text document filter denotes a cell text
+/// document by different properties.
+///
+/// @since 3.17.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(rename_all = "camelCase")]
+pub struct NotebookCellTextDocumentFilter {
+    /// A filter that matches against the notebook
+    /// containing the notebook cell. If a string
+    /// value is provided it matches against the
+    /// notebook type. '*' matches every notebook.
+    pub notebook: Notebook,
+    /// A language id like `python`.
+    ///
+    /// Will be matched against the language id of the
+    /// notebook cell document. '*' matches every language.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+}
+impl NotebookCellTextDocumentFilter {
+    #[must_use]
+    pub const fn new(notebook: Notebook, language: Option<String>) -> Self {
+        Self { notebook, language }
+    }
+}
+
 /// A relative pattern is a helper to construct glob patterns that are matched
 /// relatively to a base URI. The common value for a `baseUri` is a workspace
 /// folder root, but it can be another absolute URI as well.
@@ -8784,96 +8784,6 @@ impl RelativePattern {
     #[must_use]
     pub const fn new(base_uri: BaseUri, pattern: Pattern) -> Self {
         Self { base_uri, pattern }
-    }
-}
-
-/// A document filter where `language` is required field.
-///
-/// @since 3.18.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct TextDocumentFilterLanguage {
-    /// A language id, like `typescript`.
-    pub language: String,
-    /// A Uri [scheme][`Uri::scheme`], like `file` or `untitled`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub scheme: Option<String>,
-    /// A glob pattern, like **/*.{ts,js}. See TextDocumentFilter for examples.
-    ///
-    /// @since 3.18.0 - support for relative patterns. Whether clients support
-    /// relative patterns depends on the client capability
-    /// `textDocuments.filters.relativePatternSupport`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pattern: Option<GlobPattern>,
-}
-impl TextDocumentFilterLanguage {
-    #[must_use]
-    pub const fn new(
-        language: String,
-        scheme: Option<String>,
-        pattern: Option<GlobPattern>,
-    ) -> Self {
-        Self { language, scheme, pattern }
-    }
-}
-
-/// A document filter where `scheme` is required field.
-///
-/// @since 3.18.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct TextDocumentFilterScheme {
-    /// A language id, like `typescript`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub language: Option<String>,
-    /// A Uri [scheme][`Uri::scheme`], like `file` or `untitled`.
-    pub scheme: String,
-    /// A glob pattern, like **/*.{ts,js}. See TextDocumentFilter for examples.
-    ///
-    /// @since 3.18.0 - support for relative patterns. Whether clients support
-    /// relative patterns depends on the client capability
-    /// `textDocuments.filters.relativePatternSupport`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub pattern: Option<GlobPattern>,
-}
-impl TextDocumentFilterScheme {
-    #[must_use]
-    pub const fn new(
-        language: Option<String>,
-        scheme: String,
-        pattern: Option<GlobPattern>,
-    ) -> Self {
-        Self { language, scheme, pattern }
-    }
-}
-
-/// A document filter where `pattern` is required field.
-///
-/// @since 3.18.0
-#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
-#[serde(rename_all = "camelCase")]
-pub struct TextDocumentFilterPattern {
-    /// A language id, like `typescript`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub language: Option<String>,
-    /// A Uri [scheme][`Uri::scheme`], like `file` or `untitled`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub scheme: Option<String>,
-    /// A glob pattern, like **/*.{ts,js}. See TextDocumentFilter for examples.
-    ///
-    /// @since 3.18.0 - support for relative patterns. Whether clients support
-    /// relative patterns depends on the client capability
-    /// `textDocuments.filters.relativePatternSupport`.
-    pub pattern: GlobPattern,
-}
-impl TextDocumentFilterPattern {
-    #[must_use]
-    pub const fn new(
-        language: Option<String>,
-        scheme: Option<String>,
-        pattern: GlobPattern,
-    ) -> Self {
-        Self { language, scheme, pattern }
     }
 }
 
@@ -10448,6 +10358,96 @@ impl MarkdownClientCapabilities {
             version,
             allowed_tags,
         }
+    }
+}
+
+/// A document filter where `language` is required field.
+///
+/// @since 3.18.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct TextDocumentFilterLanguage {
+    /// A language id, like `typescript`.
+    pub language: String,
+    /// A Uri [scheme][`Uri::scheme`], like `file` or `untitled`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scheme: Option<String>,
+    /// A glob pattern, like **/*.{ts,js}. See TextDocumentFilter for examples.
+    ///
+    /// @since 3.18.0 - support for relative patterns. Whether clients support
+    /// relative patterns depends on the client capability
+    /// `textDocuments.filters.relativePatternSupport`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<GlobPattern>,
+}
+impl TextDocumentFilterLanguage {
+    #[must_use]
+    pub const fn new(
+        language: String,
+        scheme: Option<String>,
+        pattern: Option<GlobPattern>,
+    ) -> Self {
+        Self { language, scheme, pattern }
+    }
+}
+
+/// A document filter where `scheme` is required field.
+///
+/// @since 3.18.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct TextDocumentFilterScheme {
+    /// A language id, like `typescript`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+    /// A Uri [scheme][`Uri::scheme`], like `file` or `untitled`.
+    pub scheme: String,
+    /// A glob pattern, like **/*.{ts,js}. See TextDocumentFilter for examples.
+    ///
+    /// @since 3.18.0 - support for relative patterns. Whether clients support
+    /// relative patterns depends on the client capability
+    /// `textDocuments.filters.relativePatternSupport`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<GlobPattern>,
+}
+impl TextDocumentFilterScheme {
+    #[must_use]
+    pub const fn new(
+        language: Option<String>,
+        scheme: String,
+        pattern: Option<GlobPattern>,
+    ) -> Self {
+        Self { language, scheme, pattern }
+    }
+}
+
+/// A document filter where `pattern` is required field.
+///
+/// @since 3.18.0
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone, Eq, Hash)]
+#[serde(rename_all = "camelCase")]
+pub struct TextDocumentFilterPattern {
+    /// A language id, like `typescript`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
+    /// A Uri [scheme][`Uri::scheme`], like `file` or `untitled`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scheme: Option<String>,
+    /// A glob pattern, like **/*.{ts,js}. See TextDocumentFilter for examples.
+    ///
+    /// @since 3.18.0 - support for relative patterns. Whether clients support
+    /// relative patterns depends on the client capability
+    /// `textDocuments.filters.relativePatternSupport`.
+    pub pattern: GlobPattern,
+}
+impl TextDocumentFilterPattern {
+    #[must_use]
+    pub const fn new(
+        language: Option<String>,
+        scheme: Option<String>,
+        pattern: GlobPattern,
+    ) -> Self {
+        Self { language, scheme, pattern }
     }
 }
 

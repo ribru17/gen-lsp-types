@@ -28,15 +28,15 @@ pub type LspAny = serde_json::Value;
 /// by the client.
 pub type DeclarationLink = LocationLink;
 
+/// An identifier to refer to a change annotation stored with a workspace edit.
+pub type ChangeAnnotationIdentifier = String;
+
 /// A document selector is the combination of one or many document filters.
 ///
 /// @sample `let sel:DocumentSelector = [{ language: 'typescript' }, { language: 'json', pattern: '**∕tsconfig.json' }]`;
 ///
 /// The use of a string as a document filter is deprecated @since 3.16.0.
 pub type DocumentSelector = Vec<DocumentFilter>;
-
-/// An identifier to refer to a change annotation stored with a workspace edit.
-pub type ChangeAnnotationIdentifier = String;
 
 /// LSP object definition.
 /// @since 3.17.0
