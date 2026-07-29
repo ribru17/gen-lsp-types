@@ -875,6 +875,43 @@ mod test {
             serde_json::to_string(&req).unwrap()
         );
     }
+    #[test]
+    #[allow(unreachable_code)]
+    fn fill_params_request_macro() {
+        return;
+        struct Client;
+        impl Client {
+            fn call<R: Request>(self, _p: R::Params) -> R::Result {
+                todo!()
+            }
+        }
+        macro_rules! requester {
+            ($c:ident.call::<$request:tt>(_ { $($field:ident: $expr:expr),* $(,)? })) => {
+                $c.call::<lsp_request!($request)>(lsp_request!(params $request { $($field: $expr,)* }))
+            };
+            ($c:ident.call::<$request:tt>(_::new($($expr:expr),* $(,)?))) => {
+                $c.call::<lsp_request!($request)>(lsp_request!(params $request ($($expr,)*)))
+            }
+        }
+        requester!(Client.call::<"textDocument/semanticTokens/full/delta">(_ {
+            text_document: todo!(),
+            previous_result_id: todo!(),
+            work_done_progress_params: todo!(),
+            partial_result_params: todo!(),
+        }));
+        requester!(Client.call::<"initialize">(_::new(
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+            todo!(),
+        )));
+    }
 
     #[test]
     fn notification_macro() {
@@ -886,6 +923,41 @@ mod test {
         );
     }
 
+    #[test]
+    #[allow(unreachable_code)]
+    fn fill_params_notification_macro() {
+        return;
+        struct Client;
+        impl Client {
+            fn call<N: Notification>(self, _p: N::Params) {
+                todo!()
+            }
+        }
+        macro_rules! notifier {
+            ($c:ident.call::<$request:tt>(_ { $($field:ident: $expr:expr),* $(,)? $(,..$base:expr)? })) => {
+                $c.call::<lsp_notification!($request)>(lsp_notification!(params $request { $($field: $expr,)* $(..$base)? }));
+            };
+            ($c:ident.call::<$request:tt>(_::new($($expr:expr),* $(,)?))) => {
+                $c.call::<lsp_notification!($request)>(lsp_notification!(params $request ($($expr,)*)))
+            }
+        }
+        let x = ProgressParams {
+            value: todo!(),
+            token: todo!(),
+        };
+        notifier!(Client.call::<"$/progress">(_ {
+            value: serde_json::json! {{
+                "kind": "report",
+            }},
+            ..x
+        }));
+        notifier!(Client.call::<"$/progress">(_::new(
+           4.into(),
+           serde_json::json! {{
+                "kind": "report",
+           }},
+        )));
+    }
     #[test]
     fn tuple_serialization() {
         let pil = ParameterInformationLabel::Tuple((1, 2));

@@ -1054,15 +1054,33 @@ pub fn render_structure(
 pub fn render_request_macro(requests: &[Request]) -> TokenStream {
     let reqs = requests.iter().map(|req| {
         let method = &req.method;
-        let type_ = format_ident!(
-            "{}",
-            req.type_name
-                .as_ref()
-                .expect("Request should have type name")
-        );
+        let type_ = req
+            .type_name
+            .as_ref()
+            .expect("Request should have type name");
+
+        let (params_struct, params_new) = if let Some(params) = &req.params {
+            let params_type = render_type(
+                params.subtype_0.clone().expect("No request params found"),
+                &(type_.clone() + "Params"),
+            );
+            (
+                quote! { $crate::#params_type { $($field: $expr,)* $(..$base)? } },
+                quote! { $crate::#params_type::new($($expr,)*) },
+            )
+        } else {
+            (quote! { () }, quote! { () })
+        };
+        let type_ = format_ident!("{type_}");
         quote! {
             (#method) => {
                 $crate::#type_
+            };
+            (params #method { $($field:ident: $expr:expr),* $(,)? $(,..$base:expr)? }) => {
+                #params_struct
+            };
+            (params #method ($($expr:expr),* $(,)?)) => {
+                #params_new
             };
         }
     });
@@ -1085,15 +1103,36 @@ pub fn render_request_macro(requests: &[Request]) -> TokenStream {
 pub fn render_notification_macro(requests: &[Notification]) -> TokenStream {
     let notis = requests.iter().map(|noti| {
         let method = &noti.method;
-        let type_ = format_ident!(
-            "{}",
-            noti.type_name
-                .as_ref()
-                .expect("Notification should have type name")
-        );
+        let type_ = noti
+            .type_name
+            .as_ref()
+            .expect("Notification should have type name");
+
+        let (params_struct, params_new) = if let Some(params) = &noti.params {
+            let params_type = render_type(
+                params
+                    .subtype_0
+                    .clone()
+                    .expect("No notification params found"),
+                &(type_.clone() + "Params"),
+            );
+            (
+                quote! { $crate::#params_type { $($field: $expr,)* $(..$base)? } },
+                quote! { $crate::#params_type::new($($expr,)*) },
+            )
+        } else {
+            (quote! { () }, quote! { () })
+        };
+        let type_ = format_ident!("{type_}");
         quote! {
             (#method) => {
                 $crate::#type_
+            };
+            (params #method { $($field:ident: $expr:expr),* $(,)? $(,..$base:expr)? }) => {
+                #params_struct
+            };
+            (params #method ($($expr:expr),* $(,)?)) => {
+                #params_new
             };
         }
     });
