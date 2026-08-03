@@ -579,6 +579,12 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         EnumerationTypeName::String => quote! { String },
     };
 
+    let repr = match enumeration.type_.name {
+        EnumerationTypeName::Uinteger => quote! { #[repr(u32)] },
+        EnumerationTypeName::Integer => quote! { #[repr(i32)] },
+        EnumerationTypeName::String => quote! {},
+    };
+
     let value_type_str = value_type.to_string();
     let deprecated = enumeration.deprecated.as_deref().map(render_deprecated);
     let attributes = quote! {
@@ -604,7 +610,19 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
                         quote! { #value }
                     }
                 }
-                EnumerationEntryValue::String(string) => quote! { #string },
+                EnumerationEntryValue::String(ref string) => quote! { #string },
+            };
+            let set_value = match item.value {
+                EnumerationEntryValue::Number(value) => {
+                    if matches!(enumeration.type_.name, EnumerationTypeName::Uinteger) {
+                        let value = value as u32;
+                        quote! { = #value }
+                    } else {
+                        let value = value as i32;
+                        quote! { = #value }
+                    }
+                }
+                EnumerationEntryValue::String(_) => quote! {},
             };
             desers.push(quote! { #value => Self::#ident, });
             let full_name = quote! { #name_ident::#ident };
@@ -617,7 +635,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
             quote! {
                 #documentation
                 #deprecated
-                #ident,
+                #ident #set_value,
             }
         })
         .collect();
@@ -641,7 +659,6 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
         }
         values.push(quote! {
             /// A custom value.
-            #[serde(untagged)]
             Custom(#custom_type)
         });
         sers.push(custom_ser);
@@ -651,6 +668,7 @@ pub fn render_enumeration(enumeration: Enumeration) -> TokenStream {
     let enum_tokens = quote! {
         #documentation
         #attributes
+        #repr
         pub enum #name_ident {
             #(#values)*
         }
