@@ -1,5 +1,6 @@
 mod derives;
 mod renderers;
+mod with_uri;
 
 use std::{
     assert_matches,
@@ -14,7 +15,7 @@ use crate::{
     renderers::{
         render_enum_ors, render_enumeration, render_notification, render_notification_macro,
         render_request, render_request_macro, render_request_methods, render_structure,
-        render_type_alias,
+        render_type_alias, render_with_uri_impls, render_with_uri_trait,
     },
     schema::{
         ArrayType, BaseType, BaseTypes, Enumeration, MapKeyType, OrType, Property, ReferenceType,
@@ -573,11 +574,13 @@ fn main() {
         use serde::{de::DeserializeOwned, Deserialize, Serialize};
         use std::{borrow::Cow, fmt};
     };
+
     let common = [
         common_imports,
         predefs,
         methods,
         request_macro,
+        render_with_uri_trait(),
         notification_macro,
     ]
     .into_iter();
@@ -735,9 +738,12 @@ fn main() {
             }
         }
     };
+
+    let with_uri_impls = render_with_uri_impls(&structs_map);
     let structures = iter::once(structure_imports)
         .chain(structures)
-        .chain(iter::once(structure_postdefs));
+        .chain(iter::once(structure_postdefs))
+        .chain(with_uri_impls);
 
     let type_alias_imports = quote! {
         #[allow(clippy::wildcard_imports)]
