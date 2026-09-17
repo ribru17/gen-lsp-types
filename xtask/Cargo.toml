@@ -15,4 +15,4 @@ quote = "1.0.45"
 serde = { workspace = true }
 serde_json = { workspace = true }
 syn = "3.0.2"
-typify = "0.7.0"
+typify = "0.8.0"
