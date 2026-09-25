@@ -38,7 +38,6 @@ pub enum SemanticTokenTypes {
     /// @since 3.18.0
     Label,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<SemanticTokenTypes> for String {
@@ -199,7 +198,6 @@ pub enum SemanticTokenModifiers {
     Documentation,
     DefaultLibrary,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<SemanticTokenModifiers> for String {
@@ -298,7 +296,6 @@ pub enum DocumentDiagnosticReportKind {
     /// returned report is still accurate.
     Unchanged,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<DocumentDiagnosticReportKind> for String {
@@ -355,18 +352,18 @@ impl DocumentDiagnosticReportKind {
 /// Predefined error codes.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "i32", from = "i32")]
+#[repr(i32)]
 pub enum ErrorCodes {
-    ParseError,
-    InvalidRequest,
-    MethodNotFound,
-    InvalidParams,
-    InternalError,
+    ParseError = -32700i32,
+    InvalidRequest = -32600i32,
+    MethodNotFound = -32601i32,
+    InvalidParams = -32602i32,
+    InternalError = -32603i32,
     /// Error code indicating that a server received a notification or
     /// request before the server has received the `initialize` request.
-    ServerNotInitialized,
-    UnknownErrorCode,
+    ServerNotInitialized = -32002i32,
+    UnknownErrorCode = -32001i32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(i32),
 }
 impl From<ErrorCodes> for i32 {
@@ -400,6 +397,7 @@ impl From<i32> for ErrorCodes {
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "i32", from = "i32")]
+#[repr(i32)]
 pub enum LspErrorCodes {
     /// A request failed but it was syntactically correct, e.g the
     /// method name was known and the parameters were valid. The error
@@ -407,13 +405,13 @@ pub enum LspErrorCodes {
     /// the request failed.
     ///
     /// @since 3.17.0
-    RequestFailed,
+    RequestFailed = -32803i32,
     /// The server cancelled the request. This error code should
     /// only be used for requests that explicitly support being
     /// server cancellable.
     ///
     /// @since 3.17.0
-    ServerCancelled,
+    ServerCancelled = -32802i32,
     /// The server detected that the content of a document got
     /// modified outside normal conditions. A server should
     /// NOT send this error code if it detects a content change
@@ -422,12 +420,11 @@ pub enum LspErrorCodes {
     ///
     /// If a client decides that a result is not of any use anymore
     /// the client should cancel the request.
-    ContentModified,
+    ContentModified = -32801i32,
     /// The client has canceled a request and a server has detected
     /// the cancel.
-    RequestCancelled,
+    RequestCancelled = -32800i32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(i32),
 }
 impl From<LspErrorCodes> for i32 {
@@ -464,7 +461,6 @@ pub enum FoldingRangeKind {
     /// Folding range for a region (e.g. `#region`)
     Region,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<FoldingRangeKind> for String {
@@ -525,35 +521,35 @@ impl FoldingRangeKind {
 /// A symbol kind.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum SymbolKind {
-    File,
-    Module,
-    Namespace,
-    Package,
-    Class,
-    Method,
-    Property,
-    Field,
-    Constructor,
-    Enum,
-    Interface,
-    Function,
-    Variable,
-    Constant,
-    String,
-    Number,
-    Boolean,
-    Array,
-    Object,
-    Key,
-    Null,
-    EnumMember,
-    Struct,
-    Event,
-    Operator,
-    TypeParameter,
+    File = 1u32,
+    Module = 2u32,
+    Namespace = 3u32,
+    Package = 4u32,
+    Class = 5u32,
+    Method = 6u32,
+    Property = 7u32,
+    Field = 8u32,
+    Constructor = 9u32,
+    Enum = 10u32,
+    Interface = 11u32,
+    Function = 12u32,
+    Variable = 13u32,
+    Constant = 14u32,
+    String = 15u32,
+    Number = 16u32,
+    Boolean = 17u32,
+    Array = 18u32,
+    Object = 19u32,
+    Key = 20u32,
+    Null = 21u32,
+    EnumMember = 22u32,
+    Struct = 23u32,
+    Event = 24u32,
+    Operator = 25u32,
+    TypeParameter = 26u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<SymbolKind> for u32 {
@@ -628,11 +624,11 @@ impl From<u32> for SymbolKind {
 /// @since 3.16
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum SymbolTag {
     /// Render a symbol as obsolete, usually using a strike-out.
-    Deprecated,
+    Deprecated = 1u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<SymbolTag> for u32 {
@@ -669,7 +665,6 @@ pub enum UniquenessLevel {
     /// The moniker is globally unique
     Global,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<UniquenessLevel> for String {
@@ -749,7 +744,6 @@ pub enum MonikerKind {
     /// variable of a function, a class not visible outside the project, ...)
     Local,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<MonikerKind> for String {
@@ -812,13 +806,13 @@ impl MonikerKind {
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum InlayHintKind {
     /// An inlay hint that for a type annotation.
-    Type,
+    Type = 1u32,
     /// An inlay hint that is for a parameter.
-    Parameter,
+    Parameter = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<InlayHintKind> for u32 {
@@ -843,21 +837,21 @@ impl From<u32> for InlayHintKind {
 /// The message type
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum MessageType {
     /// An error message.
-    Error,
+    Error = 1u32,
     /// A warning message.
-    Warning,
+    Warning = 2u32,
     /// An information message.
-    Info,
+    Info = 3u32,
     /// A log message.
-    Log,
+    Log = 4u32,
     /// A debug message.
     ///
     /// @since 3.18.0
-    Debug,
+    Debug = 5u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<MessageType> for u32 {
@@ -889,18 +883,18 @@ impl From<u32> for MessageType {
 /// document changes to the language server.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum TextDocumentSyncKind {
     /// Documents should not be synced at all.
-    None,
+    None = 0u32,
     /// Documents are synced by always sending the full content
     /// of the document.
-    Full,
+    Full = 1u32,
     /// Documents are synced by sending the full content on open.
     /// After that only incremental updates to the document are
     /// send.
-    Incremental,
+    Incremental = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<TextDocumentSyncKind> for u32 {
@@ -927,16 +921,16 @@ impl From<u32> for TextDocumentSyncKind {
 /// Represents reasons why a text document is saved.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum TextDocumentSaveReason {
     /// Manually triggered, e.g. by the user pressing save, by starting debugging,
     /// or by an API call.
-    Manual,
+    Manual = 1u32,
     /// Automatic after a delay.
-    AfterDelay,
+    AfterDelay = 2u32,
     /// When the editor lost focus.
-    FocusOut,
+    FocusOut = 3u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<TextDocumentSaveReason> for u32 {
@@ -963,34 +957,34 @@ impl From<u32> for TextDocumentSaveReason {
 /// The kind of a completion entry.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum CompletionItemKind {
-    Text,
-    Method,
-    Function,
-    Constructor,
-    Field,
-    Variable,
-    Class,
-    Interface,
-    Module,
-    Property,
-    Unit,
-    Value,
-    Enum,
-    Keyword,
-    Snippet,
-    Color,
-    File,
-    Reference,
-    Folder,
-    EnumMember,
-    Constant,
-    Struct,
-    Event,
-    Operator,
-    TypeParameter,
+    Text = 1u32,
+    Method = 2u32,
+    Function = 3u32,
+    Constructor = 4u32,
+    Field = 5u32,
+    Variable = 6u32,
+    Class = 7u32,
+    Interface = 8u32,
+    Module = 9u32,
+    Property = 10u32,
+    Unit = 11u32,
+    Value = 12u32,
+    Enum = 13u32,
+    Keyword = 14u32,
+    Snippet = 15u32,
+    Color = 16u32,
+    File = 17u32,
+    Reference = 18u32,
+    Folder = 19u32,
+    EnumMember = 20u32,
+    Constant = 21u32,
+    Struct = 22u32,
+    Event = 23u32,
+    Operator = 24u32,
+    TypeParameter = 25u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<CompletionItemKind> for u32 {
@@ -1064,11 +1058,11 @@ impl From<u32> for CompletionItemKind {
 /// @since 3.15.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum CompletionItemTag {
     /// Render a completion as obsolete, usually using a strike-out.
-    Deprecated,
+    Deprecated = 1u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<CompletionItemTag> for u32 {
@@ -1092,9 +1086,10 @@ impl From<u32> for CompletionItemTag {
 /// plain text or a snippet.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum InsertTextFormat {
     /// The primary text to be inserted is treated as a plain string.
-    PlainText,
+    PlainText = 1u32,
     /// The primary text to be inserted is treated as a snippet.
     ///
     /// A snippet can define tab stops and placeholders with `$1`, `$2`
@@ -1103,9 +1098,8 @@ pub enum InsertTextFormat {
     /// that is typing in one will update others too.
     ///
     /// See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
-    Snippet,
+    Snippet = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<InsertTextFormat> for u32 {
@@ -1133,13 +1127,14 @@ impl From<u32> for InsertTextFormat {
 /// @since 3.16.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum InsertTextMode {
     /// The insertion or replace strings is taken as it is. If the
     /// value is multi line the lines below the cursor will be
     /// inserted using the indentation defined in the string value.
     /// The client will not apply any kind of adjustments to the
     /// string.
-    AsIs,
+    AsIs = 1u32,
     /// The editor adjusts leading whitespace of new lines so that
     /// they match the indentation up to the cursor of the line for
     /// which the item is accepted.
@@ -1147,9 +1142,8 @@ pub enum InsertTextMode {
     /// Consider a line like this: <2tabs><cursor><3tabs>foo. Accepting a
     /// multi line completion item is indented using 2 tabs and all
     /// following lines inserted will be indented using 2 tabs as well.
-    AdjustIndentation,
+    AdjustIndentation = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<InsertTextMode> for u32 {
@@ -1174,15 +1168,15 @@ impl From<u32> for InsertTextMode {
 /// A document highlight kind.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum DocumentHighlightKind {
     /// A textual occurrence.
-    Text,
+    Text = 1u32,
     /// Read-access of a symbol, like reading a variable.
-    Read,
+    Read = 2u32,
     /// Write-access of a symbol, like writing to a variable.
-    Write,
+    Write = 3u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<DocumentHighlightKind> for u32 {
@@ -1276,7 +1270,6 @@ pub enum CodeActionKind {
     /// @since 3.18.0
     Notebook,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<CodeActionKind> for String {
@@ -1371,11 +1364,11 @@ impl CodeActionKind {
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum CodeActionTag {
     /// Marks the code action as LLM-generated.
-    LLMGenerated,
+    LLMGenerated = 1u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<CodeActionTag> for u32 {
@@ -1405,7 +1398,6 @@ pub enum TraceValue {
     /// Verbose message tracing.
     Verbose,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<TraceValue> for String {
@@ -1476,7 +1468,6 @@ pub enum MarkupKind {
     /// Markdown is supported as a content format
     Markdown,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<MarkupKind> for String {
@@ -1601,7 +1592,6 @@ pub enum LanguageKind {
     XSL,
     YAML,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<LanguageKind> for String {
@@ -1900,13 +1890,13 @@ impl LanguageKind {
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum InlineCompletionTriggerKind {
     /// Completion was triggered explicitly by a user gesture.
-    Invoked,
+    Invoked = 1u32,
     /// Completion was triggered automatically while editing.
-    Automatic,
+    Automatic = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<InlineCompletionTriggerKind> for u32 {
@@ -1948,7 +1938,6 @@ pub enum PositionEncodingKind {
     /// encoding-agnostic representation of character offsets.
     UTF32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<PositionEncodingKind> for String {
@@ -2009,15 +1998,15 @@ impl PositionEncodingKind {
 /// The file event type
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum FileChangeType {
     /// The file got created.
-    Created,
+    Created = 1u32,
     /// The file got changed.
-    Changed,
+    Changed = 2u32,
     /// The file got deleted.
-    Deleted,
+    Deleted = 3u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<FileChangeType> for u32 {
@@ -2043,15 +2032,15 @@ impl From<u32> for FileChangeType {
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum WatchKind {
     /// Interested in create events.
-    Create,
+    Create = 1u32,
     /// Interested in change events
-    Change,
+    Change = 2u32,
     /// Interested in delete events
-    Delete,
+    Delete = 4u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<WatchKind> for u32 {
@@ -2078,17 +2067,17 @@ impl From<u32> for WatchKind {
 /// The diagnostic's severity.
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum DiagnosticSeverity {
     /// Reports an error.
-    Error,
+    Error = 1u32,
     /// Reports a warning.
-    Warning,
+    Warning = 2u32,
     /// Reports an information.
-    Information,
+    Information = 3u32,
     /// Reports a hint.
-    Hint,
+    Hint = 4u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<DiagnosticSeverity> for u32 {
@@ -2119,18 +2108,18 @@ impl From<u32> for DiagnosticSeverity {
 /// @since 3.15.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum DiagnosticTag {
     /// Unused or unnecessary code.
     ///
     /// Clients are allowed to render diagnostics with this tag faded out instead of having
     /// an error squiggle.
-    Unnecessary,
+    Unnecessary = 1u32,
     /// Deprecated or obsolete code.
     ///
     /// Clients are allowed to rendered diagnostics with this tag strike through.
-    Deprecated,
+    Deprecated = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<DiagnosticTag> for u32 {
@@ -2155,17 +2144,17 @@ impl From<u32> for DiagnosticTag {
 /// How a completion was triggered
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum CompletionTriggerKind {
     /// Completion was triggered by typing an identifier (24x7 code
     /// complete), manual invocation (e.g Ctrl+Space) or via API.
-    Invoked,
+    Invoked = 1u32,
     /// Completion was triggered by a trigger character specified by
     /// the `triggerCharacters` properties of the `CompletionRegistrationOptions`.
-    TriggerCharacter,
+    TriggerCharacter = 2u32,
     /// Completion was re-triggered as current completion list is incomplete
-    TriggerForIncompleteCompletions,
+    TriggerForIncompleteCompletions = 3u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<CompletionTriggerKind> for u32 {
@@ -2195,17 +2184,17 @@ impl From<u32> for CompletionTriggerKind {
 /// @since 3.18.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum ApplyKind {
     /// The value from the individual item (if provided and not `null`) will be
     /// used instead of the default.
-    Replace,
+    Replace = 1u32,
     /// The value from the item will be merged with the default.
     ///
     /// The specific rules for mergeing values are defined against each field
     /// that supports merging.
-    Merge,
+    Merge = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<ApplyKind> for u32 {
@@ -2232,15 +2221,15 @@ impl From<u32> for ApplyKind {
 /// @since 3.15.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum SignatureHelpTriggerKind {
     /// Signature help was invoked manually by the user or by a command.
-    Invoked,
+    Invoked = 1u32,
     /// Signature help was triggered by a trigger character.
-    TriggerCharacter,
+    TriggerCharacter = 2u32,
     /// Signature help was triggered by the cursor moving or by the document content changing.
-    ContentChange,
+    ContentChange = 3u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<SignatureHelpTriggerKind> for u32 {
@@ -2269,16 +2258,16 @@ impl From<u32> for SignatureHelpTriggerKind {
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum CodeActionTriggerKind {
     /// Code actions were explicitly requested by the user or by an extension.
-    Invoked,
+    Invoked = 1u32,
     /// Code actions were requested automatically.
     ///
     /// This typically happens when current selection in a file changes, but can
     /// also be triggered when file content changes.
-    Automatic,
+    Automatic = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<CodeActionTriggerKind> for u32 {
@@ -2312,7 +2301,6 @@ pub enum FileOperationPatternKind {
     /// The pattern matches a folder only.
     Folder,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<FileOperationPatternKind> for String {
@@ -2371,13 +2359,13 @@ impl FileOperationPatternKind {
 /// @since 3.17.0
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum NotebookCellKind {
     /// A markup-cell is formatted source that is used for display.
-    Markup,
+    Markup = 1u32,
     /// A code-cell is source code.
-    Code,
+    Code = 2u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<NotebookCellKind> for u32 {
@@ -2409,7 +2397,6 @@ pub enum ResourceOperationKind {
     /// Supports deleting existing files and folders.
     Delete,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<ResourceOperationKind> for String {
@@ -2484,7 +2471,6 @@ pub enum FailureHandlingKind {
     /// guarantee that this is succeeding.
     Undo,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<FailureHandlingKind> for String {
@@ -2550,12 +2536,12 @@ impl FailureHandlingKind {
 
 #[derive(PartialEq, Eq, Hash, Debug, Clone, Serialize, Deserialize, Copy)]
 #[serde(into = "u32", from = "u32")]
+#[repr(u32)]
 pub enum PrepareSupportDefaultBehavior {
     /// The client's default behavior is to select the identifier
     /// according the to language's syntax rule.
-    Identifier,
+    Identifier = 1u32,
     /// A custom value.
-    #[serde(untagged)]
     Custom(u32),
 }
 impl From<PrepareSupportDefaultBehavior> for u32 {
@@ -2580,7 +2566,6 @@ impl From<u32> for PrepareSupportDefaultBehavior {
 pub enum TokenFormat {
     Relative,
     /// A custom value.
-    #[serde(untagged)]
     Custom(Cow<'static, str>),
 }
 impl From<TokenFormat> for String {
