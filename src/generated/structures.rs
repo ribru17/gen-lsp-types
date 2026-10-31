@@ -1436,6 +1436,8 @@ pub struct InlineValueParams {
     pub context: InlineValueContext,
     #[serde(flatten)]
     pub work_done_progress_params: WorkDoneProgressParams,
+    #[serde(flatten)]
+    pub partial_result_params: PartialResultParams,
 }
 impl InlineValueParams {
     #[must_use]
@@ -1444,12 +1446,14 @@ impl InlineValueParams {
         range: Range,
         context: InlineValueContext,
         work_done_progress_params: WorkDoneProgressParams,
+        partial_result_params: PartialResultParams,
     ) -> Self {
         Self {
             text_document,
             range,
             context,
             work_done_progress_params,
+            partial_result_params,
         }
     }
 }
@@ -1494,6 +1498,8 @@ pub struct InlayHintParams {
     pub range: Range,
     #[serde(flatten)]
     pub work_done_progress_params: WorkDoneProgressParams,
+    #[serde(flatten)]
+    pub partial_result_params: PartialResultParams,
 }
 impl InlayHintParams {
     #[must_use]
@@ -1501,11 +1507,13 @@ impl InlayHintParams {
         text_document: TextDocumentIdentifier,
         range: Range,
         work_done_progress_params: WorkDoneProgressParams,
+        partial_result_params: PartialResultParams,
     ) -> Self {
         Self {
             text_document,
             range,
             work_done_progress_params,
+            partial_result_params,
         }
     }
 }
@@ -1895,6 +1903,8 @@ pub struct InlineCompletionParams {
     #[serde(flatten)]
     pub work_done_progress_params: WorkDoneProgressParams,
     #[serde(flatten)]
+    pub partial_result_params: PartialResultParams,
+    #[serde(flatten)]
     pub text_document_position_params: TextDocumentPositionParams,
 }
 impl InlineCompletionParams {
@@ -1902,11 +1912,13 @@ impl InlineCompletionParams {
     pub const fn new(
         context: InlineCompletionContext,
         work_done_progress_params: WorkDoneProgressParams,
+        partial_result_params: PartialResultParams,
         text_document_position_params: TextDocumentPositionParams,
     ) -> Self {
         Self {
             context,
             work_done_progress_params,
+            partial_result_params,
             text_document_position_params,
         }
     }
